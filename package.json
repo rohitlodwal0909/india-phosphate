@@ -1,0 +1,30 @@
+{
+    "name": "india-phosphate-root",
+    "private": true,
+    "scripts": {
+        "client": "npm run dev --prefix client",
+        "server": "nodemon backend/server.js",
+        "dev": "concurrently \"npm run server\" \"npm run client\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "nodemon": "^3.1.0"
+    },
+    "dependencies": {
+        "@mui/x-date-pickers": "^8.5.1",
+        "bcryptjs": "^3.0.2",
+        "cors": "^2.8.5",
+        "date-fns": "^4.1.0",
+        "dayjs": "^1.11.13",
+        "framer-motion": "^12.17.3",
+        "jsonwebtoken": "^9.0.2",
+        "mysql2": "^3.14.1",
+        "react-clock": "^6.0.0",
+        "react-flags-select": "^2.4.0",
+        "react-hot-toast": "^2.5.2",
+        "react-select": "^5.10.1",
+        "react-time-picker": "^7.0.0",
+        "react-toastify": "^11.0.5",
+        "sequelize": "^6.37.7"
+    }
+}
