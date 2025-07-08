@@ -10,6 +10,9 @@ import WelcomeDashboard from 'src/views/dashboard/WelcomeDashboard.tsx';
 import SubmitReport from 'src/views/Report/SubmitReport';
 import ProductionInventory from 'src/views/inventory/production/ProductionInventory';
 import DispatchInventory from 'src/views/inventory/dispatch-inventory/DispatchInventory';
+import Qcbatch from 'src/views/inventory/qcbatch/Qcbatch';
+import SeeAllNotifications from 'src/views/Notifications/SeeAllNotifications';
+import Finishing from 'src/views/inventory/finishing/Finishing';
 
 const Usermanagment = Loadable(lazy(() => import('src/views/usermanagment/Usermanagment')));
 const GuardInventory = Loadable(lazy(() => import('src/views/inventory/Guardentry/GuardInventory')));
@@ -45,7 +48,10 @@ const fullLayoutChildren = [
   { path: '/inventory/check-in', element: <GuardInventory /> },
   { path: '/inventory/store', element: <StoreInventory /> },
   { path: '/inventory/qc', element: <QcInventory /> },
+  { path: '/inventory/qc-batch', element: <Qcbatch /> },
+  { path: '/notifications', element: <SeeAllNotifications/> },
   { path: '/inventory/production', element: <ProductionInventory /> },
+  { path: '/inventory/finishing', element: <Finishing /> },
   { path: '/inventory/dispatch', element: <DispatchInventory /> },
   { path: '/inventory/report/:id', element: <SubmitReport/> },
   { path: '*', element: <Navigate to="/auth/404" /> },

@@ -3,6 +3,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 
 const Deleteusermodal = ({ setIsOpen, isOpen, selectedUser, handleConfirmDelete,title }) => {
+    
   return (
     <div className="mt-4">
         <Modal

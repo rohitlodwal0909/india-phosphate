@@ -6,6 +6,8 @@ import ChechinSlice from './features/Inventorymodule/guardmodule/GuardSlice'
 import QcinventorySlice from '../src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice'
 import StoreInventorySlice from '../src/features/Inventorymodule/storemodule/StoreInventorySlice'
 import DispatchSlice from '../src/features/Inventorymodule/dispatchmodule/DispatchSlice'
+import ProdutionSlice from '../src/features/Inventorymodule/productionmodule/ProdutionSlice'
+import NotificationSlice from '../src/features/Notifications/NotificationSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -14,7 +16,9 @@ export const store = configureStore({
    qcinventory :  QcinventorySlice,
    storeinventory : StoreInventorySlice,
    rolepermission :PermissionSlice,
-   dispatchData: DispatchSlice
+   dispatchData: DispatchSlice,
+   productionData :ProdutionSlice,
+    notifications : NotificationSlice
   }
 });
 

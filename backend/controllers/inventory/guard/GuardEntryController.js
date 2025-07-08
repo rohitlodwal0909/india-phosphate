@@ -1,3 +1,4 @@
+const { createNotificationByRoleId } = require("../../../helper/SendNotification");
 const db = require("../../../models");
 const { GuardEntry } = db;
 exports.store = async (req, res) => {
@@ -49,6 +50,12 @@ exports.store = async (req, res) => {
       entry_time,
       remark
     });
+
+    await createNotificationByRoleId({
+    title: "New Guard Store",
+    message: "Store verification required for the newly submitted guard entry ",
+    role_id: 2
+  });
 
     res.status(201).json({
       message: "Guard Entry created successfully",

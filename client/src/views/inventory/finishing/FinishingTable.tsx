@@ -1,0 +1,265 @@
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  createColumnHelper
+} from "@tanstack/react-table";
+import { Button } from "flowbite-react";
+import TableComponent from "src/utils/TableComponent";
+import { useDispatch, useSelector } from "react-redux";
+import PaginationComponent from "src/utils/PaginationComponent";
+import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@iconify/react";
+import { AppDispatch } from "src/store";
+import { toast } from "react-toastify";
+import { GetAllQcbatch } from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
+import { addFinishingEntry, GetFetchProduction, updateFinishentry } from "src/features/Inventorymodule/productionmodule/ProdutionSlice";
+import FinishingModal from "./FinishingModal";
+import EditFinishingModal from "./EditFinishingModal";
+
+export interface PaginationTableType {
+  id: number;
+  qc_batch_number: string;
+  rm_code: string;
+  quantity: string;
+  finishing: any;
+  grn_number: any;
+  tested_by: any;
+  productionExists: any;
+  actions: any;
+  qa_qc_status: any;
+  finishing_entries: any;
+  unfinishing: any;
+  unfinish_quantity: any;
+  finish_quantity: any;
+}
+
+const columnHelper = createColumnHelper<PaginationTableType>();
+
+function FinishingTable() {
+  const [selectedRow, setSelectedRow] = useState<PaginationTableType | null>(null);
+  const [addmodal, setaddmodal] = useState(false);
+  const [editmodal, setEditModal] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+  const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
+  const ProductionAlldata = useSelector((state: any) => state.productionData.productiondata);
+  const [data, setData] = useState<PaginationTableType[]>(qcAlldata?.data || []);
+  const [filteredProductionData, setFilteredProductionData] = useState<any>([]);
+  const [searchText, setSearchText] = useState('');
+
+  useEffect(() => {
+    if (!Array.isArray(qcAlldata?.data) || !Array.isArray(ProductionAlldata?.data)) {
+      setFilteredProductionData([]);
+      return;
+    }
+    const batchIds = qcAlldata.data.map((item: any) => item.id);
+    const filtered = ProductionAlldata.data.filter((item: any) =>
+      batchIds.includes(Number(item.batch_id))
+    );
+    setFilteredProductionData(filtered);
+  }, [qcAlldata, ProductionAlldata ]);
+
+  const mergedData = useMemo(() => {
+    if (!Array.isArray(qcAlldata?.data)) return [];
+    return qcAlldata?.data
+      .filter((qcItem: any) => filteredProductionData.find((prod: any) => String(prod.batch_id) === String(qcItem.id)))
+      .map((qcItem: any) => {
+        const matchingProduction = filteredProductionData.find((prod: any) => String(prod.batch_id) === String(qcItem.id));
+        return {
+          ...qcItem,
+          rm_code: matchingProduction?.rm_code || "-",
+          quantity: matchingProduction?.quantity || "-",
+          status: matchingProduction ? "COMPLETE" : "PENDING",
+          finishing: matchingProduction?.finishing_entries?.[0]?.finishing || "-",
+          unfinishing: matchingProduction?.finishing_entries?.[0]?.unfinishing || "-",
+          finish_quantity: matchingProduction?.finishing_entries?.[0]?.finish_quantity || "-",
+          unfinish_quantity: matchingProduction?.finishing_entries?.[0]?.unfinish_quantity || "-",
+          productionExists: matchingProduction?.finishing_entries?.[0]?.finishing
+        };
+      });
+  }, [qcAlldata, filteredProductionData]);
+
+  useEffect(() => setData(Array.isArray(qcAlldata?.data) ? qcAlldata.data : []), [qcAlldata]);
+
+  useEffect(() => {
+    const fetchQcbatches = async () => {
+      try {
+        await dispatch(GetAllQcbatch()).unwrap();
+      } catch (error) {
+        console.error('Error fetching QC batches:', error);
+        toast.error('Failed to fetch QC batches.');
+      }
+    };
+    fetchQcbatches();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const fetchStoreData = async () => {
+      try {
+        const result = await dispatch(GetFetchProduction());
+        if (GetFetchProduction.rejected.match(result))
+          return console.error("Store Module Error:", result.payload || result.error.message);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+      }
+    };
+    fetchStoreData();
+  }, [dispatch]);
+
+
+  const handlesubmit = async (data)=>{
+   try {
+    await dispatch(addFinishingEntry(data)).unwrap(); // unwrap for direct success/error
+      toast.success("Finishing entry added successfully!");
+            dispatch(GetFetchProduction());
+              dispatch(GetAllQcbatch());
+               setTimeout(() => {
+      setData(mergedData); // mergedData will now be up-to-date due to updated Redux state
+    }, 100);
+         setaddmodal(false);
+    
+    } catch (error) {
+    
+      toast.error(error || "Something went wrong!");
+    }
+  }
+ const handleupdatedentry = async(data)=>{
+   try {
+        await dispatch(updateFinishentry(data)).unwrap();
+        toast.success('Finishing entry updated successfully!');
+        dispatch(GetFetchProduction());
+        dispatch(GetAllQcbatch());
+          setTimeout(() => {
+      setData(mergedData); // mergedData will now be up-to-date due to updated Redux state
+    }, 100);
+          setEditModal(false)
+ 
+      } catch (error) {
+        toast.error(error?.message || 'Update failed!');
+      }
+ }
+ const getPermissions = (loginDataObj: any, submoduleId: number) =>
+    loginDataObj?.permission?.filter((p: any) => p.submodule_id === submoduleId && p.status === true) || [];
+
+  const hasViewPermission = getPermissions(logindata, 6).some(p => p.permission_id === 1);
+  const hasAddPermission = getPermissions(logindata, 6).some(p => p.permission_id === 2);
+   const hasEditPermission = getPermissions(logindata, 6).some(p => p.permission_id === 3);
+  // const hasDeletePermission = getPermissions(logindata, 5).some(p => p.permission_id === 4);
+
+
+  const filteredData = useMemo(() => {
+    return mergedData?.filter((item) => {
+      const bySearch = !searchText || Object.values(item).some(v => String(v).toLowerCase().includes(searchText.toLowerCase()));
+      return bySearch;
+    });
+  }, [data, searchText]);
+
+  const columns = [
+    columnHelper.accessor("id", {
+      header: "S. No.",
+      cell: (info) => <div className="truncate max-w-56"><h6 className="text-base">#{info.row.index + 1}</h6></div>
+    }),
+    columnHelper.accessor("qc_batch_number", {
+      cell: (info) => <p>{info.getValue() || "N0 Code"}</p>,
+      header: () => <span>Batch Number</span>
+    }),
+    columnHelper.accessor("rm_code", {
+      cell: (info) => {
+        let values = [];
+        try { values = JSON.parse(info.getValue() || "[]"); } catch {}
+        return values.length ? (
+          <div className="flex flex-wrap gap-1">{values.map((v, i) => <span key={i} className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">{v}</span>)}</div>
+        ) : <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">No RM Code</span>;
+      },
+      header: () => <span>RM Code</span>
+    }),
+    columnHelper.accessor("quantity", {
+      cell: (info) => {
+        const raw = info.getValue();
+        const values = typeof raw === "string" ? raw.split(",").map(q => q.trim()) : [];
+        return values.length ? (
+          <div className="flex flex-wrap gap-1">{values.map((q, i) => <span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">{q}</span>)}</div>
+        ) : <p>-</p>;
+      },
+      header: () => <span>Quantity</span>
+    }),
+    columnHelper.accessor("finishing", {
+      cell: (info) => <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">{info.getValue()}</span>,
+      header: () => <span>Finishing</span>
+    }),
+    columnHelper.accessor("unfinishing", {
+      cell: (info) => <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">{info.getValue()}</span>,
+      header: () => <span>Unfinishing</span>
+    }),
+    columnHelper.accessor("unfinish_quantity", {
+      cell: (info) => <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">{info.getValue()}</span>,
+      header: () => <span>Unfinish Quantity</span>
+    }),
+    columnHelper.accessor("finish_quantity", {
+      cell: (info) => <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">{info.getValue()}</span>,
+      header: () => <span>Finish Quantity</span>
+    }),
+    columnHelper.accessor("actions", {
+      cell: (info) => {
+        const rowData = info.row.original;
+        return (
+          <div className="flex gap-2">
+            {rowData?.productionExists ? (
+              hasEditPermission &&
+              <Button color="secondary" onClick={() => { setEditModal(true), setSelectedRow(rowData); }} outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
+                <Icon icon="material-symbols:edit-outline" height={18} />
+              </Button>
+            ) : (
+              hasAddPermission &&
+              <Button onClick={() => { setaddmodal(true), setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
+                <Icon icon="material-symbols:add-rounded" height={18} />
+              </Button>
+            )}
+          </div>
+        );
+      },
+      header: () => <span>Actions</span>
+    })
+  ];
+
+  const table = useReactTable({
+    data: filteredData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel()
+  });
+
+  return (
+    <>
+      {hasViewPermission ? (
+        <>
+          <div className="p-4">
+            <div className="flex justify-end">
+              <input type="text" placeholder="Search..." value={searchText} onChange={e => setSearchText(e.target.value)} className="me-2 p-2 border rounded-md border-gray-300" />
+            </div>
+          </div>
+          <div className="w-full overflow-x-auto">
+            <TableComponent table={table} flexRender={flexRender} columns={columns} />
+          </div>
+          <PaginationComponent table={table} />
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center my-20 space-y-4">
+          <Icon icon="fluent:person-prohibited-20-filled" className="text-red-500" width="60" height="60" />
+          <div className="text-red-600 text-xl font-bold text-center px-4">You do not have permission to view this table.</div>
+          <p className="text-sm text-gray-500 text-center px-6">Please contact your administrator if you believe this is an error.</p>
+        </div>
+      )}
+      <FinishingModal openModal={addmodal} setOpenModal={setaddmodal} selectedRow={selectedRow} handlesubmit={handlesubmit}/>
+      <EditFinishingModal openModal={editmodal} setOpenModal={setEditModal} selectedRow={selectedRow} handleupdatedentry={handleupdatedentry}  />
+    </>
+  );
+}
+
+export default FinishingTable;

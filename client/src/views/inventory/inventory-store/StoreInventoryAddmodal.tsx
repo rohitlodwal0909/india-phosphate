@@ -54,7 +54,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
     'batch_number',
     'store_rm_code',
     'container_count',
-    'container_unit',
+    'container_unit', 
   ];
   const dispatch = useDispatch<AppDispatch>();
   const [errors, setErrors] = useState<Partial<FormDataType>>({});
@@ -64,7 +64,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
     setErrors({ ...errors, [field]: '' }); // clear error on change
   };
 useEffect(()=>{
-   setFormData({ ...formData, guard_entry_id: selectedRow?.id ,quantity:selectedRow?.quantity_net, unit:selectedRow?.quantity_unit });
+   setFormData({ ...formData, guard_entry_id: selectedRow?.id ,quantity:selectedRow?.quantity_net, unit: selectedRow?.quantity_unit });
 },[selectedRow])
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -96,7 +96,7 @@ useEffect(()=>{
           container_count: '',
           container_unit:'',
           quantity:'',
-          unit:''
+              unit:''
         });
            dispatch(GetCheckinmodule(logindata?.admin?.id))
                dispatch(GetStoremodule())

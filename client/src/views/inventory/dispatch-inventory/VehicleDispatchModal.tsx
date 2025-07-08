@@ -25,9 +25,9 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, 
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
    };
-  const filteredusername = StoreData?.data?.filter((item: any) => item?.qc_result?.[0]?.testedBy?.username);
+  
 
-  const batchOptions = filteredusername?.flatMap((item) => item.batch_number || []).map((batch) => ({ value: batch, label: batch }));
+  const batchOptions = StoreData?.flatMap((item) => item.qc_batch_number || []).map((batch) => ({ value: batch, label: batch }));
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -80,32 +80,32 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, 
 
   <div className='sm:col-span-6 col-span-12'>
     <Label htmlFor="vehicle_number" value="Vehicle Number" />
-    <TextInput id="vehicle_number" name="vehicle_number" value={formData.vehicle_number || ''} onChange={handleChange} className="form-rounded-md" />
+    <TextInput id="vehicle_number" name="vehicle_number" placeholder=' Enter Vehicle Number' value={formData.vehicle_number || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.vehicle_number && <span className="text-red-500 text-sm">{errors.vehicle_number}</span>}
   </div>
 
   <div className='sm:col-span-6 col-span-12'>
     <Label htmlFor="driver_details" value="Driver Details" />
-    <TextInput id="driver_details" name="driver_details" value={formData.driver_details || ''} onChange={handleChange} className="form-rounded-md" />
+    <TextInput id="driver_details" name="driver_details" placeholder=' Enter Driver Details' value={formData.driver_details || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.driver_details && <span className="text-red-500 text-sm">{errors.driver_details}</span>}
   </div>
 
   <div className='sm:col-span-6 col-span-12'>
     <Label htmlFor="product_name" value="Product Name" />
-    <TextInput id="product_name" name="product_name" value={formData.product_name || ''} onChange={handleChange} className="form-rounded-md" />
+    <TextInput id="product_name" name="product_name"  placeholder=' Enter Produuct Name'value={formData.product_name || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.product_name && <span className="text-red-500 text-sm">{errors.product_name}</span>}
   </div>
 
   <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="batch_numbers" value="Batch Numbers" />
-    <Select isMulti options={batchOptions} value={formData.batch_numbers || []} onChange={(selected) => { setFormData({ ...formData, batch_numbers: selected }); setErrors({ ...errors, batch_numbers: '' }); }} classNamePrefix="react-select" className="" />
+    <Label htmlFor="batch_numbers" value="Batch Numbers" className='' />
+    <Select isMulti options={batchOptions} value={formData.batch_numbers || []} onChange={(selected) => { setFormData({ ...formData, batch_numbers: selected }); setErrors({ ...errors, batch_numbers: '' }); }} classNamePrefix="react-select  "  />
     {errors.batch_numbers && <span className="text-red-500 text-sm">{errors.batch_numbers}</span>}
   </div>
 
   <div className="sm:col-span-6 col-span-12">
     <Label htmlFor="quantity" value="Quantity " />
     <div className="flex rounded-md shadow-sm mt-2">
-      <input type="text" id="quantity" name='quantity' className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100" value={formData?.quantity} onChange={handleChange} />
+      <input type="text" id="quantity" name='quantity' className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100" value={formData?.quantity} onChange={handleChange}  placeholder=' Enter Quantity' />
       <select className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700" name='unit' value={formData?.unit || ''} onChange={handleChange}>
         <option value="">Unit</option>
         {allUnits.map((unit) => (
@@ -118,26 +118,26 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, 
   </div>
 
   <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="delivery_location" value="Delivery Location" />
-    <TextInput id="delivery_location" name="delivery_location" value={formData.delivery_location || ''} onChange={handleChange} className="form-rounded-md" />
+    <Label htmlFor="delivery_location" value="Delivery Location"  />
+    <TextInput id="delivery_location" name="delivery_location"  placeholder=' Enter Delivery Location' value={formData.delivery_location || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.delivery_location && <span className="text-red-500 text-sm">{errors.delivery_location}</span>}
   </div>
 
   <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="delivered_by" value="Delivered By" />
-    <TextInput id="delivered_by" name="delivered_by" value={formData.delivered_by || ''} onChange={handleChange} className="form-rounded-md" />
+    <Label htmlFor="delivered_by" value="Delivered By"  />
+    <TextInput id="delivered_by" name="delivered_by"   placeholder=' Enter Delivered By' value={formData.delivered_by || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.delivered_by && <span className="text-red-500 text-sm">{errors.delivered_by}</span>}
   </div>
 
   <div className='sm:col-span-6 col-span-12'>
     <Label htmlFor="invoice_number" value="Invoice Number" />
-    <TextInput id="invoice_number" name="invoice_number" value={formData.invoice_number || ''} onChange={handleChange} className="form-rounded-md" />
+    <TextInput id="invoice_number" name="invoice_number"   placeholder=' Enter Invoice Number'  value={formData.invoice_number || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.invoice_number && <span className="text-red-500 text-sm">{errors.invoice_number}</span>}
   </div>
 
   <div className='sm:col-span-12 col-span-12'>
     <Label htmlFor="remarks" value="Remarks" />
-    <Textarea id="remarks" name="remarks" value={formData.remarks || ''} onChange={handleChange} className="form-rounded-md" />
+    <Textarea id="remarks" name="remarks"  placeholder=' Enter remarks'    value={formData.remarks || ''} onChange={handleChange} className="form-rounded-md" />
     {errors.remarks && <span className="text-red-500 text-sm">{errors.remarks}</span>}
   </div>
 

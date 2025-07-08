@@ -14,7 +14,7 @@ declare global {
 }
 function App() {
  
-  useEffect(() => {
+   useEffect(() => {
     const initializeGoogleTranslate = () => {
       if (window.google?.translate?.TranslateElement && !window.translateElementInitialized) {
         window.translateElementInitialized = true;
@@ -43,7 +43,8 @@ function App() {
     window.googleTranslateElementInit = () => initializeGoogleTranslate();
 
     addGoogleTranslateScript();
-  }, []);
+  }, []); // Empty dependency array means this runs once on mount
+
 
   return (
     <>

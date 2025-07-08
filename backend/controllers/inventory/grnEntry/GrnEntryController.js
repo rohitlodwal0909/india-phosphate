@@ -1,10 +1,28 @@
+const { createNotificationByRoleId } = require("../../../helper/SendNotification");
 const db = require("../../../models");
-const { GrnEntry, RawMaterialQcResult, User } = db;
+const { GrnEntry, RawMaterialQcResult, User , Notification} = db;
 
 // Create GRN Entry
 exports.store = async (req, res) => {
   try {
     const data = await GrnEntry.create(req.body);
+
+
+  await createNotificationByRoleId({
+    title: "New Store Entry",
+    message: `Store Entry has been successfully created.`,
+    role_id: 2
+  });
+
+  await createNotificationByRoleId({
+  title: "New Qc Store",
+  message: "A new store entry has been created. Please verify the material in QC.",
+  role_id: 3 // Assuming role_id: 3 belongs to QC team
+});
+   
+    
+     
+
     res.status(201).json({ message: "GRN Entry created successfully", data });
   } catch (error) {
     console.error("Error creating GRN Entry:", error);

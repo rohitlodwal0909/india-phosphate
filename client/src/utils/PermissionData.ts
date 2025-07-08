@@ -32,10 +32,10 @@ export const PermissionData = [
         edit: false,
         delete: false,
       },
-      {
+       {
         id:4,
-        name: 'Production',
-         icon: "fluent:production-20-filled",
+        name: 'Qa Batch Number',
+         icon: "material-symbols:batch-prediction-outline-sharp",
         add: false,
         view: false,
         edit: false,
@@ -43,6 +43,24 @@ export const PermissionData = [
       },
       {
         id:5,
+        name: 'Production',
+         icon: "fluent:production-20-filled",
+        add: false,
+        view: false,
+        edit: false,
+        delete: false,
+      },
+       {
+        id:6,
+        name: 'Finishing',
+         icon: "fluent:check-20-filled",
+        add: false,
+        view: false,
+        edit: false,
+        delete: false,
+      },
+      {
+        id:7,
         name: 'Dispatch',
          icon: "mdi:disc",
         add: false,
@@ -50,6 +68,7 @@ export const PermissionData = [
         edit: false,
         delete: false,
       },
+      
     ],
   },
 ]

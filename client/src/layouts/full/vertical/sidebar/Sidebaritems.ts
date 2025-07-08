@@ -174,13 +174,27 @@ const SidebarContent: MenuItem[] = [
           },
            {
             subId:4,
+            name: "Qa Batch Number",
+            icon: "material-symbols:batch-prediction-outline-sharp",
+            id: uniqueId(),
+            url: "/inventory/qc-batch",
+          },
+           {
+            subId:5,
             name: "Production",
             icon: "fluent:production-20-filled",
             id: uniqueId(),
             url: "/inventory/production",
           },
+           {
+            subId:6,
+            name: "Finishing",
+            icon: "fluent:check-20-filled",
+            id: uniqueId(),
+            url: "/inventory/finishing",
+          },
           {
-            subId:5,
+            subId:7,
             name: "Dispatch",
             icon: "mdi:disc",
             id: uniqueId(),

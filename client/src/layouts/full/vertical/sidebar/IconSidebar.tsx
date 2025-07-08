@@ -20,14 +20,14 @@ export const IconSidebar = () => {
     setSelectedIconId(id);
     setIsCollapse("full-sidebar");
 
-     setTimeout(() => {
-      const body = document.querySelector("body");
-      if (body) {
-      const event = document.createEvent("HTMLEvents");
-      event.initEvent("DOMSubtreeModified", true, false);
-      body.dispatchEvent(event);
-    }
-    },100);  
+    //  setTimeout(() => {
+    //   const body = document.querySelector("body");
+    //   if (body) {
+    //   const event = document.createEvent("HTMLEvents");
+    //   event.initEvent("DOMSubtreeModified", true, false);
+    //   body.dispatchEvent(event);
+    // }
+    // },100);  
   };
 
   return (

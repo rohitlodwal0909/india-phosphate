@@ -44,7 +44,12 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "PENDING"
       },
       remarks: DataTypes.TEXT,
-      guard_entry_id: DataTypes.INTEGER
+      guard_entry_id: DataTypes.INTEGER,
+      pending_quantity: DataTypes.INTEGER,
+      production_status:{
+        type: DataTypes.ENUM("PENDING", "ISSUE", "REJECTED"),
+       defaultValue: ""
+      }
     },
     {
       tableName: "grn_entries",

@@ -30,7 +30,7 @@ const hasPermission = (subId: number) => {
     (p: any) =>
       p.role_id === logindata?.admin?.role_id &&
        p.submodule_id == subId &&
-      [1, 2, 3, 4].includes(p.permission_id) &&
+      [1, 2, 3, 4,5,6,7].includes(p.permission_id) &&
       p.status === true // ✅ If *any one* of the 1–4 permissions is true, return true
   );
 };

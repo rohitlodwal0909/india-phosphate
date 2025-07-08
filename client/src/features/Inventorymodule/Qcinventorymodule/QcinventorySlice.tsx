@@ -6,22 +6,26 @@ type QCState = {
   loading: boolean;
   error: string | null;
   qcdata: any;
+  qcbatchdata:any;
   approveResult: any;
   rejectResult: any;
   holdResult: any;
   deleteResult: any;
   finalresult: any;
+  rowmaterial:any;
 };
 
 const initialState: QCState = {
   loading: false,
   error: null,
   qcdata: [],
+  qcbatchdata:[],
   approveResult: null,
   rejectResult: null,
   holdResult: null,
   deleteResult: null,
   finalresult: null,
+  rowmaterial:[]
 };
 
 export const GetrawMaterial = createAsyncThunk<any, string, { rejectValue: any }>(
@@ -29,6 +33,42 @@ export const GetrawMaterial = createAsyncThunk<any, string, { rejectValue: any }
   async (rm_code, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/raw-material/${rm_code}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      } else if (error.request) {
+        return rejectWithValue('No response from server');
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const GetAllrowmaterial = createAsyncThunk< { rejectValue: any }>(
+  'GetAllrowmaterial/fetch',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${apiUrl}/all-raw-material`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      } else if (error.request) {
+        return rejectWithValue('No response from server');
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const GetAllQcbatch = createAsyncThunk< { rejectValue: any }>(
+  'GetAllQcbatch/fetch',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${apiUrl}/all-qc-batch`);
       return response.data;
     } catch (error: any) {
       if (error.response) {
@@ -119,6 +159,25 @@ export const RawMaterialResult = createAsyncThunk<any, any, { rejectValue: any }
   }
 );
 
+export const qcBatchadd = createAsyncThunk<any, any, { rejectValue: any }>(
+  "qcBatchadd/add",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${apiUrl}/qc-batch-number`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || "Server Error");
+      } else if (error.request) {
+        return rejectWithValue("No response from server");
+      } else {
+        return rejectWithValue("An unexpected error occurred");
+      }
+    }
+  }
+);
+
+
 export const Getresult = createAsyncThunk<any, string, { rejectValue: any }>(
   'get/fetch',
   async (id, { rejectWithValue }) => {
@@ -136,6 +195,25 @@ export const Getresult = createAsyncThunk<any, string, { rejectValue: any }>(
     }
   }
 );
+export const Deleteqcbatch = createAsyncThunk<any, string, { rejectValue: any }>(
+  'Deleteqcbatch/fetch',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(`${apiUrl}/qc-batch/${id}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      } else if (error.request) {
+        return rejectWithValue('No response from server');
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+
 
 const QcinventorySlice = createSlice({
   name: "qcinventory",
@@ -155,7 +233,30 @@ const QcinventorySlice = createSlice({
         state.loading = false;
         state.error = action.error.message || null;
       })
-
+       .addCase(GetAllrowmaterial.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+       })
+      .addCase(GetAllrowmaterial.fulfilled, (state, action) => {
+        state.loading = false;
+        state.rowmaterial = action.payload;
+      })
+      .addCase(GetAllrowmaterial.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || null;
+        })
+        .addCase(GetAllQcbatch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        })
+      .addCase(GetAllQcbatch.fulfilled, (state, action) => {
+        state.loading = false;
+        state.qcbatchdata = action.payload;
+      })
+      .addCase(GetAllQcbatch.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || null;
+      })
       .addCase(Getresult.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -8,7 +8,11 @@ router.put(
   qaQcController.approveOrRejectGrnEntry
 );
 router.get("/api/raw-material/:id", qaQcController.getRawmaterial);
-router.post("/api/save-report-result", qaQcController.saveReportresult);
+router.get("/api/all-raw-material", qaQcController.getAllRawMaterials);
 
+router.post("/api/save-report-result", qaQcController.saveReportresult);
+router.post("/api/qc-batch-number", qaQcController.addQcBatch);
 router.get("/api/report/:qc_id", qaQcController.report);
+router.delete("/api/qc-batch/:id", qaQcController.deleteQcBatch);
+router.get("/api/all-qc-batch", qaQcController.getAllQcBatches);
 module.exports = router;
