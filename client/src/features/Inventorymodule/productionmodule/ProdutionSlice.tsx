@@ -5,7 +5,8 @@ import {apiUrl }from '../../../constants/contant.tsx'
 const initialState = {
   loading: false,
   error: null,
-  productiondata: [],         
+  productiondata: [], 
+  qcproduction:[],        
   addResult: null,  
   updateResult: null,
   deleteResult: null 
@@ -27,6 +28,23 @@ export const GetFetchProduction = createAsyncThunk(
     }
   }
 );
+export const GetFetchQcProduction = createAsyncThunk(
+  "GetFetchQcProduction/fetch",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${apiUrl}/qc-allproduction`);
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        'Something went wrong while fetching check-ins.';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 
 export const addProduction= createAsyncThunk(
   "addProduction/add",
@@ -75,6 +93,7 @@ export const addFinishingEntry= createAsyncThunk(
 export const updateFinishentry = createAsyncThunk(
   "updateFinishentry/update",
   async (updatedCheckin: any, { rejectWithValue }) => {
+    
     try {
       const response = await axios.put(
         `${apiUrl}/update-finishing-entry/${updatedCheckin.batch_number}`,
@@ -124,7 +143,18 @@ const ProdutionSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-
+    .addCase(GetFetchQcProduction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(GetFetchQcProduction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.qcproduction = action.payload;
+      })
+      .addCase(GetFetchQcProduction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
       // ADD checkin
       .addCase(addProduction.fulfilled, (state, action) => {
         state.addResult = action.payload;

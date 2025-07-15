@@ -16,13 +16,14 @@
       batch_number: "",
     });
   useEffect(() => {
-    if (selectedRow?.id) {
+    if (selectedRow?.batch_id) {
       setFormData((prev) => ({
         ...prev,
-        batch_number:selectedRow.id
+        batch_number:selectedRow?.batch_id
       }));
     }
   }, [selectedRow]);
+
     const handleChange = (e) => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));

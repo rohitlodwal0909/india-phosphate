@@ -11,7 +11,10 @@ import BreadcrumbComp from "src/layouts/full/shared/breadcrumb/BreadcrumbComp";
 import { AppDispatch } from "src/store";
 
 const SeeAllNotifications = () => {
-  const logindata = JSON.parse(localStorage.getItem("logincheck") || "{}");
+  // const logindata = JSON.parse(localStorage.getItem("logincheck") || "{}");
+    const logindata = useSelector((state: any) => state.authentication?.logindata);
+   console.log(logindata)
+
   const notifications = useSelector((state: any) => state.notifications.notificationData);
   const [notificationList, setNotificationList] = useState(notifications || []);
   const dispatch = useDispatch<AppDispatch>();
@@ -39,7 +42,7 @@ const SeeAllNotifications = () => {
       fetchNotification();
     }
     fetchNotification();
-  }, [dispatch, notificationId]);
+  }, [dispatch, notificationId ]);
 
   useEffect(() => {
     if (notifications) {

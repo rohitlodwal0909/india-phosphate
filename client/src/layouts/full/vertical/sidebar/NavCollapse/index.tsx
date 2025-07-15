@@ -41,7 +41,6 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item }: any) => {
 
   // Toggle the collapse
   const handleToggle = () => {
-           
     setIsOpen((prev) => !prev);
   };
 

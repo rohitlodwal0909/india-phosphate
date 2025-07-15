@@ -116,7 +116,7 @@ exports.saveReportresult = async (req, res) => {
           test: item.test,
           limit: item.limit,
           type: item.type,
-          result: item.result
+        
         });
         rawMaterialId = newRawMaterial.id; // assign newly created ID back
       }
@@ -144,7 +144,6 @@ exports.saveReportresult = async (req, res) => {
 
 exports.report = async (req, res) => {
   const { qc_id } = req.params;
-
   try {
     const grnEntry = await GrnEntry.findByPk(qc_id);
 
@@ -152,18 +151,37 @@ exports.report = async (req, res) => {
       return res.status(404).json({ message: "GRN Entry not found" });
     }
 
-    const rm_code = grnEntry.store_rm_code;
-    console.log("GRN → rm_code:", rm_code);
+   const rawmaterial = await RawMaterialQcResult.findOne({ where: { qc_id } });
+
+if (!rawmaterial) {
+  console.log("No RawMaterialQcResult found for this qc_id");
+  return;
+}
+
+// 2. Get rm_id from that result
+const rmId = rawmaterial.rm_id;
+
+// 3. First get the rm_code using rmId
+const rawMaterialEntry = await RawMaterial.findOne({
+  where: { id: rmId }
+});
+
+if (!rawMaterialEntry) {
+  console.log("No RawMaterial found for this rm_id");
+  return;
+}
+const rmCode = rawMaterialEntry?.rm_code;
 
     let rawMaterialData = null;
-
-    if (rm_code) {
+    if (rmCode) {
       rawMaterialData = await RawMaterial.findAll({
-        where: { rm_code },
+        where: { rm_code: rmCode },
         include: [
           {
             model: RawMaterialQcResult,
-            as: "qc_results"
+            as: "qc_results",
+             where: { qc_id }, // Only include QC results with matching qc_id
+           required: true  
           }
         ],
         logging: console.log

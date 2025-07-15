@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
   Finishing.associate = (models) => {
-  Finishing.belongsTo(models.ProductionResult, {
+   Finishing.belongsTo(models.ProductionResult, {
     foreignKey: 'batch_number',
       targetKey: 'batch_id',
     as: 'production_entry'

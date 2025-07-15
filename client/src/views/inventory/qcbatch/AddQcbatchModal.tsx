@@ -22,9 +22,9 @@ const AddQcbatchModal = ( {placeModal, setPlaceModal}) => {
     const result = await dispatch(qcBatchadd({ qc_batch_number: remark }));
 
     if (result.payload) {
-      toast.success('QC Batch created successfully!');
+      toast.success('Qc batch number created successfully!');
       dispatch(GetAllQcbatch())
-      setRemark(''); // Optional: Clear input after success
+      setRemark(''); 
     } else {
       toast.error('Failed to create QC Batch.');
     }

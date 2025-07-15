@@ -4,6 +4,12 @@ import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import Select from 'react-select';
 
 import { Icon } from "@iconify/react";
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from 'src/store';
+import { addProduction, GetFetchQcProduction } from 'src/features/Inventorymodule/productionmodule/ProdutionSlice';
+import { toast } from 'react-toastify';
+import { GetAllrowmaterial } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+import { GetNotification } from 'src/features/Notifications/NotificationSlice';
 interface VehicleDispatchModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
@@ -18,9 +24,9 @@ interface RmCodeOption {
   label: string;
 }
 
-const Addproductionmodal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal, rmcode, selectedRow,handleSubmited ,logindata}) => {
+const Addproductionmodal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal, rmcode, selectedRow ,logindata}) => {
 
-
+const dispatch = useDispatch<AppDispatch>()
   const [formData, setFormData] = useState<any>({
     batch_id: selectedRow?.id,
     user_id: logindata?.admin?.id,
@@ -67,10 +73,7 @@ const Addproductionmodal: React.FC<VehicleDispatchModalProps> = ({ openModal, se
       ...prev,
       items: updatedItems,
     }));
-  };
-
-  
-  const handleSubmit = async (e) => {
+  }; const handleSubmit = async(e) => {
     e.preventDefault();
     const newErrors: any = {};
     if (!formData.batch_id) newErrors.batch_id = 'Batch ID is required';
@@ -94,15 +97,36 @@ const Addproductionmodal: React.FC<VehicleDispatchModalProps> = ({ openModal, se
     };
     if(payload){
 
-      handleSubmited(payload)
-      setFormData({
-               batch_id: '',
-               items: [{ rm_code: '', quantity: '' }],
-             });
+  // handleSubmited(payload); // ✅ Wait for the async function to complete
+  try {
+ 
+     const res = await dispatch(addProduction(payload)).unwrap();
+     if (res) {
+       toast.success("Production entry created successfully");
+       await Promise.all([
+         dispatch(GetAllrowmaterial()),
+         dispatch(GetFetchQcProduction()),
+         dispatch(GetNotification(logindata?.admin?.id)),
+       ]);
 
-    }
+        setFormData({
+      batch_id: '',
+      items: [{ rm_code: '', quantity: '' }],
+    }) 
+        setOpenModal(false);
+     }
+   } catch (err) {
+     toast.error(err || "Failed to add production");
+   } finally {
+ 
+ 
+   }
+   }
   };
 
+
+  
+ 
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
       <Modal.Header>Production Details</Modal.Header>

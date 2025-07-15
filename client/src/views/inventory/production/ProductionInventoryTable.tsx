@@ -18,8 +18,8 @@ import { AppDispatch } from "src/store";
 import Addproductionmodal from "./Addproductionmodal";
 import { toast } from "react-toastify";
 import { GetAllQcbatch, GetAllrowmaterial } from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
-import { addProduction, GetFetchProduction } from "src/features/Inventorymodule/productionmodule/ProdutionSlice";
-import { GetNotification } from "src/features/Notifications/NotificationSlice";
+import { GetFetchProduction, GetFetchQcProduction } from "src/features/Inventorymodule/productionmodule/ProdutionSlice";
+
 
 export interface PaginationTableType {
   id: number;
@@ -32,6 +32,7 @@ export interface PaginationTableType {
   productionExists:any
   actions: any;
   qa_qc_status: any;
+  production_results:any;
 }
 
 const columnHelper = createColumnHelper<PaginationTableType>();
@@ -44,52 +45,17 @@ function ProductionInventoryTable() {
   const [addmodal, setaddmodal] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
-  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+  // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+     const logindata = useSelector((state: any) => state.authentication?.logindata);
+  
   const qcrowmaterial = useSelector((state: any) => state.qcinventory.rowmaterial);
-  const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
-  const ProductionAlldata = useSelector((state: any) => state.productionData.productiondata);
-  const [data, setData] = useState<PaginationTableType[]>(qcAlldata?.data || []);
 
-  
-const [filteredProductionData, setFilteredProductionData] = useState<any>([]);
+  const qcproductiondata = useSelector((state: any) => state.productionData.qcproduction);
+  const [data, setData] = useState<PaginationTableType[]>(qcproductiondata?.data || []);
   const [searchText, setSearchText] = useState('');
-
   useEffect(() => {
-  if (!Array.isArray(qcAlldata?.data) || !Array.isArray(ProductionAlldata?.data)) {
-    setFilteredProductionData([]);
-    return;
-  }
-  const batchIds = qcAlldata.data.map((item: any) => item.id);
-
-  
-  const filtered = ProductionAlldata.data.filter((item: any) =>
-    batchIds.includes(Number(item.batch_id))
-  );
-
-  setFilteredProductionData(filtered);
-},[qcAlldata, ProductionAlldata]);
-
-const mergedData = useMemo(() => {
-  if (!Array.isArray(qcAlldata?.data)) return [];
-
-  return qcAlldata.data.map((qcItem: any) => {
-    const matchingProduction = filteredProductionData.find(
-      (prod: any) => String(prod.batch_id) == String(qcItem.id)
-    );
-
-    return {
-      ...qcItem,
-      rm_code: matchingProduction?.rm_code || "-",
-      quantity: matchingProduction?.quantity || "-",
-      status: matchingProduction ? "COMPLETE" : "PENDING",
-      productionExists: !!matchingProduction
-    };
-  });
-}, [qcAlldata, filteredProductionData]);
-
-  useEffect(() => {
-    setData(Array.isArray(qcAlldata?.data) ? qcAlldata.data : []);
-  }, [qcAlldata]);
+    setData(Array.isArray(qcproductiondata?.data) ? qcproductiondata.data : []);
+  }, [qcproductiondata]);
 
   useEffect(() => {
     const fetchrawall = async () => {
@@ -99,8 +65,8 @@ const mergedData = useMemo(() => {
         console.error('Error fetching QC batches:', error);
         toast.error('Failed to fetch QC batches.');
       }
-    };
-    const fetchQcbatches = async () => {
+     };
+     const fetchQcbatches = async () => {
       try {
         await dispatch(GetAllQcbatch()).unwrap(); // throws on error
       } catch (error) {
@@ -108,40 +74,23 @@ const mergedData = useMemo(() => {
         toast.error('Failed to fetch QC batches.');
       }
     };
-
-     const fetchStoreData = async () => {
+    
+    const fetchSqcData = async () => {
       try {
-        const result = await dispatch(GetFetchProduction());
+        const result = await dispatch(GetFetchQcProduction());
         if (GetFetchProduction.rejected.match(result)) return console.error("Store Module Error:", result.payload || result.error.message);
 
       } catch (error) {
         console.error("Unexpected error:", error);
       }
     };
-    fetchStoreData();
+    fetchSqcData()
+
     fetchQcbatches();
     fetchrawall();
   }, [dispatch]);
 
-  const  handleSubmit = async (data)=>{
-     try {
-          const res = await dispatch(addProduction(data)).unwrap();
-          if (res) {
-            toast.success("Productionresult entry created successfully");
-            dispatch(GetFetchProduction());
-            dispatch(GetAllQcbatch());
-            dispatch(GetAllrowmaterial());
-            dispatch(GetNotification());
-           
-               setTimeout(() => {
-      setData(mergedData); // mergedData will now be up-to-date due to updated Redux state
-    }, 100);
-             setaddmodal(false)
-          }
-        } catch (err: any) {
-          toast.error(err);
-        }
-  }
+
 
     const getPermissions = (loginDataObj: any, submoduleId: number) =>
     loginDataObj?.permission?.filter((p: any) => p.submodule_id === submoduleId && p.status === true) || [];
@@ -162,7 +111,7 @@ const mergedData = useMemo(() => {
   };
 
   const filteredData = useMemo(() => {
-    return mergedData?.filter((item) => {
+    return qcproductiondata?.filter((item) => {
 
       const bySearch = !searchText || Object.values(item).some(v => String(v).toLowerCase().includes(searchText.toLowerCase()));
       return bySearch
@@ -187,29 +136,42 @@ const mergedData = useMemo(() => {
       header: () => <span>Batch Number</span>,
     }),
 
- columnHelper.accessor("rm_code", {
+columnHelper.accessor("rm_code", {
   cell: (info) => {
+    const rowIndata = info.row.original;
+    
     let values = [];
-
     try {
-      values = JSON.parse(info.getValue() || "[]");
-    } catch {}
+      // Try parsing rm_code safely if it's a stringified JSON
+      const raw = rowIndata?.production_results?.[0]?.rm_code;
+      values = Array.isArray(raw) ? raw : JSON.parse(raw || "[]");
+    } catch (err) {
+      console.error("Failed to parse rm_code:", err);
+    }
 
     return values.length ? (
       <div className="flex flex-wrap gap-1">
         {values.map((v, i) => (
-          <span key={i} className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">{v}</span>
+          <span
+            key={i}
+            className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded"
+          >
+            {v}
+          </span>
         ))}
       </div>
     ) : (
-      <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">No RM Code</span>
+      <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
+        No RM Code
+      </span>
     );
   },
-  header: () => <span >RM Code</span>,
+  header: () => <span>RM Code</span>,
 }),
 columnHelper.accessor("quantity", {
   cell: (info) => {
-    const raw = info.getValue(); // e.g., "3,4"
+    const rowIndata = info.row.original;
+     const raw = rowIndata?.production_results?.[0]?.quantity;
     const values = typeof raw === "string" ? raw.split(",").map(q => q.trim()) : [];
 
     return values.length ? (
@@ -231,19 +193,22 @@ columnHelper.accessor("quantity", {
 }),
     columnHelper.accessor("status", {
       cell: (info) => {
-        const row = info.row.original?.status || "PENDING";
-        const color = row === "PENDING" ? "warning" : "secondary";
-        return <Badge color={color} className="capitalize">{row}</Badge>;
+        const rowIndata = info.row.original;
+         const raw = rowIndata?.production_results?.[0]?.rm_code ? "COMPLETE" : "PENDING";
+      
+        const color = raw === "PENDING" ? "warning" : "secondary";
+        return <Badge color={color} className="capitalize">{raw}</Badge>;
       },
       header: () => <span>Status</span>,
     }),
     columnHelper.accessor("actions", {
       cell: (info) => {
         const rowData = info.row.original;
+          const raw = rowData?.production_results?.[0]?.rm_code
         return (
           <div className="flex gap-2">
            
-            {rowData?.productionExists ? (
+            {raw ? (
               // <Link to={`/view-report/${idStr}`}>
                   <Button color="secondary" outline size="xs" className="border border-primary text-primary   hover:bg-primary hover:text-white rounded-md">
                     <Icon icon="solar:eye-outline" height={18} />
@@ -300,7 +265,7 @@ columnHelper.accessor("quantity", {
           <p className="text-sm text-gray-500 text-center px-6">Please contact your administrator if you believe this is an error.</p>
         </div>
       )}
-      <Addproductionmodal openModal={addmodal} setOpenModal={setaddmodal} rmcode={qcrowmaterial?.data} selectedRow={selectedRow}handleSubmited={handleSubmit} logindata={logindata} />
+      <Addproductionmodal openModal={addmodal} setOpenModal={setaddmodal} rmcode={qcrowmaterial?.data} selectedRow={selectedRow}handleSubmited={""} logindata={logindata} />
     </>
   );
 }

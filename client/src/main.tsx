@@ -11,6 +11,7 @@ import './utils/i18n';
 import { Provider } from "react-redux";
 import {store} from './store';
 const rootElement = document.getElementById('root');
+
 if (rootElement) {
   createRoot(rootElement).render(
      <React.StrictMode>

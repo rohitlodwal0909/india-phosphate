@@ -3,7 +3,7 @@ import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
 import Select from 'react-select';
 import { allUnits } from 'src/utils/AllUnit';
 import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 
 
@@ -11,14 +11,15 @@ interface VehicleDispatchEditModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
-  handleupdated:any
+  handleupdated:any;
+  StoreDatas:any
 }
 
-const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ openModal, setOpenModal, selectedRow ,handleupdated}) => {
+const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ openModal, setOpenModal, selectedRow ,handleupdated,StoreDatas}) => {
   const [formData, setFormData] = useState<any>({});
 
- const StoreData = useSelector((state: any) => state.storeinventory.storedata);
-    
+  const batchOptions = StoreDatas?.flatMap((item) => item.qc_batch_number || []).map((batch) => ({ value: batch, label: batch }));
+    console.log(batchOptions)
       const dispatch = useDispatch<AppDispatch>();
      useEffect(() => {
         const fetchStoreData = async () => {
@@ -35,10 +36,8 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ ope
       setFormData(selectedRow);
     }
   }, [selectedRow]);
-  const filteredusername = StoreData?.data?.filter((item:any) =>  item?.qc_result?.[0]?.testedBy?.username );
-const batchOptions = filteredusername
-  ?.flatMap((item) => item.batch_number || [])
-  .map((batch) => ({ value: batch, label: batch }));
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

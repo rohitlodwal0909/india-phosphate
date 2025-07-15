@@ -188,7 +188,7 @@ const SidebarContent: MenuItem[] = [
           },
            {
             subId:6,
-            name: "Finishing",
+            name: "Finish",
             icon: "fluent:check-20-filled",
             id: uniqueId(),
             url: "/inventory/finishing",

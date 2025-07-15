@@ -28,6 +28,12 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
     }
   );
-
+Qcbatch.associate = (models) => {
+  Qcbatch.hasMany(models.ProductionResult, {
+    foreignKey: 'batch_id',      // Points to Qcbatch.id
+    sourceKey: 'id',
+    as: 'production_results',    // Optional alias
+  });
+};
   return Qcbatch;
 };

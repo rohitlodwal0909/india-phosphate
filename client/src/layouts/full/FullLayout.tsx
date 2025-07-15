@@ -1,10 +1,13 @@
-import { FC, useContext } from 'react';
+import { FC, useContext, useEffect } from 'react';
 import { Outlet } from "react-router";
 import { Customizer } from './shared/customizer/Customizer';
 import { CustomizerContext } from '../../context/CustomizerContext';
 import Sidebar from './vertical/sidebar/Sidebar';
 import Header from './vertical/header/Header';
 import ScrollToTop from 'src/components/shared/ScrollToTop';
+import { GetAuthenticationmodule } from 'src/features/authentication/AuthenticationSlice';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from 'src/store';
 
 
 
@@ -12,7 +15,13 @@ import ScrollToTop from 'src/components/shared/ScrollToTop';
 
 const FullLayout: FC = () => {
   const { activeLayout, isLayout } = useContext(CustomizerContext);
-
+  const dispatch = useDispatch<AppDispatch>()
+   useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
+    if (stored?.admin?.id) {
+      dispatch(GetAuthenticationmodule(stored.admin.id));
+    }
+  }, [dispatch]);
   return (
       <>
     <div className="flex w-full min-h-screen dark:bg-darkgray">

@@ -43,11 +43,12 @@ const ViewReport = () => {
         fetchData()
     }, [dispatch, id]);
 
+    const testedBy = StoreData?.data?.find(
+              (item) => item.id == id
+            ); 
+
        const matchedStoreItem = guardData?.data?.find(
-          (item) => item.id == Rawmaterial?.grn_entry?.guard_entry_id
-        );
-const testedBy = StoreData?.data?.find(
-          (item) => item.id == id
+          (item) => item.id == Rawmaterial?.grn_entry?.guard_entry_id || testedBy?.guard_entry_id
         );
   return (
     <>
@@ -140,19 +141,24 @@ const testedBy = StoreData?.data?.find(
   {/* Row 1 */}
   <div className="col-span-2 font-semibold border-r border-black p-1">RM CODE</div>
   <div className="col-span-2 border-r border-black p-1">{Rawmaterial?.grn_entry?.
-store_rm_code}</div>
+store_rm_code ? Rawmaterial?.grn_entry?.
+store_rm_code: testedBy?.
+store_rm_code }</div>
 
   <div className="col-span-2 font-semibold border-r border-black p-1">Date of Receipt</div>
   <div className="col-span-2 border-r border-black p-1"> {Rawmaterial?.grn_entry?.
+grn_date ||  testedBy?.
 grn_date}</div>
 
   <div className="col-span-2 font-semibold border-r border-black p-1">G.R.N. No.</div>
   <div className="col-span-2 p-1">{Rawmaterial?.grn_entry?.
+grn_number ||  testedBy?.
 grn_number}</div> {/* No right border for the last cell in the grid row */}
 
   {/* Row 2 */}
   <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">Quantity</div>
-  <div className="col-span-2 border-r border-black border-t border-black p-1">{Rawmaterial?.grn_entry?.quantity} <span className='ms-2'>{Rawmaterial?.grn_entry?.unit} </span></div>
+  <div className="col-span-2 border-r border-black border-t border-black p-1">{Rawmaterial?.grn_entry?.quantity || testedBy?.
+quantity} <span className='ms-2'>{Rawmaterial?.grn_entry?.unit || testedBy?.unit} </span></div>
 
   <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">QC Reference No.</div>
   <div className="col-span-2 border-r border-black border-t border-black p-1"></div>

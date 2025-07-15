@@ -37,8 +37,6 @@ const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 
 const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
 
-
-
 const isAdminRole = logindata?.admin?.role_id === 1;
 
 const fullLayoutChildren = [

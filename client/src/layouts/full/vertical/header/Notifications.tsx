@@ -16,10 +16,12 @@ import notificationicon2 from '../../../../assets/images/logos/notification.png'
 
 const socket = io("http://localhost:5000");
 
-const Notifications = () => {
+const Notifications = ({logindata}) => {
 
    const location = useLocation();
-     const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+    //  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+        const store = useSelector((state: any) => state.authentication?.logindata);
+  
     const pathname = location.pathname;
   const notifications = useSelector((state: any) => state.notifications.notificationData);
   const [notificationList, setNotificationList] = useState(notifications || []);
@@ -29,13 +31,13 @@ const Notifications = () => {
   useEffect(() => {
     const fetchnotification = async () => {
       try {
-        await dispatch(GetNotification(logindata?.admin?.id)).unwrap();
+        await dispatch(GetNotification(store?.admin?.id)).unwrap();
       } catch (error) {
         console.error(error || "Failed to fetch notifications");
       }
     };
     fetchnotification();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (notifications) {
@@ -61,7 +63,7 @@ const Notifications = () => {
           item.id === id ? result : item
         );
         setNotificationList(updated);
-        dispatch(GetNotification());
+        dispatch(GetNotification(logindata?.admin?.id));
       }
     } catch (error) {
       toast.error("Failed to update notification");

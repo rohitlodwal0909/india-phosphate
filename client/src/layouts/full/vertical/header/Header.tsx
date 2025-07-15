@@ -10,6 +10,7 @@ import { CustomizerContext } from "src/context/CustomizerContext";
 import Notifications from "./Notifications";
 import Profile from "./Profile";
 import ReactFlagsSelect from "react-flags-select";
+import { useSelector } from "react-redux";
 
 interface HeaderPropsType {
   layoutType: string;
@@ -20,7 +21,8 @@ interface HeaderPropsType {
 const Header = ({ layoutType }: HeaderPropsType) => {
   const [isSticky, setIsSticky] = useState(false);
   const [selected, setSelected] = useState("US");
-const FlagsSelect = ReactFlagsSelect as unknown as React.ComponentType<any>;
+  const logindata = useSelector((state: any) => state.authentication?.logindata);
+  const FlagsSelect = ReactFlagsSelect as unknown as React.ComponentType<any>;
   const languageMap: Record<string, string> = {
     US: "en", GB: "en", FR: "fr", DE: "de", ES: "es", IT: "it",
     CN: "zh-CN", TW: "zh-TW", JP: "ja", KR: "ko", IN: "hi", PK: "ur",
@@ -37,28 +39,28 @@ const FlagsSelect = ReactFlagsSelect as unknown as React.ComponentType<any>;
     SE: "Svenska", NO: "Norsk", FI: "Suomi", HU: "Magyar", CZ: "Čeština", SK: "Slovenčina"
   };
 
-const handleLanguageChange = (code: string) => {
-  setSelected(code);
-  const langCode = languageMap[code];
+  const handleLanguageChange = (code: string) => {
+    setSelected(code);
+    const langCode = languageMap[code];
 
-  const tryUpdateLang = () => {
-    const select = document.querySelector("#google_translate_element select") as HTMLSelectElement | null;
-    if (select) {
-      for (let i = 0; i < select.options.length; i++) {
-        console.log("Google Translate option:", select.options[i].value); // Debug
-        if (select.options[i].value === langCode) {
-          select.selectedIndex = i;
-          select.dispatchEvent(new Event("change"));
-          break;
+    const tryUpdateLang = () => {
+      const select = document.querySelector("#google_translate_element select") as HTMLSelectElement | null;
+      if (select) {
+        for (let i = 0; i < select.options.length; i++) {
+          console.log("Google Translate option:", select.options[i].value); // Debug
+          if (select.options[i].value === langCode) {
+            select.selectedIndex = i;
+            select.dispatchEvent(new Event("change"));
+            break;
+          }
         }
+      } else {
+        setTimeout(tryUpdateLang, 500);
       }
-    } else {
-      setTimeout(tryUpdateLang, 500);
-    }
-  };
+    };
 
-  tryUpdateLang();
-};
+    tryUpdateLang();
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsSticky(window.scrollY > 50);
@@ -101,9 +103,9 @@ const handleLanguageChange = (code: string) => {
 
           <Navbar.Collapse className="xl:block hidden">
             <div className="flex gap-3 items-center">
-              <div className="flex items-center gap-2 notranslate"  translate="no">
+              <div className="flex items-center gap-2 notranslate" translate="no">
                 {/* <div id="google_translate_element"  style={{ display: "none" }} /> */}
-                  <FlagsSelect
+                <FlagsSelect
                   searchable
                   countries={Object.keys(languageMap)}
                   customLabels={customLabels}
@@ -125,8 +127,8 @@ const handleLanguageChange = (code: string) => {
                 />
               </div>
 
-              <Notifications />
-              <Profile />
+              <Notifications logindata={logindata} />
+              <Profile  logindata={logindata} />
             </div>
           </Navbar.Collapse>
 

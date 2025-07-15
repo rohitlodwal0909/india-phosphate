@@ -64,7 +64,9 @@ function QcInventoryTable() {
   const navigate = useNavigate();
   const StoreData = useSelector((state: any) => state.storeinventory.storedata);
   const guardData = useSelector((state: any) => state.checkininventory.checkindata);
-  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+  // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+     const logindata = useSelector((state: any) => state.authentication?.logindata);
+ 
   const [data, setData] = useState<PaginationTableType[]>(StoreData?.data || []);
 const [searchText, setSearchText] = useState('');
   useEffect(() => {
@@ -159,7 +161,7 @@ const [searchText, setSearchText] = useState('');
       return byType && bySearch
     });
   }, [data, filters,searchText]);
-  
+
 
   const columns = [
     columnHelper.accessor("guard_entry_id", {
@@ -193,6 +195,7 @@ const [searchText, setSearchText] = useState('');
     columnHelper.accessor("tested_by", {
      cell: (info) => {
   const row = info.row.original as { qc_result?: { testedBy?: { username?: string } }[] };
+
   return <p>{row.qc_result?.[0]?.testedBy?.username || "Unknown"}</p>;
 },
       header: () => <span>Tested By</span>,
@@ -202,6 +205,7 @@ const [searchText, setSearchText] = useState('');
         const rowData = info.row.original;
          const row = info.row.original as { qc_result?: { testedBy?: { username?: string } }[] };
          const idStr = String(rowData.id);
+      
         return (
           <div className="flex gap-2">
             {rowData.qa_qc_status === "REJECTED" &&
@@ -229,8 +233,8 @@ const [searchText, setSearchText] = useState('');
             )}
             {rowData.qa_qc_status === "PENDING" && <>
               <Button onClick={() => handleApprove(rowData)} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">APPROVE</Button>
-              <Button onClick={() => { setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
-              <Button onClick={() => handleReject(rowData)} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button>
+              <Button onClick={() => {    triggerGoogleTranslateRescan(); setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
+              <Button onClick={() =>{    triggerGoogleTranslateRescan(); handleReject(rowData)}} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button>
             </>}
           </div>
         );

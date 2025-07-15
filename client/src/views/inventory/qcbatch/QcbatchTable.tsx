@@ -18,19 +18,19 @@ import { Deleteqcbatch, GetAllQcbatch } from "src/features/Inventorymodule/Qcinv
 
 const columnHelper = createColumnHelper<any>();
 
-function GuardTable() {
+function QcbatchTable() {
   const dispatch = useDispatch<AppDispatch>();
-
-  // Use useMemo for logindata to ensure it's stable and parsed safely
-  const logindata = useMemo(() => {
-    try {
-      const storedData = localStorage.getItem("logincheck");
-      return storedData ? JSON.parse(storedData) : {};
-    } catch (e) {
-      console.error("Error parsing logincheck from localStorage:", e);
-      return {};
-    }
-  }, []);
+     const logindata = useSelector((state: any) => state.authentication?.logindata);
+  
+  // const logindata = useMemo(() => {
+  //   try {
+  //     const storedData = localStorage.getItem("logincheck");
+  //     return storedData ? JSON.parse(storedData) : {};
+  //   } catch (e) {
+  //     console.error("Error parsing logincheck from localStorage:", e);
+  //     return {};
+  //   }
+  // }, []);
 
   const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
 
@@ -77,7 +77,7 @@ function GuardTable() {
     try {
       const res = await dispatch(Deleteqcbatch(selectedRow.id)).unwrap();
       if (res) {
-        toast.success("Guard entry deleted!");
+        toast.success("Qc Batch number entry deleted!");
         setData(prev => prev.filter(item => item.id !== selectedRow.id));
       }
     } catch (err: any) {
@@ -214,4 +214,4 @@ function GuardTable() {
   );
 }
 
-export default GuardTable;
+export default QcbatchTable;

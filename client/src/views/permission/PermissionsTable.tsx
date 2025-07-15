@@ -86,17 +86,14 @@ useEffect(() => {
     setFormData(updatedFormData);
     try {
     const response =   await dispatch(SavePermission(updatedFormData)).unwrap();
-    console.log(response)
-    
        toast.success(response?.message || "Permission updated successfully");
-
       handlegetrolepermisssion(formData.role_id);
     } catch (err) {
        toast.error(err || "Failed to update permission");
       console.error("Failed to save permission:", err);
     }
   };
-
+  
   const renderToggle = (
     userId: string,
     subName: string,

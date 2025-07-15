@@ -8,15 +8,15 @@ interface FinishingEditModalProps {
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
 
-    handleupdatedentry:any 
+  handleupdatedentry: any
 }
 const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
   openModal,
   setOpenModal,
   selectedRow,
- handleupdatedentry
+  handleupdatedentry
 }) => {
-  
+
   const [formData, setFormData] = useState({
     batch_number: '',
     finishing: '',
@@ -26,13 +26,13 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
   });
 
   useEffect(() => {
-    if (selectedRow?.id) {
+    if (selectedRow) {
       setFormData({
-        batch_number: selectedRow?.id,
-        finishing: selectedRow?.finishing || '',
-        unfinishing: selectedRow?.unfinishing || '',
-        finish_quantity: selectedRow?.finish_quantity || '',
-        unfinish_quantity: selectedRow?.unfinish_quantity || ''
+        batch_number: selectedRow?.finishing_entries[0]?.batch_number,
+        finishing: selectedRow?.finishing_entries[0]?.finishing || '',
+        unfinishing: selectedRow?.finishing_entries[0]?.unfinishing || '',
+        finish_quantity: selectedRow?.finishing_entries[0]?.finish_quantity || '',
+        unfinish_quantity: selectedRow?.finishing_entries[0]?.unfinish_quantity || ''
       });
     }
   }, [selectedRow]);
@@ -44,7 +44,9 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-     handleupdatedentry(formData)
+    console.log(formData)
+
+    handleupdatedentry(formData)
   };
 
   return (

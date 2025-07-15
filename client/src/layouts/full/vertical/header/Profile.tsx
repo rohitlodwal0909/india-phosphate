@@ -9,10 +9,10 @@ import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import Logoutmodel from "./Logoutmodel";
 
-const Profile = () => {
+const Profile = ({logindata }) => {
   const navigate = useNavigate()
     const { setIsCollapse, isCollapse } = useContext(CustomizerContext);
-  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+  // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
 
     const  [isOpen,setIsOpen] = useState(false)
     const handlelogout =()=>{
@@ -55,7 +55,7 @@ navigate("/admin/login");
               className="rounded-full"
             />
             <div>
-              <h5 className="card-title">{logindata?.admin?.name}</h5>
+              <h5 className="card-title">{logindata?.admin?.username}</h5>
               {/* <span className="card-subtitle"> Admin </span> */}
               <p className="card-subtitle mb-0 mt-1 flex items-center">
                 <Icon

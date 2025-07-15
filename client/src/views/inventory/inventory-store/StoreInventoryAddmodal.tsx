@@ -26,7 +26,8 @@ type FormDataType = {
   quantity: string;
   unit: string;
 };
-const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow }) => {
+const StoreInventoryAddmodal = ({ placeModal, modalPlacement, onCloseModal ,setPlaceModal, selectedRow , storedata}) => {
+
   const [formData, setFormData] = useState<FormDataType>({
     supplier_name: '',
     grn_date: '',
@@ -58,7 +59,6 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
   ];
   const dispatch = useDispatch<AppDispatch>();
   const [errors, setErrors] = useState<Partial<FormDataType>>({});
-
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
     setErrors({ ...errors, [field]: '' }); // clear error on change
@@ -68,18 +68,26 @@ useEffect(()=>{
 },[selectedRow])
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newErrors = {};
+     const newErrors: Partial<Record<keyof FormDataType, string>> = {};
+
     requiredFields.forEach(field => {
       if (!formData[field] || formData[field].toString().trim() === '') {
         newErrors[field] = 'This field is required';
       }
     });
+ // ✅ Duplicate GRN number check
+  const isDuplicateGRN = storedata?.some(
+    (item) => item.grn_number.trim() === formData.grn_number.trim()
+  );
 
+  if (isDuplicateGRN) {
+    newErrors.grn_number = 'GRN Number already exists';
+  }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-    } else {
-   
-
+      return;
+    } 
+    
        dispatch(addStore(formData)).unwrap()
         .then(() => {
         toast.success("Store data added successfully!");
@@ -100,17 +108,17 @@ useEffect(()=>{
         });
            dispatch(GetCheckinmodule(logindata?.admin?.id))
                dispatch(GetStoremodule())
-        setPlaceModal(false);
+    onCloseModal();
       })
       .catch((error) => {
         toast.error(error || "Failed to add store data.");
       });
-    }
+  
   };
 
 
   return (
-    <Modal size="3xl"  show={placeModal} position={modalPlacement} onClose={() => setPlaceModal(false)} className="large notranslate"   
+    <Modal size="3xl"  show={placeModal} position={modalPlacement} onClose={() => setPlaceModal(false)}   
   translate="no">
     
       <ModalHeader className="pb-0">New Store Entry</ModalHeader>

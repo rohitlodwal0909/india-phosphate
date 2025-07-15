@@ -1,82 +1,179 @@
 const {  createNotificationByRoleId } = require("../../../helper/SendNotification");
 const db = require("../../../models");
 const { Op } = require("sequelize");
-const {  ProductionResult ,GrnEntry,Finishing,RoleModel} = db;
+const {  ProductionResult ,Qcbatch,GrnEntry,Finishing,RoleModel} = db;
+
+// exports.ProductionaddResult = async (req, res) => {
+//   try {
+//     const { rm_code = [], quantity = [], ...rest } = req.body;
+//     for (let i = 0; i < rm_code.length; i++) {
+//       const code   = rm_code[i];
+//       const reqQty = quantity[i] ?? 0;
+//       const grnEntry = await GrnEntry.findOne({ where: { store_rm_code: code } });
+
+//       if (!grnEntry) {
+//         return res.status(400).json({
+//           message: `${code} is not available in the store.`,
+//         });
+//       }
+   
+//       const availableQty = 
+//         grnEntry.pending_quantity !== null 
+//           ? grnEntry.pending_quantity 
+//           : grnEntry.container_count;
+
+//       if (availableQty < reqQty) {
+//         return res.status(400).json({
+       
+//           message: `Store has only ${availableQty} quantity for ${code},but ${reqQty} units were requested.`,
+//         });
+//       }
+//     }
+
+//     const newEntry = await ProductionResult.create(req.body);
+//     for (let i = 0; i < rm_code.length; i++) {
+//       const code   = rm_code[i];
+//       const reqQty = quantity[i] ?? 0;
+//       const grnEntry = await GrnEntry.findOne({ where: { store_rm_code: code } });
+
+//       if (grnEntry) {
+       
+//         const availableQty = 
+//           grnEntry.pending_quantity !== null 
+//             ? grnEntry.pending_quantity 
+//             : grnEntry.container_count;s
+//           await grnEntry.update({
+//           production_status: "ISSUE",
+//           pending_quantity: availableQty - reqQty,
+//         });
+//       }
+//     }
+//    const productionRole = await RoleModel.findOne({ where: { name: { [Op.like]: "%Production%" } } });
+//     const storeRole = await RoleModel.findOne({ where: { name: { [Op.like]: "%Inventory Manager%" } } });
+
+//    if(productionRole) {
+
+//      await createNotificationByRoleId({
+//        title: "New Production",
+//        message: `Production has been successfully created.`,
+//        role_id:productionRole?.id, // production creator
+//      });
+//     }
+// if(storeRole){
+
+//   await createNotificationByRoleId({
+//     title: "Store Request",
+//     message: `Store request has been successfully submitted by production.`,
+//     role_id: storeRole?.id  
+//   });
+// }
+//  await createNotificationByRoleId({
+//   title: "Finishing Request",
+//   message: "A  request has been submitted by the production team with RM code details.",
+//   role_id: 7
+// });
+
+//     return res.status(201).json({
+//       message: "Production Entry created successfully",
+//       data: newEntry,
+//     });
+//   } catch (error) {
+//     console.error("Error in ProductionaddResult:", error);
+//     return res.status(500).json({ message: "Server Error", error });
+//   }
+// };
 
 exports.ProductionaddResult = async (req, res) => {
   try {
     const { rm_code = [], quantity = [], ...rest } = req.body;
-    for (let i = 0; i < rm_code.length; i++) {
-      const code   = rm_code[i];
-      const reqQty = quantity[i] ?? 0;
-      const grnEntry = await GrnEntry.findOne({ where: { store_rm_code: code } });
 
-      if (!grnEntry) {
+    // Step 1: Validate available quantities
+    for (let i = 0; i < rm_code.length; i++) {
+      const code = rm_code[i];
+      const reqQty = quantity[i] ?? 0;
+
+      const grnEntries = await GrnEntry.findAll({
+        where: { store_rm_code: code },
+        order: [['id', 'ASC']], // optional: FIFO logic
+      });
+
+      if (!grnEntries || grnEntries.length === 0) {
         return res.status(400).json({
           message: `${code} is not available in the store.`,
         });
       }
-      // 처음엔 pending_quantity가 null/0일 수 있으므로 container_count 사용
-      const availableQty = 
-        grnEntry.pending_quantity !== null 
-          ? grnEntry.pending_quantity 
-          : grnEntry.container_count;
 
-      if (availableQty < reqQty) {
+      const totalAvailable = grnEntries.reduce((sum, entry) => {
+        const qty = entry.pending_quantity !== null ? entry.pending_quantity : entry.container_count;
+        return sum + Number(qty || 0);
+      }, 0);
+
+      if (totalAvailable < reqQty) {
         return res.status(400).json({
-       
-          message: `Store has only ${availableQty} quantity for ${code},but ${reqQty} units were requested.`,
+          message: `Store has only ${totalAvailable} quantity for ${code}, but ${reqQty} units were requested.`,
         });
       }
     }
 
-    // 2) ProductionResult 생성
+    // Step 2: Create Production Entry
     const newEntry = await ProductionResult.create(req.body);
 
-    // 3) 각 GRN entry 업데이트
+    // Step 3: Deduct quantities from all matching GRN entries in FIFO
     for (let i = 0; i < rm_code.length; i++) {
-      const code   = rm_code[i];
-      const reqQty = quantity[i] ?? 0;
-      const grnEntry = await GrnEntry.findOne({ where: { store_rm_code: code } });
+      const code = rm_code[i];
+      let remainingQty = quantity[i] ?? 0;
 
-      if (grnEntry) {
-       
-        const availableQty = 
-          grnEntry.pending_quantity !== null 
-            ? grnEntry.pending_quantity 
-            : grnEntry.container_count;
+      const grnEntries = await GrnEntry.findAll({
+        where: { store_rm_code: code },
+        order: [['id', 'ASC']], // FIFO
+      });
 
-        await grnEntry.update({
+      for (const entry of grnEntries) {
+        if (remainingQty <= 0) break;
+
+        const availableQty = entry.pending_quantity !== null
+          ? entry.pending_quantity
+          : entry.container_count;
+
+        if (availableQty <= 0) continue;
+
+        const usedQty = Math.min(availableQty, remainingQty);
+        const newPendingQty = availableQty - usedQty;
+
+        await entry.update({
           production_status: "ISSUE",
-          // pending_quantity에서 차감
-          pending_quantity: availableQty - reqQty,
+          pending_quantity: newPendingQty,
         });
+
+        remainingQty -= usedQty;
       }
     }
-   const productionRole = await RoleModel.findOne({ where: { name: { [Op.like]: "%Production%" } } });
+
+    // Step 4: Notifications
+    const productionRole = await RoleModel.findOne({ where: { name: { [Op.like]: "%Production%" } } });
     const storeRole = await RoleModel.findOne({ where: { name: { [Op.like]: "%Inventory Manager%" } } });
 
-   if(productionRole) {
-
-     await createNotificationByRoleId({
-       title: "New Production",
-       message: `Production has been successfully created.`,
-       role_id:productionRole?.id, // production creator
-     });
+    if (productionRole) {
+      await createNotificationByRoleId({
+        title: "New Production",
+        message: `Production has been successfully created.`,
+        role_id: productionRole.id,
+      });
     }
-if(storeRole){
 
-  await createNotificationByRoleId({
-    title: "Store Request",
-    message: `Store request has been successfully submitted by production.`,
-    role_id: storeRole?.id  
-  });
-}
- await createNotificationByRoleId({
-  title: "Finishing Request",
-  message: "A  request has been submitted by the production team with RM code details.",
-  role_id: 7
-});
+    if (storeRole) {
+      await createNotificationByRoleId({
+        title: "Store Request",
+        message: `Store request has been successfully submitted by production.`,
+        role_id: storeRole.id,
+      });
+    }
+
+    await createNotificationByRoleId({
+      title: "Finishing Request",
+      message: "A request has been submitted by the production team with RM code details.",
+      role_id: 7,
+    });
 
     return res.status(201).json({
       message: "Production Entry created successfully",
@@ -85,6 +182,26 @@ if(storeRole){
   } catch (error) {
     console.error("Error in ProductionaddResult:", error);
     return res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+
+exports.getQcbatchesWithProduction = async (req, res) => {
+  try {
+    const data = await Qcbatch.findAll({
+      include: [
+        {
+          model: ProductionResult,
+          as: 'production_results', // must match your model alias
+        },
+      ],
+      order: [['created_at', 'DESC']], // optional: newest first
+    });
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Error fetching qcbatches:", error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
 
@@ -100,7 +217,6 @@ exports.getAllProductionResults = async (req, res) => {
       ],
      order: [['created_at', 'DESC']]
     });
-
     res.status(200).json({
       message: "Production results fetched successfully.",
       data: results
@@ -110,8 +226,6 @@ exports.getAllProductionResults = async (req, res) => {
     res.status(500).json({ message: "Server Error", error });
   }
 };
-
-
 
 exports.createFinishingEntry = async (req, res) => {
   try {

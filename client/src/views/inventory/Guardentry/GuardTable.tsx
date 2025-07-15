@@ -23,17 +23,18 @@ const columnHelper = createColumnHelper<any>();
 
 function GuardTable() {
   const dispatch = useDispatch<AppDispatch>();
+   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
   // Use useMemo for logindata to ensure it's stable and parsed safely
-  const logindata = useMemo(() => {
-    try {
-      const storedData = localStorage.getItem("logincheck");
-      return storedData ? JSON.parse(storedData) : {};
-    } catch (e) {
-      console.error("Error parsing logincheck from localStorage:", e);
-      return {};
-    }
-  }, []);
+  // const logindata = useMemo(() => {
+  //   try {
+  //     const storedData = localStorage.getItem("logincheck");
+  //     return storedData ? JSON.parse(storedData) : {};
+  //   } catch (e) {
+  //     console.error("Error parsing logincheck from localStorage:", e);
+  //     return {};
+  //   }
+  // }, []);
 
   const guardData = useSelector((state: any) => state.checkininventory.checkindata);
 

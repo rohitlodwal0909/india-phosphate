@@ -52,7 +52,7 @@ export const PermissionData = [
       },
        {
         id:6,
-        name: 'Finishing',
+        name: 'Finish',
          icon: "fluent:check-20-filled",
         add: false,
         view: false,

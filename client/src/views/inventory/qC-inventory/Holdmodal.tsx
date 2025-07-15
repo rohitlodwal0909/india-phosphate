@@ -6,11 +6,11 @@ import { useState } from 'react';
 const Holdmodal = ({ setIsOpen, isOpen, selectedUser, handleConfirmDelete }) => {
    const [remark, setRemark] = useState("")
   return (
-    <div className="mt-4">
+    
         <Modal
           show={isOpen}
           size="md"
-         onClose={() => setIsOpen(false)}
+           onClose={() => setIsOpen(false)}
           popup
           className="rounded-t-md"
         >
@@ -19,7 +19,7 @@ const Holdmodal = ({ setIsOpen, isOpen, selectedUser, handleConfirmDelete }) => 
             <div className="text-center">
              <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
 
-          If Holding, please provide a reason in the field below.
+              If Holding, please provide a reason in the field below.
             </h3>
 
               <Field className="my-3 ">
@@ -47,7 +47,7 @@ const Holdmodal = ({ setIsOpen, isOpen, selectedUser, handleConfirmDelete }) => 
           </ModalBody>
         </Modal>
      
-    </div>
+
   );
 };
 

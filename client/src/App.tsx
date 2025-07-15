@@ -5,6 +5,9 @@ import router from "./routes/Router";
 import { useEffect } from "react";
 
   import { ToastContainer} from 'react-toastify';
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "./store";
+import { GetAuthenticationmodule } from "./features/authentication/AuthenticationSlice";
 declare global {
   interface Window {
     google: any;
@@ -13,7 +16,22 @@ declare global {
   }
 }
 function App() {
- 
+     const dispatch = useDispatch<AppDispatch>();
+     useEffect(() => {
+    if (!document.getElementById("react-portal-wrapper")) {
+      const portalDiv = document.createElement("div");
+      portalDiv.id = "react-portal-wrapper";
+      portalDiv.classList.add("notranslate");
+      portalDiv.setAttribute("translate", "no");
+      document.body.appendChild(portalDiv);
+    }
+  }, []);
+       useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
+    if (stored?.admin?.id) {
+      dispatch(GetAuthenticationmodule(stored.admin.id));
+    }
+  }, [dispatch]);
    useEffect(() => {
     const initializeGoogleTranslate = () => {
       if (window.google?.translate?.TranslateElement && !window.translateElementInitialized) {

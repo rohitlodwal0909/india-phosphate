@@ -1,5 +1,4 @@
 import {
- 
   Modal,
   ModalBody,
   ModalFooter,
@@ -20,7 +19,7 @@ const ViewGuardModal = ({
   setPlaceModal,
   selectedRow,
 }: Props) => {
-  console.log(selectedRow)
+
   return (
     <div>
       <Modal
