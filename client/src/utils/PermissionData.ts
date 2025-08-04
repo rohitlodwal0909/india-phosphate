@@ -62,7 +62,7 @@ export const PermissionData = [
       {
         id:7,
         name: 'Dispatch',
-         icon: "mdi:disc",
+       icon: "mdi:disc",
         add: false,
         view: false,
         edit: false,
@@ -71,4 +71,5 @@ export const PermissionData = [
       
     ],
   },
+  
 ]

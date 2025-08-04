@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 
-import { ChildItem } from "../Sidebaritems";
+// import { ChildItem } from "../Sidebaritems";
 import { Sidebar } from "flowbite-react";
 import { Icon } from "@iconify/react";
 import { Link, useLocation } from "react-router";
@@ -11,7 +11,7 @@ import { DashboardContext } from "src/context/DashboardContext/DashboardContext"
 
 
 interface NavItemsProps {
-  item: ChildItem;
+  item: any;
 }
 const NavItems: React.FC<NavItemsProps> = ({ item }) => {
   const location = useLocation();

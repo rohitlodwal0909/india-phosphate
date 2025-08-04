@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Label, TextInput } from 'flowbite-react';
+import { Button, Modal, Label } from 'flowbite-react';
 
 import Select from 'react-select';
 
@@ -10,6 +10,7 @@ import { addProduction, GetFetchQcProduction } from 'src/features/Inventorymodul
 import { toast } from 'react-toastify';
 import { GetAllrowmaterial } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { GetNotification } from 'src/features/Notifications/NotificationSlice';
+import { allUnits } from 'src/utils/AllUnit';
 interface VehicleDispatchModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
@@ -27,11 +28,11 @@ interface RmCodeOption {
 const Addproductionmodal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal, rmcode, selectedRow ,logindata}) => {
 
 const dispatch = useDispatch<AppDispatch>()
-  const [formData, setFormData] = useState<any>({
-    batch_id: selectedRow?.id,
-    user_id: logindata?.admin?.id,
-    items: [{ rm_code: '', quantity: '' }],
-  });
+ const [formData, setFormData] = useState<any>({
+  batch_id: selectedRow?.id,
+  user_id: logindata?.admin?.id,
+  items: [{ rm_code: '', quantity: '', unit: '' }], // 🔥 unit added here
+});
 
   useEffect(() => {
     setFormData((prev: any) => ({
@@ -58,13 +59,13 @@ const dispatch = useDispatch<AppDispatch>()
       items: updatedItems,
     }));
   };
+const handleAddRow = () => {
+  setFormData((prev: any) => ({
+    ...prev,
+    items: [...prev.items, { rm_code: '', quantity: '', unit: '' }],
+  }));
+};
 
-  const handleAddRow = () => {
-    setFormData((prev: any) => ({
-      ...prev,
-      items: [...prev.items, { rm_code: '', quantity: '' }],
-    }));
-  };
 
   const handleDeleteRow = (index: number) => {
     const updatedItems = [...formData.items];
@@ -89,12 +90,13 @@ const dispatch = useDispatch<AppDispatch>()
       return;
     }
 
-    const payload = {
-      batch_id: formData.batch_id,
-       user_id: logindata?.admin?.id,
-      rm_code: formData.items.map((item: any) => item.rm_code),
-      quantity: formData.items.map((item: any) => item.quantity),
-    };
+   const payload = {
+  batch_id: formData.batch_id,
+  user_id: logindata?.admin?.id,
+  rm_code: formData.items.map((item: any) => item.rm_code),
+  quantity: formData.items.map((item: any) => item.quantity),
+  unit: formData.items.map((item: any) => item.unit), // 🔥 added
+};
     if(payload){
 
   // handleSubmited(payload); // ✅ Wait for the async function to complete
@@ -110,9 +112,9 @@ const dispatch = useDispatch<AppDispatch>()
        ]);
 
         setFormData({
-      batch_id: '',
-      items: [{ rm_code: '', quantity: '' }],
-    }) 
+  batch_id: '',
+  items: [{ rm_code: '', quantity: '', unit: '' }],
+});
         setOpenModal(false);
      }
    } catch (err) {
@@ -135,7 +137,7 @@ const dispatch = useDispatch<AppDispatch>()
           {formData.items.map((item: any, index: number) => (
             <div key={index} className="col-span-12 grid grid-cols-12 gap-4 items-end">
               <div className="col-span-5">
-             {index  === 0 &&  <Label value="RM Code" />}
+            <Label value="RM Code" />
                 <Select
                   options={rmOptions}
                   value={rmOptions.find((opt) => opt.value === item.rm_code) || null}
@@ -147,16 +149,35 @@ const dispatch = useDispatch<AppDispatch>()
                   styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
                 />
               </div>
-
-              <div className="col-span-5">
-                {index  === 0 &&   <Label value="Quantity" />}
-                <TextInput
-                  type="number"
-                  placeholder="Enter quantity"
-                  value={item.quantity}
-                  onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                />
-              </div>
+                 <div className="col-span-5">
+                          <Label htmlFor="quantity" value="Quantity" />
+                          <span className="text-red-700 ps-1">*</span>
+                          <div className="flex rounded-md shadow-sm">
+                            <input
+                              type="number"
+                              id="quantity"
+                              name="quantity"
+                              placeholder="Enter quantity"
+                              className="w-full rounded-l-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                             value={item.quantity}
+                              onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                            />
+                            <select
+                              id="unit"
+                              name="unit"
+                              value={formData.unit}
+                             onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
+                              className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            >
+                              <option value="">Unit</option>
+                              {allUnits.map((unit) => (
+                                <option key={unit.value} value={unit.value}>
+                                  {unit.value}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
 
               <div className="col-span-2">
                { index == 0 ?
@@ -182,7 +203,7 @@ const dispatch = useDispatch<AppDispatch>()
             <Button type="button" color="gray" onClick={() => setOpenModal(false)}>
               Cancel
             </Button>
-            <Button type="submit">Submit</Button>
+            <Button type="submit" color='primary'>Submit</Button>
           </div>
         </form>
       </Modal.Body>

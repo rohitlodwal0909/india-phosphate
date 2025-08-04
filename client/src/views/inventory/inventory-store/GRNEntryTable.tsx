@@ -7,8 +7,8 @@ import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { deleteCheckin, GetCheckinmodule } from "src/features/Inventorymodule/guardmodule/GuardSlice";
-import { GetStoremodule, ShowStore } from "src/features/Inventorymodule/storemodule/StoreInventorySlice";
+import {  GetCheckinmodule } from "src/features/Inventorymodule/guardmodule/GuardSlice";
+import { deleteStore, GetStoremodule, ShowStore } from "src/features/Inventorymodule/storemodule/StoreInventorySlice";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import ComonDeletemodal from "src/utils/deletemodal/ComonDeletemodal";
 import PaginationComponent from "src/utils/PaginationComponent";
@@ -30,7 +30,7 @@ const GRNEntryTable: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const guardData = useSelector((state: RootState) => state.checkininventory.checkindata) as any
   const StoreData = useSelector((state: RootState) => state.storeinventory.storedata) as any
-  const logindata = useSelector((state: RootState) => state.authentication.logindata) as any;
+  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
   const hasPermission = (id: number) => logindata?.permission?.some(p => p.submodule_id === 2 && p.permission_id === id && p.status);
 
@@ -55,17 +55,21 @@ useEffect(() => {
     setTimeout(triggerGoogleTranslateRescan, delay);
   };
 
-  const closeModal = (type: keyof typeof modals, delay = 200) => {
+  const closeModal = (type: keyof typeof modals, ) => {
     setModals(prev => ({ ...prev, [type]: false }));
-    setTimeout(triggerGoogleTranslateRescan, delay);
+    // setTimeout(triggerGoogleTranslateRescan, delay);
   };
 
   const handleDeleteConfirm = async () => {
     if (!selectedRow?.id) return toast.error("No entry selected for deletion.");
     try {
-      await dispatch(deleteCheckin(selectedRow.id)).unwrap();
-      setData(prev => prev.filter(u => u.id !== selectedRow.id));
-      toast.success("Guard entry deleted");
+      const matched = StoreData?.data?.find((i) => i.guard_entry_id === selectedRow?.id);
+      console.log(matched)
+
+      await dispatch(deleteStore({id :matched?.id ,user_id:logindata?.admin?.id})).unwrap();
+           dispatch(GetCheckinmodule(logindata.admin.id));
+      dispatch(GetStoremodule());
+      toast.success("Store entry deleted");
     } catch (err: any) {
       toast.error(err.message || "Delete failed");
     } finally {
@@ -82,7 +86,7 @@ useEffect(() => {
  const columns = useMemo(() => [
   columnHelper.accessor("inward_number", {
     header: "Inward Number",
-    cell: (info) => <div className="truncate max-w-56 text-base">{info.getValue() || "-"}</div>,
+    cell: (info) => <div className="truncate max-w-56 text-base"> <h6 className="text-base">{info.getValue() || "-"}</h6></div>,
   }),
   columnHelper.accessor("guard_type", {
     header: "Guard Type",
@@ -91,27 +95,27 @@ useEffect(() => {
   columnHelper.accessor("rmcode", {
     header: "RM Code",
     cell: (info) => {
-      const row = info?.row?.original;
+      const row = info?.row?.original?.grn_entries[0];
       if (!row) return "-";
-      const matched = StoreData?.data?.find((i) => i.guard_entry_id === row.id);
-      return matched?.store_rm_code || "-";
+    
+      return row?.store_rm_code || "-";
     },
   }),
   columnHelper.accessor("quantity_net", {
     header: "Net Quantity",
     cell: (info) => {
-      const row = info?.row?.original;
+     const row = info?.row?.original?.grn_entries[0];
       if (!row) return "-";
-      const item = StoreData?.data?.find((i) => i.guard_entry_id === row.id);
-      return item ? `${item.container_count || "-"} ${item.container_unit || ""}` : "-";
+     
+      return row ? `${row.container_count || "-"} ${row.container_unit || ""}` : "-";
     },
   }),
   columnHelper.accessor("status", {
     header: "Status",
     cell: (info) => {
-      const row = info?.row?.original;
+          const row = info?.row?.original?.grn_entries[0];
       if (!row) return "-";
-      const status = StoreData?.data?.find((i) => i.guard_entry_id === row.id)?.qa_qc_status || "NEW";
+      const status = row?.qa_qc_status || "NEW";
       const colors: Record<string, string> = {
         NEW: "secondary",
         PENDING: "warning",
@@ -223,8 +227,8 @@ useEffect(() => {
       <PaginationComponent table={table} />
 
       {modals.delete && <Portal><ComonDeletemodal isOpen setIsOpen={() => closeModal("delete")} selectedUser={selectedRow} title="Are you sure you want to Delete this Store Entry?" handleConfirmDelete={handleDeleteConfirm} /></Portal>}
-      {modals.addEdit && <Portal><StoreInventoryAddmodal setPlaceModal={() => closeModal("addEdit",400)}  onCloseModal={() => closeModal("addEdit", 400)} modalPlacement="center" selectedRow={selectedRow} placeModal storedata={StoreData?.data} /></Portal>}
-      {modals.view && <Portal><ViewStoremodel setPlaceModal={() => closeModal("view", 400)} modalPlacement="center" selectedRow={selectedRow} placeModal /></Portal>}
+      {modals.addEdit && <Portal><StoreInventoryAddmodal setPlaceModal={() => closeModal("addEdit")} modalPlacement="center" selectedRow={selectedRow} placeModal storedata={StoreData?.data} logindata={logindata}/></Portal>}
+      {modals.view && <Portal><ViewStoremodel setPlaceModal={() => closeModal("view")} modalPlacement="center" selectedRow={selectedRow} placeModal /></Portal>}
     </>
   ) : (
     <div className="flex flex-col items-center justify-center my-20 space-y-4">

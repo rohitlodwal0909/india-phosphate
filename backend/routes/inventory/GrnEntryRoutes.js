@@ -3,18 +3,18 @@ const router = express.Router();
 const grnController = require("../../controllers/inventory/grnEntry/GrnEntryController");
 
 // List by user_id
-router.get("/api/grn-entries", grnController.index);
+router.get("/grn-entries", grnController.index);
 
 // Create
-router.post("/api/grn-entries", grnController.store);
+router.post("/grn-entries", grnController.store);
 
 // Update
-router.put("/api/grn-entries/:id", grnController.update);
+router.put("/grn-entries/:id", grnController.update);
 
 // Delete
-router.delete("/api/grn-entries/:id", grnController.destroy);
+router.delete("/grn-entries/:id", grnController.destroy);
 
 // Show
-router.get("/api/grn-entries/:id", grnController.show); // Get by ID
+router.get("/grn-entries/:id", grnController.show); // Get by ID
 
 module.exports = router;

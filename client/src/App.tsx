@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "./store";
 import { GetAuthenticationmodule } from "./features/authentication/AuthenticationSlice";
+import { GetNotification } from "./features/Notifications/NotificationSlice";
+import { io } from "socket.io-client";
 declare global {
   interface Window {
     google: any;
@@ -15,8 +17,11 @@ declare global {
     translateElementInitialized?: boolean;
   }
 }
+const socket = io("http://localhost:5000");
 function App() {
      const dispatch = useDispatch<AppDispatch>();
+
+
      useEffect(() => {
     if (!document.getElementById("react-portal-wrapper")) {
       const portalDiv = document.createElement("div");
@@ -26,10 +31,19 @@ function App() {
       document.body.appendChild(portalDiv);
     }
   }, []);
+
+   useEffect(() => {
+      socket.on("new_notification", () => {
+      });
+      return () => {
+        socket.off("new_notification");
+      };
+    }, []); 
        useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
+     const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
     if (stored?.admin?.id) {
       dispatch(GetAuthenticationmodule(stored.admin.id));
+      dispatch(GetNotification(stored?.admin?.id))
     }
   }, [dispatch]);
    useEffect(() => {

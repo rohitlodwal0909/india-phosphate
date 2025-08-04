@@ -1,7 +1,8 @@
 const { createNotificationByRoleId } = require("../../../helper/SendNotification");
+const {  createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { GuardEntry } = db;
-exports.store = async (req, res) => {
+const { GuardEntry, User ,GrnEntry} = db;
+exports.store = async (req, res,next ) => {
   const {
     user_id,
     guard_type,
@@ -33,8 +34,14 @@ exports.store = async (req, res) => {
         nextNumber = lastNum + 1;
       }
     }
-
     const inward_number = `INW-${nextNumber.toString().padStart(4, "0")}`;
+const user = await User.findByPk(user_id);
+const username = user ? user.username : "Unknown User";
+const logMessage = `Guard entry '${inward_number}' was created by ${username} on ${entry_date} at ${entry_time}.`;
+await createLogEntry({
+  user_id,
+  message:logMessage
+});
 
     const newEntry = await GuardEntry.create({
       user_id,
@@ -62,17 +69,22 @@ exports.store = async (req, res) => {
       data: newEntry
     });
   } catch (error) {
-    console.error("Error in Guard Entry Store:", error);
-    res.status(500).json({ message: "Server Error", error });
+   next(error)
   }
 };
 
-exports.guardEntry = async (req, res) => {
+exports.guardEntry = async (req, res,next ) => {
   try {
     const entries = await GuardEntry.findAll({
       order: [
-        ["entry_date", "DESC"],
-        ["entry_time", "DESC"]
+        ["created_at", "DESC"]
+      ],
+        include: [
+        {
+          model: GrnEntry,
+          as: "grn_entries", // Must match the association alias
+          required: false
+        }
       ]
     });
 
@@ -81,35 +93,45 @@ exports.guardEntry = async (req, res) => {
       data: entries
     });
   } catch (error) {
-    console.error("Error in Guard Entry Fetch:", error);
-    res.status(500).json({ message: "Server Error", error });
+    next(error)
   }
 };
-
-// Delete Guard Entry
-exports.deleteGuardEntry = async (req, res) => {
+exports.deleteGuardEntry = async (req, res,next ) => {
   const { id } = req.params;
-
+   const {user_id } = req.body
   try {
     const entry = await GuardEntry.findByPk(id);
-
     if (!entry) {
-      return res.status(404).json({ message: "Guard Entry not found" });
+                   const error = new Error( "Guard Entry not found" );
+           error.status = 400;
+        return next(error);
+     
     }
+    const {  inward_number } = entry;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];         // yyyy-mm-dd
+    const entry_time = now.toTimeString().split(" ")[0];        // HH:mm:ss
+    const logMessage = `Guard entry '${inward_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage,
+    });
 
     await entry.destroy();
 
     res.status(200).json({ message: "Guard Entry deleted successfully" });
   } catch (error) {
-    console.error("Error deleting Guard Entry:", error);
-    res.status(500).json({ message: "Server Error", error });
+    next(error)
   }
 };
 
 // Update Guard Entry
-exports.updateGuardEntry = async (req, res) => {
+exports.updateGuardEntry = async (req, res,next) => {
   const { id } = req.params;
   const {
+    user_id,
     inward_number,
     vehicle_number,
     quantity_net,
@@ -119,19 +141,17 @@ exports.updateGuardEntry = async (req, res) => {
     sender_name,
     quantity_unit
   } = req.body;
-
   try {
     const entry = await GuardEntry.findByPk(id);
-
     if (!entry) {
-      return res.status(404).json({ message: "Guard Entry not found" });
+        const error = new Error( "Guard Entry not found" );
+           error.status = 400;
+        return next(error);
     }
 
-    // Auto-generate current date and time on update
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
     const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
-
     await entry.update({
       inward_number,
       vehicle_number,
@@ -144,13 +164,20 @@ exports.updateGuardEntry = async (req, res) => {
       entry_date,
       entry_time
     });
+    const user = await User.findByPk(user_id);
+    const username = user ? user?.username : "Unknown User";
+    const logMessage = `Guard entry '${inward_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage,
+    });
 
     res.status(200).json({
       message: "Guard Entry updated successfully",
       data: entry
     });
   } catch (error) {
-    console.error("Error updating Guard Entry:", error);
-    res.status(500).json({ message: "Server Error", error });
+     
+        next(error);
   }
 };

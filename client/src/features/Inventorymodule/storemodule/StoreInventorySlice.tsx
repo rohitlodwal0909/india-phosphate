@@ -57,12 +57,14 @@ export const ShowStore = createAsyncThunk(
   }
 );
 
-export const deleteStore = createAsyncThunk(
+export const deleteStore = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
   "stores/delete",
-  async (StoreId, thunkAPI) => {
+  async ({id , user_id}, thunkAPI) => {
     try {
-      await axios.delete(`${apiUrl}/grn-entries/${StoreId}`);
-      return StoreId;
+      await axios.delete(`${apiUrl}/grn-entries/${id}`, {
+  data: { user_id }
+});
+      return id;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data || error.message || "Something went wrong"

@@ -128,7 +128,7 @@ const Header = ({ layoutType }: HeaderPropsType) => {
               </div>
 
               <Notifications logindata={logindata} />
-              <Profile  logindata={logindata} />
+              <Profile  />
             </div>
           </Navbar.Collapse>
 

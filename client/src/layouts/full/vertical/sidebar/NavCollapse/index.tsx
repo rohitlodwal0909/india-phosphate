@@ -1,6 +1,6 @@
 
 import  { useEffect, useState } from "react";
-import { ChildItem } from "../Sidebaritems";
+// import { ChildItem } from "../Sidebaritems";
 import NavItems from "../NavItems";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
@@ -10,7 +10,7 @@ import React from "react";
 
 
 interface NavCollapseProps {
-  item: ChildItem;
+  item: any;
 }
 
 
@@ -52,7 +52,7 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item }: any) => {
       icon={item.icon} 
       className={
         Boolean(activeDD)
-          ? "!text-white bg-primary rounded-full hover:bg-primary hover:text-white "
+          ? "! bg-lightprimary rounded-full hover:bg-primary hover:text-white "
           : "rounded-full dark:text-white/80 hover:text-primary"
       }
     >

@@ -5,7 +5,6 @@
     height: 100%;
     top: 0;
 }
-
 .menu-sidebar {
     height: 100%;
     width: 240px !important;
@@ -61,7 +60,7 @@
 }
 
 [data-sidebar-type="mini-sidebar"] .page-wrapper {
-    margin-left: 80px;
+  margin-left: 80px;
 }
 
 

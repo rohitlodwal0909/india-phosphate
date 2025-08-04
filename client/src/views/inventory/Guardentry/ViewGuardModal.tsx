@@ -38,15 +38,15 @@ const ViewGuardModal = ({
             {[
               ["Inward Number", selectedRow?.inward_number],
               ["Guard Type", selectedRow?.guard_type],
-              ["Sender Name", selectedRow?.sender_name],
-              ["Remark", selectedRow?.remark],
-              ["Product Name", selectedRow?.product_name],
-              ["Product Id", selectedRow?.product_id],
               ["Vehicle Number", selectedRow?.vehicle_number ],
               ["Entry Date", formatDate(selectedRow?.entry_date)],
               ["Entry Time", formatTime(selectedRow?.entry_time)],
               ["Quantity", selectedRow?.quantity_net],
-              ["Unit", selectedRow?.quantity_unit],  
+              ["Unit", selectedRow?.quantity_unit], 
+              ["Sender Name", selectedRow?.sender_name],
+              ["Remark", selectedRow?.remark],
+              ["Product Name", selectedRow?.product_name],
+              ["Product Id", selectedRow?.product_id], 
             ].map(([label, value]) => (
               <div key={label}>
                 <label className="block text-sm font-medium text-black-900 mb-1">

@@ -69,12 +69,14 @@ export const updateCheckin = createAsyncThunk(
   }
 );
 
-export const deleteCheckin = createAsyncThunk(
+export const deleteCheckin = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
   "checkins/delete",
-  async (checkinId: string, { rejectWithValue }) => {
+  async ({id,user_id}, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/guard-entries/${checkinId}`);
-      return checkinId;
+      await axios.delete(`${apiUrl}/guard-entries/${id}`,{
+      data: { user_id }
+    });
+      return id;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete checkin."

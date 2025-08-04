@@ -110,13 +110,36 @@ function ProductionInventoryTable() {
     
   };
 
-  const filteredData = useMemo(() => {
-    return qcproductiondata?.filter((item) => {
 
-      const bySearch = !searchText || Object.values(item).some(v => String(v).toLowerCase().includes(searchText.toLowerCase()));
-      return bySearch
-    });
-  }, [data, searchText]);
+const filteredData = useMemo(() => {
+  if (!searchText) return qcproductiondata;
+
+  const keyword = searchText.toLowerCase();
+
+  return qcproductiondata?.filter((item) => {
+    const batch = item?.qc_batch_number?.toString().toLowerCase();
+    const prod = item?.production_results?.[0] || {};
+
+    // Parse RM codes
+    let rmCodes = [];
+    try {
+      const raw = prod?.rm_code;
+      rmCodes = Array.isArray(raw) ? raw : JSON.parse(raw || "[]");
+    } catch {}
+
+    // Split quantity and unit
+    const qtyList = prod?.quantity?.toString().split(",") || [];
+    const unitList = prod?.unit?.toString().split(",") || [];
+
+    // Match any
+    return (
+      batch?.includes(keyword) ||
+      rmCodes.some((code) => code.toLowerCase().includes(keyword)) ||
+      qtyList.some((q) => q.toLowerCase().includes(keyword)) ||
+      unitList.some((u) => u.toLowerCase().includes(keyword))
+    );
+  });
+}, [qcproductiondata,data, searchText]);
 
 
   const columns = [
@@ -171,17 +194,20 @@ columnHelper.accessor("rm_code", {
 columnHelper.accessor("quantity", {
   cell: (info) => {
     const rowIndata = info.row.original;
-     const raw = rowIndata?.production_results?.[0]?.quantity;
-    const values = typeof raw === "string" ? raw.split(",").map(q => q.trim()) : [];
+    const rawQty = rowIndata?.production_results?.[0]?.quantity;
+    const rawUnit = rowIndata?.production_results?.[0]?.unit;
 
-    return values.length ? (
+    const quantities = typeof rawQty === "string" ? rawQty.split(",").map(q => q.trim()) : [];
+    const units = typeof rawUnit === "string" ? rawUnit.split(",").map(u => u.trim()) : [];
+
+    return quantities.length ? (
       <div className="flex flex-wrap gap-1">
-        {values.map((q, i) => (
+        {quantities.map((q, i) => (
           <span
             key={i}
             className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded"
           >
-            {q}
+            {q} {units[i] || ""}
           </span>
         ))}
       </div>
@@ -191,6 +217,7 @@ columnHelper.accessor("quantity", {
   },
   header: () => <span>Quantity</span>,
 }),
+
     columnHelper.accessor("status", {
       cell: (info) => {
         const rowIndata = info.row.original;

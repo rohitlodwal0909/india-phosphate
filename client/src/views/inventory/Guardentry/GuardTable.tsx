@@ -87,7 +87,7 @@ function GuardTable() {
   const handleConfirmDelete = async () => {
     if (!selectedRow?.id) return toast.error("No entry selected.");
     try {
-      const res = await dispatch(deleteCheckin(selectedRow.id)).unwrap();
+      const res = await dispatch(deleteCheckin({id :selectedRow.id, user_id :logindata?.admin?.id})).unwrap();
       if (res) {
         toast.success("Guard entry deleted!");
         setData(prev => prev.filter(item => item.id !== selectedRow.id));
@@ -273,13 +273,14 @@ function GuardTable() {
             selectedUser={selectedRow}
             modalPlacement="center"
             onUpdateUser={handleUpdate}
+            logindata={logindata}
           />
         </Portal>
       )}
 
       {addModal && (
         <Portal>
-          <GuardAddmodal setPlaceModal={setAddmodal} modalPlacement={"center"} placeModal={addModal} />
+          <GuardAddmodal setPlaceModal={setAddmodal} modalPlacement={"center"} placeModal={addModal}  logindata={logindata}/>
         </Portal>
       )}
     </>

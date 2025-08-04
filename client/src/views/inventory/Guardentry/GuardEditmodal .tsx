@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Label, TextInput } from 'flowbite-react';
 import { allUnits } from "src/utils/AllUnit";
 
-const GuardEditmodal = ({ editModal, modalPlacement, setEditModal, selectedUser, onUpdateUser }) => {
-  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+const GuardEditmodal = ({ editModal, modalPlacement, setEditModal, selectedUser, onUpdateUser ,logindata}) => {
 
   const [formData, setFormData] = useState({
     user_id: logindata?.admin?.id,
@@ -28,7 +27,7 @@ const GuardEditmodal = ({ editModal, modalPlacement, setEditModal, selectedUser,
         quantity_net: selectedUser.quantity_net || "",
         quantity_unit: selectedUser.quantity_unit || "",
         sender_name: selectedUser.sender_name || "",
-          remark: selectedUser.remark || ""
+         remark: selectedUser.remark || ""
       });
     }
   }, [selectedUser]);

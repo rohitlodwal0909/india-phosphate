@@ -63,7 +63,7 @@ function QcInventoryTable() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const StoreData = useSelector((state: any) => state.storeinventory.storedata);
-  const guardData = useSelector((state: any) => state.checkininventory.checkindata);
+  // const guardData = useSelector((state: any) => state.checkininventory.checkindata);
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
      const logindata = useSelector((state: any) => state.authentication?.logindata);
  
@@ -78,8 +78,6 @@ const [searchText, setSearchText] = useState('');
       try {
         const result = await dispatch(GetStoremodule());
         if (GetStoremodule.rejected.match(result)) return console.error("Store Module Error:", result.payload || result.error.message);
-    
-        
       } catch (error) {
         console.error("Unexpected error:", error);
       }
@@ -110,7 +108,10 @@ const [searchText, setSearchText] = useState('');
 
   const handleConfirmApprove = async (data) => {
     try {
-      const result = await dispatch(Approvemodule(data)).unwrap();
+      const result = await dispatch(Approvemodule({
+      ...data,
+      userid: logindata?.admin?.id  // make sure this is the correct path
+     })).unwrap();
       dispatch(GetStoremodule());
       toast.success(result?.message);
     } catch (error) {
@@ -122,7 +123,7 @@ const [searchText, setSearchText] = useState('');
     try {
       if(remark && data){
         
-        const result = await dispatch(Rejectmodule({ user: data, remark })).unwrap();
+        const result = await dispatch(Rejectmodule({ user: data, remark ,user_id: logindata?.admin?.id})).unwrap();
         dispatch(GetStoremodule());
         toast.success(result?.message);
       }
@@ -134,7 +135,7 @@ const [searchText, setSearchText] = useState('');
   const handleConfirmHold = async (data, remark) => {
     try {
        if(remark && data){
-       const result = await dispatch(Holdmodule({ user: data, remark })).unwrap();
+       const result = await dispatch(Holdmodule({ user: data, remark ,user_id: logindata?.admin?.id})).unwrap();
        dispatch(GetStoremodule());
        toast.success(result?.message);
        }
@@ -165,10 +166,10 @@ const [searchText, setSearchText] = useState('');
 
   const columns = [
     columnHelper.accessor("guard_entry_id", {
-      cell: (info) => {
-        const rowData = info.row.original;
-        const storeItem = guardData?.data?.find(item => item.id === rowData.guard_entry_id);
-        return <div className="truncate max-w-56"><h6 className="text-base">{storeItem?.inward_number}</h6></div>;
+      cell: (info:any) => {
+        const rowData = info.row.original?.guard_entry;
+        // const storeItem = guardData?.data?.find(item => item.id === rowData.guard_entry_id);
+        return <div className="truncate max-w-56"><h6 className="text-base">{rowData?.inward_number}</h6></div>;
       },
       header: () => <span className="text-base">Inward Number</span>,
     }),
@@ -218,23 +219,29 @@ const [searchText, setSearchText] = useState('');
               <Button color="error" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">
                 <Icon icon="mdi:gesture-tap-hold" height={20} />
               </Button>}
-            {rowData.qa_qc_status === "APPROVED" && (
-             row?.qc_result?.[0]?.testedBy?.username ?
+               {rowData.qa_qc_status === "APPROVED" && (
                 <Link to={`/view-report/${idStr}`}>
                   <Button color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
                     <Icon icon="solar:eye-outline" height={18} />
                   </Button>
                 </Link>
-                :
-                  <Button color="secondary"  onClick={() => handlereportsubmit(rowData)} outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
-                    <Icon icon="tabler:report" height={18} />
-                  </Button>
-              
-            )}
-            {rowData.qa_qc_status === "PENDING" && <>
+               )}
+            {
+             row?.qc_result?.[0]?.testedBy?.username && !["APPROVED", "HOLD", "REJECTED"].includes(rowData.qa_qc_status) &&
+                <>
               <Button onClick={() => handleApprove(rowData)} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">APPROVE</Button>
               <Button onClick={() => {    triggerGoogleTranslateRescan(); setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
               <Button onClick={() =>{    triggerGoogleTranslateRescan(); handleReject(rowData)}} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button>
+              
+               </>
+               }
+            {rowData.qa_qc_status === "PENDING" && !row?.qc_result?.[0]?.testedBy?.username && <>
+                                  <Button color="secondary"  onClick={() => handlereportsubmit(rowData)} outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
+                    <Icon icon="tabler:report" height={18} />
+                  </Button>
+              {/* <Button onClick={() => handleApprove(rowData)} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">APPROVE</Button>
+              <Button onClick={() => {    triggerGoogleTranslateRescan(); setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
+              <Button onClick={() =>{    triggerGoogleTranslateRescan(); handleReject(rowData)}} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button> */}
             </>}
           </div>
         );

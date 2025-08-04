@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true
       },
+      user_id:{
+        type:DataTypes.INTEGER
+      },
       qc_batch_number : DataTypes.STRING,
       created_at: {
         type: DataTypes.DATE,

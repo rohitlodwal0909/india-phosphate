@@ -9,7 +9,8 @@ import NavCollapse from "./NavCollapse";
 import SimpleBar from "simplebar-react";
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { useLocation } from "react-router";
-import SideProfile from "./SideProfile/SideProfile";
+import { useSelector } from "react-redux";
+// import SideProfile from "./SideProfile/SideProfile";
 
 
 
@@ -21,16 +22,15 @@ const SidebarLayout = () => {
   );
 
   
-const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+  const logindata = useSelector((state: any) => state.authentication?.logindata);
 
 const hasPermission = (subId: number) => {
   
   return logindata?.permission?.some(
-
     (p: any) =>
       p.role_id === logindata?.admin?.role_id &&
-       p.submodule_id == subId &&
-      [1, 2, 3, 4,5,6,7].includes(p.permission_id) &&
+      p.submodule_id === subId && 
+      [1,2,3,4,5,6,7].includes(p.permission_id) &&
       p.status === true // ✅ If *any one* of the 1–4 permissions is true, return true
   );
 };
@@ -84,7 +84,7 @@ const hasPermission = (subId: number) => {
 
         <div className="minisidebar-icon border-e border-ld bg-white dark:bg-darkgray fixed start-0 z-[1]">
           <IconSidebar />
-          <SideProfile />
+          {/* <SideProfile /> */}
         </div>
         <Sidebar
           className="fixed menu-sidebar pt-8 bg-white dark:bg-darkgray ps-4 rtl:pe-4 rtl:ps-0"
@@ -93,20 +93,22 @@ const hasPermission = (subId: number) => {
           <SimpleBar className="h-[calc(100vh_-_85px)]">
             <Sidebar.Items className="pe-4 rtl:pe-0 rtl:ps-4">
               <Sidebar.ItemGroup className="sidebar-nav hide-menu ">
-               {selectedContent &&
-           selectedContent.items?.map((item, index) => {
-       const filteredChildren = item?.children?.filter((child:any) => { return child?.subId ? hasPermission(child?.subId) : true;});
+          {selectedContent &&
+  selectedContent.items?.map((item, index) => {
+       const filteredChildren = item.children?.filter((child) => {
+      // If child has subId, use permission logic; otherwise, include it
+      return child?.subId ? hasPermission(child.subId) : true;
+    });
 
     // If no allowed children, skip rendering this group
     if (!filteredChildren || filteredChildren.length === 0) return null;
-
     return (
       <React.Fragment key={index}>
         <h5 className="text-link font-semibold text-sm caption ">
           {item.heading}
         </h5>
         {filteredChildren.map((child, index) => (
-          <React.Fragment key={child.id && index}>
+          <React.Fragment key={child.id || index}>
             {child.children ? (
               <NavCollapse item={child} />
             ) : (

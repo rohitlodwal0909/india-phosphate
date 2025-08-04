@@ -20,8 +20,7 @@ const Notifications = ({logindata}) => {
 
    const location = useLocation();
     //  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
-        const store = useSelector((state: any) => state.authentication?.logindata);
-  
+    const store = useSelector((state: any) => state.authentication?.logindata);
     const pathname = location.pathname;
   const notifications = useSelector((state: any) => state.notifications.notificationData);
   const [notificationList, setNotificationList] = useState(notifications || []);
@@ -135,7 +134,7 @@ const getFilteredNotifications = () => {
                   <Avatar
                     img={links.is_read === 0 ? notificationicon : notificationicon2}
                     rounded
-                    status={links.is_read === 0 ? "online" : "busy"}
+                    status={links.is_read === 0 ? "busy" : "online"}
                     statusPosition="bottom-right"
                   />
                 </div>

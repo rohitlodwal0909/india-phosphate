@@ -3,6 +3,7 @@ import { Button, Modal, ModalBody, ModalHeader } from 'flowbite-react';
 import { Icon } from "@iconify/react";
 
 const Approvemodal = ({ setIsOpen , isOpen, selectedUser, handleConfirmDelete }) => {
+  
   return (
     <div className="mt-4">
         <Modal

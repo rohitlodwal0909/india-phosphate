@@ -82,11 +82,11 @@ export const GetAllQcbatch = createAsyncThunk< { rejectValue: any }>(
   }
 );
 
-export const Approvemodule = createAsyncThunk<any, { id: string; remarks: string }, { rejectValue: any }>(
+export const Approvemodule = createAsyncThunk<any, { id: string; remarks: string ,userid:any }, { rejectValue: any }>(
   "qcs/approve",
   async (Approve, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${apiUrl}/approvedOrRejected/${Approve.id}`, { status: "APPROVED", remark: Approve.remarks });
+      const response = await axios.put(`${apiUrl}/approvedOrRejected/${Approve.id}`, { status: "APPROVED", remark: Approve.remarks, user_id: Approve?.userid });
       return response.data;
     } catch (error: any) {
       if (error.response) {
@@ -100,11 +100,11 @@ export const Approvemodule = createAsyncThunk<any, { id: string; remarks: string
   }
 );
 
-export const Rejectmodule = createAsyncThunk<any, { user: any; remark: string }, { rejectValue: any }>(
+export const Rejectmodule = createAsyncThunk<any, { user: any; remark: string,user_id:any }, { rejectValue: any }>(
   "qcs/reject",
-  async ({ user, remark }, { rejectWithValue }) => {
+  async ({ user, remark,user_id }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${apiUrl}/approvedOrRejected/${user.id}`, { status: "REJECTED", remark });
+      const response = await axios.put(`${apiUrl}/approvedOrRejected/${user.id}`, { status: "REJECTED", remark , user_id });
       return response.data;
     } catch (error: any) {
       if (error.response) {
@@ -118,11 +118,11 @@ export const Rejectmodule = createAsyncThunk<any, { user: any; remark: string },
   }
 );
 
-export const Holdmodule = createAsyncThunk<any, { user: any; remark: string }, { rejectValue: any }>(
+export const Holdmodule = createAsyncThunk<any, { user: any; remark: string,user_id:any }, { rejectValue: any }>(
   "qcs/hold",
-  async ({ user, remark }, { rejectWithValue }) => {
+  async ({ user, remark ,user_id}, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${apiUrl}/approvedOrRejected/${user.id}`, { status: "HOLD", remark });
+      const response = await axios.put(`${apiUrl}/approvedOrRejected/${user.id}`, { status: "HOLD", remark ,user_id});
       return response.data;
     } catch (error: any) {
       if (error.response) {
@@ -195,11 +195,13 @@ export const Getresult = createAsyncThunk<any, string, { rejectValue: any }>(
     }
   }
 );
-export const Deleteqcbatch = createAsyncThunk<any, string, { rejectValue: any }>(
+export const Deleteqcbatch = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
   'Deleteqcbatch/fetch',
-  async (id, { rejectWithValue }) => {
+  async ({id ,user_id}, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${apiUrl}/qc-batch/${id}`);
+      const response = await axios.delete(`${apiUrl}/qc-batch/${id}`,{
+  data: { user_id }
+});
       return response.data;
     } catch (error: any) {
       if (error.response) {

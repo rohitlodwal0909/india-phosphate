@@ -34,15 +34,19 @@ module.exports = (sequelize, DataTypes) => {
       },
      phone:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
        address:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
+      },
+      profile_image:{
+        type: DataTypes.STRING,
+      
       },
       gender:{
          type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       created_at: {
         type: DataTypes.DATE,

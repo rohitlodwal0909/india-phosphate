@@ -1,22 +1,29 @@
+const { createLogEntry } = require("../../../helper/createLogEntry");
 const { createNotificationByRoleId } = require("../../../helper/SendNotification");
 const db = require("../../../models");
 
-const { RawMaterial, RawMaterialQcResult, GrnEntry , Qcbatch,Notification } = db;
+const { RawMaterial, RawMaterialQcResult, GrnEntry , Qcbatch,Notification ,User} = db;
 // Update Guard Entry
 
-exports.approveOrRejectGrnEntry = async (req, res) => {
+exports.approveOrRejectGrnEntry = async (req, res,next) => {
   const { id } = req.params;
   const {
     status, 
-    remark 
+    remark ,
+user_id
   } = req.body;
 
   try {
     const entry = await GrnEntry.findByPk(id);
 
     if (!entry) {
-      return res.status(404).json({ message: "Grn Entry not found" });
+       const error = new Error( "Grn Entry not found"  );
+       error.status = 404;
+      return next(error); 
+      
     }
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
 
     await entry.update({
       qa_qc_status: status,
@@ -24,10 +31,17 @@ exports.approveOrRejectGrnEntry = async (req, res) => {
     });
 
     let message = "";
-        // Set notification title/message based on status
+    
     let notificationTitle = "";
     let notificationMessage = "";
-   
+       const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];        // yyyy-mm-dd
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `QA/QC status was set to "${status}" by ${username} on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage,
+    });
 
     if (status === "APPROVED") {
        notificationTitle = "Store Entry Approved";
@@ -59,12 +73,11 @@ exports.approveOrRejectGrnEntry = async (req, res) => {
       data: entry
     });
   } catch (error) {
-    console.error("Error updating Guard Entry:", error);
-    res.status(500).json({ message: "Server Error", error });
+    next(error)
   }
 };
 
-exports.getRawmaterial = async (req, res) => {
+exports.getRawmaterial = async (req, res,next) => {
   const { id } = req.params;
   try {
     const rawMaterial = await RawMaterial.findAll({
@@ -74,12 +87,11 @@ exports.getRawmaterial = async (req, res) => {
     });
     res.status(200).json(rawMaterial);
   } catch (error) {
-    console.error("Error updating rawMaterial:", error);
-    res.status(500).json({ message: "Server Error", error });
+    next(error)
   }
 };
 
-exports.getAllRawMaterials = async (req, res) => {
+exports.getAllRawMaterials = async (req, res,next) => {
   try {
     const rawMaterials = await RawMaterial.findAll({
       // order: [['created_at', 'DESC']] // Optional: latest first
@@ -89,12 +101,11 @@ exports.getAllRawMaterials = async (req, res) => {
       data: rawMaterials
     });
   } catch (error) {
-    console.error("Error fetching raw materials:", error);
-    res.status(500).json({ message: "Server Error", error });
+ next(error)
   }
 };
 
-exports.saveReportresult = async (req, res) => {
+exports.saveReportresult = async (req, res,next) => {
   const { data, qc_id, tested_by, rm_code } = req.body;
 
   try {
@@ -104,7 +115,10 @@ exports.saveReportresult = async (req, res) => {
 
     const entry = await GrnEntry.findByPk(qc_id);
     if (!entry) {
-      return res.status(404).json({ message: "Grn Entry not found" });
+       const error = new Error( "Grn Entry not found"  );
+       error.status = 404;
+      return next(error); 
+     
     }
     for (const item of data) {
       let rawMaterialId = item.raw_material_id;
@@ -137,23 +151,26 @@ exports.saveReportresult = async (req, res) => {
       data: entry
     });
   } catch (error) {
-    console.error("Error saving QC Result:", error);
-    res.status(500).json({ message: "Server Error", error });
+     next(error)
   }
 };
 
-exports.report = async (req, res) => {
+exports.report = async (req, res,next) => {
   const { qc_id } = req.params;
   try {
     const grnEntry = await GrnEntry.findByPk(qc_id);
 
     if (!grnEntry) {
-      return res.status(404).json({ message: "GRN Entry not found" });
+        const error = new Error( "Grn Entry not found"  );
+       error.status = 404;
+      return next(error);
+     
     }
 
    const rawmaterial = await RawMaterialQcResult.findOne({ where: { qc_id } });
 
 if (!rawmaterial) {
+
   console.log("No RawMaterialQcResult found for this qc_id");
   return;
 }
@@ -198,16 +215,18 @@ const rmCode = rawMaterialEntry?.rm_code;
       raw_material: rawMaterialData
     });
   } catch (error) {
-    console.error("Error fetching QC Result:", error);
-    res.status(500).json({ message: "Server Error", error });
+    next(error)
   }
 };
 
-exports.addQcBatch = async (req, res) => {
-  const { qc_batch_number } = req.body;
+exports.addQcBatch = async (req, res,next) => {
+  const { qc_batch_number , user_id} = req.body;
 
   if (!qc_batch_number) {
-    return res.status(400).json({ message: "qc_batch_number is required." });
+        const error = new Error(  "qc_batch_number is required."  );
+       error.status = 400;
+      return next(error);
+  
   }
 
   try {
@@ -217,10 +236,23 @@ exports.addQcBatch = async (req, res) => {
     });
 
     if (exists) {
-      return res.status(409).json({ message: "qc_batch_number already exists." });
+       const error = new Error("qc_batch_number already exists." );
+       error.status = 400;
+      return next(error);
     }
 
-    const newBatch = await Qcbatch.create({ qc_batch_number });
+
+    const newBatch = await Qcbatch.create({ qc_batch_number , user_id});
+     const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];        // yyyy-mm-dd
+    const entry_time = now.toTimeString().split(" ")[0];       // HH:mm:ss
+    const logMessage = `QA Batch  entry for Batch Number  ${qc_batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage,
+    });
   await createNotificationByRoleId({
     title: "New Batch Number",
     message: "A new batch number has been successfully created.",
@@ -236,13 +268,12 @@ exports.addQcBatch = async (req, res) => {
       data: newBatch
     });
   } catch (error) {
-    console.error("Error creating QC batch:", error);
-    res.status(500).json({ message: "Internal server error." });
+    next(error)
   }
 };
 
 
-exports.getAllQcBatches = async (req, res) => {
+exports.getAllQcBatches = async (req, res,next) => {
   try {
     const batches = await Qcbatch.findAll({
       attributes: ['id', 'qc_batch_number'],
@@ -254,25 +285,36 @@ exports.getAllQcBatches = async (req, res) => {
       data: batches
     });
   } catch (error) {
-    console.error("Error fetching QC batches:", error);
-    res.status(500).json({ message: "Internal server error." });
+    next(error)
   }
 };
-exports.deleteQcBatch = async (req, res) => {
-  const { id } = req.params;
 
+exports.deleteQcBatch = async (req, res, next) => {
+  const { id } = req.params;
+   const {user_id } = req.body
   try {
     const batch = await Qcbatch.findByPk(id);
 
     if (!batch) {
-      return res.status(404).json({ message: "QC batch not found." });
+       const error = new Error( "QC batch not found" );
+       error.status = 404;
+      return next(error); 
+  
     }
-
+    
+          const user = await User.findByPk(user_id);
+        const username = user ? user.username : "Unknown User";
+        const now = new Date();
+        const entry_date = now.toISOString().split("T")[0];        // yyyy-mm-dd
+        const entry_time = now.toTimeString().split(" ")[0];       // HH:mm:ss
+        const logMessage = `QA Batch entry for Batch Number  ${batch?.qc_batch_number} was deleted by ${username} on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({
+          user_id,
+          message: logMessage,
+        });
     await batch.destroy(); // soft-delete because model has paranoid: true
-
     res.status(200).json({ message: "QC batch deleted successfully." });
   } catch (error) {
-    console.error("Error deleting QC batch:", error);
-    res.status(500).json({ message: "Internal server error." });
+     next(error)
   }
 };

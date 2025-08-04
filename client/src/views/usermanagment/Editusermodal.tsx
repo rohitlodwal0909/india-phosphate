@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Label, TextInput } from 'flowbite-react';
 import { IconUser, IconMail} from "@tabler/icons-react";
-import { IconEye, IconEyeOff } from '@tabler/icons-react';
+// import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useDispatch, useSelector } from "react-redux";
 import { GetRole } from "src/features/authentication/PermissionSlice";
 import { AppDispatch } from "src/store";
@@ -12,11 +12,11 @@ const Editusermodal = ({ setEditModal, modalPlacement, editModal, selectedUser, 
     email: "",
     password: "",
     role_id: "",
-   
+   user_id:""
   });
 const dispatch = useDispatch<AppDispatch>()
 const roleData = useSelector((state: any) => state.rolepermission.roledata);
-   const [showPassword, setShowPassword] = useState(false);
+  //  const [showPassword, setShowPassword] = useState(false);
 
  useEffect(()=>{
      const fetchCheckinData = async () => {
@@ -44,9 +44,9 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
       setFormData({
         username: selectedUser.username || "",
         email: selectedUser.email || "",
-        password: "", // Leave empty or mask for security
+        password: selectedUser.password, // Leave empty or mask for security
         role_id: selectedUser?.role_id || "",
-        // You may prefill with URL if needed
+        user_id:selectedUser?.id 
       });
     }
   }, [selectedUser]);
@@ -71,14 +71,10 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
       email: formData.email,
       role_id: formData.role_id,
       password: formData.password,
-      
+      user_id:formData?.user_id
     };
-
-    // Call parent handler or dispatch Redux thunk
     onUpdateUser(updatedUser);
-
-    // Close modal
-    setEditModal(false);
+   
   };
 
   return (
@@ -91,11 +87,10 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
             <Label htmlFor="name" value="Username" />
             <TextInput
               id="name"
-              name="name"
+              name="username"
               type="text"
               rightIcon={() => <IconUser size={20} />}
               placeholder="Enter name"
-   
               value={formData.username}
               onChange={handleChange}
             />
@@ -109,15 +104,14 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
               name="email"
               type="email"
               rightIcon={() => <IconMail size={20} />}
-              placeholder="name@domain.com"
-            
+              placeholder="Enter Email "
               value={formData.email}
               onChange={handleChange}
             />
           </div>
 
           {/* Password */}
-          <div className="col-span-12">
+          {/* <div className="col-span-12">
             <Label htmlFor="password" value="Password" />
                <div className="relative">
                       <TextInput
@@ -130,16 +124,15 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
                         className="form-control "
                        
                       />
-                      {/* Interactive Icon Positioned Over Right Side */}
+                    
                       <div
                         className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 cursor-pointer"
                         onClick={() => setShowPassword(!showPassword)}
-                      >
+                       >
                         {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
                       </div>
                     </div>
-          
-          </div>
+          </div> */}
 
           {/* Role */}
           <div className="col-span-12">
@@ -150,7 +143,6 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
   value={formData.role_id} // should be a number: 1, 2, or 3
   onChange={handleChange}
   className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-500"
- 
 >
   <option value="" disabled>
     Select Role
@@ -166,8 +158,6 @@ const roleData = useSelector((state: any) => state.rolepermission.roledata);
           </div>
 
           {/* File Upload */}
-        
-
           {/* Buttons */}
           <div className="col-span-12 flex justify-end items-center gap-[1rem]">
             <Button type="reset" color="error" onClick={() => setEditModal(false)}>

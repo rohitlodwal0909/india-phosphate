@@ -36,24 +36,24 @@ const ViewStoreModel = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
               ["Supplier Name", selectedRow?.supplier_name],
+              ["GRN Number", selectedRow?.grn_number],
               ["GRN Date", selectedRow?.grn_date],
               ["GRN Time", selectedRow?.grn_time],
-              ["GRN Number", selectedRow?.grn_number],
               ["Manufacturer Name", selectedRow?.manufacturer_name],
               ["Invoice Number", selectedRow?.invoice_number],
               ["Guard Entry ID", selectedRow?.guard_entry_id],
               ["Batch Number", selectedRow?.batch_number],
               ["Store RM Code", selectedRow?.store_rm_code],
               ["QA/QC Status", selectedRow?.qa_qc_status],
-              ["Container Count", selectedRow?.container_count],
-              ["Container Unit", selectedRow?.container_unit],
+              // ["Container Count", selectedRow?.container_count],
+              // ["Container Unit", selectedRow?.container_unit],
               ["Quantity", selectedRow?.quantity],
               ["Unit", selectedRow?.unit],
               ["Remaining quantity", selectedRow?.pending_quantity || 0],
               ["Remarks", selectedRow?.remarks],
-              ["Store Location", selectedRow?.store_location],
-              ["Manufacturing Date", selectedRow?.mfg_date],
-              ["Expiry Date", selectedRow?.exp_date],
+              // ["Store Location", selectedRow?.store_location],
+              // ["Manufacturing Date", selectedRow?.mfg_date],
+              // ["Expiry Date", selectedRow?.exp_date],
             
             ].map(([label, value]) => (
               <div key={label}>

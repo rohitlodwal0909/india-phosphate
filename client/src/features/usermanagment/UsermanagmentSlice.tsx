@@ -33,12 +33,17 @@ export const addUser = createAsyncThunk(
   }
 );
 
-export const updateUser = createAsyncThunk("users/update", async (updatedUser) => {
-  const response = await axios.put(
-     `${apiUrl}/endpoint`,
-    updatedUser
-  );
-  return response.data;
+export const updateUser = createAsyncThunk("users/update", async (updatedUser:any, { rejectWithValue }) => {
+  try {
+    const response = await axios.put(`${apiUrl}/update-profile/${updatedUser?.user_id}`, updatedUser, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || { message: "Update failed" });
+  }
 });
 
 export const deleteUser = createAsyncThunk(

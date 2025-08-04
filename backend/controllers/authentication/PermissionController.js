@@ -1,22 +1,23 @@
 const db = require("../../models");
 const { RoleModel, RolePermissionModel } = db;
 
-exports.roles = async (req, res) => {
+exports.roles = async (req, res, next ) => {
   try {
     const roles = await RoleModel.findAll();
 
     res.json({ roles });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+   next(error)
   }
 };
-exports.savePermission = async (req, res) => {
+exports.savePermission = async (req, res,next) => {
   try {
     const { role_id, submodule_id, permission_id, status } = req.body;
 
     if (!role_id || !submodule_id || !permission_id) {
-      return res.status(400).json({ message: "Missing required fields" });
+       const error = new Error( "Missing required fields");
+           error.status = 400;
+        return next(error);
     }
 
     const getPermission = await RolePermissionModel.findOne({
@@ -64,17 +65,19 @@ exports.savePermission = async (req, res) => {
       action
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server Error" });
+   next(error)
   }
 };
 
-exports.getrolepermission = async (req, res) => {
+exports.getrolepermission = async (req, res,next ) => {
   try {
     const { role_id } = req.params;
 
     if (!role_id) {
-      return res.status(400).json({ message: "Missing required fields" });
+       const error = new Error( "Missing required fields");
+           error.status = 400;
+        return next(error);
+
     }
 
     const getPermission = await RolePermissionModel.findAll({
@@ -85,7 +88,6 @@ exports.getrolepermission = async (req, res) => {
       permission: getPermission
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server Error" });
+    next(error)
   }
 };

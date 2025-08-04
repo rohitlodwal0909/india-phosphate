@@ -15,6 +15,7 @@ import { toast } from 'react-toastify';
 import { AppDispatch } from 'src/store';
 import { GetRole } from 'src/features/authentication/PermissionSlice';
 
+
 // const roleOptions = [
 //   { id: "1", label: "Manager" },
 //   { id: "2", label: "Employee" },
@@ -23,9 +24,10 @@ import { GetRole } from 'src/features/authentication/PermissionSlice';
 const UserProfile: React.FC<UserProfileProps> = () => {
  const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: any) => state.authentication?.logindata);
+
   const roleData = useSelector((state: any) => state.rolepermission.roledata);
   const fileInputRef = useRef(null);
-  const [selectedImage, setSelectedImage] = useState(userImg); // default image path
+  const [selectedImage, setSelectedImage] = useState(null ); // default image path
  const [formData, setFormData] = useState<any>({
     name: '',
     email: '',
@@ -33,6 +35,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
     address: '',
     gender: '',
     role_id: '',
+    profile_image:''
   });
 
   useEffect(() => {
@@ -44,6 +47,7 @@ const UserProfile: React.FC<UserProfileProps> = () => {
       address:  logindata?.admin?.address || '',
       gender:  logindata?.admin?.gender || '',
       role_id: logindata?.admin?.role_id || '',
+      profile_image: logindata?.admin?.profile_image ||''
     });
   }
 },[logindata]);
@@ -69,6 +73,7 @@ useEffect(()=>{
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
       const imageUrl = URL.createObjectURL(file);
+      setFormData(prev => ({ ...prev,profile_image: file }));
       setSelectedImage(imageUrl); // set uploaded image
     }
   };
@@ -77,14 +82,23 @@ useEffect(()=>{
   };
 
   const handleSubmit = async () => {
-    try {
-     
-      const res = await dispatch(AuthenticationUpdatemodule(formData)).unwrap();
-      toast.success(res.message || 'Profile updated successfully');
-    } catch (err) {
-      toast.error('Failed to update profile');
+  try {
+    const formPayload = new FormData();
+    formPayload.append('name', formData.name);
+    formPayload.append('email', formData.email);
+    formPayload.append('phone', formData.phone);
+    formPayload.append('address', formData.address);
+    formPayload.append('gender', formData.gender);
+    formPayload.append('role_id', formData.role_id);
+    if (formData.profile_image) {
+      formPayload.append('profile_image', formData.profile_image); // ✅ send actual File
     }
-  };
+    const res = await dispatch(AuthenticationUpdatemodule(formPayload)).unwrap();
+    toast.success(res.message || 'Profile updated successfully');
+  } catch (err) {
+    toast.error('Failed to update profile');
+  }
+};
 
   return (
     <>
@@ -93,7 +107,13 @@ useEffect(()=>{
           <CardBox>
             <div className="mx-auto text-center mt-5">
               <img
-                src={selectedImage}
+ src={
+    selectedImage
+      ? selectedImage
+      : logindata?.admin?.profile_image
+      ? "http://localhost:5000" + logindata.admin.profile_image
+      : userImg
+  }
                 alt="logo"
                 style={{ height: "120px", width: "120px" }}
                 className="rounded-full mx-auto"
@@ -119,6 +139,7 @@ useEffect(()=>{
               <TextInput
                 type="email"
                 value={formData.email}
+                readOnly
                 onChange={(e) => handleChange('email', e.target.value)}
                 className="form-control"
               />

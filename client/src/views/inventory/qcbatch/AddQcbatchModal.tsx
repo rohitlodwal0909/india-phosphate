@@ -14,23 +14,28 @@ import { GetAllQcbatch, qcBatchadd } from "src/features/Inventorymodule/Qcinvent
 import { AppDispatch } from "src/store";
 
 
-const AddQcbatchModal = ( {placeModal, setPlaceModal}) => {
+const AddQcbatchModal = ( {placeModal, setPlaceModal,logindata}) => {
     const dispatch = useDispatch<AppDispatch>()
        const [remark, setRemark] = useState("")
        const handlesubmit = async () => {
   try {
-    const result = await dispatch(qcBatchadd({ qc_batch_number: remark }));
+    const result = await dispatch(qcBatchadd({ qc_batch_number: remark ,user_id:logindata?.admin?.id }));
 
     if (result.payload) {
-      toast.success('Qc batch number created successfully!');
-      dispatch(GetAllQcbatch())
-      setRemark(''); 
+       toast.error(result.payload);
+      if(result.payload.message){
+        dispatch(GetAllQcbatch())
+        setRemark(''); 
+          toast.success("Qa Batch Number created successfully.")
+         if(remark){
+                 setPlaceModal(false);
+             }
+      }
     } else {
       toast.error('Failed to create QC Batch.');
     }
   } catch (error) {
-    console.error("Error while submitting QC batch:", error);
-    toast.error('Something went wrong while creating batch.');
+    toast.error(error.message);
   }
 };
   return (
@@ -63,9 +68,7 @@ const AddQcbatchModal = ( {placeModal, setPlaceModal}) => {
                                <Button color="success" 
                                onClick={() => {
                                handlesubmit();
-                               if(remark){
-                                 setPlaceModal(false);
-                               }
+                              
                              }}>
                                 {"Submit"}
                              </Button>

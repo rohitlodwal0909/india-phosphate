@@ -101,13 +101,47 @@ function FinishingTable() {
   const hasEditPermission = getPermissions(logindata, 6).some(p => p.permission_id === 3);
   // const hasDeletePermission = getPermissions(logindata, 5).some(p => p.permission_id === 4);
 
+const filteredData = useMemo(() => {
+  if (!searchText) return data;
 
-  const filteredData = useMemo(() => {
-    return data?.filter((item) => {
-      const bySearch = !searchText || Object.values(item).some(v => String(v).toLowerCase().includes(searchText.toLowerCase()));
-      return bySearch;
-    });
-  }, [data, searchText]);
+  const keyword = searchText.toLowerCase();
+
+  return data?.filter((item) => {
+    const batchId = item?.batch_id;
+    const matchedBatch = qcAlldata?.data?.find((qc: any) => qc.id == batchId);
+    const batchNumber = matchedBatch?.qc_batch_number?.toLowerCase() || "";
+
+    let rmCodes = [];
+    try {
+      rmCodes = JSON.parse(item?.rm_code || "[]");
+    } catch {}
+
+    const quantities = typeof item?.quantity === "string"
+      ? item.quantity.split(",").map((q) => q.trim().toLowerCase())
+      : [];
+
+    const entry = Array.isArray(item?.finishing_entries)
+      ? item.finishing_entries[0]
+      : null;
+
+    const finish = entry?.finishing?.toLowerCase() || "";
+    const unfinish = entry?.unfinishing?.toLowerCase() || "";
+    const finishQty = entry?.finish_quantity?.toString().toLowerCase() || "";
+    const unfinishQty = entry?.unfinish_quantity?.toString().toLowerCase() || "";
+
+    // Match against all visible fields
+    return (
+      batchNumber.includes(keyword) ||
+      rmCodes.some((code) => code.toLowerCase().includes(keyword)) ||
+      quantities.some((qty) => qty.includes(keyword)) ||
+      finish.includes(keyword) ||
+      unfinish.includes(keyword) ||
+      finishQty.includes(keyword) ||
+      unfinishQty.includes(keyword)
+    );
+  });
+}, [data, searchText, qcAlldata]);
+
 
   const columns = [
     columnHelper.accessor("id", {

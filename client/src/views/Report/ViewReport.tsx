@@ -3,7 +3,7 @@ import logoimg from '../../assets/logoimg.png';
 import { useParams } from 'react-router';
 import { useEffect, useRef } from 'react';
 import { useDispatch ,useSelector} from 'react-redux';
-import { Getresult } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+import { GetrawMaterial, Getresult } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import html2pdf from 'html2pdf.js';
 import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
@@ -16,8 +16,14 @@ const ViewReport = () => {
        const StoreData = useSelector((state: any) => state.storeinventory.storedata);
      const guardData = useSelector((state: any) => state.checkininventory.checkindata);
      const Rawmaterial = useSelector((state: any) => state.qcinventory.finalresult);
-   const type1Tests = Rawmaterial?.raw_material?.filter((item) => item.type == 1) || [];
-   const type2Tests = Rawmaterial?.raw_material?.filter((item) => item.type == 2) || [];
+      const Rawmaterialrmcode = useSelector((state: any) => state.qcinventory.qcdata);
+    
+   const type1Tests = Rawmaterial?.raw_material?.filter((item) => item.type == 1) || Rawmaterialrmcode?.filter((item) => item.type == 1);
+   const type2Tests = Rawmaterial?.raw_material?.filter((item) => item.type == 2) || Rawmaterialrmcode?.filter((item) => item.type == 2);
+    const testedBy = StoreData?.data?.find(
+              (item) => item.id == id
+            ); 
+        
     useEffect(() => {
       const fetchStoreData = async () => {
         try {
@@ -40,16 +46,26 @@ const ViewReport = () => {
             console.error("Unexpected Error:", error);
           }
         };
+          const fetchRawData = async () => {
+              try {
+                const result = await dispatch(GetrawMaterial(testedBy?.store_rm_code));
+                if (GetStoremodule.rejected.match(result)) {
+                  // console.error("Store Module Error:", result.payload || result.error.message);
+                }
+              } catch (error) {
+                console.error("Unexpected error:", error);
+              }
+            };
+
+           fetchRawData() 
         fetchData()
-    }, [dispatch, id]);
+    }, [dispatch, id,testedBy?.store_rm_code]);
 
-    const testedBy = StoreData?.data?.find(
-              (item) => item.id == id
-            ); 
+   
 
-       const matchedStoreItem = guardData?.data?.find(
-          (item) => item.id == Rawmaterial?.grn_entry?.guard_entry_id || testedBy?.guard_entry_id
-        );
+      
+console.log(guardData?.data)
+
   return (
     <>
         <CardBox >
@@ -164,7 +180,8 @@ quantity} <span className='ms-2'>{Rawmaterial?.grn_entry?.unit || testedBy?.unit
   <div className="col-span-2 border-r border-black border-t border-black p-1"></div>
 
   <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">Truck No.</div>
-  <div className="col-span-2 border-t border-black p-1">{matchedStoreItem?.vehicle_number || ""}</div> {/* No right border for the last cell in the grid row */}
+  <div className="col-span-2 border-t border-black p-1">{testedBy?.guard_entry
+?.vehicle_number || ""}</div> {/* No right border for the last cell in the grid row */}
 </div>
 </div>
 
@@ -178,14 +195,20 @@ quantity} <span className='ms-2'>{Rawmaterial?.grn_entry?.unit || testedBy?.unit
             </tr>
           </thead>
           <tbody>
-            {type1Tests.map((item, index) => (
+           {type1Tests?.map((item, index) => {
+  const hasQcResults = Array.isArray(item.qc_results) && item.qc_results.length > 0;
+  const hasTester = Array.isArray(testedBy?.qc_result) && testedBy.qc_result.length > 0 && testedBy.qc_result[0]?.testedBy?.username;
+  const resultValue = hasQcResults && hasTester && testedBy?.qa_qc_status === "APPROVED"  ? item.qc_results[0]?.result_value : 'fail';
+
+  return (
     <tr key={index}>
       <td className="border border-black px-2 py-2 text-center">{index + 1}</td>
       <td className="border border-black px-2 py-2">{item.test}</td>
       <td className="border border-black px-2 py-2">{item.limit}</td>
-      <td className="border border-black px-2 py-2">{item.qc_results?.[0]?.result_value && testedBy?.qc_result[0]?.testedBy?.username  ? item.qc_results?.[0]?.result_value : 'fail'}</td>
+      <td className="border border-black px-2 py-2">{resultValue}</td>
     </tr>
-  ))}
+  );
+})}
           </tbody>
         </table>
 {type2Tests?.length >0 && 
@@ -199,39 +222,70 @@ quantity} <span className='ms-2'>{Rawmaterial?.grn_entry?.unit || testedBy?.unit
             </tr>
           </thead>
           <tbody>
-            {type2Tests.map((item, index) => (
+          {type2Tests.map((item, index) => {
+  const hasResults = Array.isArray(item.qc_results) && item.qc_results.length > 0;
+  const resultValue = hasResults
+    ? item.qc_results[0]?.result_value
+    : 'fail';
+
+  const testedByUser = item.qc_results?.[0]?.testedBy?.username || testedBy?.qc_result?.[0]?.testedBy?.username;
+
+  return (
     <tr key={index}>
       <td className="border border-black px-2 py-2 text-center">{index + 1}</td>
       <td className="border border-black px-2 py-2">{item.test}</td>
       <td className="border border-black px-2 py-2">{item.limit}</td>
-      <td className="border border-black px-2 py-2">{item.qc_results?.[0]?.result_value && testedBy?.qc_result[0]?.testedBy?.username ? item.qc_results?.[0]?.result_value: 'fail'}</td>
+      <td className="border border-black px-2 py-2">
+        { testedBy?.qa_qc_status === "APPROVED" && testedByUser ? resultValue : 'fail'}
+      </td>
     </tr>
-  ))}
+  );
+})}
+
           </tbody>
         </table>}
+<p className="mt-8 text-sm text-black ">
+  Conclusion (Complies/Does not Complies):
+  <strong className="inline-block border-b border-black w-64 ps-3">
+    {
+      testedBy?.qa_qc_status === "APPROVED" &&
+      testedBy?.qc_result?.[0]?.testedBy?.username
+        ? "Complies"
+        : "Not Complies"
+    }
+  </strong>
+</p>
 
-        <p className="mt-8 text-sm text-black ">
-          Conclusion (Complies/Does not Complies): <strong className="inline-block border-b border-black w-64 ps-3">{type1Tests?.[0]?.qc_results?.[0]?.result_value && testedBy?.qc_result[0]?.testedBy?.username  ? "Compiles":"Not Complies" }</strong>
-        </p>
-
-        <div className="flex justify-between text-sm mt-16 text-black">
-          <div>
-            Tested By (Sign. /Date)
-            <span className="inline-block border-b w-60 text-dark border-black ml-2"><strong>{ testedBy?.qc_result[0]?.testedBy?.username  } {testedBy?.qc_result[0]?.testedBy?.username && "/"} {
-              
-          type1Tests?.[0]?.qc_results[0]?.created_at && testedBy?.qc_result[0]?.testedBy?.username  ?    new Date(type1Tests?.[0]?.qc_results[0]?.created_at).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).replace(/ /g, "-")
-  : ""} </strong></span>
-          </div>
-          <div>
-            Checked By (Sign./Date)
-            <span className="inline-block border-b w-40 border-black ml-2"></span>
-          </div>
-        </div>
-
+       <div className="flex justify-between text-sm mt-16 text-black">
+  <div>
+    Tested By (Sign. /Date)
+    <span className="inline-block border-b w-60 text-dark border-black ml-2">
+      <strong>
+        {
+          testedBy?.qc_result?.[0]?.testedBy?.username || ""
+        }
+        {
+          testedBy?.qc_result?.[0]?.testedBy?.username ? " / " : ""
+        }
+        {
+          Array.isArray(type1Tests?.[0]?.qc_results) &&
+          type1Tests[0]?.qc_results?.[0]?.created_at &&
+          testedBy?.qc_result?.[0]?.testedBy?.username
+            ? new Date(type1Tests[0].qc_results[0].created_at).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              }).replace(/ /g, "-")
+            : ""
+        }
+      </strong>
+    </span>
+  </div>
+  <div>
+    Checked By (Sign./Date)
+    <span className="inline-block border-b w-40 border-black ml-2"></span>
+  </div>
+</div>
         <p className="text-center text-xs mt-6 text-black">1</p>
       </div>
     </CardBox>

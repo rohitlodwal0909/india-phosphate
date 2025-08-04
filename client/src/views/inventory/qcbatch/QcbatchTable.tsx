@@ -75,7 +75,7 @@ function QcbatchTable() {
   const handleConfirmDelete = async () => {
     if (!selectedRow?.id) return toast.error("No entry selected.");
     try {
-      const res = await dispatch(Deleteqcbatch(selectedRow.id)).unwrap();
+      const res = await dispatch(Deleteqcbatch({id: selectedRow.id ,user_id:logindata?.admin?.id})).unwrap();
       if (res) {
         toast.success("Qc Batch number entry deleted!");
         setData(prev => prev.filter(item => item.id !== selectedRow.id));
@@ -202,12 +202,12 @@ function QcbatchTable() {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         selectedUser={selectedRow}
-        title="Are you sure you want to Delete this Guard Entry?"
+        title="Are you sure you want to Delete this Batch Number?"
         handleConfirmDelete={handleConfirmDelete}
       />
       {addModal && (
         <Portal>
-          <AddQcbatchModal setPlaceModal={setAddmodal}  placeModal={addModal} />
+          <AddQcbatchModal setPlaceModal={setAddmodal}  placeModal={addModal} logindata={logindata}/>
         </Portal>
       )}
     </>

@@ -19,7 +19,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ ope
   const [formData, setFormData] = useState<any>({});
 
   const batchOptions = StoreDatas?.flatMap((item) => item.qc_batch_number || []).map((batch) => ({ value: batch, label: batch }));
-    console.log(batchOptions)
+    
       const dispatch = useDispatch<AppDispatch>();
      useEffect(() => {
         const fetchStoreData = async () => {
@@ -134,7 +134,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ ope
                   </div>
           <div className="flex justify-end gap-2 col-span-12">
             <Button type="button" color="gray" onClick={() => setOpenModal(false)}>Cancel</Button>
-            <Button type="submit">Update</Button>
+            <Button type="submit" color='primary'>Update</Button>
           </div>
         </form>
       </Modal.Body>

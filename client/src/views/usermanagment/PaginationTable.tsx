@@ -15,7 +15,7 @@ import s1 from "../../../src/assets/images/profile/user-1.jpg";
 import Deleteusermodal from "./Deleteusermodal";
 import Editusermodal from "./Editusermodal";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser, GetUsermodule } from "src/features/usermanagment/UsermanagmentSlice";
+import { deleteUser, GetUsermodule, updateUser } from "src/features/usermanagment/UsermanagmentSlice";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import { toast } from "react-toastify";
 import PaginationComponent from "src/utils/PaginationComponent";
@@ -61,9 +61,16 @@ function PaginationTable({roleData}) {
   },[])
 
 
-  const handleupdateuser = () => {
-
-    // dispatch(updateUser(updatedata))
+  const handleupdateuser = async(formPayload) => {
+    try{
+      const res = await dispatch(updateUser(formPayload)).unwrap();
+     toast.success(res.message || 'User updated successfully');
+     dispatch(GetUsermodule())
+     setEditModal(false)
+  } catch (err) {
+    toast.error(err.message);
+  }
+   
   }
   const handleDelete = (row: PaginationTableType) => {
     triggerGoogleTranslateRescan();
@@ -118,10 +125,9 @@ function PaginationTable({roleData}) {
     columnHelper.accessor("status", {
       cell: (info) => (
         <div className="flex gap-2">
-         
             <Badge
           
-              color={`lightprimary`}
+              color={ info.row.original.status === "active"?`lightprimary`:"lightwarning"}
               className="capitalize"
             >
               {info.row.original.status}

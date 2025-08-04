@@ -4,11 +4,11 @@ const router = express.Router();
 const NotificationController = require("../../controllers/notification/NotificationController");
 
 router.get(
-  "/api/get-all-notification/:user_id",
+  "/get-all-notification/:user_id",
   NotificationController.getAllNotification
 );
 router.get(
-  "/api/read-notification/:id",
+  "/read-notification/:id",
   NotificationController.readNotification
 );
 

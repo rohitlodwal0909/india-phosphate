@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
           unique: true 
       },
+      user_id: {
+        type: DataTypes.INTEGER,
+      },
       rm_code: {
         type: DataTypes.JSON,
         allowNull: false
@@ -20,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
       },
+   unit: {
+  type: DataTypes.DECIMAL(10, 2),
+  allowNull: false
+},
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

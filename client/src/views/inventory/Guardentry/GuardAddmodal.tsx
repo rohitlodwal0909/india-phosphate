@@ -9,6 +9,7 @@ interface GuardAddModalProps {
   placeModal: boolean;
   modalPlacement: string;
   setPlaceModal: (value: boolean) => void;
+  logindata:any;
 }
 
 interface FormData {
@@ -28,10 +29,8 @@ interface Errors {
   [key: string]: string;
 }
 
-const GuardAddmodal: React.FC<GuardAddModalProps> = ({ placeModal, modalPlacement, setPlaceModal }) => {
+const GuardAddmodal: React.FC<GuardAddModalProps> = ({ placeModal, modalPlacement, setPlaceModal,logindata }) => {
   const dispatch = useDispatch<any>();
-  const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
-
   const [formData, setFormData] = useState<FormData>({
     user_id: '',
     guard_type: '',

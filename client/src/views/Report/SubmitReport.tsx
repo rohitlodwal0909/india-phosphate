@@ -116,7 +116,6 @@ const SubmitReport = () => {
           item?.id == qcentry?.id
       );
       setData(matched); // Set only unmatched/missing entries
-
     }
 
   }, [StoreData, id, Rawmaterial, qcentry]);

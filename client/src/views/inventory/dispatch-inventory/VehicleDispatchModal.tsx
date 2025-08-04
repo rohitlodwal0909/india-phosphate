@@ -143,7 +143,7 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, 
 
   <div className="flex justify-end gap-2 col-span-12">
     <Button type="button" color="gray" onClick={() => setOpenModal(false)}>Cancel</Button>
-    <Button type="submit">Submit</Button>
+    <Button type="submit" color='primary'>Submit</Button>
   </div>
 
 </form>

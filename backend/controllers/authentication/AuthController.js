@@ -1,21 +1,28 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../../models");
-const { User, RolePermissionModel } = db;
+const { User, RolePermissionModel ,Log} = db;
 
-exports.login = async (req, res) => {
+exports.login = async (req, res,next) => {
   const { email, password } = req.body;
   try {
     const admin = await User.findOne({ where: { email: email } });
 
     if (!admin) {
-      return res.status(404).json({ message: "Invalid Email" });
+      const error = new Error("Invalid Email");
+      error.status = 404;
+      return next(error); // send to global handler
     }
+
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid Password" });
+      const error = new Error("Invalid Password");
+      error.status = 401;
+      return next(error); // send to global handler
     }
+
+        await admin.update({ status: 'active' });
 
     //  Generate JWT Token
     const token = jwt.sign(
@@ -37,20 +44,20 @@ exports.login = async (req, res) => {
         id: admin.id,
         name: admin.username,
         email: admin.email,
-        role_id: admin.role_id,
+         role_id: admin.role_id,
          phone :  admin?.phone ,
         address:  admin?.address,
        gender: admin?.gender,
+       status: admin?.status
       },
       permission: permissions
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+      next(error);
   }
 };
 
-exports.getProfileById = async (req, res) => {
+exports.getProfileById = async (req, res,next) => {
   try {
     const userId = req.params.id;
     const user = await User.findByPk(userId, {
@@ -62,46 +69,55 @@ exports.getProfileById = async (req, res) => {
       }
     });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+       const error = new Error( "User not found" );
+       error.status = 401;
+      return next(error); 
     }
-
     res.json({ 
       admin:user,
       permission: permissions
      });
   } catch (error) {
-    console.error("Get Profile Error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+   next(error)
   }
 };
 
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async (req, res,next) => {
   try {
    const userId = req.params.id // Assuming user ID is set by auth middleware
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+        const error = new Error( "Unauthorized" );
+       error.status = 401;
+      return next(error);
     }
     const admin = await User.findByPk(userId);
     if (!admin) {
-      return res.status(404).json({ message: "Admin not found" });
+       const error = new Error( "Admin not found" );
+       error.status = 401;
+      return next(error);
+    
     }
-    const { name, email, password ,phone ,address, gender,role_id } = req.body;
-
+    const {username, email, password ,phone ,address, gender, role_id } = req.body;
+    const profileImageFile = req.file;
+    const profileImagePath = profileImageFile ? `/uploads/${profileImageFile.filename}` : admin.profile_image;
     // Optional: check for duplicate email if updating
     if (email && email !== admin.email) {
       const existing = await User.findOne({ where: { email } });
       if (existing) {
-        return res.status(400).json({ message: "Email already in use" });
+           const error = new Error(  "Email already in use"  );
+           error.status = 400;
+        return next(error);
       }
     }
 
     const updateData = {
-      name: name ?? admin.name,
+      username: username ?? admin.username,
       email: email ?? admin.email,
       phone : phone ?? admin?.phone ,
       address: address ?? admin?.address,
       gender: gender ?? admin?.gender,
-      role_id:role_id??  admin?.role_id
+      role_id:role_id??  admin?.role_id,
+      profile_image:profileImagePath
     };
 
     if (password) {
@@ -109,7 +125,7 @@ exports.updateProfile = async (req, res) => {
       updateData.password = hashed;
     }
     await admin.update(updateData);
-    res.json({
+    res.status(200).json({
       message: "Profile updated successfully",
       admin: {
         id: admin.id,
@@ -118,11 +134,98 @@ exports.updateProfile = async (req, res) => {
          phone : admin?.phone ,
         address:admin?.address,
         gender:admin?.gender,
-        role_id:  admin?.role_id
+        role_id:  admin?.role_id,
+        profile_image:admin?.profile_image
       }
     });
   } catch (error) {
-    console.error("Update Profile Error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+  next(error)
+  }
+};
+
+exports.changePassword = async (req, res,next) => {
+  try {
+    const userId = req.params.id;
+    const { new_password, confirm_password } = req.body;
+    if (!new_password) {
+       const error = new Error("New password is required");
+           error.status = 400;
+        return next(error);
+   
+    }
+    // Optional: Check confirm_password if frontend sends it
+    if (confirm_password && new_password !== confirm_password) {
+       const error = new Error( "Passwords do not match"  );
+           error.status = 400;
+        return next(error);
+     
+    }
+
+    const admin = await User.findByPk(userId);
+    if (!admin) {
+       const error = new Error( "User not found" );
+           error.status = 401;
+        return next(error);
+
+    }
+  const hashedPassword = await bcrypt.hash(new_password, 10);
+    await admin.update({ password: hashedPassword });
+    return res.json({ message: "Password updated successfully" });
+  } catch (error) {
+     next(error)
+  }
+};
+
+exports.forgotPassword = async (req, res,next) => {
+  const { email } = req.body;
+
+  try {
+    if (!email) {
+       const error = new Error( "Email is required" );
+           error.status = 400;
+        return next(error);
+    }
+
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+             const error = new Error("No user found with this email address" );
+           error.status = 400;
+        return next(error);
+    
+    }
+
+    // Send back user data (excluding password)
+    res.json({
+      message: "User found",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
+        address: user.address,
+        role_id: user.role_id
+      }
+    });
+
+    // OPTIONAL: Send reset password link / OTP email here
+
+  } catch (error) {
+    next(error)
+  }
+};
+
+exports.getAllLogs = async (req, res,next) => {
+  try {
+    const logs = await Log.findAll({
+      order: [['created_at', 'DESC']], // Sort by createdAt descending
+    });
+    res.status(200).json({
+      message: "Logs fetched successfully",
+      data: logs
+    });
+  } catch (error) {
+    next(error)
   }
 };

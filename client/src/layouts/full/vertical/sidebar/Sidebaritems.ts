@@ -1,13 +1,13 @@
-export interface ChildItem {
-  id?: number | string;
-  name?: string;
-  icon?: any;
-  children?: ChildItem[];
-  item?: any;
-  url?: any;
-  color?: string;
-  subId:any;
-}
+// export interface ChildItem {
+//   id?: number | string;
+//   name?: string;
+//   icon?: any;
+//   children?: ChildItem[];
+//   item?: any;
+//   url?: any;
+//   color?: string;
+//   subId:any;
+// }
 
 export interface MenuItem {
   heading?: string;
@@ -16,7 +16,7 @@ export interface MenuItem {
   id?: number;
   to?: string;
   items?: MenuItem[];
-  children?: ChildItem[];
+  children?: any;
   url?: any;
  
 }
@@ -150,8 +150,8 @@ const SidebarContent: MenuItem[] = [
     items: [
       {
         heading: "inventory Managment",
-        children: [
-          {
+         children: [
+             {
             subId:1,
             name: "Inbound Gate Entry",
             icon: "ph:user-circle-check-thin",
@@ -200,32 +200,136 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/inventory/dispatch",
           }
-        ],
+        ]
       },
     ],
   },
   {
     id: 3,
-    name: "Authentiction",
+    name: "Master",
     items: [
       {
-        heading: "Authentiction",
+        heading: "Master",
         children: [
           {
-            name: "Login",
-            icon: "solar:login-2-line-duotone",
+            name: "Company",
+            icon: "ix:customer",
             id: uniqueId(),
-            url: "/admin/login",
+            url: "/master/company",
             subId:''
           },
           {
-            name: "Sign Up",
-            icon: "solar:login-2-line-duotone",
+            name: "Supplier",
+            icon: "streamline-freehand:business-product-supplier-2",
             id: uniqueId(),
-            url: "/admin/register",
+            url: "/master/supplier",
+            subId:''
+          },
+          {
+            name: "Customer",
+            icon: "ix:customer",
+            id: uniqueId(),
+            url: "/master/customer",
+            subId:''
+          },
+           {
+            name: "Category",
+            icon: "material-symbols:category-outline",
+            id: uniqueId(),
+            url: "/master/category",
+            subId:''
+          },
+           {
+            name: "Accounts",
+            icon: "material-symbols:category-outline",
+            id: uniqueId(),
+            url: "/master/accounts",
+            subId:''
+          },
+          {
+            name: "Packing Material",
+            icon: "material-symbols:category-outline",
+            id: uniqueId(),
+            url: "/master/packing-material",
+            subId:''
+          },
+          // {
+          //   name: "Transport",
+          //   icon: "material-symbols:category-outline",
+          //   id: uniqueId(),
+          //   url: "/master/transport",
+          //   subId:''
+          // },
+          {
+            name: "RM Code",
+            icon: "file-icons:codeship",
+            id: uniqueId(),
+            url: "/master/rm-code",
+            subId:''
+          },
+          {
+            name: "Units",
+            icon: "material-symbols:ac-unit-rounded",
+            id: uniqueId(),
+            url: "/master/unit",
+            subId:''
+          },
+          {
+            name: "Designation",
+            icon: "hugeicons:manager",
+            id: uniqueId(),
+            url: "/master/designation",
+            subId:''
+          },
+          {
+            name: "Qualification",
+            icon: "healthicons:i-exam-qualification-outline",
+            id: uniqueId(),
+            url: "/master/qualification",
+            subId:''
+          },
+           {
+            name: "Make Master",
+            icon: "eos-icons:state",
+            id: uniqueId(),
+            url: "/master/make-masters",
+            subId:''
+          },
+          {
+            name: "Department Master",
+            icon: "icon-park-outline:city",
+            id: uniqueId(),
+            url: "/master/department-masters",
+            subId:''
+          },
+           {
+            name: "Staff Master",
+            icon: "icon-park-outline:file-staff",
+            id: uniqueId(),
+            url: "/master/staff-master",
+            subId:''
+          },
+          {
+            name: "State",
+            icon: "eos-icons:state",
+            id: uniqueId(),
+            url: "/master/states",
+            subId:''
+          },
+          {
+            name: "City",
+            icon: "icon-park-outline:city",
+            id: uniqueId(),
+            url: "/master/cites",
+            subId:''
+          },
+           {
+            name: "Inward ",
+            icon: "fluent:arrow-move-inward-20-filled",
+            id: uniqueId(),
+            url: "/master/inward",
             subId:''
           }
-         
         ],
       },
     ],

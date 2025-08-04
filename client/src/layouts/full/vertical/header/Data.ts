@@ -281,14 +281,22 @@ const profileDD: ProfileType[] = [
     subtitle: "Allow Permission",
     url: "/permission",
   },
-  // {
-  //   icon: "solar:checklist-minimalistic-line-duotone",
-  //   color: "text-error",
-  //   bgcolor: "bg-lighterror dark:bg-lighterror",
-  //   title: "My Tasks",
-  //   subtitle: "To-do and Daily tasks",
-  //   url: "/apps/kanban",
-  // },
+  {
+    icon: "solar:checklist-minimalistic-line-duotone",
+    color: "text-error",
+    bgcolor: "bg-lighterror dark:bg-lighterror",
+    title: "Change Password",
+    subtitle: "Secure your account with a new password",
+    url: "/change-password",
+  },
+  {
+    icon: "solar:checklist-minimalistic-line-duotone",
+    color: "text-error",
+    bgcolor: "bg-lighterror dark:bg-lighterror",
+    title: "Logs",
+    subtitle: "View system logs and user actions on time",
+    url: "/log",
+  },
 ];
 
 export {

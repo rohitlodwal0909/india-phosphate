@@ -5,15 +5,9 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const sequelize = require("./config/db");
-const authRoutes = require("./routes/authentication/AuthRoutes");
-const permissionRoutes = require("./routes/authentication/PermissionRoutes");
-const userRoutes = require("./routes/usermanagment/UserRoutes");
-const guardRoutes = require("./routes/inventory/GuardEntryRoutes");
-const grnRoutes = require("./routes/inventory/GrnEntryRoutes");
-const qaQcRoutes = require("./routes/inventory/QaqcRoutes");
-const dispatchRoutes = require("./routes/inventory/DispatchRoutes");
-const productionRoutes = require("./routes/inventory/ProdutionRoutes");
-const NotificationRouter = require("./routes/notification/NotificationRoutes");
+
+const router = require("./routes")
+
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +15,7 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
 
 const io = new Server(server, {
   cors: {
@@ -35,15 +30,21 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 });
 
-app.use(authRoutes);
-app.use(userRoutes);
-app.use(guardRoutes);
-app.use(grnRoutes);
-app.use(qaQcRoutes);
-app.use(dispatchRoutes);
-app.use(productionRoutes);
-app.use(permissionRoutes);
-app.use(NotificationRouter)
+app.use("/", router)
+
+app.use((err, req, res, next) => {
+  console.error("Global error handler caught:", err);
+  const status = err.status || 500;
+  const message = err.message || "Something went wrong";
+
+  res.status(status).json({
+    success: false,
+    message,
+    code: status,
+  });
+});
+
+
 //  DB connection and start
 sequelize
   .authenticate()
