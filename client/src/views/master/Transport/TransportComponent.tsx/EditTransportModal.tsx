@@ -21,11 +21,14 @@ import {
   GetTransport,
   updateTransport,
 } from 'src/features/master/Transport/TransportSlice';
-
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,TransportData}) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     id:'',
     transporter_name: '',
     contact_person: '',
@@ -51,31 +54,43 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
   const [cityOptions, setCityOptions] = useState<string[]>([]);
   const [errors, setErrors] = useState<any>({});
 
-
-  useEffect(() => {
+useEffect(() => {
   if (TransportData) {
-    // setFormData({
-    //    id:  TransportData?.transport_id ||'',
-    //   transporter_name: TransportData.transporter_name || '',
-    //   contact_person: TransportData.contact_person || '',
-    //   address: TransportData.address || '',
-    //   city: TransportData.city || '',
-    //   state: TransportData.state?.toString() || '',
-    //   pincode: TransportData.pincode || '',
-    //   email: TransportData.email || '',
-    //   gst_number: TransportData.gst_number || '',
-    //   pan_number: TransportData.pan_number || '',
-    //   created_by: logindata?.admin?.id || '',
-    //   is_active: TransportData.is_active  || false,
-    // });
+   
+    setFormData({
+      id: TransportData.transporter_id ?? '',
+      transporter_name: TransportData.transporter_name ?? '',
+      contact_person: TransportData.contact_person ?? '',
+      address: TransportData.address ?? '',
+      city: TransportData.city ?? '',
+      state: TransportData.state ?? '',
+      pincode: TransportData.pincode ?? '',
+      email: TransportData.email ?? '',
+      gst_number: TransportData.gst_number ?? '',
+      pan_number: TransportData.pan_number ?? '',
+      created_by: logindata?.admin?.id ?? '',
+      is_active: TransportData.is_active ?? false,
+      contact_number: TransportData.contact_number ?? '',
+      alternate_number: TransportData.alternate_number ?? '',
+      vehicle_types: TransportData.vehicle_types ?? '',
+      preferred_routes: TransportData.preferred_routes ?? '',
+       payment_terms: TransportData.payment_terms ?? '',
+      freight_rate_type: TransportData.freight_rate_type ?? '',
+      date: TransportData.date ?? '',
+      time: TransportData.time ?? '',
+    });
 
-    // Load cities for selected state
-    const selected = Statedata.find((item: any) => item.state_name === TransportData.state);
-    if (selected && selected.cities?.length > 0) {
+    // Set city options based on selected state
+     const selectedState = Statedata.find(
+      (item: any) => item.id == TransportData.state
+    );
+
+    if (selectedState && selectedState.cities?.length > 0) {
       try {
-        const parsedCities = JSON.parse(selected.cities[0]?.city_name || "[]");
-        setCityOptions(parsedCities);
-      } catch {
+        const parsedCities = JSON.parse(selectedState.cities[0]?.city_name || '[]');
+        setCityOptions(Array.isArray(parsedCities) ? parsedCities : []);
+      } catch (error) {
+        console.error('Error parsing city_name:', error);
         setCityOptions([]);
       }
     } else {
@@ -83,6 +98,7 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
     }
   }
 }, [TransportData, Statedata, logindata]);
+
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
@@ -137,7 +153,6 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
       toast.success(result.message || 'Transport updated successfully');
       dispatch(GetTransport());
       setFormData({
-        id:'',
         transporter_name: '',
         contact_person: '',
         contact_number: '',
@@ -166,7 +181,7 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
 
   return (
     <Modal show={show} onClose={() => setShowmodal(false)} size="4xl">
-      <ModalHeader>Create New Transport</ModalHeader>
+      <ModalHeader>Edit Transport</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
@@ -183,22 +198,39 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
             { id: 'freight_rate_type', label: 'Freight Rate Type', type: 'text' },
             { id: 'payment_terms', label: 'Payment Terms', type: 'text' },
           ].map(({ id, label, type }) => (
-            <div className="col-span-6" key={id}>
+            <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
+               { id === 'vehicle_types' ? (
+      <select
+        id={id}
+        value={formData[id]}
+        onChange={(e) => handleChange("vehicle_types", e.target.value)}
+        className="w-full rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
+      >
+        <option value="">Select Vehicle Type</option>
+        <option value="Truck">Truck</option>
+        <option value="Tanker">Tanker</option>
+        <option value="Trailer">Trailer</option>
+        <option value="Pickup">Pickup</option>
+        <option value="Other">Other</option>
+      </select>
+    ) : (
               <TextInput
                 id={id}
                 type={type}
                 value={formData[id]}
                 placeholder={`Enter ${label}`}
+                className='form-rounded-md'
                 onChange={(e) => handleChange(id, e.target.value)}
                 color={errors[id] ? 'failure' : 'gray'}
               />
+    )}
               {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
             </div>
           ))}
 
           {/* State Dropdown */}
-          <div className="col-span-6">
+          <div className="col-span-4">
             <Label htmlFor="state" value="State" />
             <select
               id="state"
@@ -208,7 +240,7 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
             >
               <option value="">Select State</option>
               {(Statedata || []).map((state: any) => (
-                <option key={state.id} value={state.state_name}>
+                <option key={state.id} value={state.id}>
                   {state.state_name}
                 </option>
               ))}
@@ -217,7 +249,7 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
           </div>
 
           {/* City Dropdown */}
-          <div className="col-span-6">
+          <div className="col-span-4">
             <Label htmlFor="city" value="City" />
             <select
               id="city"
@@ -236,7 +268,7 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
           </div>
 
           {/* Toggle is_active */}
-          <div className="col-span-6">
+          <div className="col-span-4">
             <Label htmlFor="is_active" value="Status" />
             <div className="flex items-center pt-3">
               <ToggleSwitch
@@ -246,6 +278,62 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
               />
             </div>
           </div>
+
+           <div className="col-span-6">
+                      <Label htmlFor="time" value="Time" />
+                         <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <TimePicker
+                                           value={formData.time ? dayjs(formData.time, 'HH:mm') : null}
+  onChange={(value) =>
+    handleChange('time', value ? value.format('HH:mm') : '')
+  }
+                                          slotProps={{
+                                            textField: {
+                                              id: 'time',
+                                              fullWidth: true,
+                                          
+                                              sx: {
+                                                '& .MuiInputBase-root': {
+                                                  fontSize: '14px',
+                                                  backgroundColor: '#f1f5f9',
+                                                  borderRadius: '6px',
+                                                },
+                                                '& .css-1hgcujo-MuiPickersInputBase-root-MuiPickersOutlinedInput-root': {
+                                                  height: '42px',
+                                                  fontSize: '14px',
+                                                  backgroundColor: '#f1f5f9',
+                                                  borderRadius: '6px',
+                                                },
+                                                '& input': {
+                                                  padding: '2px 0',
+                                                },
+                                                '& .MuiInputLabel-root': {
+                                                  fontSize: '13px',
+                                                },
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                  borderColor: '#cbd5e1',
+                                                },
+                                              },
+                                            },
+                                          }}
+                                        />
+                                      </LocalizationProvider>
+                     
+                      {errors.time && <p className="text-red-500 text-xs">{errors.time}</p>}
+                    </div>
+                    <div className="col-span-6">
+                      <Label htmlFor="date" value="Date" />
+                      <TextInput
+                        id="date"
+                        value={formData.date}
+                        placeholder="Enter date"
+                        type='date'
+                        onChange={(e) => handleChange('date', e.target.value)}
+                      className='form-rounded-md'
+                       
+                      />
+                      {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
+                    </div>
 
           {/* Address */}
           <div className="col-span-12">

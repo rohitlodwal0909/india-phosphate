@@ -241,25 +241,46 @@ const SidebarContent: MenuItem[] = [
           },
            {
             name: "Accounts",
-            icon: "material-symbols:category-outline",
+            icon: "mdi:account-key-outline",
             id: uniqueId(),
             url: "/master/accounts",
             subId:''
           },
           {
             name: "Packing Material",
-            icon: "material-symbols:category-outline",
+            icon: "lsicon:packing-box-outline",
             id: uniqueId(),
             url: "/master/packing-material",
             subId:''
           },
-          // {
-          //   name: "Transport",
-          //   icon: "material-symbols:category-outline",
-          //   id: uniqueId(),
-          //   url: "/master/transport",
-          //   subId:''
-          // },
+          {
+            name: "Transport",
+            icon: "icon-park-outline:transporter",
+            id: uniqueId(),
+            url: "/master/transport",
+            subId:''
+          },
+           {
+            name: "Batch Master",
+            icon: "lsicon:batch-add-outline",
+            id: uniqueId(),
+            url: "/master/batch-masters",
+            subId:''
+          },
+           {
+            name: "Pending Order",
+            icon: "material-symbols:pending-outline",
+            id: uniqueId(),
+            url: "/master/pending-orders",
+            subId:''
+          },
+           {
+            name: "Stock Master",
+            icon: "lsicon:management-stockout-outline",
+            id: uniqueId(),
+            url: "/master/stock-masters",
+            subId:''
+          },
           {
             name: "RM Code",
             icon: "file-icons:codeship",

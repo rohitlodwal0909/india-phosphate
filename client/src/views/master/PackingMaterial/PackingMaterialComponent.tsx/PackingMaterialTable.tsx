@@ -190,7 +190,7 @@ const PackingMaterialTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this PackingMaterial?"
+        title="Are you sure you want to Delete this Packing Material?"
       />
        <ViewPackingMaterialModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} supplierdata={supplierdata} />
       <AddPackingMaterialModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}  supplierData={supplierdata}  unitOptions={allUnits}/>

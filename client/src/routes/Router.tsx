@@ -22,7 +22,10 @@ import MakeMaster from 'src/views/master/MakeMaster/MakeMaster';
 import DepartmentMaster from 'src/views/master/DepartmentMaster/DepartmentMaster';
 import Account from 'src/views/master/Account/Account';
 import PackingMaterial from 'src/views/master/PackingMaterial/PackingMaterial';
-// import Transport from 'src/views/master/Transport/Transport';
+import Transport from 'src/views/master/Transport/Transport';
+import BatchMaster from 'src/views/master/BatchMaster/BatchMaster';
+import PendingOrder from 'src/views/master/PendingOrder/PendingOrder';
+import StockMaster from 'src/views/master/StockMaster/StockMaster';
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
@@ -85,7 +88,10 @@ const fullLayoutChildren = [
   { path: '/master/department-masters', element: <DepartmentMaster/> },
   { path: '/master/accounts', element: <Account/> },
   { path: '/master/packing-material', element: <PackingMaterial/> },
-  // { path: '/master/transport', element: <Transport/> },
+  { path: '/master/transport', element: <Transport/> },
+  { path: '/master/batch-masters', element: <BatchMaster/> },
+  { path: '/master/pending-orders', element: <PendingOrder/> },
+  { path: '/master/stock-masters', element: <StockMaster/> },
   { path: '/master/unit', element: <Unit/> },
   { path: '/master/staff-master', element: <StaffMaster/> },
   { path: '/master/designation', element: <Designation/> },

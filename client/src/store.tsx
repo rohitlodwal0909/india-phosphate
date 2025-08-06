@@ -25,6 +25,9 @@ import MakeMasterSlice from '../src/features/master/MakeMaster/MakeMasterSlice'
 import AccountSlice from '../src/features/master/Account/AccountSlice'
 import PackingMaterialSlice from '../src/features/master/PackingMaterial/PackingMaterialSlice'
 import TransportSlice from '../src/features/master/Transport/TransportSlice'
+import BatchMasterSlice from '../src/features/master/BatchMaster/BatchMasterSlice'
+import PendingOrderSlice from '../src/features/master/PendingOrder/PendingOrderSlice'
+import StockMasterSlice from '../src/features/master/StockMaster/StockMasterSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -53,7 +56,9 @@ export const store = configureStore({
     account: AccountSlice,
    packing: PackingMaterialSlice,
    transport: TransportSlice,
-
+ batchmasters: BatchMasterSlice,
+ pendingorders:PendingOrderSlice,
+ stockmasters:StockMasterSlice
   } 
 });
 

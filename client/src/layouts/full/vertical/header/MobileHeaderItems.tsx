@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Messages from "./Messages";
-import Notifications from "./Notifications";
+// import Notifications from "./Notifications";
 import Profile from "./Profile";
 import { Language } from "./Language";
 import { Navbar } from "flowbite-react";
@@ -57,7 +57,7 @@ const MobileHeaderItems = () => {
               )}
 
          {/* Notification Dropdown */}
-            <Notifications  />
+            {/* <Notifications  /> */}
 
            {/* Messages Dropdown */}
           <Messages  />

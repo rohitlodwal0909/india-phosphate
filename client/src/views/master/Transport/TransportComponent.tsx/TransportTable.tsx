@@ -40,9 +40,9 @@ const TransportTable = () => {
   const handleDelete = async (userToDelete: any) => {
     if (!userToDelete) return;
     try {
-      await dispatch(deleteTransport({id:userToDelete?.id ,user_id:logindata?.admin?.id})).unwrap();
+      await dispatch(deleteTransport({id:userToDelete?.transporter_id ,user_id:logindata?.admin?.id})).unwrap();
       dispatch(GetTransport());
-      toast.success("The Transport was successfully deleted.");
+      toast.success("The transport was successfully deleted.");
     } catch (error: any) {
       console.error("Delete failed:", error);
       if (error?.response?.status === 404) toast.error("User not found.");
@@ -53,16 +53,18 @@ const TransportTable = () => {
 
   const filteredItems = (Transportdata || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
-    const supllier = item?.Transport_name || "";
-    const mouldNo = item?.contact_no || "";
+    const supllier = item?.transporter_name || "";
+    const mouldNo = item?.contact_person || "";
     const hardness = item?.email || "";
-    const temperature = item?.address || "";
+    const gst = item?.gst_number || "";
+    const temperature = item?.is_active == 1 ?'Active' : 'Inactive';
    
     return (
       mouldNo.toString().toLowerCase().includes(searchText) ||
       supllier.toString().toLowerCase().includes(searchText) ||
       hardness.toString().toLowerCase().includes(searchText) ||
-      temperature.toString().toLowerCase().includes(searchText) 
+      temperature.toString().toLowerCase().includes(searchText) ||
+      gst.toString().toLowerCase().includes(searchText) 
     );
   });
 
@@ -89,7 +91,7 @@ const TransportTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Transport Name", "Email ", "Phone  ", "Address", "GST Number",  "Status", "Action"].map((title) => (
+              {["Sr.No", "Transport Name", "Email ", "Contact person",  "GST Number",  "Status", "Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -110,20 +112,20 @@ const TransportTable = () => {
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">#{(currentPage - 1) * pageSize + index + 1}</td>
                  
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                    {(item?.Transport_name || "-")
+                    {(item?.transporter_name || "-")
                       .replace(/^\w/, (c: string) => c.toUpperCase())}
                   </td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.email  || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.phone || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.address || "-"}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.contact_person || "-"}</td>
+                  {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.address || "-"}</td> */}
                    {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.city || "-"}</td>
   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.state || "-"}</td> */}
   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.gst_number || "-"}</td>
   <td className="py-3 px-4 text-gray-900 dark:text-gray-300"> 
-    <Badge color={ item.status === "Active"?`lightprimary`:"lightwarning"}
+    <Badge color={ item.is_active == 1 ?`lightprimary`:"lightwarning"}
                                               className="capitalize"
                                             >
-                                              {item.status}
+                                              {item.is_active==1 ?"Active":"Inactive" }
                                             </Badge></td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">

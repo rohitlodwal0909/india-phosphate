@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import EditMakeMasterModal from "./EditMakeMasterModal";
 import AddMakeMasterModal from "./AddMakeMasterModal";
 import { deleteMakeMaster, GetMakeMaster } from "src/features/master/MakeMaster/MakeMasterSlice";
-import ViewMakeModal from "../../Company/CompanyComponent.tsx/ViewMakeModal";
+
 
 const MakeMasterTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -24,7 +24,7 @@ const MakeMasterTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewModal ,setViewModal ]= useState(false)
+
   useEffect(() => {
     dispatch(GetMakeMaster());
   }, [dispatch]);
@@ -50,10 +50,10 @@ const MakeMasterTable = () => {
 
   const filteredItems = (MakeMasterdata || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
-    const supllier = item?.MakeMaster_name || "";
-    const mouldNo = item?.contact_no || "";
-    const hardness = item?.email || "";
-    const temperature = item?.address || "";
+    const supllier = item?.master_name || "";
+    const mouldNo = item?.make_code || "";
+    const hardness = item?.description || "";
+    const temperature = item?.status || "";
    
     return (
       mouldNo.toString().toLowerCase().includes(searchText) ||
@@ -180,7 +180,7 @@ const MakeMasterTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this MakeMaster?"
+        title="Are you sure you want to Delete this Make Master?"
       />
 
       <AddMakeMasterModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />

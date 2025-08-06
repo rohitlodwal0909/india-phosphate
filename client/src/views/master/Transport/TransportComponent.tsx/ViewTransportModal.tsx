@@ -23,30 +23,39 @@ const ViewTransportModal = ({
   selectedRow,
  Statedata
 }: Props) => {
-Statedata
 
-const selected = Statedata.find((item: any) => item.id === parseInt(selectedRow?.state_id));
+const selected = Statedata.find((item: any) => item.id === parseInt(selectedRow?.state));
+
   const fields = [
-  ["Transport Name", selectedRow?.Transport_name],
-  ["Transport Code", selectedRow?.Transport_code],
-  ["Status", selectedRow?.status],
-  ["Phone", selectedRow?.phone],
+  ["Transport Name", selectedRow?.transporter_name],
+  ["Transport Code", selectedRow?.contact_person],
+  ["Status", selectedRow?.is_active == 1 ? "Active":"Inactive"],
+  ["Contact Number", selectedRow?.contact_number],
+  ["Alternate Number", selectedRow?.alternate_number],
   ["Email", selectedRow?.email],
   ["GST Number", selectedRow?.gst_number],
-  ["CIN Number", selectedRow?.cin_number],
   ["Address", selectedRow?.address],
   ["Pan card", selectedRow?.pan_number],
 
   ["Create by", selectedRow?.created_by_username],
   ["City", selectedRow?.city],
   ["State", selected?.state_name],
-  ["Country", selectedRow?.country],
+  ["Pin Code", selectedRow?.pincode],
+  ["Freight Rate Type", selectedRow?.freight_rate_type],
+  ["Vehicle Types", selectedRow?.vehicle_types],
+  ["Preferred Routes", selectedRow?.preferred_routes],
+  ["Payment Terms", selectedRow?.payment_terms],
+  ["Date", selectedRow?.date],
+  ["Time",  selectedRow?.time ? new Date(`1970-01-01T${selectedRow.time}`).toLocaleTimeString([], {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true,
+}) : ''],
   
 
  
 ]
   
-console.log(selectedRow)
   return (
     <Modal
   size="5xl"

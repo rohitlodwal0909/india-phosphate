@@ -45,10 +45,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     tableName: "account_name",
     createdAt: 'created_at',
+    deletedAt: 'deleted_at',
     updatedAt: 'updated_at',
     timestamps: true,
      paranoid: true, // enables soft delete using deletedAt
-    deletedAt: 'deleted_at',
   });
 
  

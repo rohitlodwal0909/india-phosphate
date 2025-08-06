@@ -16,7 +16,10 @@ import {
   addTransport,
   GetTransport,
 } from 'src/features/master/Transport/TransportSlice';
-
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -68,14 +71,23 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
   const validateForm = () => {
     const required = [
       'transporter_name',
-      'contact_person',
-      'contact_number',
-      'address',
-      'city',
-      'state',
-      'pincode',
-      'freight_rate_type',
-      'payment_terms',
+    'contact_person',
+  'contact_number',
+    'alternate_number',
+    'email',
+   'address',
+    'city',
+    'state',
+    'pincode',
+    'gst_number',
+    'pan_number',
+    'vehicle_types',
+    'preferred_routes',
+    'freight_rate_type',
+    'payment_terms',
+    'created_by' ,
+    'date',
+    'time'
     ];
     const newErrors: any = {};
     required.forEach((field) => {
@@ -146,6 +158,21 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           ].map(({ id, label, type }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
+              { id === 'vehicle_types' ? (
+      <select
+        id={id}
+        value={formData[id]}
+        onChange={(e) => handleChange("vehicle_types", e.target.value)}
+        className="w-full rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
+      >
+        <option value="">Select Vehicle Type</option>
+        <option value="Truck">Truck</option>
+        <option value="Tanker">Tanker</option>
+        <option value="Trailer">Trailer</option>
+        <option value="Pickup">Pickup</option>
+        <option value="Other">Other</option>
+      </select>
+    ) : (
               <TextInput
                 id={id}
                 type={type}
@@ -155,6 +182,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
                 color={errors[id] ? 'failure' : 'gray'}
                 className='form-rounded-md'
               />
+    )}
               {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
             </div>
           ))}
@@ -170,7 +198,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
             >
               <option value="">Select State</option>
               {(Statedata || []).map((state: any) => (
-                <option key={state.id} value={state.state_name}>
+                <option key={state.id} value={state.id}>
                   {state.state_name}
                 </option>
               ))}
@@ -208,7 +236,59 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
               />
             </div>
           </div>
-
+   <div className="col-span-6">
+                       <Label htmlFor="time" value="Time" />
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                         <TimePicker
+                                             value={formData.time ? dayjs(formData.time) : null}
+                                        onChange={(value:any) => handleChange('time', value)}
+                                           slotProps={{
+                                             textField: {
+                                               id: 'time',
+                                               fullWidth: true,
+                                           
+                                               sx: {
+                                                 '& .MuiInputBase-root': {
+                                                   fontSize: '14px',
+                                                   backgroundColor: '#f1f5f9',
+                                                   borderRadius: '6px',
+                                                 },
+                                                 '& .css-1hgcujo-MuiPickersInputBase-root-MuiPickersOutlinedInput-root': {
+                                                   height: '42px',
+                                                   fontSize: '14px',
+                                                   backgroundColor: '#f1f5f9',
+                                                   borderRadius: '6px',
+                                                 },
+                                                 '& input': {
+                                                   padding: '2px 0',
+                                                 },
+                                                 '& .MuiInputLabel-root': {
+                                                   fontSize: '13px',
+                                                 },
+                                                 '& .MuiOutlinedInput-notchedOutline': {
+                                                   borderColor: '#cbd5e1',
+                                                 },
+                                               },
+                                             },
+                                           }}
+                                         />
+                                       </LocalizationProvider>
+                      
+                       {errors.time && <p className="text-red-500 text-xs">{errors.time}</p>}
+                     </div>
+          <div className="col-span-6">
+            <Label htmlFor="date" value="Date" />
+            <TextInput
+              id="date"
+              value={formData.date}
+              placeholder="Enter date"
+              type='date'
+              onChange={(e) => handleChange('date', e.target.value)}
+            className='form-rounded-md'
+             
+            />
+            {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
+          </div>
           {/* Address */}
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
@@ -225,32 +305,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
             {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
           </div>
 
-           <div className="col-span-6">
-            <Label htmlFor="time" value="Time" />
-            <TextInput
-              id="time"
-              value={formData.time}
-              placeholder="Enter time"
-              type='time'
-              onChange={(e) => handleChange('time', e.target.value)}
-               className='form-rounded-md'
-              
-            />
-            {errors.time && <p className="text-red-500 text-xs">{errors.time}</p>}
-          </div>
-          <div className="col-span-6">
-            <Label htmlFor="date" value="Date" />
-            <TextInput
-              id="date"
-              value={formData.date}
-              placeholder="Enter date"
-              type='date'
-              onChange={(e) => handleChange('date', e.target.value)}
-            className='form-rounded-md'
-             
-            />
-            {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
-          </div>
+          
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

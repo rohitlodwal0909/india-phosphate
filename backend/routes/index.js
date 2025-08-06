@@ -27,6 +27,9 @@ const MakeMasterRoutes = require("../routes/master/MakeMasterRoutes")
 const AccountRoutes = require("../routes/master/AccountRoutes")
 const PackingMaterialRoutes = require("../routes/master/PackingMaterialRoutes")
 const TransportRoutes = require("../routes/master/TransportRoutes")
+const BatchMasterRoutes = require("../routes/master/BatchMasterRoutes")
+const PendingOrderRoutes = require("../routes/master/PendingOrderRoutes")
+const StockMasterRoutes = require("../routes/master/StockMasterRoutes")
 
 router.use("/api", authRoutes);
 router.use("/api", userRoutes);
@@ -54,5 +57,8 @@ router.use("/api", DepartmentMasterRoutes)
 router.use("/api", AccountRoutes)
 router.use("/api", PackingMaterialRoutes)
 router.use("/api", TransportRoutes)
+router.use("/api", BatchMasterRoutes)
+router.use("/api", PendingOrderRoutes)
+router.use("/api", StockMasterRoutes)
 
 module.exports = router
