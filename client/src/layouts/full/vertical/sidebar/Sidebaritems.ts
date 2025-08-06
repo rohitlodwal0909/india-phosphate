@@ -282,6 +282,13 @@ const SidebarContent: MenuItem[] = [
             subId:''
           },
           {
+            name: "Sales Master",
+            icon: "lsicon:management-stockout-outline",
+            id: uniqueId(),
+            url: "/master/sales-masters",
+            subId:''
+          },
+          {
             name: "RM Code",
             icon: "file-icons:codeship",
             id: uniqueId(),

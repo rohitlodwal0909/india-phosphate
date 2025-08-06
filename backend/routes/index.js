@@ -30,6 +30,7 @@ const TransportRoutes = require("../routes/master/TransportRoutes")
 const BatchMasterRoutes = require("../routes/master/BatchMasterRoutes")
 const PendingOrderRoutes = require("../routes/master/PendingOrderRoutes")
 const StockMasterRoutes = require("../routes/master/StockMasterRoutes")
+const SalesMasterRoutes = require("../routes/master/SalesMasterRoutes")
 
 router.use("/api", authRoutes);
 router.use("/api", userRoutes);
@@ -60,5 +61,6 @@ router.use("/api", TransportRoutes)
 router.use("/api", BatchMasterRoutes)
 router.use("/api", PendingOrderRoutes)
 router.use("/api", StockMasterRoutes)
+router.use("/api", SalesMasterRoutes)
 
 module.exports = router

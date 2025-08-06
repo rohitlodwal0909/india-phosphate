@@ -5,17 +5,17 @@ import {apiUrl  }from '../../../constants/contant'
 const initialState = {
   loading: false,
   error: null,
-  StockMasterdata: [],         
+  SalesMasterdata: [],         
   addResult: null,  
   updateResult: null,
   deleteResult: null 
 };
 
-export const GetStockMaster = createAsyncThunk(
-  "GetStockMaster /fetch",
+export const GetSalesMaster = createAsyncThunk(
+  "GetSalesMaster /fetch",
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-stock-master`);
+      const response = await axios.get(`${apiUrl}/get-sales-master`);
       return response.data;
     } catch (error) {
       const errorMessage =
@@ -25,11 +25,11 @@ export const GetStockMaster = createAsyncThunk(
   }
 );
 
-export const addStockMaster = createAsyncThunk(
-  "StockMaster/add",
+export const addSalesMaster = createAsyncThunk(
+  "SalesMaster/add",
   async (formdata:any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-stock-master`,
+      const response = await axios.post(`${apiUrl}/store-sales-master`,
         formdata);
       return response.data;
     } catch (error) {
@@ -41,12 +41,12 @@ export const addStockMaster = createAsyncThunk(
   }
 );
 
- export const updateStockMaster = createAsyncThunk(
-  "StockMaster/update",
+ export const updateSalesMaster = createAsyncThunk(
+  "SalesMaster/update",
   async (updatedUser: any, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${apiUrl}/update-stock-master/${updatedUser?.id}`,
+        `${apiUrl}/update-sales-master/${updatedUser?.id}`,
         updatedUser
       );
       return response.data;
@@ -60,11 +60,11 @@ export const addStockMaster = createAsyncThunk(
   }
 );
 
-export const deleteStockMaster = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deleteStockMaster/delete",
+export const deleteSalesMaster = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
+  "deleteSalesMaster/delete",
   async ({id,user_id}, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/delete-stock-master/${id}`,{
+      await axios.delete(`${apiUrl}/delete-sales-master/${id}`,{
       data: { user_id }
     });
       return id;
@@ -78,51 +78,51 @@ export const deleteStockMaster = createAsyncThunk<any, {id:string,user_id:any}, 
 
 
 
-const StockMasterSlice = createSlice({
-  name: "stockmasters",
+const SalesMasterSlice = createSlice({
+  name: "salesmasters",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       // GET users
-      .addCase(GetStockMaster.pending, (state) => {
+      .addCase(GetSalesMaster.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(GetStockMaster.fulfilled, (state, action) => {
+      .addCase(GetSalesMaster.fulfilled, (state, action) => {
         state.loading = false;
-        state.StockMasterdata = action.payload;
+        state.SalesMasterdata = action.payload;
       })
-      .addCase(GetStockMaster.rejected, (state, action) => {
+      .addCase(GetSalesMaster.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
 
       // ADD user
-      .addCase(addStockMaster.fulfilled, (state, action) => {
+      .addCase(addSalesMaster.fulfilled, (state, action) => {
         state.addResult = action.payload;
       })
-      .addCase(addStockMaster.rejected, (state, action) => {
+      .addCase(addSalesMaster.rejected, (state, action) => {
         state.error = action.error.message;
       })
 
       // UPDATE user
-      .addCase(updateStockMaster.fulfilled, (state, action) => {
+      .addCase(updateSalesMaster.fulfilled, (state, action) => {
         state.updateResult = action.payload;
       })
-      .addCase(updateStockMaster.rejected, (state, action) => {
+      .addCase(updateSalesMaster.rejected, (state, action) => {
         state.error = action.error.message;
       })
 
       // DELETE user
-      .addCase(deleteStockMaster.fulfilled, (state, action) => {
+      .addCase(deleteSalesMaster.fulfilled, (state, action) => {
         state.deleteResult = action.payload;
       })
-      .addCase(deleteStockMaster.rejected, (state, action) => {
+      .addCase(deleteSalesMaster.rejected, (state, action) => {
         state.error = action.error.message;
       });
   },
 });
 
-export default StockMasterSlice.reducer;
+export default SalesMasterSlice.reducer;
 

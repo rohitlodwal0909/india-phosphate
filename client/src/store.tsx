@@ -28,6 +28,7 @@ import TransportSlice from '../src/features/master/Transport/TransportSlice'
 import BatchMasterSlice from '../src/features/master/BatchMaster/BatchMasterSlice'
 import PendingOrderSlice from '../src/features/master/PendingOrder/PendingOrderSlice'
 import StockMasterSlice from '../src/features/master/StockMaster/StockMasterSlice'
+import SalesMasterSlice from '../src/features/master/SalesMaster/SalesMasterSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -58,7 +59,8 @@ export const store = configureStore({
    transport: TransportSlice,
  batchmasters: BatchMasterSlice,
  pendingorders:PendingOrderSlice,
- stockmasters:StockMasterSlice
+ stockmasters:StockMasterSlice,
+ salesmasters:SalesMasterSlice
   } 
 });
 

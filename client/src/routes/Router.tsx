@@ -26,6 +26,7 @@ import Transport from 'src/views/master/Transport/Transport';
 import BatchMaster from 'src/views/master/BatchMaster/BatchMaster';
 import PendingOrder from 'src/views/master/PendingOrder/PendingOrder';
 import StockMaster from 'src/views/master/StockMaster/StockMaster';
+import SalesMaster from 'src/views/master/SalesMaster/SalesMaster';
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
@@ -92,6 +93,7 @@ const fullLayoutChildren = [
   { path: '/master/batch-masters', element: <BatchMaster/> },
   { path: '/master/pending-orders', element: <PendingOrder/> },
   { path: '/master/stock-masters', element: <StockMaster/> },
+  { path: '/master/sales-masters', element: <SalesMaster/> },
   { path: '/master/unit', element: <Unit/> },
   { path: '/master/staff-master', element: <StaffMaster/> },
   { path: '/master/designation', element: <Designation/> },
