@@ -29,6 +29,9 @@ import BatchMasterSlice from '../src/features/master/BatchMaster/BatchMasterSlic
 import PendingOrderSlice from '../src/features/master/PendingOrder/PendingOrderSlice'
 import StockMasterSlice from '../src/features/master/StockMaster/StockMasterSlice'
 import SalesMasterSlice from '../src/features/master/SalesMaster/SalesMasterSlice'
+import HsnMasterSlice from '../src/features/master/HsnMaster/HsnMasterSlice'
+import CurrencySlice from '../src/features/master/Currency/CurrencySlice'
+import EquipmentSlice from '../src/features/master/Equipment/EquipmentSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -60,7 +63,10 @@ export const store = configureStore({
  batchmasters: BatchMasterSlice,
  pendingorders:PendingOrderSlice,
  stockmasters:StockMasterSlice,
- salesmasters:SalesMasterSlice
+ salesmasters:SalesMasterSlice,
+  hsnmasters: HsnMasterSlice,
+  currency:CurrencySlice,
+  equipment:EquipmentSlice
   } 
 });
 

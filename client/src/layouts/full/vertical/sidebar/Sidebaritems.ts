@@ -283,9 +283,30 @@ const SidebarContent: MenuItem[] = [
           },
           {
             name: "Sales Master",
-            icon: "lsicon:management-stockout-outline",
+            icon: "iconoir:home-sale",
             id: uniqueId(),
             url: "/master/sales-masters",
+            subId:''
+          },
+           {
+            name: "HSN Master",
+            icon: "mdi:signal-hspa",
+            id: uniqueId(),
+            url: "/master/hsn-masters",
+            subId:''
+          },
+          {
+            name: "Currency",
+            icon: "ri:currency-line",
+            id: uniqueId(),
+            url: "/master/currency-master",
+            subId:''
+          },
+           {
+            name: "Equipment",
+            icon: "lsicon:equipment-outline",
+            id: uniqueId(),
+            url: "/master/equipment",
             subId:''
           },
           {

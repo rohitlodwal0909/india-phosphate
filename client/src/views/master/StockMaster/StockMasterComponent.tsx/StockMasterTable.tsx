@@ -188,7 +188,7 @@ const StockMasterTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this Batch Master?"
+        title="Are you sure you want to Delete this Stock Master?"
       />
        <ViewStockMasterModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} itemList={rmcodedata} locationList={locationList}  />
       <AddStockMasterModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}  itemList={rmcodedata} locationList={locationList} batchnumber={qcAlldata} />

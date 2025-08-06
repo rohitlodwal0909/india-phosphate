@@ -184,7 +184,7 @@ const SalesMasterTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this Batch Master?"
+        title="Are you sure you want to Delete this Sales Master?"
       />
        <ViewSalesMasterModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} CustomerData={customerdata} placeModal={viewModal} />
       <AddSalesMasterModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}  CustomerData={customerdata}  />

@@ -27,6 +27,9 @@ import BatchMaster from 'src/views/master/BatchMaster/BatchMaster';
 import PendingOrder from 'src/views/master/PendingOrder/PendingOrder';
 import StockMaster from 'src/views/master/StockMaster/StockMaster';
 import SalesMaster from 'src/views/master/SalesMaster/SalesMaster';
+import HsnMaster from 'src/views/master/HsnMaster/HsnMaster';
+import Currency from 'src/views/master/Currency/Currency';
+import Equipment from 'src/views/master/Equipment/Currency';
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
@@ -94,6 +97,10 @@ const fullLayoutChildren = [
   { path: '/master/pending-orders', element: <PendingOrder/> },
   { path: '/master/stock-masters', element: <StockMaster/> },
   { path: '/master/sales-masters', element: <SalesMaster/> },
+  { path: '/master/hsn-masters', element: <HsnMaster/> },
+  { path: '/master/currency-master', element: <Currency/> },
+  { path: '/master/equipment', element: <Equipment/> },
+
   { path: '/master/unit', element: <Unit/> },
   { path: '/master/staff-master', element: <StaffMaster/> },
   { path: '/master/designation', element: <Designation/> },
