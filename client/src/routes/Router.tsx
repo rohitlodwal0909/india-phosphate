@@ -30,6 +30,9 @@ import SalesMaster from 'src/views/master/SalesMaster/SalesMaster';
 import HsnMaster from 'src/views/master/HsnMaster/HsnMaster';
 import Currency from 'src/views/master/Currency/Currency';
 import Equipment from 'src/views/master/Equipment/Currency';
+import Outward from 'src/views/master/Outward/Outward';
+import Purchase from 'src/views/master/Purchase/Purchase';
+import BmrMaster from 'src/views/master/BmrMaster/BmrMaster';
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
@@ -100,7 +103,9 @@ const fullLayoutChildren = [
   { path: '/master/hsn-masters', element: <HsnMaster/> },
   { path: '/master/currency-master', element: <Currency/> },
   { path: '/master/equipment', element: <Equipment/> },
-
+  { path: '/master/outward', element: <Outward/> },
+  { path: '/master/purchase', element: <Purchase/> },
+  { path: '/master/bmr', element: <BmrMaster/> },
   { path: '/master/unit', element: <Unit/> },
   { path: '/master/staff-master', element: <StaffMaster/> },
   { path: '/master/designation', element: <Designation/> },

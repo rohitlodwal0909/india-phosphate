@@ -34,6 +34,9 @@ const SalesMasterRoutes = require("../routes/master/SalesMasterRoutes")
 const HsnMasterRoutes = require("../routes/master/HsnMasterRoutes")
 const CurrencyRoutes = require("../routes/master/CurrencyRoutes")
 const EquipmentRoutes = require("../routes/master/EquipmentRoutes")
+const OutwardRoutes = require("../routes/master/OutwardRoutes")
+const PurchaseRoutes = require("../routes/master/PurchaseRoutes")
+const BmrMasterRoutes = require("../routes/master/BmrMasterRoutes")
 
 router.use("/api", authRoutes);
 router.use("/api", userRoutes);
@@ -69,5 +72,8 @@ router.use("/api", HsnMasterRoutes)
 router.use("/api", HsnMasterRoutes)
 router.use("/api", CurrencyRoutes)
 router.use("/api", EquipmentRoutes)
+router.use("/api", OutwardRoutes)
+router.use("/api", PurchaseRoutes)
+router.use("/api", BmrMasterRoutes)
 
 module.exports = router

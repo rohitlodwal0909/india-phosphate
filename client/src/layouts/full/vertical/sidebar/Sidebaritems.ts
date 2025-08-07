@@ -378,6 +378,27 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/master/inward",
             subId:''
+          },
+           {
+            name: "Outward ",
+            icon: "material-symbols:arrow-outward-rounded",
+            id: uniqueId(),
+            url: "/master/outward",
+            subId:''
+          },
+           {
+            name: "Purchase",
+            icon: "bx:purchase-tag",
+            id: uniqueId(),
+            url: "/master/purchase",
+            subId:''
+          },
+           {
+            name: "BMR",
+            icon: "carbon:ibm-gcm",
+            id: uniqueId(),
+            url: "/master/bmr",
+            subId:''
           }
         ],
       },

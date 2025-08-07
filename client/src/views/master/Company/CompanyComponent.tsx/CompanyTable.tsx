@@ -189,7 +189,7 @@ const CompanyTable = () => {
         selectedUser={selectedrow}
         title="Are you sure you want to Delete this Company?"
       />
-       <ViewCompanyModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} Statedata={Citydata} />
+       <ViewCompanyModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} Statedata={Citydata}  />
       <AddCompanyModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}  Statedata={Citydata} />
       <EditCompanyModal show={editmodal} setShowmodal={setEditmodal} CompanyData={selectedrow} logindata={logindata}  Statedata={Citydata}/>
     </div>

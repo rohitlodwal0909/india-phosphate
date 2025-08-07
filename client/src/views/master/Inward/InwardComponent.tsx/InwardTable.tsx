@@ -10,12 +10,13 @@ import { toast } from "react-toastify";
 import EditInwardModal from "./EditInwardModal";
 import AddInwardModal from "./AddInwardModal";
 import { deleteInward, GetInward } from "src/features/master/Inward/InwardSlice";
+import { GetSupplier } from "src/features/master/Supplier/SupplierSlice";
 
 const InwardTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
   const { Inwarddata, loading } = useSelector((state: any) => state.inward);
-
+  const { supplierdata } = useSelector((state: any) => state.supplier);
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
@@ -26,6 +27,7 @@ const InwardTable = () => {
 
   useEffect(() => {
     dispatch(GetInward());
+    dispatch(GetSupplier());
   }, [dispatch]);
 
   const handleEdit = (entry: any) => {
@@ -48,15 +50,18 @@ const InwardTable = () => {
   };
 
   const filteredItems = (Inwarddata || []).filter((item: any) => {
-    const searchText = searchTerm.toLowerCase();
-    const supllier = item?.Inward_name || "";
+  const searchText = searchTerm.toLowerCase();
 
-   
-    return (
-      supllier.toString().toLowerCase().includes(searchText) 
-    
-    );
-  });
+  return (
+    String(item?.inward_number)?.toString().toLowerCase().includes(searchText) ||
+    String(item?.uom)?.toLowerCase().includes(searchText) ||
+   String( item?.vendor_id)?.toLowerCase().includes(searchText) ||
+    String(item?.vehicle_number)?.toLowerCase().includes(searchText) ||
+   String( item?.item_id)?.toLowerCase().includes(searchText) ||
+   String( item?.inward_date)?.toLowerCase().includes(searchText) ||
+   String( item?.quantity)?.toString().toLowerCase().includes(searchText)
+  );
+});
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const currentItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -81,7 +86,7 @@ const InwardTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Inward Number", "Action"].map((title) => (
+              {["Sr.No", "Inward Number", "Inward Date", "Vendor", "Item","Quantity", "UOM", "Vehicle Number", "Remarks","Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -104,7 +109,30 @@ const InwardTable = () => {
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     {item?.inward_number || "-"}
                   </td>
-               
+                <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.inward_date || "-"}
+          </td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.vendor_id ? supplierdata?.find(items => items?.id == item?.vendor_id )?.supplier_name : "-"}
+          </td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.item_id || "-"}
+          </td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.quantity || "-"}
+          </td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.uom || "-"}
+          </td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.vehicle_number || "-"}
+          </td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.remarks || "-"}
+          </td>
+          {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.created_by || "-"}
+          </td> */}
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       
@@ -166,8 +194,8 @@ const InwardTable = () => {
         title="Are you sure you want to Delete this Inward?"
       />
 
-      <AddInwardModal setShowmodal={setAddmodal} show={addmodal}  />
-      <EditInwardModal show={editmodal} setShowmodal={setEditmodal} InwardData={selectedrow}  />
+      <AddInwardModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} vendordata={supplierdata}/>
+      <EditInwardModal show={editmodal} setShowmodal={setEditmodal} InwardData={selectedrow} logindata={logindata} vendordata={supplierdata} />
     </div>
   );
 };

@@ -32,6 +32,9 @@ import SalesMasterSlice from '../src/features/master/SalesMaster/SalesMasterSlic
 import HsnMasterSlice from '../src/features/master/HsnMaster/HsnMasterSlice'
 import CurrencySlice from '../src/features/master/Currency/CurrencySlice'
 import EquipmentSlice from '../src/features/master/Equipment/EquipmentSlice'
+import OutwardSlice from '../src/features/master/Outward/OutwardSlice'
+import PurchaseSlice from '../src/features/master/Purchase/PurchaseSlice'
+import BmrMasterSlice from '../src/features/master/BmrMaster/BmrMasterSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -66,7 +69,10 @@ export const store = configureStore({
  salesmasters:SalesMasterSlice,
   hsnmasters: HsnMasterSlice,
   currency:CurrencySlice,
-  equipment:EquipmentSlice
+  equipment:EquipmentSlice,
+  outward:OutwardSlice,
+  purchase: PurchaseSlice,
+  bmrmaster:BmrMasterSlice
   } 
 });
 
