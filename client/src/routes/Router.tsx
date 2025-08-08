@@ -6,33 +6,35 @@ import Loadable from '../layouts/full/shared/loadable/Loadable';
 
 import ProtectedRoute from 'src/components/shared/ProtectedRoute'; // ✅ Import the guard
 import AuthGuard from 'src/utils/Authcard';
-import Supplier from 'src/views/master/Supplier/Supplier';
-import Customer from 'src/views/master/Customer/Customer';
-import Category from 'src/views/master/Category/Category';
-import RmCode from 'src/views/master/RmCode/RmCode';
-import Unit from 'src/views/master/Unit/Unit';
-import StaffMaster from 'src/views/master/StaffMaster/StaffMaster';
-import Qualification from 'src/views/master/Qualification/Qualification';
-import Designation from 'src/views/master/Designation/Designation';
-import State from 'src/views/master/State/State';
-import City from 'src/views/master/City/City';
-import Inward from 'src/views/master/Inward/Inward';
-import Company from 'src/views/master/Company/Company';
-import MakeMaster from 'src/views/master/MakeMaster/MakeMaster';
-import DepartmentMaster from 'src/views/master/DepartmentMaster/DepartmentMaster';
-import Account from 'src/views/master/Account/Account';
-import PackingMaterial from 'src/views/master/PackingMaterial/PackingMaterial';
-import Transport from 'src/views/master/Transport/Transport';
-import BatchMaster from 'src/views/master/BatchMaster/BatchMaster';
-import PendingOrder from 'src/views/master/PendingOrder/PendingOrder';
-import StockMaster from 'src/views/master/StockMaster/StockMaster';
-import SalesMaster from 'src/views/master/SalesMaster/SalesMaster';
-import HsnMaster from 'src/views/master/HsnMaster/HsnMaster';
-import Currency from 'src/views/master/Currency/Currency';
-import Equipment from 'src/views/master/Equipment/Currency';
-import Outward from 'src/views/master/Outward/Outward';
-import Purchase from 'src/views/master/Purchase/Purchase';
-import BmrMaster from 'src/views/master/BmrMaster/BmrMaster';
+const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
+const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
+const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
+const RmCode = Loadable(lazy(() => import('src/views/master/RmCode/RmCode')));
+const Unit = Loadable(lazy(() => import('src/views/master/Unit/Unit')));
+const StaffMaster = Loadable(lazy(() => import('src/views/master/StaffMaster/StaffMaster')));
+const Qualification = Loadable(lazy(() => import('src/views/master/Qualification/Qualification')));
+const Designation = Loadable(lazy(() => import('src/views/master/Designation/Designation')));
+const State = Loadable(lazy(() => import('src/views/master/State/State')));
+const City = Loadable(lazy(() => import('src/views/master/City/City')));
+const Inward = Loadable(lazy(() => import('src/views/master/Inward/Inward')));
+const Company = Loadable(lazy(() => import('src/views/master/Company/Company')));
+const MakeMaster = Loadable(lazy(() => import('src/views/master/MakeMaster/MakeMaster')));
+const DepartmentMaster = Loadable(lazy(() => import('src/views/master/DepartmentMaster/DepartmentMaster')));
+const Account = Loadable(lazy(() => import('src/views/master/Account/Account')));
+const PackingMaterial = Loadable(lazy(() => import('src/views/master/PackingMaterial/PackingMaterial')));
+const Transport = Loadable(lazy(() => import('src/views/master/Transport/Transport')));
+const BatchMaster = Loadable(lazy(() => import('src/views/master/BatchMaster/BatchMaster')));
+const PendingOrder = Loadable(lazy(() => import('src/views/master/PendingOrder/PendingOrder')));
+const StockMaster = Loadable(lazy(() => import('src/views/master/StockMaster/StockMaster')));
+const SalesMaster = Loadable(lazy(() => import('src/views/master/SalesMaster/SalesMaster')));
+const HsnMaster = Loadable(lazy(() => import('src/views/master/HsnMaster/HsnMaster')));
+const Currency = Loadable(lazy(() => import('src/views/master/Currency/Currency')));
+const Equipment = Loadable(lazy(() => import('src/views/master/Equipment/Currency')));
+const Outward = Loadable(lazy(() => import('src/views/master/Outward/Outward')));
+const Purchase = Loadable(lazy(() => import('src/views/master/Purchase/Purchase')));
+const BmrMaster = Loadable(lazy(() => import('src/views/master/BmrMaster/BmrMaster')));
+const FinishGood = Loadable(lazy(() => import('src/views/master/FinishGood/FinishGood')));
+const Formula = Loadable(lazy(() => import('src/views/master/Formula/Formula')));
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
@@ -113,6 +115,8 @@ const fullLayoutChildren = [
   { path: '/master/states', element: <State/> },
   { path: '/master/cites', element: <City/> },
   { path: '/master/inward', element: <Inward/> },
+  { path: '/master/finish-good', element: <FinishGood/> },
+  { path: '/master/formula', element: <Formula/> },
 
   { path: '*', element: <Navigate to="/auth/404" /> },
 ];

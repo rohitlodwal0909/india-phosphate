@@ -37,6 +37,8 @@ const EquipmentRoutes = require("../routes/master/EquipmentRoutes")
 const OutwardRoutes = require("../routes/master/OutwardRoutes")
 const PurchaseRoutes = require("../routes/master/PurchaseRoutes")
 const BmrMasterRoutes = require("../routes/master/BmrMasterRoutes")
+const FinishGoodRoutes = require("../routes/master/FinishGoodRoutes")
+const FormulaRoutes = require("../routes/master/FormulaRoutes")
 
 router.use("/api", authRoutes);
 router.use("/api", userRoutes);
@@ -75,5 +77,7 @@ router.use("/api", EquipmentRoutes)
 router.use("/api", OutwardRoutes)
 router.use("/api", PurchaseRoutes)
 router.use("/api", BmrMasterRoutes)
+router.use("/api", FinishGoodRoutes)
+router.use("/api", FormulaRoutes)
 
 module.exports = router

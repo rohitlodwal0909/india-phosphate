@@ -106,7 +106,9 @@ exports.updateStaffMaster = async (req, res,next) => {
       designation_id,
       qualification_id,
       profile_photo, // optional
-      status         // optional
+      status  ,
+      password , 
+      confirm_password       // optional
     } = req.body;
 
     await staff.update({
@@ -121,7 +123,9 @@ exports.updateStaffMaster = async (req, res,next) => {
       qualification_id,
       profile_photo: profileImagePath ? profileImagePath : profile_photo ,
       status: status || staff.status,
-      updated_at: new Date()
+      updated_at: new Date(),
+      confirm_password,
+      password
     });
 
     return res.json(staff);

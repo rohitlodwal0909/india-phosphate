@@ -35,6 +35,8 @@ import EquipmentSlice from '../src/features/master/Equipment/EquipmentSlice'
 import OutwardSlice from '../src/features/master/Outward/OutwardSlice'
 import PurchaseSlice from '../src/features/master/Purchase/PurchaseSlice'
 import BmrMasterSlice from '../src/features/master/BmrMaster/BmrMasterSlice'
+import FinishGoodSlice from '../src/features/master/FinishGood/FinishGoodSlice'
+import FormulaSlice from '../src/features/master/Formula/FormulaSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -72,7 +74,9 @@ export const store = configureStore({
   equipment:EquipmentSlice,
   outward:OutwardSlice,
   purchase: PurchaseSlice,
-  bmrmaster:BmrMasterSlice
+  bmrmaster:BmrMasterSlice,
+  finishgood:FinishGoodSlice,
+  formula:FormulaSlice
   } 
 });
 

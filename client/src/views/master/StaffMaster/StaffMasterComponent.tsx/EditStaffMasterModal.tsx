@@ -114,7 +114,7 @@ const handleSubmit = async (e: any) => {
     setProfilePhoto(null);
     setShowmodal(false);
   } catch (err: any) {
-    toast.error(err?.message || 'Something went wrong');
+    toast.error(err?.message || err||'Something went wrong');
   }
 };
   return (

@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.STRING(15),
     allowNull: false
   },
+   password: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+   confirm_password: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   date_of_birth: {
     type: DataTypes.DATEONLY,
     allowNull: false

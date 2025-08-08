@@ -399,6 +399,20 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/master/bmr",
             subId:''
+          },
+           {
+            name: "Finish Good",
+            icon: "ep:finished",
+            id: uniqueId(),
+            url: "/master/finish-good",
+            subId:''
+          },
+          {
+            name: "Formula",
+            icon: "fluent:clipboard-math-formula-24-regular",
+            id: uniqueId(),
+            url: "/master/formula",
+            subId:''
           }
         ],
       },

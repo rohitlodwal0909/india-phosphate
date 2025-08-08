@@ -1,4 +1,4 @@
-import { Badge, Button, Tooltip } from "flowbite-react";
+import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -7,34 +7,27 @@ import CommonPagination from "../../../../utils/CommonPagination";
 import ComonDeletemodal from "../../../../utils/deletemodal/ComonDeletemodal";
 import { AppDispatch } from "src/store";
 import { toast } from "react-toastify";
-import EditStaffMasterModal from "./EditStaffMasterModal";
-import AddStaffMasterModal from "./AddStaffMasterModal";
-import { deleteStaffMaster, GetStaffMaster } from "src/features/master/StaffMaster/StaffMasterSlice";
-import { GetDesignation } from "src/features/master/Designation/DesignationSlice";
-import { GetQualification } from "src/features/master/Qualification/QualificationSlice";
-import ViewStaffMasterModal from "./ViewStaffMasterModal";
-import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
-import AddPasswordModal from "./AddPasswordModal";
+import EditFormulaModal from "./EditFormulaModal";
+import AddFormulaModal from "./AddFormulaModal";
+import { deleteFormula, GetFormula } from "src/features/master/Formula/FormulaSlice";
 
-const StaffMasterTable = () => {
+
+const FormulaTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
-  const { staffmasterdata, loading } = useSelector((state: any) => state.staffmaster);
-    const { Designationdata } = useSelector((state: any) => state.designation);
-  const { Qualificationdata} = useSelector((state: any) => state.qualification);
+  const { Formuladata, loading } = useSelector((state: any) => state.formula);
+
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
-   const [viewmodal, setviewmodal] = useState(false);
   const [selectedrow, setSelectedRow] = useState<any>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [addpasswordmodal, setAddPasswordmodal] = useState(false);
+
   useEffect(() => {
-    dispatch(GetStaffMaster());
-        dispatch(GetDesignation());
-        dispatch(GetQualification());
+    dispatch(GetFormula());
+
   }, [dispatch]);
 
   const handleEdit = (entry: any) => {
@@ -45,9 +38,9 @@ const StaffMasterTable = () => {
   const handleDelete = async (userToDelete: any) => {
     if (!userToDelete) return;
     try {
-      await dispatch(deleteStaffMaster({id:userToDelete?.id ,user_id:logindata?.admin?.id})).unwrap();
-      dispatch(GetStaffMaster());
-      toast.success("The staff  was successfully deleted.");
+      await dispatch(deleteFormula({id:userToDelete?.id ,user_id:logindata?.admin?.id})).unwrap();
+      dispatch(GetFormula());
+      toast.success("The formula was successfully deleted.");
     } catch (error: any) {
       console.error("Delete failed:", error);
       if (error?.response?.status === 404) toast.error("User not found.");
@@ -55,21 +48,17 @@ const StaffMasterTable = () => {
       else toast.error("Failed to delete user.");
     }
   };
-
-  const filteredItems = (staffmasterdata || []).filter((item: any) => {
-    const searchText = searchTerm.toLowerCase();
-    const supllier = item?.full_name || "";
-    const mouldNo = item?.mobile_number || "";
-    const hardness = item?.email || "";
-    const temperature = item?.address || "";
-   
-    return (
-      mouldNo.toString().toLowerCase().includes(searchText) ||
-      supllier.toString().toLowerCase().includes(searchText) ||
-      hardness.toString().toLowerCase().includes(searchText) ||
-      temperature.toString().toLowerCase().includes(searchText) 
-    );
-  });
+const filteredItems = (Formuladata || []).filter((item: any) => {
+  const searchText = searchTerm.toLowerCase();
+  return (
+    String(item?.formula_name)?.toLowerCase().includes(searchText) ||
+    String(item?.product_type)?.toLowerCase().includes(searchText) ||
+    String(item?.batch_size)?.toLowerCase().includes(searchText) ||
+    String(item?.uom)?.toLowerCase().includes(searchText) ||
+    String(item?.ingredients)?.toLowerCase().includes(searchText) ||
+    String(item?.manufacturing_instructions)?.toLowerCase().includes(searchText)
+  );
+});
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const currentItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -86,7 +75,7 @@ const StaffMasterTable = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
-         Create Staff {/* <Icon icon="ic:baseline-plus" height={18} /> */}
+         Create Formula  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>
       </div>
 
@@ -94,7 +83,14 @@ const StaffMasterTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Name", "Email ", "Mobile No.", "Address","Status",  "Action"].map((title) => (
+              {["Sr.No",  "Formula Name",
+      "Product Type",
+      "Ingredients",
+      "Quantity / Unit",
+      "UOM",
+      "Batch Size",
+      "Manufacturing Instructions",
+      "Remarks","Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -114,34 +110,22 @@ const StaffMasterTable = () => {
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">#{(currentPage - 1) * pageSize + index + 1}</td>
                  
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                    {(item?.full_name || "-")
-                      .replace(/^\w/, (c: string) => c.toUpperCase())}
-                  </td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.email  || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.mobile_number || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.address || "-"}</td>
-
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><Badge
-                                           
-                                               color={ item.status === "Active"?`lightprimary`:"lightwarning"}
-                                               className="capitalize"
-                                             >
-                                               {item.status}
-                                             </Badge></td>
-                  {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.date_of_birth || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.joining_date || "-"}</td> */}
-                  
+                
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.formula_name || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_type || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.ingredients || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.quantity_per_batch_or_unit || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.uom || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.batch_size || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.manufacturing_instructions || "-"}</td>
+        <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.remarks || "-"}</td>
+          {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+            {item?.created_by && logindata?.admin?.id ==  item?.created_by ? logindata?.admin?.username : "-"}
+          </td> */}
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       
-                        <>{ item?.password == null && 
-                          (<Button onClick={() => { setAddPasswordmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(item); }} color="secondary" outline size="sm" className="p-0 bg-lightprimary text-primary hover:bg-primary hover:text-white">
-                                        <Icon icon="material-symbols:add-rounded" height={18} />
-                                      </Button>)}
-                        <Button color="secondary" outline size="sm" onClick={() => { setviewmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(item); }}  className="p-0 bg-lightsecondary text-secondary hover:bg-secondary hover:text-white">
-                                                                                  <Icon icon="solar:eye-outline" height={18} />
-                                                                                </Button>
+                        <>
                           <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
@@ -165,7 +149,6 @@ const StaffMasterTable = () => {
                             </Button>
                           </Tooltip>
                         </>
-                     
                     </div>
                   </td>
                 </tr>
@@ -197,15 +180,13 @@ const StaffMasterTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this StaffMaster?"
+        title="Are you sure you want to Delete this Formula?"
       />
-      
-        <ViewStaffMasterModal   placeModal={viewmodal} modalPlacement={"center"} setPlaceModal={setviewmodal} selectedRow={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata}/>
-       <AddPasswordModal setShowmodal={setAddPasswordmodal} show={addpasswordmodal} StaffMasterData={selectedrow}  />
-      <AddStaffMasterModal setShowmodal={setAddmodal} show={addmodal} Designationdata={Designationdata} Qualificationdata={Qualificationdata} />
-      <EditStaffMasterModal show={editmodal} setShowmodal={setEditmodal} StaffMasterData={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata} />
+
+      <AddFormulaModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}/>
+      <EditFormulaModal show={editmodal} setShowmodal={setEditmodal} FormulaData={selectedrow} logindata={logindata} />
     </div>
   );
 };
 
-export default StaffMasterTable;
+export default FormulaTable;
