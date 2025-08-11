@@ -39,6 +39,7 @@ const PurchaseRoutes = require("../routes/master/PurchaseRoutes")
 const BmrMasterRoutes = require("../routes/master/BmrMasterRoutes")
 const FinishGoodRoutes = require("../routes/master/FinishGoodRoutes")
 const FormulaRoutes = require("../routes/master/FormulaRoutes")
+const DocumentRoutes = require("../routes/master/DocumentRoutes")
 
 router.use("/api", authRoutes);
 router.use("/api", userRoutes);
@@ -79,5 +80,6 @@ router.use("/api", PurchaseRoutes)
 router.use("/api", BmrMasterRoutes)
 router.use("/api", FinishGoodRoutes)
 router.use("/api", FormulaRoutes)
+router.use("/api", DocumentRoutes)
 
 module.exports = router

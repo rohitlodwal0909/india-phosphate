@@ -37,6 +37,7 @@ import PurchaseSlice from '../src/features/master/Purchase/PurchaseSlice'
 import BmrMasterSlice from '../src/features/master/BmrMaster/BmrMasterSlice'
 import FinishGoodSlice from '../src/features/master/FinishGood/FinishGoodSlice'
 import FormulaSlice from '../src/features/master/Formula/FormulaSlice'
+import DocumentSlice from '../src/features/master/Documents/DocumentSlice'
 export const store = configureStore({
   reducer: {
    authentication : AuthenticationSlice,
@@ -76,7 +77,8 @@ export const store = configureStore({
   purchase: PurchaseSlice,
   bmrmaster:BmrMasterSlice,
   finishgood:FinishGoodSlice,
-  formula:FormulaSlice
+  formula:FormulaSlice,
+  document:DocumentSlice
   } 
 });
 

@@ -11,6 +11,7 @@ type Props = {
   modalPlacement: string;
   setPlaceModal: (value: boolean) => void;
   selectedRow: any;
+  supplierdata:any
 };
 
 const ViewStoreModel = ({
@@ -18,6 +19,7 @@ const ViewStoreModel = ({
   modalPlacement,
   setPlaceModal,
   selectedRow,
+  supplierdata
 }: Props) => {
   return (
     <div>
@@ -35,7 +37,7 @@ const ViewStoreModel = ({
         <div className=" mx-auto p-6 bg-white shadow-md rounded-md">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              ["Supplier Name", selectedRow?.supplier_name],
+              ["Supplier Name", selectedRow?.supplier_name ? supplierdata?.find(items=> items.id == selectedRow?.supplier_name)?.supplier_name :""],
               ["GRN Number", selectedRow?.grn_number],
               ["GRN Date", selectedRow?.grn_date],
               ["GRN Time", selectedRow?.grn_time],

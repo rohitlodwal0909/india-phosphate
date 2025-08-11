@@ -413,6 +413,13 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/master/formula",
             subId:''
+          },
+           {
+            name: "Export Document",
+            icon: "mi:document",
+            id: uniqueId(),
+            url: "/master/document",
+            subId:''
           }
         ],
       },

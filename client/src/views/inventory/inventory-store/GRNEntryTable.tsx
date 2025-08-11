@@ -17,6 +17,7 @@ import StoreInventoryAddmodal from "./StoreInventoryAddmodal";
 import ViewStoremodel from "./ViewStoremodel";
 import { AppDispatch, RootState } from "src/store";
 import Portal from "src/utils/Portal";
+import { GetSupplier } from "src/features/master/Supplier/SupplierSlice";
 
 const columnHelper = createColumnHelper<any>();
 
@@ -31,13 +32,14 @@ const GRNEntryTable: React.FC = () => {
   const guardData = useSelector((state: RootState) => state.checkininventory.checkindata) as any
   const StoreData = useSelector((state: RootState) => state.storeinventory.storedata) as any
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
-
+ const { supplierdata,  } = useSelector((state: any) => state.supplier);
   const hasPermission = (id: number) => logindata?.permission?.some(p => p.submodule_id === 2 && p.permission_id === id && p.status);
 
   useEffect(() => {
     if (logindata?.admin?.id) {
       dispatch(GetCheckinmodule(logindata.admin.id));
       dispatch(GetStoremodule());
+         dispatch(GetSupplier());
     }
   }, [dispatch, logindata?.admin?.id]);
 
@@ -107,7 +109,7 @@ useEffect(() => {
      const row = info?.row?.original?.grn_entries[0];
       if (!row) return "-";
      
-      return row ? `${row.container_count || "-"} ${row.container_unit || ""}` : "-";
+      return row ? `${row.quantity || "-"} ${row.unit || ""}` : "-";
     },
   }),
   columnHelper.accessor("status", {
@@ -227,8 +229,8 @@ useEffect(() => {
       <PaginationComponent table={table} />
 
       {modals.delete && <Portal><ComonDeletemodal isOpen setIsOpen={() => closeModal("delete")} selectedUser={selectedRow} title="Are you sure you want to Delete this Store Entry?" handleConfirmDelete={handleDeleteConfirm} /></Portal>}
-      {modals.addEdit && <Portal><StoreInventoryAddmodal setPlaceModal={() => closeModal("addEdit")} modalPlacement="center" selectedRow={selectedRow} placeModal storedata={StoreData?.data} logindata={logindata}/></Portal>}
-      {modals.view && <Portal><ViewStoremodel setPlaceModal={() => closeModal("view")} modalPlacement="center" selectedRow={selectedRow} placeModal /></Portal>}
+      {modals.addEdit && <Portal><StoreInventoryAddmodal setPlaceModal={() => closeModal("addEdit")} modalPlacement="center" selectedRow={selectedRow} placeModal storedata={StoreData?.data} logindata={logindata} supplierdata={supplierdata}/></Portal>}
+      {modals.view && <Portal><ViewStoremodel setPlaceModal={() => closeModal("view")} modalPlacement="center" selectedRow={selectedRow} placeModal  supplierdata={supplierdata}/></Portal>}
     </>
   ) : (
     <div className="flex flex-col items-center justify-center my-20 space-y-4">

@@ -28,7 +28,7 @@ type FormDataType = {
   quantity: string;
   unit: string;
 };
-const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow, storedata ,logindata}) => {
+const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow, storedata ,logindata,supplierdata}) => {
   const { rmcodedata, loading } = useSelector((state: any) => state.rmcodes);
   const [formData, setFormData] = useState<FormDataType>({
     user_id:logindata?.admin?.id,
@@ -162,7 +162,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
               id="guard_type"
               value={selectedRow?.guard_type}
               onChange={(e) => handleChange('guard_type', e.target.value)}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2  border rounded-md border-gray-300hh"
               disabled
             >
               <option value="">Select</option>
@@ -275,14 +275,30 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
           )}
 
           {/* Supplier Name */}
-          <InputField
+            <div className="sm:col-span-6 col-span-12">
+            <Label htmlFor="guard_type" value="Supplier" />
+            <select
+              id="supplier_name"
+              value={selectedRow?.supplier_name}
+              onChange={(e) => handleChange('supplier_name', e.target.value)}
+              className="w-full p-2  border rounded-md border-gray-300"
+            >
+              <option value="">Select Supplier </option>
+             {supplierdata.map((supplier) => (
+                    <option key={supplier.id} value={supplier.id}>
+                      {supplier.supplier_name}
+                    </option>
+                  ))}
+            </select>
+          </div>
+          {/* <InputField
             id="supplier_name"               // id must match formData key
             label="Supplier Name"
             value={formData.supplier_name}  // value from formData
             onChange={handleChange}
             error={errors.supplier_name}
             placeholder="Enter Supplier Name"
-          />
+          /> */}
 
           {/* Date */}
           <InputField

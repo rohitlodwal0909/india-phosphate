@@ -35,6 +35,7 @@ const Purchase = Loadable(lazy(() => import('src/views/master/Purchase/Purchase'
 const BmrMaster = Loadable(lazy(() => import('src/views/master/BmrMaster/BmrMaster')));
 const FinishGood = Loadable(lazy(() => import('src/views/master/FinishGood/FinishGood')));
 const Formula = Loadable(lazy(() => import('src/views/master/Formula/Formula')));
+const Document = Loadable(lazy(() => import('src/views/master/Document/Document')));
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
@@ -117,6 +118,7 @@ const fullLayoutChildren = [
   { path: '/master/inward', element: <Inward/> },
   { path: '/master/finish-good', element: <FinishGood/> },
   { path: '/master/formula', element: <Formula/> },
+  { path: '/master/document', element: <Document/> },
 
   { path: '*', element: <Navigate to="/auth/404" /> },
 ];
