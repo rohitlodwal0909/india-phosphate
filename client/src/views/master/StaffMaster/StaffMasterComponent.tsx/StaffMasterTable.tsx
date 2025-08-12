@@ -197,13 +197,13 @@ const StaffMasterTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this StaffMaster?"
+        title="Are you sure you want to Delete this Staff Master?"
       />
       
-        <ViewStaffMasterModal   placeModal={viewmodal} modalPlacement={"center"} setPlaceModal={setviewmodal} selectedRow={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata}/>
+        <ViewStaffMasterModal   placeModal={viewmodal} modalPlacement={"center"} setPlaceModal={setviewmodal} selectedRow={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata} />
        <AddPasswordModal setShowmodal={setAddPasswordmodal} show={addpasswordmodal} StaffMasterData={selectedrow}  />
-      <AddStaffMasterModal setShowmodal={setAddmodal} show={addmodal} Designationdata={Designationdata} Qualificationdata={Qualificationdata} />
-      <EditStaffMasterModal show={editmodal} setShowmodal={setEditmodal} StaffMasterData={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata} />
+      <AddStaffMasterModal setShowmodal={setAddmodal} show={addmodal} Designationdata={Designationdata} Qualificationdata={Qualificationdata} logindata={logindata} />
+      <EditStaffMasterModal show={editmodal} setShowmodal={setEditmodal} StaffMasterData={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata}logindata={logindata} />
     </div>
   );
 };

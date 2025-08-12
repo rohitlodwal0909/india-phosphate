@@ -31,6 +31,14 @@ exports.createStockMaster = async (req, res, next) => {
       return next(error);
     }
 
+     const user_id = last_updated_by|| req.body.last_updated_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Stock with batch number '${batch_no}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     const newStock = await StockMaster.create({
       item_type,
       item_id,
@@ -134,7 +142,14 @@ exports.updateStockMaster = async (req, res, next) => {
       last_updated_by,
       status
     } = req.body;
-
+     const user_id = last_updated_by|| req.body.last_updated_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Stock with batch number '${batch_no}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await existingStock.update({
       item_type,
       item_id,
@@ -173,7 +188,14 @@ exports.deleteStockMaster = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-      
+           const user_id = StockMasters?.last_updated_by|| req.body.last_updated_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Stock with batch number '${StockMasters?.batch_no}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await StockMasters.destroy();
     res.json({ message: "Make master entry deleted" });
   } catch (error) {

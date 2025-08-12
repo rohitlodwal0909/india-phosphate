@@ -17,12 +17,13 @@ import {
   GetQualification,
 } from 'src/features/master/Qualification/QualificationSlice';
 
-const AddQualificationModal = ({ show, setShowmodal }) => {
+const AddQualificationModal = ({ show, setShowmodal ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     qualification_name: '',
     status: 'Inactive', // default status
+      created_by :logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -53,6 +54,7 @@ const AddQualificationModal = ({ show, setShowmodal }) => {
       setFormData({
         qualification_name: '',
         status: 'Inactive',
+          created_by :logindata?.admin?.id
       });
       setShowmodal(false);
     } catch (err) {

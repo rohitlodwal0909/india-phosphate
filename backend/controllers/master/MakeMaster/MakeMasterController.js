@@ -17,7 +17,16 @@ exports.createMakeMaster = async (req, res, next) => {
       error.status = 400;
       return next(error);
     }
-
+        // Update allowed fields only
+     const user_id = created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Make code '${make_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     // Create new MakeMaster entry
     const newMakeMaster = await MakeMaster.create({
       make_code,
@@ -93,7 +102,15 @@ exports.updateMakeMaster = async (req, res, next) => {
     }
 
     const { make_code, make_name, description, status, created_by } = req.body;
-
+  const user_id = created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Make code '${make_code}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await existingMakeMaster.update({
       make_code,
       make_name,
@@ -122,6 +139,15 @@ exports.deleteMakeMaster = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
+       const user_id = MakeMasters?.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Make code '${MakeMasters?.make_code}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
       
     await MakeMasters.destroy();
     res.json({ message: "Make master entry deleted" });

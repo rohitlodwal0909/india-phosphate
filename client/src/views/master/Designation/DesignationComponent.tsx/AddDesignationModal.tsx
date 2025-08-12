@@ -17,12 +17,13 @@ import {
   GetDesignation,
 } from 'src/features/master/Designation/DesignationSlice';
 
-const AddDesignationModal = ({ show, setShowmodal }) => {
+const AddDesignationModal = ({ show, setShowmodal,logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     designation_name: '',
     status: 'Inactive', // default value
+    created_by :logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -55,6 +56,7 @@ const AddDesignationModal = ({ show, setShowmodal }) => {
       setFormData({
         designation_name: '',
         status: 'Inactive',
+        created_by :logindata?.admin?.id
       });
       setShowmodal(false);
     } catch (err) {

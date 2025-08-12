@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Outword } = db;
+const { Outword ,User} = db;
 const moment = require('moment');
 // Create
 exports.createOutward = async (req, res,next) => {
@@ -30,7 +30,15 @@ exports.createOutward = async (req, res,next) => {
       remarks: req.body.remarks,
       created_by:req.body.created_by
     });
-
+  const user_id = outword?.created_by || req.body.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Outword number '${outwordNumber}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(outword);
   } catch (err) {
     next(err);
@@ -77,7 +85,15 @@ exports.updateOutward = async (req, res,next) => {
       error.status = 404;
       return next(error);
     }
-
+ const user_id = outward?.created_by || req.body.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Outword number '${outward?.outword_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     // Update allowed fields only
     await outward.update({
       vendor_id: req.body.vendor_id || outward.vendor_id,
@@ -101,13 +117,22 @@ exports.updateOutward = async (req, res,next) => {
 // Delete
 exports.deleteOutward = async (req, res, next) => {
   try {
-    const Outward = await Outword.findByPk(req.params.id);
-    if (!Outward) {
+    const Outwards = await Outword.findByPk(req.params.id);
+    if (!Outwards) {
       const error = new Error("Outward entry not found");
       error.status = 404;
       return next(error);
     }
-    await Outward.destroy();
+     const user_id = Outwards?.created_by || req.body.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Outword number '${Outwards?.outword_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
+    await Outwards.destroy();
     res.json({ message: "Outward entry deleted" });
   } catch (error) {
     next(error);

@@ -176,8 +176,8 @@ const DesignationTable = () => {
         title="Are you sure you want to Delete this Designation?"
       />
 
-      <AddDesignationModal setShowmodal={setAddmodal} show={addmodal}   />
-      <EditDesignationModal show={editmodal} setShowmodal={setEditmodal} DesignationData={selectedrow}  />
+      <AddDesignationModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />
+      <EditDesignationModal show={editmodal} setShowmodal={setEditmodal} DesignationData={selectedrow} logindata={logindata}  />
     </div>
   );
 };

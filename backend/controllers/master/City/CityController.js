@@ -5,11 +5,13 @@ const { City ,State} = db;
 // Create
 exports.createCity = async (req, res,next ) => {
   try {
-    const { city_name, state_id } = req.body;
+    const { city_name, state_id , created_by} = req.body;
     const newCity = await City.create({
       city_name,
-      state_id
+      state_id,
+      created_by
     });
+
     res.status(201).json(newCity);
   } catch (error) {
    next(error)
@@ -61,10 +63,11 @@ exports.updateCity = async (req, res,next) => {
       return next(error); 
     
     }
-    const { city_name, state_id } = req.body;
+    const { city_name, state_id,created_by } = req.body;
     await Citys.update({
       city_name,
-      state_id
+      state_id,
+      created_by
     });
     res.json(City);
   } catch (error) {

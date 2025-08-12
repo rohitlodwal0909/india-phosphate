@@ -16,12 +16,13 @@ import {
   GetState,
 } from 'src/features/master/State/StateSlice';
 
-const EditStateModal = ({ show, setShowmodal, StateData }) => {
+const EditStateModal = ({ show, setShowmodal, StateData ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     id: '',
     state_name: '',
+    created_by:logindata?.admin?.id
   });
 
 
@@ -32,7 +33,7 @@ const EditStateModal = ({ show, setShowmodal, StateData }) => {
       setFormData({
         id: StateData?.id || '',
         state_name: StateData?.state_name || '',
-     
+          created_by:logindata?.admin?.id
       });
     }
   }, [StateData]);

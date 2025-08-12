@@ -21,7 +21,7 @@ import {
 } from 'src/features/master/StaffMaster/StaffMasterSlice';
 import { ImageUrl } from 'src/constants/contant';
 
-const EditStaffMasterModal = ({  show, setShowmodal, StaffMasterData,Qualificationdata,Designationdata}) => {
+const EditStaffMasterModal = ({  show, setShowmodal, StaffMasterData,Qualificationdata,Designationdata,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -36,6 +36,7 @@ const EditStaffMasterModal = ({  show, setShowmodal, StaffMasterData,Qualificati
     designation_id: '',
     qualification_id: '',
     status: '',
+    created_by:logindata?.admin?.id
   });
 
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
@@ -56,6 +57,7 @@ const EditStaffMasterModal = ({  show, setShowmodal, StaffMasterData,Qualificati
        joining_date: StaffMasterData?.joining_date  || '',
        designation_id: StaffMasterData?.designation_id  || '',
        qualification_id: StaffMasterData?.qualification_id  || '',
+        created_by:StaffMasterData?.created_by
         });
       }
     }, [StaffMasterData]);
@@ -110,6 +112,8 @@ const handleSubmit = async (e: any) => {
       designation_id: '',
       qualification_id: '',
       status: 'Active',
+    created_by:logindata?.admin?.id
+
     });
     setProfilePhoto(null);
     setShowmodal(false);

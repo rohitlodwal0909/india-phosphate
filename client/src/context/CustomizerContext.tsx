@@ -23,7 +23,6 @@ interface CustomizerContextState {
   setIsBorderRadius: (radius: number) => void;
   isCollapse: string;
   setIsCollapse: (collapse: string) => void;
-
 }
 
 // Create the context with an initial value
@@ -46,8 +45,6 @@ export const CustomizerContextProvider: React.FC<CustomizerContextProps> = ({ ch
   const [isCollapse, setIsCollapse] = useState<string>(config.isCollapse);
   const [isLanguage, setIsLanguage] = useState<string>(config.isLanguage);
 
-
-  // Set attributes immediately
   useEffect(() => {
     document.documentElement.setAttribute("class", activeMode);
     document.documentElement.setAttribute("dir", activeDir);
@@ -81,7 +78,6 @@ export const CustomizerContextProvider: React.FC<CustomizerContextProps> = ({ ch
         setIsCollapse,
         isLanguage,
         setIsLanguage,
-
       }}
     >
       {children}

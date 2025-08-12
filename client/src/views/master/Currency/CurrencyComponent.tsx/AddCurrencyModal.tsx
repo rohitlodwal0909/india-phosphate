@@ -24,7 +24,7 @@ logindata
     exchange_rate: '',
     country: '',
     is_active: true,
-  
+  created_by:logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -61,7 +61,7 @@ logindata
         exchange_rate: '',
         country: '',
         is_active: true,
-        
+          created_by:logindata?.admin?.id
       });
       setShowmodal(false);
     } catch (err: any) {

@@ -17,13 +17,14 @@ import {
   GetQualification,
 } from 'src/features/master/Qualification/QualificationSlice';
 
-const EditQualificationModal = ({ show, setShowmodal, QualificationData }) => {
+const EditQualificationModal = ({ show, setShowmodal, QualificationData ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     id: '',
     status:'',
     qualification_name: '',
+      created_by :logindata?.admin?.id
   });
 
 
@@ -34,7 +35,8 @@ const EditQualificationModal = ({ show, setShowmodal, QualificationData }) => {
       setFormData({
         id: QualificationData?.id || '',
         qualification_name: QualificationData?.qualification_name || '',
-        status: QualificationData?.status || ''
+        status: QualificationData?.status || '',
+          created_by :QualificationData?.created_by
       });
     }
   }, [QualificationData]);

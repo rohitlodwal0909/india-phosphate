@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Purchase } = db;
+const { Purchase ,User} = db;
 const moment = require('moment');
 // Create
 exports.createPurchase = async (req, res,next) => {
@@ -12,11 +12,8 @@ exports.createPurchase = async (req, res,next) => {
         purchase_date: today
       }
     });
-
     const serial = String(countToday + 1).padStart(3, "0");
-
     const purchaseNumber = `OUT-${moment().format("YYYYMMDD")}-${serial}`;
-
     const purchases = await Purchase.create({
       purchase_number: purchaseNumber,
       purchase_date: today,
@@ -30,7 +27,15 @@ exports.createPurchase = async (req, res,next) => {
       created_by: req.body.created_by,
       remarks: req.body.remarks
     });
-
+          const user_id = req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Purchase number '${purchaseNumber}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(purchases);
   } catch (err) {
     next(err);
@@ -87,7 +92,15 @@ exports.updatePurchase = async (req, res,next) => {
       payment_terms: req.body.payment_terms || purchases.payment_terms,
      
     });
-
+  const user_id =  purchases?.created_by ||  req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Purchase number '${purchases?.purchase_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.json({
       message: "Purchase updated successfully.",
       purchases
@@ -106,6 +119,15 @@ exports.deletePurchase = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
+      const user_id =  purchases?.created_by ||  req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Purchase number '${purchases?.purchase_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await purchases.destroy();
     res.json({ message: "Purchase entry deleted" });
   } catch (error) {

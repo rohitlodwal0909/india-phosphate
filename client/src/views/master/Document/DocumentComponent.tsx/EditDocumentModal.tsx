@@ -114,7 +114,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
               <option value="">Select Customer</option>
 {
   customerdata?.map((items)=>(
-    <option value={items?.id}>{items?.customer_name}</option>
+    <option key={items?.id} value={items?.id}>{items?.customer_name}</option>
   ))
 }
             

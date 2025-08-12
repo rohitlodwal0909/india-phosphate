@@ -33,6 +33,16 @@ exports.createDepartmentMaster = async (req, res, next) => {
       created_by
     });
 
+    const user_id = req.body.created_by;
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Department  code '${department_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(newDepartment);
   } catch (error) {
     next(error);
@@ -119,6 +129,16 @@ exports.updateDepartmentMaster = async (req, res, next) => {
       created_by
     });
 
+    const user_id = req.body.created_by || department?.created_by;
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Department  code '${department_code}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     // Return updated object
     res.status(200).json(department);
   } catch (error) {
@@ -138,9 +158,18 @@ exports.deleteDepartmentMaster = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-      
+         const user_id =  DepartmentMasters?.created_by;
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Department  code '${DepartmentMasters?.department_code}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await DepartmentMasters.destroy();
-    res.json({ message: "DepartmentMaster entry deleted" });
+    res.json({ message: "Department Master entry deleted" });
   } catch (error) {
    next(error)
   }

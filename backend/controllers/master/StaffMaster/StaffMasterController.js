@@ -15,7 +15,7 @@ exports.createStaffMaster = async (req, res,next) => {
       joining_date,
       designation_id,
       qualification_id,
-
+    created_by,
       status,        // Optional
     } = req.body;
   
@@ -29,6 +29,15 @@ exports.createStaffMaster = async (req, res,next) => {
     const profileImageFile = req.file;
     const profileImagePath = profileImageFile ?`/uploads/${profileImageFile.filename}` : ""
    
+     const user_id = req.body.created_by || created_by;
+      const user = await User.findByPk(user_id);
+      const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Staff name '${full_name}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     // Create new staff entry
     const newStaff = await StaffMaster.create({
       full_name,
@@ -42,6 +51,7 @@ exports.createStaffMaster = async (req, res,next) => {
       qualification_id,
       profile_photo: profileImagePath || null,
       status: status || "Inactive" ,
+      created_by
     });
 
     return res.status(201).json(newStaff);
@@ -108,8 +118,10 @@ exports.updateStaffMaster = async (req, res,next) => {
       profile_photo, // optional
       status  ,
       password , 
-      confirm_password       // optional
+      confirm_password ,
+      created_by      // optional
     } = req.body;
+
 
     await staff.update({
       full_name,
@@ -125,9 +137,19 @@ exports.updateStaffMaster = async (req, res,next) => {
       status: status || staff.status,
       updated_at: new Date(),
       confirm_password,
-      password
+      password,
+      created_by
     });
 
+           const user_id = staff.created_by || created_by;
+      const user = await User.findByPk(user_id);
+      const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Staff name '${staff?.full_name}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     return res.json(staff);
   } catch (error) {
 next(error)
@@ -144,8 +166,18 @@ exports.deleteStaffMaster = async (req, res,next) => {
        error.status = 404;
       return next(error)
     }
+
+     const user_id = StaffMasters.created_by || req?.body?.user_id;
+      const user = await User.findByPk(user_id);
+      const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Staff name '${StaffMasters?.full_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await StaffMasters.destroy();
-    res.json({ message: "StaffMaster entry deleted" });
+    res.json({ message: "Staff Master entry deleted" });
   } catch (error) {
   next(error)
   }

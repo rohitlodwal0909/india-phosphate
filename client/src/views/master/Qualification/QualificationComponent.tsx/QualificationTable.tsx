@@ -175,8 +175,8 @@ const QualificationTable = () => {
         title="Are you sure you want to Delete this Qualification?"
       />
 
-      <AddQualificationModal setShowmodal={setAddmodal} show={addmodal}   />
-      <EditQualificationModal show={editmodal} setShowmodal={setEditmodal} QualificationData={selectedrow}  />
+      <AddQualificationModal setShowmodal={setAddmodal} show={addmodal}logindata={logindata}   />
+      <EditQualificationModal show={editmodal} setShowmodal={setEditmodal} QualificationData={selectedrow} logindata={logindata} />
     </div>
   );
 };

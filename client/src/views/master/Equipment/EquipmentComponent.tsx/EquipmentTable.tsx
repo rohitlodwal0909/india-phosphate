@@ -181,8 +181,8 @@ const EquipmentTable = () => {
         selectedUser={selectedrow}
         title="Are you sure you want to Delete this Equipment ?"
       />
-      <AddEquipmentModal setShowmodal={setAddmodal} show={addmodal} />
-      <EditEquipmentModal show={editmodal} setShowmodal={setEditmodal} EquipmentData={selectedrow} />
+      <AddEquipmentModal setShowmodal={setAddmodal} show={addmodal}logindata={logindata} />
+      <EditEquipmentModal show={editmodal} setShowmodal={setEditmodal} EquipmentData={selectedrow} logindata={logindata} />
     </div>
   );
 };

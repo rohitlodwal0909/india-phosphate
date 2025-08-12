@@ -30,7 +30,14 @@ exports.createSalesMaster = async (req, res, next) => {
       error.status = 400;
       return next(error);
     }
-
+      const user_id =  created_by || req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  ` Sales with invoice number '${invoice_no}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     const newEntry = await SalesMaster.create({
       invoice_no,
       invoice_date,
@@ -135,6 +142,14 @@ exports.updateSalesMaster = async (req, res, next) => {
       remarks,
     } = req.body;
 
+      const user_id =  created_by || req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Sales with invoice number '${invoice_no}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await existingEntry.update({
       invoice_no,
       invoice_date,
@@ -174,7 +189,14 @@ exports.deleteSalesMaster = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-      
+        const user_id =  SalesMasters?.created_by || req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Sales with invoice number '${SalesMasters?.invoice_no}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await SalesMasters.destroy();
     res.json({ message: "Make master entry deleted" });
   } catch (error) {

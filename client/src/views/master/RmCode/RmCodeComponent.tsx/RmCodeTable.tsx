@@ -176,7 +176,7 @@ const RmCodeTable = () => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this RmCode?"
+        title="Are you sure you want to Delete this Rm Code?"
       />
 
       <AddRmCodeModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />

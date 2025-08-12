@@ -168,8 +168,8 @@ const StateTable = () => {
         title="Are you sure you want to Delete this State?"
       />
 
-      <AddStateModal setShowmodal={setAddmodal} show={addmodal}  />
-      <EditStateModal show={editmodal} setShowmodal={setEditmodal} StateData={selectedrow}  />
+      <AddStateModal setShowmodal={setAddmodal} show={addmodal} logindata={logindata} />
+      <EditStateModal show={editmodal} setShowmodal={setEditmodal} StateData={selectedrow} logindata={logindata}  />
     </div>
   );
 };

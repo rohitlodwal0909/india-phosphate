@@ -17,13 +17,14 @@ import {
   GetDesignation,
 } from 'src/features/master/Designation/DesignationSlice';
 
-const EditDesignationModal = ({ show, setShowmodal, DesignationData }) => {
+const EditDesignationModal = ({ show, setShowmodal, DesignationData ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     id: '',
     status:'Inactive',
     designation_name: '',
+    created_by :logindata?.admin?.id
   });
 
 
@@ -34,7 +35,8 @@ const EditDesignationModal = ({ show, setShowmodal, DesignationData }) => {
       setFormData({
         id: DesignationData?.id || '',
         designation_name: DesignationData?.designation_name || '',
-        status: DesignationData?.status || ''
+        status: DesignationData?.status || '',
+        created_by: DesignationData?.created_by
       });
     }
   }, [DesignationData]);

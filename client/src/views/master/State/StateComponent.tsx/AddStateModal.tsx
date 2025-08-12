@@ -16,10 +16,11 @@ import {
   GetState,
 } from 'src/features/master/State/StateSlice';
 
-const AddStateModal = ({ show, setShowmodal }) => {
+const AddStateModal = ({ show, setShowmodal,logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
-    state_name: ''
+    state_name: '',
+      created_by:logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -48,7 +49,8 @@ const AddStateModal = ({ show, setShowmodal }) => {
       toast.success(result.message || 'State created successfully');
       dispatch(GetState());
       setFormData({
-        state_name: ''
+        state_name: '',
+        created_by:logindata?.admin?.id
       });
       setShowmodal(false);
     } catch (err) {

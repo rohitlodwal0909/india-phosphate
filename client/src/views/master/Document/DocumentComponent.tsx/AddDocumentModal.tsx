@@ -109,8 +109,8 @@ const AddDocumentModal = ({ show, setShowmodal,logindata,customerdata }) => {
             >
               <option value="">Select Customer</option>
 {
-  customerdata?.map((items)=>(
-    <option value={items?.id}>{items?.customer_name}</option>
+   customerdata?.map((items)=>(
+    <option  key={items?.id} value={items?.id}>{items?.customer_name}</option>
   ))
 }
             
@@ -146,7 +146,6 @@ const AddDocumentModal = ({ show, setShowmodal,logindata,customerdata }) => {
 
             <input
               type="file"
-              
               onChange={(e) => handleChange('document_file', e.target.files?.[0])}
               className="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50"
             />

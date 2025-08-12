@@ -131,11 +131,9 @@ const StateTable = () => {
                     <div className="flex justify-start gap-2">
                       
                         <>
-                          <Button onClick={() => { setAddmodal(true), setSelectedRow(item); }} color="secondary" outline size="sm" className="p-0 bg-lightprimary text-primary hover:bg-primary hover:text-white">
-                                                                <Icon icon="material-symbols:add-rounded" height={18} />
-                                                              </Button>
+                        
                             {
-                               item?.cities?.[0]?.city_name && 
+                               item?.cities?.[0]?.city_name ?
                                 
                             <>                          
                           <Tooltip content="Edit" placement="bottom">
@@ -160,7 +158,12 @@ const StateTable = () => {
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
                           </Tooltip>
-                          </> 
+                        
+
+                          </> :  <Button onClick={() => { setAddmodal(true), setSelectedRow(item); }} color="secondary" outline size="sm" className="p-0 bg-lightprimary text-primary hover:bg-primary hover:text-white">
+                                                                <Icon icon="material-symbols:add-rounded" height={18} />
+                                                              </Button>
+
                            }  
                         </>
                      

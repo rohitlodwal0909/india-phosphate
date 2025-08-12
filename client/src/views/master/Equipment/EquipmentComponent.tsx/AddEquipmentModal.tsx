@@ -15,7 +15,7 @@ import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { addEquipment, GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 
-const AddEquipmentModal = ({ show, setShowmodal }) => {
+const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -23,6 +23,7 @@ const AddEquipmentModal = ({ show, setShowmodal }) => {
     category: '',
     description: '',
     status: true,
+    created_by :logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -55,6 +56,7 @@ const AddEquipmentModal = ({ show, setShowmodal }) => {
         category: '',
         description: '',
         status: true,
+           created_by :logindata?.admin?.id
       });
       setShowmodal(false);
     } catch (err: any) {

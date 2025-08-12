@@ -18,7 +18,7 @@ import {
   GetEquipment,
 } from 'src/features/master/Equipment/EquipmentSlice';
 
-const EditEquipmentModal = ({ show, setShowmodal, EquipmentData }) => {
+const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -27,6 +27,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData }) => {
     category: '',
     description: '',
     status: true,
+       created_by :logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -39,6 +40,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData }) => {
         category: EquipmentData?.category || '',
         description: EquipmentData?.description || '',
         status: EquipmentData?.status ?? true,
+       created_by :EquipmentData?.created_by
       });
     }
   }, [EquipmentData]);

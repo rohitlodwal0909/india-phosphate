@@ -10,6 +10,7 @@ import { AppDispatch } from "./store";
 import { GetAuthenticationmodule } from "./features/authentication/AuthenticationSlice";
 import { GetNotification } from "./features/Notifications/NotificationSlice";
 import { io } from "socket.io-client";
+import { ImageUrl } from "./constants/contant";
 declare global {
   interface Window {
     google: any;
@@ -17,7 +18,7 @@ declare global {
     translateElementInitialized?: boolean;
   }
 }
-const socket = io("http://localhost:5000");
+const socket = io(ImageUrl);
 function App() {
      const dispatch = useDispatch<AppDispatch>();
 

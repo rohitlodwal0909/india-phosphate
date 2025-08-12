@@ -5,8 +5,17 @@ const { Transport ,User} = db;
 // Create
 exports.createTransport = async (req, res,next ) => {
   try {
-  req.body
+
     const newTransport = await Transport.create(req.body);
+
+            const user_id = req.body?.created_by|| newTransport.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Transport name '${req.body?.transporter_name}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(newTransport);
   } catch (error) {
    next(error)
@@ -84,7 +93,14 @@ exports.updateTransport = async (req, res, next) => {
       date,
       time
     } = req.body;
-
+    const user_id = req.body?.created_by || Transports.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Transport name '${transporter_name}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await Transports.update({
       transporter_name,
       contact_person,
@@ -125,6 +141,14 @@ exports.deleteTransport = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
+      const user_id = req.body?.created_by || Transports.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage =  `Transport name '${Transports?.transporter_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await Transports.destroy();
     res.json({ message: "Transport entry deleted" });
   } catch (error) {

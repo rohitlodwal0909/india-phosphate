@@ -35,7 +35,16 @@ exports.createCompany = async (req, res, next) => {
       created_by,
       status
     });
+      const user_id = req.body.created_by;
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
 
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Company  code '${company_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(newCompany);
   } catch (error) {
     next(error);
@@ -133,6 +142,16 @@ exports.updateCompany = async (req, res, next) => {
       created_by,
       status
     });
+      const user_id = req.body.created_by;
+      const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Company  code '${company_code}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     res.json(existingCompany);
   } catch (error) {
     console.error("Update Company Error:", error);
@@ -151,6 +170,16 @@ exports.deleteCompany = async (req, res,next) => {
       return next(error); 
      }
     
+      const user_id = Companydel?.created_by;
+      const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Company  code '${Companydel?.company_code}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await Companydel.destroy();
     res.json({ message: "Company entry deleted" });
   } catch (error) {

@@ -5,10 +5,22 @@ const { State ,User} = db;
 // Create
 exports.createState = async (req, res,next) => {
   try {
-    const { state_name } = req.body;
+    const { state_name ,created_by} = req.body;
     const newState = await State.create({
       state_name,
+      created_by
     });
+    
+     const user_id = req.body.created_by || created_by;
+      const user = await User.findByPk(user_id);
+      const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `State name '${state_name}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
+    // Create new staff entry
     res.status(201).json(newState);
   } catch (error) {
    next(error)
@@ -52,9 +64,19 @@ exports.updateState = async (req, res,next) => {
        error.status = 404;
       return next(error)
     }
-    const { state_name } = req.body;
+    const { state_name, created_by } = req.body;
+    const user_id = req.body.created_by || created_by;
+      const user = await User.findByPk(user_id);
+      const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `State name '${state_name}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await States.update({
       state_name,
+      created_by
     });
     res.json(State);
   } catch (error) {
@@ -71,7 +93,15 @@ exports.deleteState = async (req, res,next) => {
        {const error = new Error("State entry not found");
        error.status = 404;
       return next(error)}
-    
+      const user_id = req.body.user_id || States?.created_by;
+      const user = await User.findByPk(user_id);
+      const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `State name '${States?.state_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await States.destroy();
     res.json({ message: "State entry deleted" });
   } catch (error) {

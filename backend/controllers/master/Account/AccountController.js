@@ -37,6 +37,17 @@ exports.createAccount = async (req, res, next) => {
       is_active,
       created_by
     });
+const user_id  = created_by
+     const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];        // yyyy-mm-dd
+    const entry_time = now.toTimeString().split(" ")[0];       // HH:mm:ss
+    const logMessage = `Account name ${account_name} was created by ${username} on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id:created_by,
+      message: logMessage,
+    });
 
     res.status(201).json(newAccount);
   } catch (error) {
@@ -125,7 +136,15 @@ const account_id = id
       is_active,
       created_by
     });
-
+const user_id  = created_by
+      const user = await User.findByPk(user_id);
+        const username = user ? user.username : "Unknown User";
+         const now = new Date();
+        const entry_date = now.toISOString().split("T")[0];
+        const entry_time = now.toTimeString().split(" ")[0];
+    
+        const logMessage = `Account name '${account_name}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: created_by, message: logMessage });
     // Return updated account
     res.status(200).json(accounts);
   } catch (error) {
@@ -145,6 +164,16 @@ exports.deleteAccount = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
+const user_id  = Accounts?.created_by
+         const user = await User.findByPk(user_id);
+        const username = user ? user.username : "Unknown User";
+         const now = new Date();
+        const entry_date = now.toISOString().split("T")[0];
+        const entry_time = now.toTimeString().split(" ")[0];
+    
+        const logMessage = `Account name '${Accounts?.account_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
+    // Return updated account
       
     await Accounts.destroy();
     res.json({ message: "Account entry deleted" });

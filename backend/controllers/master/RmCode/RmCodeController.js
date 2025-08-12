@@ -21,7 +21,7 @@ exports.createRmCode = async (req, res ,next) => {
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    const logMessage = `RmCode '${rm_code}' was created by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Rm Code '${rm_code}' was created by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
       user_id,
@@ -38,7 +38,7 @@ exports.getRmCodeById = async (req, res,next) => {
   try {
     const rmCode = await RmCode.findByPk(req.params.id);
     if (!rmCode)
-    {const error = new Error( "RmCode entry not found" );
+    {const error = new Error( "Rm Code entry not found" );
        error.status = 404;
       return next(error)}
 
@@ -67,7 +67,7 @@ exports.updateRmCode = async (req, res,next) => {
   try {
     const rmCode = await RmCode.findByPk(req.params.id);
     if (!rmCode) {
-const error = new Error( "RmCode entry not found" );
+const error = new Error( "Rm Code entry not found" );
        error.status = 404;
       return next(error)
     }
@@ -86,7 +86,7 @@ const error = new Error( "RmCode entry not found" );
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    const logMessage = `RmCode '${rm_code}' was updated by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Rm Code '${rm_code}' was updated by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
       user_id,
@@ -105,7 +105,7 @@ exports.deleteRmCode = async (req, res,next) => {
   try {
     const rmcodes = await RmCode.findByPk(req.params.id);
     if (!rmcodes){
-      const error = new Error( "RmCode entry not found" );
+      const error = new Error( "Rm Code entry not found" );
        error.status = 404;
       return next(error)
     }
@@ -115,13 +115,13 @@ exports.deleteRmCode = async (req, res,next) => {
       const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
     const user = await User.findByPk(user_id);
     const username = user ? user?.username : "Unknown User";
-    const logMessage = `RmCode  ${rmcodes?.rm_code}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Rm Code  ${rmcodes?.rm_code}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
     await createLogEntry({
       user_id,
       message:logMessage
     });
     await rmcodes.destroy();
-    res.json({ message: "RmCode entry deleted" });
+    res.json({ message: "Rm Code entry deleted" });
   } catch (error) {
    next(error)
   }

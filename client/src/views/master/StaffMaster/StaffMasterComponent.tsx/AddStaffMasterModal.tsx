@@ -18,7 +18,7 @@ import {
   GetStaffMaster,
 } from 'src/features/master/StaffMaster/StaffMasterSlice';
 
-const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designationdata}) => {
+const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designationdata,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designation
     joining_date: '',
     designation_id: '',
     qualification_id: '',
-    
+    created_by:logindata?.admin?.id,
     status: 'Inactive',
   });
 
@@ -78,6 +78,7 @@ const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designation
         designation_id: '',
         qualification_id: '',
         status: 'Inactive',
+        created_by:logindata?.admin?.id
       });
       setProfilePhoto(null);
       setShowmodal(false);

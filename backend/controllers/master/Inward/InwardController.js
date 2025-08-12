@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Inward } = db;
+const { Inward ,User} = db;
 const moment = require('moment');
 // Create
 exports.createInward = async (req, res,next) => {
@@ -29,6 +29,17 @@ exports.createInward = async (req, res,next) => {
       remarks: req.body.remarks
     });
 
+    
+      const user_id = req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Inward number '${inwardNumber}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
+        
     res.status(201).json(inward);
   } catch (err) {
     next(err);
@@ -79,6 +90,15 @@ exports.updateInward = async (req, res,next) => {
     }
 
     // Update allowed fields only
+     const user_id =inward?.created_by || req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Inward number '${inward?.inward_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await inward.update({
       vendor_id: req.body.vendor_id || inward.vendor_id,
       item_id: req.body.item_id || inward.item_id,
@@ -107,6 +127,17 @@ exports.deleteInward = async (req, res,next) => {
     if (!Inwards){   const error = new Error( "Inward entry not found" );
        error.status = 404;
       return next(error)}
+
+          // Update allowed fields only
+     const user_id =Inwards?.created_by || req.body.created_by 
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Inward number '${Inwards?.inward_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await Inwards.destroy();
     res.json({ message: "Inward entry deleted" });
   } catch (error) {

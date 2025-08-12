@@ -36,7 +36,15 @@ exports.createPackingMaterial = async (req, res, next) => {
       error.status = 400;
       return next(error);
     }
-
+     const user_id = created_by || req.body.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Packing with material name '${material_name}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     const newPackingMaterial = await PackingMaterial.create({
       material_name,
       material_code,
@@ -126,7 +134,15 @@ exports.updatePackingMaterial = async (req, res, next) => {
       hsn_code,
       created_by
     } = req.body;
-
+     const user_id = created_by || req.body.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Packing with material name '${material_name}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await packingMaterial.update({
       material_name,
       material_code,
@@ -160,6 +176,15 @@ exports.deletePackingMaterial = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
+          const user_id = PackingMaterials?.created_by || req.body.created_by
+      const user = await User.findByPk(user_id);
+     const username = user ? user.username : "Unknown User";
+    // Step 4: Create log
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Packing with material name '${PackingMaterials?.material_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await PackingMaterials.destroy();
     res.json({ message: "PackingMaterial entry deleted" });
   } catch (error) {

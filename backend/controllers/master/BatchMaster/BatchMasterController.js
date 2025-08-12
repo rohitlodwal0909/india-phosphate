@@ -17,7 +17,7 @@ exports.createBatchMaster = async (req, res, next) => {
       verified_by,
       approved_by,
       status,
-     
+     created_by
     } = req.body;
 
     // Optionally check for duplicate batch_number or bmr_number
@@ -43,8 +43,17 @@ exports.createBatchMaster = async (req, res, next) => {
       verified_by,
       approved_by,
       status,
-
+created_by
     });
+
+          const user_id  = newBatch?.created_by
+         const user = await User.findByPk(user_id);
+        const username = user ? user.username : "Unknown User";
+         const now = new Date();
+        const entry_date = now.toISOString().split("T")[0];
+        const entry_time = now.toTimeString().split(" ")[0];
+        const logMessage = `Batch number '${newBatch?.batch_number}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
 
     res.status(201).json({
       message: "Batch master created successfully",
@@ -112,8 +121,17 @@ exports.updateBatchMaster = async (req, res, next) => {
       verified_by,
       approved_by,
       status,
-     
+     created_by
     } = req.body;
+
+     const user_id  = existingBatchMaster?.created_by || created_by
+         const user = await User.findByPk(user_id);
+        const username = user ? user.username : "Unknown User";
+         const now = new Date();
+        const entry_date = now.toISOString().split("T")[0];
+        const entry_time = now.toTimeString().split(" ")[0];
+        const logMessage = `Batch number '${existingBatchMaster?.batch_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
 
     await existingBatchMaster.update({
       bmr_number,
@@ -127,6 +145,7 @@ exports.updateBatchMaster = async (req, res, next) => {
       verified_by,
       approved_by,
       status,
+      created_by
     });
 
     res.status(200).json({
@@ -150,6 +169,14 @@ exports.deleteBatchMaster = async (req, res,next) => {
       return next(error); 
      }
       
+        const user_id  = BatchMasters?.created_by 
+         const user = await User.findByPk(user_id);
+        const username = user ? user.username : "Unknown User";
+         const now = new Date();
+        const entry_date = now.toISOString().split("T")[0];
+        const entry_time = now.toTimeString().split(" ")[0];
+        const logMessage = `Batch number '${BatchMasters?.batch_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+        await createLogEntry({ user_id: user_id, message: logMessage });
     await BatchMasters.destroy();
     res.json({ message: "Make master entry deleted" });
   } catch (error) {

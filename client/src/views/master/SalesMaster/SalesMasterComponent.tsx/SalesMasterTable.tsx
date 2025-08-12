@@ -55,10 +55,10 @@ const SalesMasterTable = () => {
     const temperature = item?.status || "";
    
     return (
-      mouldNo.toString().toLowerCase().includes(searchText) ||
-      supllier.toString().toLowerCase().includes(searchText) ||
-      hardness.toString().toLowerCase().includes(searchText) ||
-      temperature.toString().toLowerCase().includes(searchText) 
+      String(mouldNo).toLowerCase().includes(searchText) ||
+      String(supllier).toLowerCase().includes(searchText) ||
+       String(hardness).toLowerCase().includes(searchText) ||
+       String(temperature).toLowerCase().includes(searchText) 
     );
   });
 
