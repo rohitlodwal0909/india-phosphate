@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 
 const SidebarLayout = () => {
   const { selectedIconId, setSelectedIconId } = useContext(CustomizerContext) || {};
-  
+
   const selectedContent = SidebarContent.find(
     (data) => data.id === selectedIconId
   );
@@ -28,9 +28,10 @@ const hasPermission = (subId: number) => {
   
   return logindata?.permission?.some(
     (p: any) =>
+      p.module_id === selectedIconId &&
       p.role_id === logindata?.admin?.role_id &&
       p.submodule_id === subId && 
-      [1,2,3,4,5,6,7].includes(p.permission_id) &&
+      [1,2,3,4].includes(p.permission_id) &&
       p.status === true // ✅ If *any one* of the 1–4 permissions is true, return true
   );
 };

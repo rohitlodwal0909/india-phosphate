@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -13,6 +13,9 @@ import { deleteRmCode, GetRmCode } from "src/features/master/RmCode/RmCodeSlice"
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import RawMaterialViewModal from "./RawMaterialViewModal";
 import AddRawMaterialModal from "./AddRawMaterialModal";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const RmCodeTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -29,7 +32,10 @@ const RmCodeTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+const { selectedIconId } = useContext(CustomizerContext) || {};
+                  const permissions = useMemo(() => {
+                  return getPermissions(logindata, selectedIconId, 15);
+                    }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetRmCode());
   }, [dispatch]);
@@ -69,7 +75,7 @@ const RmCodeTable = () => {
   return (
     <div>
       {/* Search Bar */}
-      <div className="flex justify-end mb-3 gap-2">
+    {permissions?.add &&  <div className="flex justify-end mb-3 gap-2">
         <input
           type="text"
           placeholder="Search..."
@@ -80,9 +86,9 @@ const RmCodeTable = () => {
         <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create RmCode  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>
-      </div>
+      </div>}
 
-      <div className="overflow-x-auto">
+     { permissions?.view ? <> <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -121,7 +127,7 @@ const RmCodeTable = () => {
                                           <Button color="secondary" outline size="sm" onClick={() => { setviewmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(item); }}  className="p-0 bg-lightsecondary text-secondary hover:bg-secondary hover:text-white">
                                                           <Icon icon="solar:eye-outline" height={18} />
                                                         </Button>
-                          <Tooltip content="Edit" placement="bottom">
+                         {permissions?.edit &&   <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -129,8 +135,8 @@ const RmCodeTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                         {permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -142,7 +148,7 @@ const RmCodeTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         </>
                      
                     </div>
@@ -169,7 +175,7 @@ const RmCodeTable = () => {
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /></> : <NotPermission/>}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}

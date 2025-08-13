@@ -67,7 +67,7 @@ exports.updateFormula = async (req, res,next) => {
        error.status = 404;
       return next(error)
     }
-const user_id =  formulas?.created_by;
+const user_id = req.body?.created_by || formulas?.created_by;
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -93,7 +93,7 @@ exports.deleteFormula = async (req, res,next) => {
        const error = new Error( "Formula entry not found" );
        error.status = 404;
       return next(error)}
-       const user_id =  Formulas?.created_by;
+       const user_id = req?.body?.user_id || Formulas?.created_by;
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

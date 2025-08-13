@@ -1,6 +1,6 @@
 import { Badge, Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -12,6 +12,9 @@ import AddAccountModal from "./AddAccountModal";
 import { deleteAccount, GetAccount } from "src/features/master/Account/AccountSlice";
 import { GetCity } from "src/features/master/City/CitySlice";
 import ViewAccountModal from "./ViewAccountModal";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const AccountTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -27,6 +30,12 @@ const AccountTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewModal ,setViewModal ]= useState(false)
+
+  
+   const { selectedIconId } = useContext(CustomizerContext) || {};
+    const permissions = useMemo(() => {
+    return getPermissions(logindata, selectedIconId, 5);
+  }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetAccount());
         dispatch(GetCity());
@@ -72,6 +81,7 @@ const AccountTable = () => {
   return (
     <div>
       {/* Search Bar */}
+      {permissions?.add &&
       <div className="flex justify-end mb-3 gap-2">
         <input
           type="text"
@@ -84,8 +94,10 @@ const AccountTable = () => {
          Create Account  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>
       </div>
-
-      <div className="overflow-x-auto">
+}
+{permissions?.view ?
+     ( <>
+     <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -125,14 +137,14 @@ const AccountTable = () => {
                                             >
                                               {item.is_active == 1 ?"Active":"Inactive"}
                                             </Badge></td>
+
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
-                      
                         <>
                          <Button size="sm" color={"lightsecondary"} className="p-0" onClick={() => {setViewModal(true), setSelectedRow(item)}}>
                 <Icon icon="hugeicons:view" height={18} />
               </Button>
-                          <Tooltip content="Edit" placement="bottom">
+                        {permissions?.edit &&  <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -140,7 +152,8 @@ const AccountTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
+                          {permissions?.del && 
                           <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
@@ -154,6 +167,7 @@ const AccountTable = () => {
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
                           </Tooltip>
+}
                         </>
                      
                     </div>
@@ -172,8 +186,7 @@ const AccountTable = () => {
             )}
           </tbody>
         </table>
-      </div>
-
+      </div> 
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -181,6 +194,9 @@ const AccountTable = () => {
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
       />
+      </>
+    ):<NotPermission /> }
+
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}

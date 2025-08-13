@@ -36,7 +36,7 @@ const EditDesignationModal = ({ show, setShowmodal, DesignationData ,logindata})
         id: DesignationData?.id || '',
         designation_name: DesignationData?.designation_name || '',
         status: DesignationData?.status || '',
-        created_by: DesignationData?.created_by
+        created_by: logindata?.admin?.id
       });
     }
   }, [DesignationData]);

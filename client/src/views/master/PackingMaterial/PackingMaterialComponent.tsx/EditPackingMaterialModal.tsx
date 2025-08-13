@@ -97,7 +97,7 @@ const EditPackingMaterialModal = ({
 
     try {
       const result = await dispatch(updatePackingMaterial(formData)).unwrap();
-      toast.success(result.message || 'Packing Material updated successfully');
+      toast.success(result.message || 'Packing material updated successfully');
       dispatch(GetPackingMaterial());
       setShowmodal(false);
     } catch (err: any) {

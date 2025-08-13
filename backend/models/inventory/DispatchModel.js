@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true
       },
+      user_id: {
+        type: DataTypes.INTEGER,
+      
+      },
       vehicle_number: DataTypes.STRING,
       driver_details: DataTypes.STRING,
       product_name: DataTypes.STRING,

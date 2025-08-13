@@ -60,7 +60,7 @@ exports.update = async (req, res,next) => {
       where: { id: req.params.id }
     });
 
-      const user_id =  updated?.created_by || req.body?.created_by;
+      const user_id =  req.body?.created_by  || updated?.created_by ;
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -84,7 +84,7 @@ exports.delete = async (req, res, next) => {
     }
 
     // Step 2: Get user details
-    const user_id = hsn.created_by || req.body?.created_by;
+    const user_id = hsn.created_by || req.body?.user_id;
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 

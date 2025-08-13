@@ -90,7 +90,7 @@ exports.updateInward = async (req, res,next) => {
     }
 
     // Update allowed fields only
-     const user_id =inward?.created_by || req.body.created_by 
+     const user_id =  req.body.created_by || inward?.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -129,7 +129,7 @@ exports.deleteInward = async (req, res,next) => {
       return next(error)}
 
           // Update allowed fields only
-     const user_id =Inwards?.created_by || req.body.created_by 
+     const user_id = req.body.user_id || Inwards?.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

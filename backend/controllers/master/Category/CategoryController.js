@@ -112,7 +112,7 @@ exports.deleteCategory = async (req, res,next) => {
        error.status = 404;
       return next(error); 
     }
-      const user_id = req.body?.user_id;
+      const user_id = req.body?.user_id || category?.user_id;
        const now = new Date();
       const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
       const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss

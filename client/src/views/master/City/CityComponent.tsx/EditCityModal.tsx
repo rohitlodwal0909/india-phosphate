@@ -17,12 +17,13 @@ import {
 } from 'src/features/master/City/CitySlice';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
-const EditCityModal = ({ show, setShowmodal, CityData }) => {
+const EditCityModal = ({ show, setShowmodal, CityData ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     id: '',
     city_name: [''],
+    created_by:logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -43,6 +44,7 @@ useEffect(() => {
     setFormData({
       id: CityData?.id || '',
       city_name: parsedCities,
+      created_by:logindata?.admin?.id
     });
   }
 }, [CityData]);

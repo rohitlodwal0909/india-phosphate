@@ -1,6 +1,6 @@
 import { Badge, Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -12,6 +12,9 @@ import AddCompanyModal from "./AddCompanyModal";
 import { deleteCompany, GetCompany } from "src/features/master/Company/CompanySlice";
 import { GetCity } from "src/features/master/City/CitySlice";
 import ViewCompanyModal from "./ViewCompanyModal";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const CompanyTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -27,6 +30,11 @@ const CompanyTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewModal ,setViewModal ]= useState(false)
+
+     const { selectedIconId } = useContext(CustomizerContext) || {};
+      const permissions = useMemo(() => {
+      return getPermissions(logindata, selectedIconId, 1);
+        }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetCompany());
         dispatch(GetCity());
@@ -72,8 +80,8 @@ const CompanyTable = () => {
   return (
     <div>
       {/* Search Bar */}
-      <div className="flex justify-end mb-3 gap-2">
-        <input
+      { permissions?.add && <div className="flex justify-end mb-3 gap-2">
+         <input
           type="text"
           placeholder="Search..."
           className="border rounded-md border-gray-300"
@@ -83,8 +91,8 @@ const CompanyTable = () => {
         <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Company  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>
-      </div>
-
+      </div>}
+{  permissions?.view ? (<>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
@@ -132,6 +140,7 @@ const CompanyTable = () => {
                          <Button size="sm" color={"lightsecondary"} className="p-0" onClick={() => {setViewModal(true), setSelectedRow(item)}}>
                 <Icon icon="hugeicons:view" height={18} />
               </Button>
+              {permissions?.edit &&
                           <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
@@ -140,8 +149,8 @@ const CompanyTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                         { permissions?.del && <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -153,7 +162,8 @@ const CompanyTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                            </Tooltip>
+                          }
                         </>
                      
                     </div>
@@ -173,14 +183,13 @@ const CompanyTable = () => {
           </tbody>
         </table>
       </div>
-
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /> </>) : (<NotPermission/>)}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}

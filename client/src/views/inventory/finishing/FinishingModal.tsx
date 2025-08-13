@@ -4,16 +4,18 @@
     openModal: boolean;
     setOpenModal: (val: boolean) => void;
     selectedRow:any,
-    handlesubmit:any
+    handlesubmit:any,
+    logindata:any,
   }
 
-  const FinishingModal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal, selectedRow,handlesubmit }) => {
+  const FinishingModal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal, selectedRow,handlesubmit, logindata}) => {
     const [formData, setFormData] = useState({
       finishing: "",
       unfinishing: "",
       finish_quantity: "",
       unfinish_quantity: "",
       batch_number: "",
+      user_id:logindata?.admin?.id
     });
   useEffect(() => {
     if (selectedRow?.batch_id) {
@@ -38,6 +40,7 @@
         finish_quantity: "",
         unfinish_quantity: "",
         batch_number: "",
+         user_id: logindata?.admin?.id
       });
   };
     return (

@@ -5,10 +5,10 @@ export const PermissionData = [
     name: 'Inventory Managment',
     icons:"material-symbols:inventory-sharp",
     isCurrentUser: true,
-    submodule: [
+     submodule: [
       {id:1,
         name: 'Gate Entry',
-       icon: "ph:user-circle-check-thin", 
+        icon: "ph:user-circle-check-thin", 
         add: false,
         view: false,
         edit: false,
@@ -34,7 +34,7 @@ export const PermissionData = [
       },
        {
         id:4,
-        name: 'Qa Batch Number',
+         name: 'Qa Batch Number',
          icon: "material-symbols:batch-prediction-outline-sharp",
         add: false,
         view: false,
@@ -69,7 +69,7 @@ export const PermissionData = [
         delete: false,
       },
       
-    ],
+     ],
   },
   
 ]

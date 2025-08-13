@@ -100,7 +100,7 @@ exports.updateFinishGood = async (req, res,next) => {
     }
 
     // Update record
-       const user_id =  existingFinishGood?.created_by;
+       const user_id = req?.body?.created_by ||  existingFinishGood?.created_by;
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
 
@@ -132,7 +132,7 @@ exports.deleteFinishGood = async (req, res,next) => {
     if (!FinishGoods){   const error = new Error( "Finish Good entry not found" );
        error.status = 404;
       return next(error)}
-          const user_id =  FinishGoods?.created_by;
+          const user_id = req?.body?.user_id|| FinishGoods?.created_by;
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

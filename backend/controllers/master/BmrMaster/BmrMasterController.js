@@ -52,7 +52,7 @@ exports.update = async (req, res,next ) => {
     const updated = await BmrMaster.update(req.body, {
       where: { id: req.params.id }
     });
-     const user_id = req.body.created_by;
+     const user_id = req.body.created_by || updated?.created_by;
     const bmr_code = req.body.bmr_code;
       const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
@@ -78,7 +78,7 @@ exports.delete = async (req, res,next) => {
     }
 
     // Extract info before deletion
-    const user_id = bmr.created_by;
+    const user_id = req.body.user_id ||bmr.created_by;
     const bmr_code = bmr.bmr_code;
       const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";

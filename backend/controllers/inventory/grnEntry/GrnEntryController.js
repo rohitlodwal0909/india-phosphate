@@ -118,7 +118,7 @@ exports.update = async (req, res,next) => {
         return next(error);
       }
 
-    const oldUserId = entry.user_id;
+    const oldUserId =  req.body?.user_id || entry.user_id;
 
     await entry.update(req.body);
 

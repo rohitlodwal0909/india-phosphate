@@ -70,7 +70,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
 
     try {
       const result = await dispatch(addPackingMaterial(formData)).unwrap();
-      toast.success(result.message || 'Packing Material created successfully');
+      toast.success(result.message || 'Packing material created successfully');
       dispatch(GetPackingMaterial());
       setFormData({
     material_name: '',

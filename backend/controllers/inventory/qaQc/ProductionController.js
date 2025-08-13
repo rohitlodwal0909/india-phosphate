@@ -293,7 +293,8 @@ exports.createFinishingEntry = async (req, res,next) => {
       unfinishing,
       finish_quantity,
       unfinish_quantity,
-      batch_number
+      batch_number,
+      user_id
     } = req.body;
 
     if (
@@ -308,13 +309,23 @@ exports.createFinishingEntry = async (req, res,next) => {
       return next(error); 
       
     }
-
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];        // yyyy-mm-dd
+    const entry_time = now.toTimeString().split(" ")[0];       // HH:mm:ss
+    const logMessage = `finish entry  ${finishing} was created by ${username} on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage,
+    });
     const newEntry = await Finishing.create({
       finishing,
       unfinishing,
       finish_quantity,
       unfinish_quantity,
-      batch_number
+      batch_number,
+      user_id
     });
 
   await createNotificationByRoleId({
@@ -344,9 +355,18 @@ exports.updateFinishingEntry = async (req, res,next) => {
        const error = new Error( "Finishing entry not found.");
        error.status = 404;
       return next(error); 
-    
     }
-
+    const   user_id = req?.body?.user || existing?.user_id
+     const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];        // yyyy-mm-dd
+    const entry_time = now.toTimeString().split(" ")[0];  // HH:mm:ss
+     const logMessage = `finish entry  ${existing?.finishing} was updated by ${username} on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage,
+    });
     await existing.update(req.body);
 
     res.status(200).json({

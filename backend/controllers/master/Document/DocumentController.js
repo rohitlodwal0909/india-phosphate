@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Document } = db;
+const { Document,User } = db;
 const moment = require('moment');
 // Create
 exports.createDocument = async (req, res, next) => {
@@ -14,11 +14,9 @@ exports.createDocument = async (req, res, next) => {
       }
     });
 
-    // Generate Document Number like EXD-20250811-001
     const serial = String(countToday + 1).padStart(3, "0");
     const documentNumber = `EXD-${moment().format("YYYYMMDD")}-${serial}`;
 
-    // Handle file upload path
     const documentFile = req.file;
     const documentFilePath = documentFile ? `/uploads/${documentFile.filename}` : null;
 
@@ -33,7 +31,15 @@ exports.createDocument = async (req, res, next) => {
       remarks: req.body.remarks,
       created_by: req.body.created_by // Only if your model has this field
     });
-
+    const user_id = req.body.created_by || newDocument?.created_by;
+    const document_number =  newDocument?.document_number;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = ` Document number '${document_number}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(newDocument);
   } catch (err) {
     next(err);
@@ -85,14 +91,23 @@ exports.updateDocument = async (req, res, next) => {
     // Handle uploaded file if available
     const documentFile = req.file;
     const documentFilePath = documentFile ? `/uploads/${documentFile.filename}` : document.document_file;
-
+      const user_id =  req.body.created_by || document?.created_by;
+      const document_number =  document?.document_number;
+      const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = ` Document number '${document_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     // Update only allowed fields
     await document.update({
       export_type: req.body.export_type || document.export_type,
       customer_name: req.body.customer_name || document.customer_name,
       export_status: req.body.export_status || document.export_status,
       remarks: req.body.remarks || document.remarks,
-      document_file: documentFilePath
+      document_file: documentFilePath,
+       created_by: req.body.created_by 
     });
 
     res.json({
@@ -113,7 +128,17 @@ exports.deleteDocument = async (req, res,next) => {
     if (!Documents){   const error = new Error( "Document entry not found" );
        error.status = 404;
       return next(error)}
+     const user_id = req.body.user_id || Documents?.created_by;
+      const document_number =  Documents?.document_number;
+      const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = ` Document number '${document_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await Documents.destroy();
+
     res.json({ message: "Document entry deleted" });
   } catch (error) {
     next(error)

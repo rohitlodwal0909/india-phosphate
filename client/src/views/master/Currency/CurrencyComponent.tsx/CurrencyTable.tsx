@@ -1,6 +1,6 @@
 import { Badge, Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -10,6 +10,9 @@ import { toast } from "react-toastify";
 import EditCurrencyModal from "./EditCurrencyModal";
 import AddCurrencyModal from "./AddCurrencyModal";
 import { deleteCurrency, GetCurrency } from "src/features/master/Currency/CurrencySlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 const CurrencyTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
@@ -22,7 +25,10 @@ const CurrencyTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+const { selectedIconId } = useContext(CustomizerContext) || {};
+                  const permissions = useMemo(() => {
+                  return getPermissions(logindata, selectedIconId, 13);
+                    }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetCurrency());
   }, [dispatch]);
@@ -71,7 +77,7 @@ const CurrencyTable = () => {
   return (
     <div>
       {/* Search Bar */}
-      <div className="flex justify-end mb-3 gap-2">
+     {permissions?.add &&  <div className="flex justify-end mb-3 gap-2">
         <input
           type="text"
           placeholder="Search..."
@@ -82,9 +88,9 @@ const CurrencyTable = () => {
         <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Currency {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>
-      </div>
+      </div>}
 
-      <div className="overflow-x-auto">
+    {permissions?.view ?  <><div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -136,7 +142,7 @@ const CurrencyTable = () => {
                     <div className="flex justify-start gap-2">
                       
                         <>
-                          <Tooltip content="Edit" placement="bottom">
+                        {permissions?.edit &&     <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -144,8 +150,8 @@ const CurrencyTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                          {permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -157,7 +163,7 @@ const CurrencyTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         </>
                     </div>
                   </td>
@@ -176,7 +182,6 @@ const CurrencyTable = () => {
           </tbody>
         </table>
       </div>
-
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -184,7 +189,7 @@ const CurrencyTable = () => {
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
       />
-
+</>: <NotPermission/>}
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
         isOpen={deletemodal}

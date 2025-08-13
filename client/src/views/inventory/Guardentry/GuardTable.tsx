@@ -4,7 +4,7 @@ import {
 } from "@tanstack/react-table";
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteCheckin, GetCheckinmodule, updateCheckin } from "src/features/Inventorymodule/guardmodule/GuardSlice";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
@@ -18,26 +18,16 @@ import TableComponent from "src/utils/TableComponent";
 import GuardAddmodal from "./GuardAddmodal";
 import { AppDispatch } from "src/store";
 import Portal from "src/utils/Portal"; // Assuming this is your custom Portal
+import { getPermissions } from "src/utils/getPermissions";
+import { CustomizerContext } from "src/context/CustomizerContext";
 
 const columnHelper = createColumnHelper<any>();
 
 function GuardTable() {
   const dispatch = useDispatch<AppDispatch>();
+    const { selectedIconId } = useContext(CustomizerContext) || {};
    const logindata = useSelector((state: any) => state.authentication?.logindata);
-
-  // Use useMemo for logindata to ensure it's stable and parsed safely
-  // const logindata = useMemo(() => {
-  //   try {
-  //     const storedData = localStorage.getItem("logincheck");
-  //     return storedData ? JSON.parse(storedData) : {};
-  //   } catch (e) {
-  //     console.error("Error parsing logincheck from localStorage:", e);
-  //     return {};
-  //   }
-  // }, []);
-
   const guardData = useSelector((state: any) => state.checkininventory.checkindata);
-
   const [data, setData] = useState<any[]>([]);
   const [filters, setFilters] = useState({ guard_type: '' });
   const [selectedRow, setSelectedRow] = useState<any | null>(null);
@@ -55,6 +45,10 @@ function GuardTable() {
     setData(Array.isArray(guardData?.data) ? guardData.data : []);
   }, [guardData]);
 
+  const permissions = useMemo(() => {
+  return getPermissions(logindata, selectedIconId, 1);
+}, [logindata ,selectedIconId]);
+
   const filteredData = useMemo(() => {
     return data.filter(item => {
       const matchesGuardType = !filters.guard_type || item.guard_type?.toLowerCase().includes(filters.guard_type.toLowerCase());
@@ -65,12 +59,6 @@ function GuardTable() {
     });
   }, [data, filters, searchText]);
 
-  const hasAddPermission = logindata?.permission?.some(
-    (p: any) =>
-      p.submodule_id === 1 &&
-      p.permission_id === 2 &&
-      p.status === true
-  ) || false; // Default to false if permission is undefined/null
 
   const handleUpdate = async (updated: any) => {
     try {
@@ -99,17 +87,8 @@ function GuardTable() {
     }
   };
 
-  const getPermissions = (loginDataObj: any, submoduleId: number) => {
-    // Ensure loginDataObj and loginDataObj.permission are valid
-    if (!loginDataObj || !Array.isArray(loginDataObj.permission)) {
-      return [];
-    }
-    return loginDataObj.permission.filter((p: any) => p.submodule_id === submoduleId && p.status === true);
-  };
 
-  const hasViewPermission = getPermissions(logindata, 1).some(p => p.permission_id === 1);
-
-  const getColumns = (logindata: any, handlers: any) => [
+  const getColumns = ( handlers: any) => [
     columnHelper.accessor("inward_number", {
       header: "Inward Number",
       cell: info => <div className="truncate max-w-56"><h6 className="text-base">{info.getValue() || "-"}</h6></div>
@@ -143,17 +122,17 @@ function GuardTable() {
       header: "Actions",
       cell: info => {
         const row = info.row.original;
-        const perms = getPermissions(logindata, 1);
+  
 
         return (
           <div className="flex gap-2 notranslate" translate="no">
-            {perms.some(p => p.permission_id === 3) && (
+            {permissions?.edit && (
               <Tooltip content="Edit"><Button size="sm" className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white" onClick={() => handlers.onEdit(row)}><Icon icon="solar:pen-outline" height={18} /></Button></Tooltip>
             )}
             <Button size="sm" title="View" color="lightprimary" className="p-0" onClick={() => handlers.onView(row)}>
               <Icon icon="solar:eye-outline" height={18} />
             </Button>
-            {perms.some(p => p.permission_id === 4) && (
+            {permissions?.del && (
               <Tooltip content="Delete"><Button size="sm" color="lighterror" className="p-0" onClick={() => handlers.onDelete(row)}><Icon icon="solar:trash-bin-minimalistic-outline" height={18} /></Button></Tooltip>
             )}
           </div>
@@ -166,7 +145,7 @@ function GuardTable() {
 
   const table = useReactTable({
     data: filteredData,
-    columns: useMemo(() => getColumns(logindata, {
+    columns: useMemo(() => getColumns( {
       // --- IMPORTANT CHANGE: Delay triggerGoogleTranslateRescan ---
       onEdit: (row: any) => {
         setSelectedRow(row);
@@ -188,7 +167,7 @@ function GuardTable() {
         // Call rescan AFTER modal state is set, with a small delay
         setTimeout(triggerGoogleTranslateRescan, 50);
       },
-    }), [logindata]),
+    }), []),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -199,7 +178,7 @@ function GuardTable() {
   return (
     <>
       <div className="search-input flex justify-end mb-3">
-        {hasViewPermission &&
+        {permissions?.view &&
           <input
             type="text"
             placeholder="Search..."
@@ -207,7 +186,7 @@ function GuardTable() {
             onChange={(e) => setSearchText(e.target.value)}
             className="me-2 p-2 border rounded-md border-gray-300"
           />}
-        {hasViewPermission &&
+        {permissions?.view &&
           <select
             value={filters.guard_type}
             onChange={e => setFilters(f => ({ ...f, guard_type: e.target.value }))}
@@ -219,7 +198,7 @@ function GuardTable() {
             <option value="Other">Other</option>
           </select>
         }
-        {hasAddPermission && <Button color="primary" className="border rounded-md" onClick={() => {
+        {permissions?.add && <Button color="primary" className="border rounded-md" onClick={() => {
           setAddmodal(true);
           // --- IMPORTANT CHANGE: Delay triggerGoogleTranslateRescan for Add Modal ---
           setTimeout(triggerGoogleTranslateRescan, 50);
@@ -227,7 +206,7 @@ function GuardTable() {
           <span className="font-medium"> New Entry </span>
         </Button>}
       </div>
-      {hasViewPermission ? (
+      {permissions?.view ? (
         <>
           <div className="overflow-x-auto">
             <TableComponent table={table} flexRender={flexRender} columns={table.getAllColumns()} />

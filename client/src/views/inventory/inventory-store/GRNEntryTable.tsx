@@ -4,7 +4,7 @@ import {
 } from "@tanstack/react-table";
 import { Badge, Button } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {  GetCheckinmodule } from "src/features/Inventorymodule/guardmodule/GuardSlice";
@@ -18,6 +18,8 @@ import ViewStoremodel from "./ViewStoremodel";
 import { AppDispatch, RootState } from "src/store";
 import Portal from "src/utils/Portal";
 import { GetSupplier } from "src/features/master/Supplier/SupplierSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
 
 const columnHelper = createColumnHelper<any>();
 
@@ -33,8 +35,10 @@ const GRNEntryTable: React.FC = () => {
   const StoreData = useSelector((state: RootState) => state.storeinventory.storedata) as any
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
  const { supplierdata,  } = useSelector((state: any) => state.supplier);
-  const hasPermission = (id: number) => logindata?.permission?.some(p => p.submodule_id === 2 && p.permission_id === id && p.status);
-
+     const { selectedIconId } = useContext(CustomizerContext) || {};
+  const permissions = useMemo(() => {
+  return getPermissions(logindata, selectedIconId, 2);
+}, [logindata ,selectedIconId]);
   useEffect(() => {
     if (logindata?.admin?.id) {
       dispatch(GetCheckinmodule(logindata.admin.id));
@@ -145,7 +149,7 @@ useEffect(() => {
 
       return (
         <div className="flex gap-2">
-          {!storeItem && hasPermission(2) && (
+          {!storeItem && permissions?.edit && (
             <Button
               size="sm"
               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -159,7 +163,7 @@ useEffect(() => {
             </Button>
           )}
 
-          {storeItem && hasPermission(1) && (
+          {storeItem && permissions?.view && (
             <Button
               size="sm"
               color="lightprimary"
@@ -171,7 +175,7 @@ useEffect(() => {
             </Button>
           )}
 
-          {hasPermission(4) && (
+          {permissions?.del && (
             <Button
               size="sm"
               color="lighterror"
@@ -212,7 +216,7 @@ useEffect(() => {
     initialState: { pagination: { pageSize: 10 } }
   });
 
-  return hasPermission(1) ? (
+  return permissions?.view ? (
     <>
       <div className="flex justify-end mb-3">
         <input type="text" placeholder="Search..." value={searchText} onChange={e => setSearchText(e.target.value)} className="me-2 p-2 border rounded-md border-gray-300" />

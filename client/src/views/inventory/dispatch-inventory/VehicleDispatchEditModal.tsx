@@ -12,11 +12,14 @@ interface VehicleDispatchEditModalProps {
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
   handleupdated:any;
-  StoreDatas:any
+  StoreDatas:any;
+  logindata:any;
 }
 
-const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ openModal, setOpenModal, selectedRow ,handleupdated,StoreDatas}) => {
-  const [formData, setFormData] = useState<any>({});
+const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ openModal, setOpenModal, selectedRow ,handleupdated,StoreDatas,logindata}) => {
+  const [formData, setFormData] = useState<any>({
+    user_id: logindata?.admin?.id
+  });
 
   const batchOptions = StoreDatas?.flatMap((item) => item.qc_batch_number || []).map((batch) => ({ value: batch, label: batch }));
     
@@ -31,9 +34,10 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ ope
           }
           fetchStoreData()
         };},[])
+
       useEffect(() => {
     if (selectedRow) {
-      setFormData(selectedRow);
+     setFormData({...selectedRow, user_id: logindata?.admin?.id});
     }
   }, [selectedRow]);
 
@@ -48,7 +52,6 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({ ope
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleupdated(formData)
-   
     setOpenModal(false);
   };
 

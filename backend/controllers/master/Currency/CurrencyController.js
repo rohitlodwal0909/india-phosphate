@@ -75,7 +75,7 @@ exports.delete = async (req, res,next) => {
     if (!hsn) {
       return res.status(404).json({ message: "Currency entry  not found" });
     }
-     const user_id = req.body.created_by || hsn?.created_by;
+     const user_id = req.body.user_id || hsn?.created_by;
     const currency_name =  hsn?.currency_name;
       const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";

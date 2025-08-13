@@ -134,7 +134,7 @@ exports.updatePackingMaterial = async (req, res, next) => {
       hsn_code,
       created_by
     } = req.body;
-     const user_id = created_by || req.body.created_by
+     const user_id = created_by || packingMaterial.created_by
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -176,7 +176,7 @@ exports.deletePackingMaterial = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-          const user_id = PackingMaterials?.created_by || req.body.created_by
+          const user_id =req.body.user_id  ||  PackingMaterials?.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

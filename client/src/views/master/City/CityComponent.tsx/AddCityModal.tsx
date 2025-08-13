@@ -15,11 +15,12 @@ import { addCity, GetCity } from 'src/features/master/City/CitySlice';
 import { Icon } from '@iconify/react/dist/iconify.js';
 // import { Plus } from 'lucide-react';
 
-const AddCityModal = ({ show, setShowmodal, selectRow }) => {
+const AddCityModal = ({ show, setShowmodal, selectRow ,logindata}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
     city_name: [''],
     state_id: '',
+    created_by:logindata?.admin?.id
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -73,6 +74,7 @@ const handleRemoveCityInput = (index) => {
       setFormData({
         city_name: [''],
         state_id: selectRow?.id || '',
+        created_by:logindata?.admin?.id
       });
       setShowmodal(false);
     } catch (err) {

@@ -142,7 +142,7 @@ exports.updateCompany = async (req, res, next) => {
       created_by,
       status
     });
-      const user_id = req.body.created_by;
+      const user_id = req.body.created_by || created_by;
       const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
@@ -170,7 +170,7 @@ exports.deleteCompany = async (req, res,next) => {
       return next(error); 
      }
     
-      const user_id = Companydel?.created_by;
+      const user_id =   req.body.user_id || Companydel?.created_by;
       const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 

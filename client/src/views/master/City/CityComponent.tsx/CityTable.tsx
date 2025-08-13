@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -10,6 +10,9 @@ import { toast } from "react-toastify";
 import EditStateModal from "./EditCityModal";
 import AddStateModal from "./AddCityModal";
 import { deleteCity, GetCity } from "src/features/master/City/CitySlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const StateTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -23,7 +26,10 @@ const StateTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const { selectedIconId } = useContext(CustomizerContext) || {};
+                    const permissions = useMemo(() => {
+                    return getPermissions(logindata, selectedIconId, 23);
+                      }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetCity());
   }, [dispatch]);
@@ -80,8 +86,8 @@ const StateTable = () => {
         />
        
       </div>
-
-      <div className="overflow-x-auto">
+ { permissions?.view  ? 
+    <> <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -136,7 +142,7 @@ const StateTable = () => {
                                item?.cities?.[0]?.city_name ?
                                 
                             <>                          
-                          <Tooltip content="Edit" placement="bottom">
+                       { permissions?.edit &&  <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -144,8 +150,8 @@ const StateTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                       { permissions?.del &&     <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -157,12 +163,12 @@ const StateTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         
 
-                          </> :  <Button onClick={() => { setAddmodal(true), setSelectedRow(item); }} color="secondary" outline size="sm" className="p-0 bg-lightprimary text-primary hover:bg-primary hover:text-white">
+                          </> : <>{ permissions?.add && <Button onClick={() => { setAddmodal(true), setSelectedRow(item); }} color="secondary" outline size="sm" className="p-0 bg-lightprimary text-primary hover:bg-primary hover:text-white">
                                                                 <Icon icon="material-symbols:add-rounded" height={18} />
-                                                              </Button>
+                                                              </Button>}</>
 
                            }  
                         </>
@@ -191,18 +197,18 @@ const StateTable = () => {
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /></>  :<NotPermission/>}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this State?"
+        title="Are you sure you want to Delete this City?"
       />
 
-      <AddStateModal setShowmodal={setAddmodal} show={addmodal}  selectRow={selectedrow} />
-      <EditStateModal show={editmodal} setShowmodal={setEditmodal}   CityData={selectedrow?.cities?.length ? selectedrow.cities[0] : {}} />
+      <AddStateModal setShowmodal={setAddmodal} show={addmodal}  selectRow={selectedrow}logindata={logindata} />
+      <EditStateModal show={editmodal} setShowmodal={setEditmodal}   CityData={selectedrow?.cities?.length ? selectedrow.cities[0] : {}} logindata={logindata} />
     </div>
   );
 };

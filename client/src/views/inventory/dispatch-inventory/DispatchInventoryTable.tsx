@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -29,6 +29,8 @@ import {
 import { GetStoremodule } from "src/features/Inventorymodule/storemodule/StoreInventorySlice";
 import { GetAllQcbatch } from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
 import { GetFetchProduction } from "src/features/Inventorymodule/productionmodule/ProdutionSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
 
 interface DispatchDataType {
   id: number;
@@ -59,15 +61,10 @@ const DispatchInventoryTable = () => {
   const [modals, setModals] = useState({ add: false, edit: false, view: false, delete: false });
   const [selectedRow, setSelectedRow] = useState<DispatchDataType | null>(null);
 
-  const permissions = useMemo(() => {
-    const perms = logindata?.permission?.filter(p => p.submodule_id === 7 && p.status) || [];
-    return {
-      view: perms.some(p => p.permission_id === 1),
-      add: perms.some(p => p.permission_id === 2),
-      edit: perms.some(p => p.permission_id === 3),
-      del: perms.some(p => p.permission_id === 4)
-    }
-  }, [logindata]);
+     const { selectedIconId } = useContext(CustomizerContext) || {};
+      const permissions = useMemo(() => {
+      return getPermissions(logindata, selectedIconId,7);
+    }, [logindata ,selectedIconId]);
 
   useEffect(() => {
     setData(Array.isArray(vehicledata?.data) ? vehicledata.data : []);
@@ -199,8 +196,8 @@ const DispatchInventoryTable = () => {
 
       {modals.delete && <Portal><ComonDeletemodal isOpen={modals.delete} setIsOpen={() => handleModal("delete", false)} selectedUser={selectedRow} title="Are you sure you want to Delete this Dispatch Entry ?" handleConfirmDelete={handleConfirmDelete} /></Portal>}
       {modals.view && <Portal><ViewDispatchModal placeModal={modals.view} setPlaceModal={() => handleModal("view", false)} selectedRow={selectedRow} modalPlacement="center" /></Portal>}
-      {modals.add && <Portal><VehicleDispatchModal openModal={modals.add} setOpenModal={() => handleModal("add", false)} StoreData={filteredProductionData} /></Portal>}
-      {modals.edit && <Portal><VehicleDispatchEditModal openModal={modals.edit} setOpenModal={() => handleModal("edit", false)} selectedRow={selectedRow} StoreDatas={filteredProductionData} handleupdated={handleUpdate} /></Portal>}
+      {modals.add && <Portal><VehicleDispatchModal openModal={modals.add} setOpenModal={() => handleModal("add", false)} StoreData={filteredProductionData} logindata={logindata} /></Portal>}
+      {modals.edit && <Portal><VehicleDispatchEditModal openModal={modals.edit} setOpenModal={() => handleModal("edit", false)} selectedRow={selectedRow} StoreDatas={filteredProductionData} handleupdated={handleUpdate} logindata={logindata}  /></Portal>}
     </div>
   );
 };

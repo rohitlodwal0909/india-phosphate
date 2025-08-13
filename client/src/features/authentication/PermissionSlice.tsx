@@ -33,6 +33,7 @@ export const SavePermission= createAsyncThunk(
   "Save/fetch",
   async (fromdata:any, { rejectWithValue }) => {
 
+
     try {
       const response = await axios.post(`${apiUrl}/save/permission`,fromdata);
       return response.data;

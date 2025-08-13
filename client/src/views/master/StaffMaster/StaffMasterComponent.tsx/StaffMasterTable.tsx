@@ -1,6 +1,6 @@
 import { Badge, Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -15,6 +15,9 @@ import { GetQualification } from "src/features/master/Qualification/Qualificatio
 import ViewStaffMasterModal from "./ViewStaffMasterModal";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import AddPasswordModal from "./AddPasswordModal";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const StaffMasterTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -31,6 +34,11 @@ const StaffMasterTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [addpasswordmodal, setAddPasswordmodal] = useState(false);
+
+  const { selectedIconId } = useContext(CustomizerContext) || {};
+                    const permissions = useMemo(() => {
+                    return getPermissions(logindata, selectedIconId, 21);
+                      }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetStaffMaster());
         dispatch(GetDesignation());
@@ -85,12 +93,12 @@ const StaffMasterTable = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
+        { permissions?.add && <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Staff {/* <Icon icon="ic:baseline-plus" height={18} /> */}
-        </Button>
+        </Button>}
       </div>
-
-      <div className="overflow-x-auto">
+{ permissions?.view ?
+     <> <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -142,7 +150,7 @@ const StaffMasterTable = () => {
                         <Button color="secondary" outline size="sm" onClick={() => { setviewmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(item); }}  className="p-0 bg-lightsecondary text-secondary hover:bg-secondary hover:text-white">
                                                                                   <Icon icon="solar:eye-outline" height={18} />
                                                                                 </Button>
-                          <Tooltip content="Edit" placement="bottom">
+                        { permissions?.edit &&   <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -150,8 +158,8 @@ const StaffMasterTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                        { permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -163,7 +171,7 @@ const StaffMasterTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         </>
                      
                     </div>
@@ -183,14 +191,13 @@ const StaffMasterTable = () => {
           </tbody>
         </table>
       </div>
-
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /> </> : <NotPermission/>}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}

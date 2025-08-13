@@ -142,7 +142,7 @@ exports.updateSalesMaster = async (req, res, next) => {
       remarks,
     } = req.body;
 
-      const user_id =  created_by || req.body.created_by 
+      const user_id =  created_by || existingEntry.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     const now = new Date();
@@ -189,7 +189,7 @@ exports.deleteSalesMaster = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-        const user_id =  SalesMasters?.created_by || req.body.created_by 
+        const user_id =  req.body.user_id  || SalesMasters?.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     const now = new Date();

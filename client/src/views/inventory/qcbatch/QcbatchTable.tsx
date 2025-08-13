@@ -4,7 +4,7 @@ import {
 } from "@tanstack/react-table";
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import { toast } from "react-toastify";
@@ -15,22 +15,14 @@ import AddQcbatchModal from "./AddQcbatchModal";
 import { AppDispatch } from "src/store";
 import Portal from "src/utils/Portal"; // Assuming this is your custom Portal
 import { Deleteqcbatch, GetAllQcbatch } from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
 
 const columnHelper = createColumnHelper<any>();
 
 function QcbatchTable() {
   const dispatch = useDispatch<AppDispatch>();
      const logindata = useSelector((state: any) => state.authentication?.logindata);
-  
-  // const logindata = useMemo(() => {
-  //   try {
-  //     const storedData = localStorage.getItem("logincheck");
-  //     return storedData ? JSON.parse(storedData) : {};
-  //   } catch (e) {
-  //     console.error("Error parsing logincheck from localStorage:", e);
-  //     return {};
-  //   }
-  // }, []);
 
   const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
 
@@ -39,6 +31,13 @@ function QcbatchTable() {
   const [searchText, setSearchText] = useState(""); // Initialize with empty string
   const [isOpen, setIsOpen] = useState(false);
   const [addModal, setAddmodal] = useState(false);
+
+
+ const { selectedIconId } = useContext(CustomizerContext) || {};
+  const permissions = useMemo(() => {
+  return getPermissions(logindata, selectedIconId, 4);
+}, [logindata ,selectedIconId]);
+
    useEffect(() => {
     const fetchQcbatches = async () => {
       try {
@@ -66,12 +65,7 @@ function QcbatchTable() {
     });
   }, [data,searchText]);
 
-  const hasAddPermission = logindata?.permission?.some(
-    (p: any) =>
-      p.submodule_id === 4 &&
-      p.permission_id === 2 &&
-      p.status === true
-  ) || false; // Default to false if permission is undefined/null
+// Default to false if permission is undefined/null
   const handleConfirmDelete = async () => {
     if (!selectedRow?.id) return toast.error("No entry selected.");
     try {
@@ -87,17 +81,7 @@ function QcbatchTable() {
     }
   };
 
-  const getPermissions = (loginDataObj: any, submoduleId: number) => {
-    // Ensure loginDataObj and loginDataObj.permission are valid
-    if (!loginDataObj || !Array.isArray(loginDataObj.permission)) {
-      return [];
-    }
-    return loginDataObj.permission.filter((p: any) => p.submodule_id === submoduleId && p.status === true);
-  };
-
-  const hasViewPermission = getPermissions(logindata, 4).some(p => p.permission_id === 1);
-
-  const getColumns = (logindata: any, handlers: any) => [
+  const getColumns = ( handlers: any) => [
     columnHelper.accessor("id", {
       header: "S. No.",
      cell: (info) => {
@@ -109,6 +93,7 @@ function QcbatchTable() {
     );
   },
     }),
+
     columnHelper.accessor("qc_batch_number", { header: "Batch Number", cell: info => info.getValue() || "-" }),
    
     columnHelper.display({
@@ -116,15 +101,13 @@ function QcbatchTable() {
       header: "Actions",
       cell: info => {
         const row = info.row.original;
-        const perms = getPermissions(logindata, 4);
-
         return (
           <div className="flex gap-2 notranslate" translate="no">
-            {/* {perms.some(p => p.permission_id === 3) && (
+            {/* {permissions?.edit  && (
               <Tooltip content="Edit"><Button size="sm" className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white" onClick={() => handlers.onEdit(row)}><Icon icon="solar:pen-outline" height={18} /></Button></Tooltip>
             )} */}
             
-            {perms.some(p => p.permission_id === 4) && (
+            {permissions?.del  && (
               <Tooltip content="Delete"><Button size="sm" color="lighterror" className="p-0" onClick={() => handlers.onDelete(row)}><Icon icon="solar:trash-bin-minimalistic-outline" height={18} /></Button></Tooltip>
             )}
           </div>
@@ -137,7 +120,7 @@ function QcbatchTable() {
 
   const table = useReactTable({
     data: filteredData,
-    columns: useMemo(() => getColumns(logindata, {
+    columns: useMemo(() => getColumns( {
       // --- IMPORTANT CHANGE: Delay triggerGoogleTranslateRescan ---
       onEdit: (row: any) => {
         setSelectedRow(row);
@@ -152,7 +135,7 @@ function QcbatchTable() {
         // Call rescan AFTER modal state is set, with a small delay
         setTimeout(triggerGoogleTranslateRescan, 50);
       },
-    }), [logindata]),
+    }), []),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -163,7 +146,7 @@ function QcbatchTable() {
   return (
     <>
       <div className="search-input flex justify-end mb-3">
-        {hasViewPermission &&
+        {permissions?.view &&
           <input
             type="text"
             placeholder="Search..."
@@ -172,7 +155,7 @@ function QcbatchTable() {
             className="me-2 p-2 border rounded-md border-gray-300"
           />}
        
-        {hasAddPermission && <Button color="primary" className="border rounded-md" onClick={() => {
+        {permissions?.add && <Button color="primary" className="border rounded-md" onClick={() => {
           setAddmodal(true);
           // --- IMPORTANT CHANGE: Delay triggerGoogleTranslateRescan for Add Modal ---
           setTimeout(triggerGoogleTranslateRescan, 50);
@@ -180,7 +163,7 @@ function QcbatchTable() {
           <span className="font-medium"> Add Batch Number </span>
         </Button>}
       </div>
-      {hasViewPermission ? (
+      {permissions?.view ? (
         <>
           <div className="overflow-x-auto">
             <TableComponent table={table} flexRender={flexRender} columns={table.getAllColumns()} />

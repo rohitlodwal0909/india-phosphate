@@ -102,7 +102,7 @@ exports.updateMakeMaster = async (req, res, next) => {
     }
 
     const { make_code, make_name, description, status, created_by } = req.body;
-  const user_id = created_by
+     const user_id = created_by
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -139,7 +139,7 @@ exports.deleteMakeMaster = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-       const user_id = MakeMasters?.created_by
+       const user_id =  req?.body?.user_id || MakeMasters?.created_by
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

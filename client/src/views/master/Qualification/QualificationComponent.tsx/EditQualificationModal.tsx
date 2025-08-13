@@ -24,7 +24,7 @@ const EditQualificationModal = ({ show, setShowmodal, QualificationData ,loginda
     id: '',
     status:'',
     qualification_name: '',
-      created_by :logindata?.admin?.id
+    created_by :logindata?.admin?.id
   });
 
 
@@ -36,7 +36,7 @@ const EditQualificationModal = ({ show, setShowmodal, QualificationData ,loginda
         id: QualificationData?.id || '',
         qualification_name: QualificationData?.qualification_name || '',
         status: QualificationData?.status || '',
-          created_by :QualificationData?.created_by
+          created_by :logindata?.admin?.id
       });
     }
   }, [QualificationData]);

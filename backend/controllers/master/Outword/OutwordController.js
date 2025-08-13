@@ -123,7 +123,7 @@ exports.deleteOutward = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-     const user_id = Outwards?.created_by || req.body.created_by
+     const user_id = req.body.user_id ||  Outwards?.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

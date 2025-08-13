@@ -65,7 +65,7 @@ exports.updateState = async (req, res,next) => {
       return next(error)
     }
     const { state_name, created_by } = req.body;
-    const user_id = req.body.created_by || created_by;
+    const user_id = req.body.created_by || States?.created_by;
       const user = await User.findByPk(user_id);
       const username = user ? user.username : "Unknown User";
     // Step 4: Create log

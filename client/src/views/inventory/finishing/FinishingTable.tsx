@@ -11,7 +11,7 @@ import { Button } from "flowbite-react";
 import TableComponent from "src/utils/TableComponent";
 import { useDispatch, useSelector } from "react-redux";
 import PaginationComponent from "src/utils/PaginationComponent";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AppDispatch } from "src/store";
 import { toast } from "react-toastify";
@@ -20,6 +20,8 @@ import { addFinishingEntry, GetFetchProduction, updateFinishentry } from "src/fe
 import FinishingModal from "./FinishingModal";
 import EditFinishingModal from "./EditFinishingModal";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
 
 export interface PaginationTableType {
   id: number;
@@ -53,7 +55,12 @@ function FinishingTable() {
   const [data, setData] = useState<PaginationTableType[]>(qcAlldata?.data || []);
 
   const [searchText, setSearchText] = useState('');
-  useEffect(() => setData(Array.isArray(ProductionAlldata?.data) ? ProductionAlldata.data : []), [ProductionAlldata]);
+
+     const { selectedIconId } = useContext(CustomizerContext) || {};
+      const permissions = useMemo(() => {
+      return getPermissions(logindata, selectedIconId, 6);
+    }, [logindata ,selectedIconId]);
+   useEffect(() => setData(Array.isArray(ProductionAlldata?.data) ? ProductionAlldata.data : []), [ProductionAlldata]);
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
@@ -92,14 +99,7 @@ function FinishingTable() {
     } catch (error) {
       toast.error(error?.message || 'Update failed!');
     }
-  }
-  const getPermissions = (loginDataObj: any, submoduleId: number) =>
-    loginDataObj?.permission?.filter((p: any) => p.submodule_id === submoduleId && p.status === true) || [];
-
-  const hasViewPermission = getPermissions(logindata, 6).some(p => p.permission_id === 1);
-  const hasAddPermission = getPermissions(logindata, 6).some(p => p.permission_id === 2);
-  const hasEditPermission = getPermissions(logindata, 6).some(p => p.permission_id === 3);
-  // const hasDeletePermission = getPermissions(logindata, 5).some(p => p.permission_id === 4);
+  };
 
 const filteredData = useMemo(() => {
   if (!searchText) return data;
@@ -110,7 +110,6 @@ const filteredData = useMemo(() => {
     const batchId = item?.batch_id;
     const matchedBatch = qcAlldata?.data?.find((qc: any) => qc.id == batchId);
     const batchNumber = matchedBatch?.qc_batch_number?.toLowerCase() || "";
-
     let rmCodes = [];
     try {
       rmCodes = JSON.parse(item?.rm_code || "[]");
@@ -237,12 +236,12 @@ const filteredData = useMemo(() => {
         return (
           <div className="flex gap-2">
             {entry ? (
-              hasEditPermission &&
+              permissions?.edit &&
               <Button color="secondary" onClick={() => { setEditModal(true), triggerGoogleTranslateRescan(), setSelectedRow(rowData); }} outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
                 <Icon icon="material-symbols:edit-outline" height={18} />
               </Button>
             ) : (
-              hasAddPermission &&
+              permissions?.add &&
               <Button onClick={() => { setaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">
                 <Icon icon="material-symbols:add-rounded" height={18} />
               </Button>
@@ -264,7 +263,7 @@ const filteredData = useMemo(() => {
 
   return (
     <>
-      {hasViewPermission ? (
+      {permissions?.view ? (
         <>
           <div className="p-4">
             <div className="flex justify-end">
@@ -283,8 +282,8 @@ const filteredData = useMemo(() => {
           <p className="text-sm text-gray-500 text-center px-6">Please contact your administrator if you believe this is an error.</p>
         </div>
       )}
-      <FinishingModal openModal={addmodal} setOpenModal={setaddmodal} selectedRow={selectedRow} handlesubmit={handlesubmit} />
-      <EditFinishingModal openModal={editmodal} setOpenModal={setEditModal} selectedRow={selectedRow} handleupdatedentry={handleupdatedentry} />
+      <FinishingModal openModal={addmodal} setOpenModal={setaddmodal} selectedRow={selectedRow} handlesubmit={handlesubmit} logindata={logindata} />
+      <EditFinishingModal openModal={editmodal} setOpenModal={setEditModal} selectedRow={selectedRow} handleupdatedentry={handleupdatedentry} logindata={logindata}/>
     </>
   );
 }

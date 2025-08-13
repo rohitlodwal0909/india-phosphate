@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -11,6 +11,9 @@ import EditInwardModal from "./EditInwardModal";
 import AddInwardModal from "./AddInwardModal";
 import { deleteInward, GetInward } from "src/features/master/Inward/InwardSlice";
 import { GetSupplier } from "src/features/master/Supplier/SupplierSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const InwardTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -24,7 +27,10 @@ const InwardTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+ const { selectedIconId } = useContext(CustomizerContext) || {};
+                    const permissions = useMemo(() => {
+                    return getPermissions(logindata, selectedIconId, 24);
+                      }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetInward());
     dispatch(GetSupplier());
@@ -77,12 +83,12 @@ const InwardTable = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
+       { permissions?.add && <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Inward  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
-        </Button>
+        </Button>}
       </div>
 
-      <div className="overflow-x-auto">
+      { permissions?.view ? <> <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
@@ -137,7 +143,7 @@ const InwardTable = () => {
                     <div className="flex justify-start gap-2">
                       
                         <>
-                          <Tooltip content="Edit" placement="bottom">
+                           { permissions?.edit && <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -145,8 +151,8 @@ const InwardTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                         { permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -158,7 +164,7 @@ const InwardTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         </>
                     </div>
                   </td>
@@ -177,14 +183,13 @@ const InwardTable = () => {
           </tbody>
         </table>
       </div>
-
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /></> : <NotPermission/>}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}

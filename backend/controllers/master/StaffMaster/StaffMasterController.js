@@ -141,7 +141,7 @@ exports.updateStaffMaster = async (req, res,next) => {
       created_by
     });
 
-           const user_id = staff.created_by || created_by;
+           const user_id =  created_by ||staff.created_by
       const user = await User.findByPk(user_id);
       const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -167,7 +167,7 @@ exports.deleteStaffMaster = async (req, res,next) => {
       return next(error)
     }
 
-     const user_id = StaffMasters.created_by || req?.body?.user_id;
+     const user_id = req?.body?.user_id || StaffMasters.created_by;
       const user = await User.findByPk(user_id);
       const username = user ? user.username : "Unknown User";
     // Step 4: Create log

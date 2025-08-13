@@ -40,7 +40,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
         category: EquipmentData?.category || '',
         description: EquipmentData?.description || '',
         status: EquipmentData?.status ?? true,
-       created_by :EquipmentData?.created_by
+       created_by :logindata?.admin?.id
       });
     }
   }, [EquipmentData]);

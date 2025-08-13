@@ -43,7 +43,7 @@ const formattedTime = dateObj.toLocaleTimeString('en-US', {
   const fields = [
 
     ["Item Type", selectedRow?.item_type],
-    ["Item ID", selectedRow?.item_id ? itemList?.find(item => item?.id == selectedRow?.item_id ).rm_code :""],
+    ["Item ID", selectedRow?.item_id ? itemList?.find(item => item?.id == selectedRow?.item_id)?.rm_code : ""],
     ["Item Name", selectedRow?.item_name],
     ["Item Code", selectedRow?.item_code],
     ["Batch Number", selectedRow?.batch_no],

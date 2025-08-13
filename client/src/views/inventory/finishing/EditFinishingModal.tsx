@@ -7,14 +7,15 @@ interface FinishingEditModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
-
+logindata:any;
   handleupdatedentry: any
 }
 const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
   openModal,
   setOpenModal,
   selectedRow,
-  handleupdatedentry
+  handleupdatedentry,
+  logindata
 }) => {
 
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
     unfinishing: '',
     finish_quantity: '',
     unfinish_quantity: '',
+     user_id:logindata?.admin?.id
   });
 
   useEffect(() => {
@@ -32,7 +34,8 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
         finishing: selectedRow?.finishing_entries[0]?.finishing || '',
         unfinishing: selectedRow?.finishing_entries[0]?.unfinishing || '',
         finish_quantity: selectedRow?.finishing_entries[0]?.finish_quantity || '',
-        unfinish_quantity: selectedRow?.finishing_entries[0]?.unfinish_quantity || ''
+        unfinish_quantity: selectedRow?.finishing_entries[0]?.unfinish_quantity || '',
+         user_id:logindata?.admin?.id
       });
     }
   }, [selectedRow]);

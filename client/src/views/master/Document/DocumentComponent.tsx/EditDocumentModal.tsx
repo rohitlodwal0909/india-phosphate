@@ -28,7 +28,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
     export_status: '',
     remarks: '',
     document_file:null,
-    created_by: logindata?.admin?.id,
+    created_by:logindata?.admin?.id,
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -42,7 +42,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
         export_status: DocumentData?.export_status || 'Pending',
         remarks: DocumentData?.remarks || '',
         document_file: DocumentData?.document_file || null,
-        created_by: DocumentData?.created_by || '',
+       created_by:logindata?.admin?.id || '',
       });
     }
   }, [DocumentData]);

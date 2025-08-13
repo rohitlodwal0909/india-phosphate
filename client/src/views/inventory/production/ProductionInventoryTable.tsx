@@ -11,7 +11,7 @@ import { Badge, Button } from "flowbite-react";
 import TableComponent from "src/utils/TableComponent";
 import { useDispatch, useSelector } from "react-redux";
 import PaginationComponent from "src/utils/PaginationComponent";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import { AppDispatch } from "src/store";
@@ -19,6 +19,8 @@ import Addproductionmodal from "./Addproductionmodal";
 import { toast } from "react-toastify";
 import { GetAllQcbatch, GetAllrowmaterial } from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
 import { GetFetchProduction, GetFetchQcProduction } from "src/features/Inventorymodule/productionmodule/ProdutionSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
 
 
 export interface PaginationTableType {
@@ -53,6 +55,12 @@ function ProductionInventoryTable() {
   const qcproductiondata = useSelector((state: any) => state.productionData.qcproduction);
   const [data, setData] = useState<PaginationTableType[]>(qcproductiondata?.data || []);
   const [searchText, setSearchText] = useState('');
+
+  
+   const { selectedIconId } = useContext(CustomizerContext) || {};
+    const permissions = useMemo(() => {
+    return getPermissions(logindata, selectedIconId, 5);
+  }, [logindata ,selectedIconId]);
   useEffect(() => {
     setData(Array.isArray(qcproductiondata?.data) ? qcproductiondata.data : []);
   }, [qcproductiondata]);
@@ -89,15 +97,6 @@ function ProductionInventoryTable() {
     fetchQcbatches();
     fetchrawall();
   }, [dispatch]);
-
-
-
-    const getPermissions = (loginDataObj: any, submoduleId: number) =>
-    loginDataObj?.permission?.filter((p: any) => p.submodule_id === submoduleId && p.status === true) || [];
-  const hasViewPermission = getPermissions(logindata, 5).some(p => p.permission_id === 1);
-  const hasAddPermission = getPermissions(logindata, 5).some(p => p.permission_id === 2);
-  // const hasEditPermission = getPermissions(logindata, 5).some(p => p.permission_id === 3);
-  // const hasDeletePermission = getPermissions(logindata, 5).some(p => p.permission_id === 4);
 
   const handleApprove = (row: PaginationTableType) => {
     triggerGoogleTranslateRescan();
@@ -243,7 +242,7 @@ columnHelper.accessor("quantity", {
                 // </Link>
 
             ):(
-              hasAddPermission &&
+              permissions?.add &&
             <Button onClick={() => { setaddmodal(true), setSelectedRow(rowData) }} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"><Icon icon="material-symbols:add-rounded" height={18} /></Button>
             )}
 
@@ -270,7 +269,7 @@ columnHelper.accessor("quantity", {
 
   return (
     <>
-      {hasViewPermission ? (
+      {  permissions?.view ? (
         <>
           <div className="p-4">
             <div className="flex justify-end">

@@ -90,13 +90,13 @@ exports.updateDesignation = async (req, res,next) => {
 
 
 // Delete
-exports.deleteDesignation = async (req, res,next) => {
+exports.deleteDesignation = async (req, res, next) => {
   try {
     const Designations = await Designation.findByPk(req.params.id);
     if (!Designations){ 
        const error = new Error( "Designation entry not found" );
        error.status = 404;
-      return next(error)}
+       return next(error)}
         const user_id = req.body.user_id || Designations?.created_by;
       const designation_name =  Designations?.designation_name;
       const user = await User.findByPk(user_id);
@@ -104,7 +104,7 @@ exports.deleteDesignation = async (req, res,next) => {
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `Designation name '${designation_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+    const logMessage = ` Designation name '${designation_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
     await createLogEntry({ user_id: user_id, message: logMessage });
     await Designations.destroy();
     res.json({ message: "Designation entry deleted" });

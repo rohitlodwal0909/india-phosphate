@@ -136,7 +136,7 @@ const account_id = id
       is_active,
       created_by
     });
-const user_id  = created_by
+       const user_id  = created_by || accounts?.created_by
       const user = await User.findByPk(user_id);
         const username = user ? user.username : "Unknown User";
          const now = new Date();
@@ -164,12 +164,12 @@ exports.deleteAccount = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-const user_id  = Accounts?.created_by
-         const user = await User.findByPk(user_id);
-        const username = user ? user.username : "Unknown User";
-         const now = new Date();
-        const entry_date = now.toISOString().split("T")[0];
-        const entry_time = now.toTimeString().split(" ")[0];
+           const user_id  = req.body?.user_id ||   Accounts?.created_by 
+           const user = await User.findByPk(user_id);
+           const username = user ? user.username : "Unknown User";
+           const now = new Date();
+           const entry_date = now.toISOString().split("T")[0];
+           const entry_time = now.toTimeString().split(" ")[0];
     
         const logMessage = `Account name '${Accounts?.account_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
         await createLogEntry({ user_id: user_id, message: logMessage });

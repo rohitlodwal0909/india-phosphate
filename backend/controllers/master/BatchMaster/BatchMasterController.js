@@ -124,7 +124,7 @@ exports.updateBatchMaster = async (req, res, next) => {
      created_by
     } = req.body;
 
-     const user_id  = existingBatchMaster?.created_by || created_by
+     const user_id  = created_by || existingBatchMaster?.created_by 
          const user = await User.findByPk(user_id);
         const username = user ? user.username : "Unknown User";
          const now = new Date();
@@ -169,7 +169,7 @@ exports.deleteBatchMaster = async (req, res,next) => {
       return next(error); 
      }
       
-        const user_id  = BatchMasters?.created_by 
+        const user_id  = req.body.user_id|| BatchMasters?.created_by 
          const user = await User.findByPk(user_id);
         const username = user ? user.username : "Unknown User";
          const now = new Date();

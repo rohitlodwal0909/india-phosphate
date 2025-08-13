@@ -93,7 +93,7 @@ exports.updateSupplier = async (req, res,next) => {
       contact_no,
     });
 
-    const user_id = supplier.user_id;
+    const user_id = req.body?.user_id || supplier.user_id;
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
     const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
@@ -123,7 +123,7 @@ exports.deleteSupplier = async (req, res,next) => {
     {const error = new Error("Supplier entry not found");
        error.status = 404;
       return next(error)}
-      const user_id = req.body?.user_id;
+      const user_id = req.body?.user_id|| supplier?.user_id ;
        const now = new Date();
       const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
       const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss

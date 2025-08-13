@@ -1,6 +1,6 @@
 import { Badge, Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -10,6 +10,9 @@ import { toast } from "react-toastify";
 import EditEquipmentModal from "./EditEquipmentModal";
 import AddEquipmentModal from "./AddEquipmentModal";
 import { deleteEquipment, GetEquipment } from "src/features/master/Equipment/EquipmentSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 
 const EquipmentTable = () => {
@@ -24,7 +27,10 @@ const EquipmentTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+const { selectedIconId } = useContext(CustomizerContext) || {};
+                  const permissions = useMemo(() => {
+                  return getPermissions(logindata, selectedIconId, 14);
+                    }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetEquipment());
   }, [dispatch]);
@@ -68,7 +74,7 @@ const EquipmentTable = () => {
   return (
     <div>
       {/* Search Bar */}
-      <div className="flex justify-end mb-3 gap-2">
+{   permissions?.add &&   <div className="flex justify-end mb-3 gap-2">
         <input
           type="text"
           placeholder="Search..."
@@ -79,8 +85,9 @@ const EquipmentTable = () => {
         <Button size="sm" className="p-0 bg-primary border rounded-md" onClick={() => { setAddmodal(true); }}  >
           Create Equipment {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>
-      </div>
-
+      </div>}
+{
+  permissions?.view ?   <>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
@@ -125,7 +132,7 @@ const EquipmentTable = () => {
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       <>
-                        <Tooltip content="Edit" placement="bottom">
+                       {   permissions?.edit && <Tooltip content="Edit" placement="bottom">
                           <Button
                             size="sm"
                             className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -133,8 +140,8 @@ const EquipmentTable = () => {
                           >
                             <Icon icon="solar:pen-outline" height={18} />
                           </Button>
-                        </Tooltip>
-                        <Tooltip content="Delete" placement="bottom">
+                        </Tooltip>}
+                     {   permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                           <Button
                             size="sm"
                             color="lighterror"
@@ -146,7 +153,7 @@ const EquipmentTable = () => {
                           >
                             <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                           </Button>
-                        </Tooltip>
+                        </Tooltip>}
                       </>
                     </div>
                   </td>
@@ -165,14 +172,13 @@ const EquipmentTable = () => {
           </tbody>
         </table>
       </div>
-
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /></> : <NotPermission/>}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}

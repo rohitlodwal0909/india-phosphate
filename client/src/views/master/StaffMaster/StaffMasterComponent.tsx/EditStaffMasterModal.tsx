@@ -57,7 +57,7 @@ const EditStaffMasterModal = ({  show, setShowmodal, StaffMasterData,Qualificati
        joining_date: StaffMasterData?.joining_date  || '',
        designation_id: StaffMasterData?.designation_id  || '',
        qualification_id: StaffMasterData?.qualification_id  || '',
-        created_by:StaffMasterData?.created_by
+         created_by:logindata?.admin?.id
         });
       }
     }, [StaffMasterData]);

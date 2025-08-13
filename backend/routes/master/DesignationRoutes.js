@@ -8,7 +8,7 @@ router.post("/store-designation", DesignationController.createDesignation);
 router.get("/get-designation", DesignationController.getAllDesignation);
 router.get("/view-designation/:id", DesignationController.getDesignationById);
 router.put("/update-designation/:id", DesignationController.updateDesignation);
-router.delete("/delete-dsesignation/:id", DesignationController.deleteDesignation);
+router.delete("/delete-designation/:id", DesignationController.deleteDesignation);
 
 
 module.exports = router;

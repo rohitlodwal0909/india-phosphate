@@ -10,13 +10,26 @@ import { toast } from 'react-toastify';
 interface VehicleDispatchModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-   StoreData:any
+   StoreData:any;
+   logindata:any;
 }
 
-const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal,StoreData}) => {
+const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal,StoreData,logindata}) => {
 
   const dispatch = useDispatch<AppDispatch>();
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({
+    user_id:logindata?.admin?.id,
+    vehicle_number: '',
+  driver_details: '',
+  product_name: '',
+  quantity: '',
+  delivery_location: '',
+  batch_numbers: '',
+  delivered_by: '',
+  invoice_number: '',
+  remarks: '',
+  unit: ''
+  });
   const [errors, setErrors] = useState<any>({});
 
  

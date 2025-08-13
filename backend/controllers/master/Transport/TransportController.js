@@ -141,7 +141,7 @@ exports.deleteTransport = async (req, res,next) => {
        error.status = 404;
       return next(error); 
      }
-      const user_id = req.body?.created_by || Transports.created_by 
+      const user_id = req.body?.user_id || Transports.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     const now = new Date();

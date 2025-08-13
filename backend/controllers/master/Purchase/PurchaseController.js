@@ -92,7 +92,7 @@ exports.updatePurchase = async (req, res,next) => {
       payment_terms: req.body.payment_terms || purchases.payment_terms,
      
     });
-  const user_id =  purchases?.created_by ||  req.body.created_by 
+  const user_id =  req.body.created_by   || purchases?.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log
@@ -119,7 +119,7 @@ exports.deletePurchase = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-      const user_id =  purchases?.created_by ||  req.body.created_by 
+      const user_id =    req.body.user_id ||  purchases?.created_by
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
     // Step 4: Create log

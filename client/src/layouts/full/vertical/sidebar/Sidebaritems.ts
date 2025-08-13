@@ -18,7 +18,11 @@ export interface MenuItem {
   items?: MenuItem[];
   children?: any;
   url?: any;
- 
+  subId?:any;
+     add?: any;
+        view?: any;
+        edit?: any;
+        delete?: any;
 }
 
 import { uniqueId } from "lodash";
@@ -38,7 +42,12 @@ const SidebarContent: MenuItem[] = [
             icon: "carbon:report",
             id: uniqueId(),
             url: "/",
-            subId:''
+            subId:1,
+              add: false,
+           view: false,
+           edit: false,
+           delete: false,
+            
           },
           // {
           //   name: "Permission",
@@ -157,6 +166,10 @@ const SidebarContent: MenuItem[] = [
             icon: "ph:user-circle-check-thin",
             id: uniqueId(),
             url: "/inventory/check-in",
+             add: false,
+           view: false,
+          edit: false,
+             delete: false,
           },
           {
              subId:2,
@@ -164,6 +177,10 @@ const SidebarContent: MenuItem[] = [
             icon: "basil:app-store-outline",
             id: uniqueId(),
             url: "/inventory/store",
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
              subId:3,
@@ -171,6 +188,10 @@ const SidebarContent: MenuItem[] = [
             icon: "token:qrdo",
             id: uniqueId(),
             url: "/inventory/qc",
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             subId:4,
@@ -178,6 +199,10 @@ const SidebarContent: MenuItem[] = [
             icon: "material-symbols:batch-prediction-outline-sharp",
             id: uniqueId(),
             url: "/inventory/qc-batch",
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             subId:5,
@@ -185,6 +210,10 @@ const SidebarContent: MenuItem[] = [
             icon: "fluent:production-20-filled",
             id: uniqueId(),
             url: "/inventory/production",
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             subId:6,
@@ -192,6 +221,10 @@ const SidebarContent: MenuItem[] = [
             icon: "fluent:check-20-filled",
             id: uniqueId(),
             url: "/inventory/finishing",
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             subId:7,
@@ -199,232 +232,357 @@ const SidebarContent: MenuItem[] = [
             icon: "mdi:disc",
             id: uniqueId(),
             url: "/inventory/dispatch",
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           }
         ]
       },
     ],
   },
-  {
+     {
     id: 3,
     name: "Master",
     items: [
       {
         heading: "Master",
         children: [
+          
           {
             name: "Company",
             icon: "ix:customer",
             id: uniqueId(),
             url: "/master/company",
-            subId:''
+            subId:1,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Supplier",
             icon: "streamline-freehand:business-product-supplier-2",
             id: uniqueId(),
             url: "/master/supplier",
-            subId:''
+            subId:2,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Customer",
             icon: "ix:customer",
             id: uniqueId(),
             url: "/master/customer",
-            subId:''
+            subId:3,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Category",
             icon: "material-symbols:category-outline",
             id: uniqueId(),
             url: "/master/category",
-            subId:''
+            subId:4,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Accounts",
             icon: "mdi:account-key-outline",
             id: uniqueId(),
             url: "/master/accounts",
-            subId:''
+            subId:5,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Packing Material",
             icon: "lsicon:packing-box-outline",
             id: uniqueId(),
             url: "/master/packing-material",
-            subId:''
+            subId:6,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Transport",
             icon: "icon-park-outline:transporter",
             id: uniqueId(),
             url: "/master/transport",
-            subId:''
+            subId:7,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Batch Master",
             icon: "lsicon:batch-add-outline",
             id: uniqueId(),
             url: "/master/batch-masters",
-            subId:''
+            subId:8,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Pending Order",
             icon: "material-symbols:pending-outline",
             id: uniqueId(),
             url: "/master/pending-orders",
-            subId:''
+            subId:9,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Stock Master",
             icon: "lsicon:management-stockout-outline",
             id: uniqueId(),
             url: "/master/stock-masters",
-            subId:''
+            subId:10,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Sales Master",
             icon: "iconoir:home-sale",
             id: uniqueId(),
             url: "/master/sales-masters",
-            subId:''
+            subId:11,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "HSN Master",
             icon: "mdi:signal-hspa",
             id: uniqueId(),
             url: "/master/hsn-masters",
-            subId:''
+            subId:12,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Currency",
             icon: "ri:currency-line",
             id: uniqueId(),
             url: "/master/currency-master",
-            subId:''
+            subId:13,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Equipment",
             icon: "lsicon:equipment-outline",
             id: uniqueId(),
             url: "/master/equipment",
-            subId:''
+            subId:14,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "RM Code",
             icon: "file-icons:codeship",
             id: uniqueId(),
             url: "/master/rm-code",
-            subId:''
+            subId:15,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Units",
             icon: "material-symbols:ac-unit-rounded",
             id: uniqueId(),
             url: "/master/unit",
-            subId:''
+            subId:16,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Designation",
             icon: "hugeicons:manager",
             id: uniqueId(),
             url: "/master/designation",
-            subId:''
+            subId:17,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Qualification",
             icon: "healthicons:i-exam-qualification-outline",
             id: uniqueId(),
             url: "/master/qualification",
-            subId:''
+            subId:18,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Make Master",
             icon: "eos-icons:state",
             id: uniqueId(),
             url: "/master/make-masters",
-            subId:''
+            subId:19,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Department Master",
             icon: "icon-park-outline:city",
             id: uniqueId(),
             url: "/master/department-masters",
-            subId:''
+            subId:20,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Staff Master",
             icon: "icon-park-outline:file-staff",
             id: uniqueId(),
             url: "/master/staff-master",
-            subId:''
+            subId:21,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "State",
             icon: "eos-icons:state",
             id: uniqueId(),
             url: "/master/states",
-            subId:''
+            subId:22,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "City",
             icon: "icon-park-outline:city",
             id: uniqueId(),
             url: "/master/cites",
-            subId:''
+            subId:23,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Inward ",
             icon: "fluent:arrow-move-inward-20-filled",
             id: uniqueId(),
             url: "/master/inward",
-            subId:''
+            subId:24,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Outward ",
             icon: "material-symbols:arrow-outward-rounded",
             id: uniqueId(),
             url: "/master/outward",
-            subId:''
+            subId:25,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Purchase",
             icon: "bx:purchase-tag",
             id: uniqueId(),
             url: "/master/purchase",
-            subId:''
+            subId:26,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "BMR",
             icon: "carbon:ibm-gcm",
             id: uniqueId(),
             url: "/master/bmr",
-            subId:''
+            subId:27,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Finish Good",
             icon: "ep:finished",
             id: uniqueId(),
             url: "/master/finish-good",
-            subId:''
+            subId:28,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
           {
             name: "Formula",
             icon: "fluent:clipboard-math-formula-24-regular",
             id: uniqueId(),
             url: "/master/formula",
-            subId:''
+            subId:29,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           },
            {
             name: "Export Document",
             icon: "mi:document",
             id: uniqueId(),
             url: "/master/document",
-            subId:''
+            subId:30,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
           }
         ],
       },
     ],
-  },
+     },
 ];
 
 export default SidebarContent;

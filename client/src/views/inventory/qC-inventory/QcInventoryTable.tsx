@@ -18,11 +18,13 @@ import { GetStoremodule } from "src/features/Inventorymodule/storemodule/StoreIn
 import { GetCheckinmodule } from "src/features/Inventorymodule/guardmodule/GuardSlice";
 import { toast } from "react-toastify";
 import PaginationComponent from "src/utils/PaginationComponent";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import { Link, useNavigate } from "react-router";
 import { AppDispatch } from "src/store";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
 
 export interface PaginationTableType {
   id: number;
@@ -69,6 +71,12 @@ function QcInventoryTable() {
  
   const [data, setData] = useState<PaginationTableType[]>(StoreData?.data || []);
 const [searchText, setSearchText] = useState('');
+
+
+ const { selectedIconId } = useContext(CustomizerContext) || {};
+  const permissions = useMemo(() => {
+  return getPermissions(logindata, selectedIconId, 3);
+}, [logindata ,selectedIconId]);
   useEffect(() => {
     if (StoreData?.data) setData(StoreData.data);
   }, [StoreData]);
@@ -96,9 +104,7 @@ const [searchText, setSearchText] = useState('');
     fetchStoreData();
   }, [dispatch]);
 
-  const hasViewPermission = logindata?.permission?.some(
-    (p: any) => p.submodule_id === 3 && p.permission_id === 1 && p.status === true
-  );
+
 
   const handleApprove = (row: PaginationTableType) => {
     triggerGoogleTranslateRescan();
@@ -261,7 +267,7 @@ const [searchText, setSearchText] = useState('');
 
   return (
     <>
-      {hasViewPermission ? (
+      {permissions?.view ? (
         <>
           <div className="p-4">
             <div className="flex justify-end">
