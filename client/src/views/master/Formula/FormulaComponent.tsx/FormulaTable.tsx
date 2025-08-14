@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -10,6 +10,9 @@ import { toast } from "react-toastify";
 import EditFormulaModal from "./EditFormulaModal";
 import AddFormulaModal from "./AddFormulaModal";
 import { deleteFormula, GetFormula } from "src/features/master/Formula/FormulaSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 
 const FormulaTable = () => {
@@ -24,7 +27,10 @@ const FormulaTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-
+ const { selectedIconId } = useContext(CustomizerContext) || {};
+                      const permissions = useMemo(() => {
+                      return getPermissions(logindata, selectedIconId, 29);
+                        }, [logindata ,selectedIconId]);
   useEffect(() => {
     dispatch(GetFormula());
 
@@ -67,18 +73,18 @@ const filteredItems = (Formuladata || []).filter((item: any) => {
     <div>
       {/* Search Bar */}
       <div className="flex justify-end mb-3 gap-2">
-        <input
+       {permissions?.view && <input
           type="text"
           placeholder="Search..."
           className="border rounded-md border-gray-300"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
+        />}
+      {permissions?.add &&   <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Formula  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
-        </Button>
+        </Button>}
       </div>
-
+{  permissions?.view ? <>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
@@ -126,7 +132,7 @@ const filteredItems = (Formuladata || []).filter((item: any) => {
                     <div className="flex justify-start gap-2">
                       
                         <>
-                          <Tooltip content="Edit" placement="bottom">
+                         {permissions?.edit &&    <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -134,8 +140,8 @@ const filteredItems = (Formuladata || []).filter((item: any) => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                          {permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -147,7 +153,7 @@ const filteredItems = (Formuladata || []).filter((item: any) => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         </>
                     </div>
                   </td>
@@ -166,15 +172,14 @@ const filteredItems = (Formuladata || []).filter((item: any) => {
           </tbody>
         </table>
       </div>
-
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
-
+      /></>:<NotPermission/>
+}
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
         isOpen={deletemodal}

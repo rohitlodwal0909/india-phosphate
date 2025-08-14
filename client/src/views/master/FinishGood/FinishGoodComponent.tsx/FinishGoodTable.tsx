@@ -78,13 +78,13 @@ const filteredItems = (FinishGooddata || []).filter((item: any) => {
     <div>
       {/* Search Bar */}
       <div className="flex justify-end mb-3 gap-2">
-        <input
+           { permissions?.view && <input
           type="text"
           placeholder="Search..."
           className="border rounded-md border-gray-300"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        />}
       { permissions?.add && <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create FinishGood  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>}

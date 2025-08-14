@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import noData from "src/assets/images/svgs/no-data.webp";
 import CommonPagination from "../../../../utils/CommonPagination";
@@ -12,6 +12,9 @@ import AddDocumentModal from "./AddDocumentModal";
 import { deleteDocument, GetDocument } from "src/features/master/Documents/DocumentSlice";
 import { ImageUrl } from "src/constants/contant";
 import { GetCustomer } from "src/features/master/Customer/CustomerSlice";
+import { CustomizerContext } from "src/context/CustomizerContext";
+import { getPermissions } from "src/utils/getPermissions";
+import NotPermission from "src/utils/NotPermission";
 
 const DocumentTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -26,6 +29,10 @@ const DocumentTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+const { selectedIconId } = useContext(CustomizerContext) || {};
+                      const permissions = useMemo(() => {
+                      return getPermissions(logindata, selectedIconId, 30);
+                        }, [logindata ,selectedIconId]);
 
   useEffect(() => {
     dispatch(GetDocument());
@@ -75,18 +82,18 @@ const DocumentTable = () => {
     <div>
       {/* Search Bar */}
       <div className="flex justify-end mb-3 gap-2">
-        <input
+       { permissions?.view && <input
           type="text"
           placeholder="Search..."
           className="border rounded-md border-gray-300"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
+        />}
+       {permissions?.add &&  <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Document  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
-        </Button>
+        </Button>}
       </div>
-
+{permissions?.view ? <>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
@@ -157,7 +164,7 @@ const DocumentTable = () => {
                     <div className="flex justify-start gap-2">
                       
                         <>
-                          <Tooltip content="Edit" placement="bottom">
+                         {permissions?.edit &&  <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -165,8 +172,8 @@ const DocumentTable = () => {
                             >
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
-                          </Tooltip>
-                          <Tooltip content="Delete" placement="bottom">
+                          </Tooltip>}
+                         {permissions?.del &&  <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -178,7 +185,7 @@ const DocumentTable = () => {
                             >
                               <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                             </Button>
-                          </Tooltip>
+                          </Tooltip>}
                         </>
                      
                     </div>
@@ -198,14 +205,13 @@ const DocumentTable = () => {
           </tbody>
         </table>
       </div>
-
-      <CommonPagination
+      <CommonPagination 
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
-      />
+      /> </> : <NotPermission/>}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
