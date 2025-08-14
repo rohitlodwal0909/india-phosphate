@@ -41,7 +41,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
   };
 
   const validateForm = () => {
-    const required = ['bmr_number', 'batch_number', 'product_name', 'production_date', 'expiry_date', 'quantity_produced'];
+    const required = ['bmr_number', 'batch_number', 'product_name', 'production_date', 'expiry_date', 'quantity_produced','raw_materials_used','verified_by','approved_by'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -98,6 +98,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
           ].map(({ id, label, type = 'text' }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
+               <span className="text-red-700 ps-1">*</span>
  { id=== "batch_number" ? <select
               id="batch_number"
               value={formData.batch_number}
@@ -129,6 +130,8 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
           {/* Raw Materials Used */}
           <div className="col-span-4">
             <Label htmlFor="raw_materials_used" value="Raw Materials Used (JSON)" />
+               <span className="text-red-700 ps-1">*</span>
+
              <select
               id="raw_materials_used"
               value={formData.raw_materials_used}

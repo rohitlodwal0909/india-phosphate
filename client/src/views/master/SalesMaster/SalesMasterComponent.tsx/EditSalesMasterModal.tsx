@@ -116,6 +116,7 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
   const renderInput = (id, label, type = 'text') => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
+        <span className="text-red-700 ps-1">*</span>
       <TextInput
         id={id}
         type={type}
@@ -131,7 +132,7 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
   const renderSelect = (id, label, options) => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
-             
+               <span className="text-red-700 ps-1">*</span>
       <select  id={id} value={formData[id]} onChange={(e) => handleChange(id, e.target.value)}  className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5" >
         <option value="">Select {label}</option>
         {options.map((opt) => (
@@ -153,6 +154,7 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
           {renderInput('invoice_date', 'Invoice Date', 'date')}
           <div className="col-span-4">
           <Label htmlFor="customer_id" value="Customer ID" />
+            <span className="text-red-700 ps-1">*</span>
             <select
               id="customer_id"
               value={formData.customer_id}

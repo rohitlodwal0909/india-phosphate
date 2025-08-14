@@ -98,6 +98,7 @@ useEffect(() => {
   ].map(({ id, label, type, options }) => (
     <div className="col-span-6" key={id}>
       <Label htmlFor={id} value={label} />
+        <span className="text-red-700 ps-1">*</span>
       {type === 'select' ? (
         <select
           id={id}

@@ -20,7 +20,7 @@ import { allUnits } from 'src/utils/AllUnit';
 
 const itemTypes = [ 'Raw Material', 'Packing Material', 'Finished Good', 'Equipment'];
 const uomOptions = allUnits;
-const statusOptions = ['Active', 'Inactive', 'Expired', 'Used'];
+// const statusOptions = ['Active', 'Inactive', 'Expired', 'Used'];
 
 const AddStockMasterModal = ({
   show,
@@ -113,6 +113,8 @@ const AddStockMasterModal = ({
   const renderSelect = (id, label, options, value) => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
+               <span className="text-red-700 ps-1">*</span>
+
       <Select
         id={id}
         value={value}
@@ -133,6 +135,8 @@ const AddStockMasterModal = ({
   const renderInput = (id, label, type = 'text', disabled = false) => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
+               <span className="text-red-700 ps-1">*</span>
+
       <TextInput
         id={id}
         type={type}
@@ -155,6 +159,8 @@ const AddStockMasterModal = ({
           {/* Item ID dropdown with auto-fill */}
           <div className="col-span-4">
             <Label htmlFor="item_id" value="Item" />
+               <span className="text-red-700 ps-1">*</span>
+
             <Select
               id="item_id"
               value={formData.item_id}
@@ -179,6 +185,8 @@ const AddStockMasterModal = ({
           {/* Batch number from dropdown */}
           <div className="col-span-4">
             <Label htmlFor="batch_no" value="Batch Number" />
+               <span className="text-red-700 ps-1">*</span>
+
             <Select
               id="batch_no"
               value={formData.batch_no}
@@ -205,6 +213,8 @@ const AddStockMasterModal = ({
           {/* Location from locationList */}
           <div className="col-span-4">
             <Label htmlFor="location_id" value="Location / Warehouse" />
+               <span className="text-red-700 ps-1">*</span>
+
             <Select
               id="location_id"
               value={formData?.location_id}
@@ -226,7 +236,7 @@ const AddStockMasterModal = ({
 
           {renderInput('rack_no', 'Rack No')}
           {renderInput('expiry_date', 'Expiry Date', 'date')}
-          {renderSelect('status', 'Status', statusOptions, formData.status)}
+          {/* {renderSelect('status', 'Status', statusOptions, formData.status)} */}
         </form>
       </ModalBody>
 

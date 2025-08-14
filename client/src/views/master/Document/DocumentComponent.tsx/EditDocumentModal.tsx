@@ -25,7 +25,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
     id: '',
     export_type: '',
     customer_name: '',
-    export_status: '',
+   
     remarks: '',
     document_file:null,
     created_by:logindata?.admin?.id,
@@ -39,7 +39,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
         id: DocumentData?.id || '',
         export_type: DocumentData?.export_type || '',
         customer_name: DocumentData?.customer_name || '',
-        export_status: DocumentData?.export_status || 'Pending',
+       
         remarks: DocumentData?.remarks || '',
         document_file: DocumentData?.document_file || null,
        created_by:logindata?.admin?.id || '',
@@ -125,7 +125,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
           </div>
 
           {/* Export Status */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label htmlFor="export_status" value="Export Status" />
             <select
               id="export_status"
@@ -140,7 +140,7 @@ const EditDocumentModal = ({ show, setShowmodal, DocumentData, logindata ,custom
               <option value="Rejected">Rejected</option>
               <option value="Shipped">Shipped</option>
             </select>
-          </div>
+          </div> */}
 
         <div className="col-span-6">
             <Label htmlFor="document_file" value="Upload Document File" />

@@ -13,7 +13,7 @@ exports.createPurchase = async (req, res,next) => {
       }
     });
     const serial = String(countToday + 1).padStart(3, "0");
-    const purchaseNumber = `OUT-${moment().format("YYYYMMDD")}-${serial}`;
+    const purchaseNumber = `PUR-${moment().format("YYYYMMDD")}-${serial}`;
     const purchases = await Purchase.create({
       purchase_number: purchaseNumber,
       purchase_date: today,

@@ -107,7 +107,7 @@ const CategoryTable = () => {
             ) : currentItems.length > 0 ? (
               currentItems.map((item: any, index: number) => (
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">#{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td className="py-3 px-4 text-base"> <h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
                  
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     {(item?.category_name || "-")

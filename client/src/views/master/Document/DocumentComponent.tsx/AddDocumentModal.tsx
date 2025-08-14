@@ -122,7 +122,7 @@ const AddDocumentModal = ({ show, setShowmodal,logindata,customerdata }) => {
           </div>
 
           {/* Export Status */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label htmlFor="export_status" value="Export Status" />
             <select
               id="export_status"
@@ -138,7 +138,7 @@ const AddDocumentModal = ({ show, setShowmodal,logindata,customerdata }) => {
               <option value="Rejected">Rejected</option>
               <option value="Shipped">Shipped</option>
             </select>
-          </div>
+          </div> */}
 
         <div className="col-span-6">
             <Label htmlFor="document_file" value="Upload Document File" />

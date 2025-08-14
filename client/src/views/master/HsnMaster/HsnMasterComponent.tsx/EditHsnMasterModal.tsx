@@ -113,7 +113,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
           ].map(({ id, label }) => (
             <div className="col-span-6" key={id}>
               <Label htmlFor={id} value={label} />
-              {id === 'gst_rate' && <span className="text-red-700 ps-1">*</span>}
+     <span className="text-red-700 ps-1">*</span>
               <TextInput
                 id={id}
                 type="number"

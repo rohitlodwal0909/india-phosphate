@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -101,7 +101,7 @@ logindata
           ))}
 
           {/* Status Toggle */}
-          <div className="col-span-6 mt-2">
+          {/* <div className="col-span-6 mt-2">
             <Label htmlFor="is_active" value="Status" />
             <div className="mt-2">
               <ToggleSwitch
@@ -111,7 +111,7 @@ logindata
                 label={formData.is_active ? 'Active' : 'Inactive'}
               />
             </div>
-          </div>
+          </div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

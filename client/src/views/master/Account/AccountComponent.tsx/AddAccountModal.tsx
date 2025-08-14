@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -78,6 +78,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           {/* Account Name */}
           <div className="col-span-6">
             <Label htmlFor="account_name" value="Account Name" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="account_name"
               value={formData.account_name}
@@ -91,6 +92,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           {/* Account Type */}
           <div className="col-span-6">
             <Label htmlFor="account_type" value="Account Type" />
+             <span className="text-red-700 ps-1">*</span>
             <select
               id="account_type"
               value={formData.account_type}
@@ -106,6 +108,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           </div>
       <div className="col-span-6">
             <Label htmlFor="parent_account" value="Parent Acccount" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="parent_account"
               type="number"
@@ -137,6 +140,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           {/* Opening Balance */}
           <div className="col-span-6">
             <Label htmlFor="opening_balance" value="Opening Balance" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="opening_balance"
               type="number"
@@ -151,6 +155,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           {/* Balance Type */}
           <div className="col-span-6">
             <Label htmlFor="balance_type" value="Balance Type" />
+             <span className="text-red-700 ps-1">*</span>
             <select
               id="balance_type"
               value={formData.balance_type}
@@ -166,8 +171,9 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           </div>
 
           {/* Status */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label htmlFor="is_active" value="Status" />
+
             <div className="pt-2">
               <ToggleSwitch
                 checked={formData.is_active}
@@ -175,7 +181,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
                 onChange={(checked) => handleChange('is_active', checked)}
               />
             </div>
-          </div>
+          </div> */}
 
         </form>
       </ModalBody>

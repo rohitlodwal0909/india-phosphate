@@ -6,8 +6,8 @@ const PendingOrder = () => {
   
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Batch Master ", to: "/" }]}
-        title="Batch Master"/>
+      <BreadcrumbComp    items={[{ title: "Pending Order ", to: "/" }]}
+        title="Pending Order"/>
          <CardBox>
         <PendingOrderTable/>
         </CardBox>

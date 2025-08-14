@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
  
 } from 'flowbite-react';
 import { useState } from 'react';
@@ -127,7 +127,7 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
               />
            
           </div>
-
+{/* 
  <div className="col-span-6 ">
              <Label htmlFor="status" value="Status" />
             <div className="col-span-6 mt-2 flex items-center">
@@ -138,7 +138,7 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
     label={formData.status ? "Active" : "Inactive"}
   />
   </div>
-</div>
+</div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

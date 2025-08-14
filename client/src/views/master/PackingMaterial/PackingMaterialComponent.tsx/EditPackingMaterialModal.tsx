@@ -121,6 +121,7 @@ const EditPackingMaterialModal = ({
           ].map(({ id, label, type = 'text' }) => (
             <div className="col-span-6" key={id}>
               <Label htmlFor={id} value={label} />
+                <span className="text-red-700 ps-1">*</span>
               <TextInput
                 id={id}
                 type={type}
@@ -137,6 +138,7 @@ const EditPackingMaterialModal = ({
           {/* Material Type */}
           <div className="col-span-6">
             <Label htmlFor="material_type" value="Material Type" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="material_type"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -156,6 +158,7 @@ const EditPackingMaterialModal = ({
           {/* Supplier */}
           <div className="col-span-6">
             <Label htmlFor="supplier_id" value="Supplier" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="supplier_id"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -175,6 +178,7 @@ const EditPackingMaterialModal = ({
           {/* Unit of Measurement */}
           <div className="col-span-6">
             <Label htmlFor="unit_of_measurement" value="Unit of Measurement" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="unit_of_measurement"
               className="w-full border border-gray-300 p-2 rounded-md"

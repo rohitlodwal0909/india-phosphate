@@ -1,4 +1,4 @@
-import { Button, Tooltip } from "flowbite-react";
+import { Badge, Button, Dropdown, DropdownItem, Tooltip } from "flowbite-react";
 import { Icon } from "@iconify/react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,13 +9,13 @@ import { AppDispatch } from "src/store";
 import { toast } from "react-toastify";
 import EditDocumentModal from "./EditDocumentModal";
 import AddDocumentModal from "./AddDocumentModal";
-import { deleteDocument, GetDocument } from "src/features/master/Documents/DocumentSlice";
+import { deleteDocument, GetDocument, UpdateStatus } from "src/features/master/Documents/DocumentSlice";
 import { ImageUrl } from "src/constants/contant";
 import { GetCustomer } from "src/features/master/Customer/CustomerSlice";
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import NotPermission from "src/utils/NotPermission";
-
+const extractStatuses = ["Pending", "Approved", "Rejected", "Shipped"];
 const DocumentTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
@@ -57,7 +57,16 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
       else toast.error("Failed to delete user.");
     }
   };
-
+  const handleStatuschange = (export_status: any, id:any) => {
+ 
+    dispatch(UpdateStatus({ export_status , id })).unwrap().then(() => {
+      toast.success("Document Status  Change successfully!");
+          dispatch(GetDocument());
+    }).catch((err) => {
+      toast.error(err || "Failed to update lead.");
+      console.error("Update error:", err);
+    });
+  };
   const filteredItems = (Documentdata || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
     const supllier = item?.document_number || "";
@@ -104,7 +113,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
         "Customer Name",
         "Remarks",
         "Document File",
-        // "Export Status"
+        "Export Status"
         ,"Action"].map((title) => (
                 <th
                   key={title}
@@ -123,7 +132,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
             ) : currentItems.length > 0 ? (
               currentItems.map((item: any, index: number) => (
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">#{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
                  
                    <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item.document_number || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item.document_date || "-"}</td>
@@ -141,7 +150,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
             )}
           </td>
 
-                  {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                                <Badge
                                         
                                            color={
@@ -159,11 +168,18 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
                                           >
                                             {item.export_status}
                                           </Badge>
-                                          </td> */}
+                                          </td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       
                         <>
+                         <Dropdown label="Status" dismissOnClick={true} className="flex-wrap " color="primary" size="xs">
+              {extractStatuses.map((status) => (
+                <DropdownItem key={status} onClick={() => handleStatuschange(status, item?.id)}>
+                  {status}
+                </DropdownItem>
+              ))}
+            </Dropdown>
                          {permissions?.edit &&  <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
@@ -212,7 +228,6 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
         setCurrentPage={setCurrentPage}
         setPageSize={setPageSize}
       /> </> : <NotPermission/>}
-
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
         isOpen={deletemodal}

@@ -43,7 +43,7 @@ const AddBmrMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['bmr_code', 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date'];
+    const required = ['bmr_code', 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date','equipment_used','raw_materials','process_steps','qa_qc_signoff'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -102,7 +102,7 @@ const AddBmrMasterModal = ({ show, setShowmodal, logindata }) => {
           ].map(({ id, label, type }) => (
             <div key={id} className="col-span-12 md:col-span-6">
               <Label htmlFor={id} value={label} />
-              <span className="text-red-700 ps-1">{['bmr_code', 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date'].includes(id) ? '*' : ''}</span>
+              <span className="text-red-700 ps-1">*</span>
               <TextInput
                 id={id}
                 type={type || 'text'}

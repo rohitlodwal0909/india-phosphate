@@ -119,7 +119,28 @@ exports.updateDocument = async (req, res, next) => {
   }
 };
 
+exports.updateDocumentStatus = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+  
+    const document = await Document.findByPk(id);
+    if (!document) {
+      const error = new Error("Document entry not found");
+      error.status = 404;
+      return next(error);
+    }
 
+    await document.update({
+      export_status: req.body.export_status || document.export_status,
+    });
+    res.json({
+      message: "Document updated Status successfully.",
+      document
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Delete
 exports.deleteDocument = async (req, res,next) => {

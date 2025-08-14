@@ -44,7 +44,25 @@ export const addDocument = createAsyncThunk(
     }
   }
 );
-
+ export const UpdateStatus= createAsyncThunk<any, {id:string,export_status:any}, { rejectValue: any }>(
+  'Document/status',
+  async ({export_status,id}, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/status-document/${id}`,
+      { export_status:export_status }
+      );
+      return response.data;
+    } catch (error: any) {
+      // Handle server or validation error
+      if (error.response && error.response.data) {
+        return rejectWithValue(error.response.data); // API responded with error message
+      } else {
+        return rejectWithValue({ message: 'Something went wrong. Please try again.' });
+      }
+    }
+  }
+);
 export const updateDocument = createAsyncThunk(
   'Document/update',
   async (updatedUser: any, { rejectWithValue }) => {

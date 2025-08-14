@@ -200,6 +200,7 @@ useEffect(() => {
           ].map(({ id, label, type }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
+                <span className="text-red-700 ps-1">*</span>
                { id === 'vehicle_types' ? (
       <select
         id={id}
@@ -232,6 +233,7 @@ useEffect(() => {
           {/* State Dropdown */}
           <div className="col-span-4">
             <Label htmlFor="state" value="State" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="state"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -251,6 +253,7 @@ useEffect(() => {
           {/* City Dropdown */}
           <div className="col-span-4">
             <Label htmlFor="city" value="City" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="city"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -270,6 +273,7 @@ useEffect(() => {
           {/* Toggle is_active */}
           <div className="col-span-4">
             <Label htmlFor="is_active" value="Status" />
+            
             <div className="flex items-center pt-3">
               <ToggleSwitch
                 checked={formData.is_active}
@@ -281,6 +285,7 @@ useEffect(() => {
 
            <div className="col-span-6">
                       <Label htmlFor="time" value="Time" />
+                        <span className="text-red-700 ps-1">*</span>
                          <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <TimePicker
                                            value={formData.time ? dayjs(formData.time, 'HH:mm') : null}
@@ -323,6 +328,7 @@ useEffect(() => {
                     </div>
                     <div className="col-span-6">
                       <Label htmlFor="date" value="Date" />
+                        <span className="text-red-700 ps-1">*</span>
                       <TextInput
                         id="date"
                         value={formData.date}

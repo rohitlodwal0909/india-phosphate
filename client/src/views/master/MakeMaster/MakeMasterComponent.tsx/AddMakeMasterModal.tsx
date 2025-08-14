@@ -7,7 +7,7 @@ import {
   Label,
   TextInput,
   
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -118,7 +118,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
           </div>
 
           {/* Status Toggle */}
-          <div className="col-span-6 ">
+          {/* <div className="col-span-6 ">
                 <Label htmlFor="status" value="Status" />
                      <div className="col-span-6 mt-6 flex items-center">
            <ToggleSwitch
@@ -128,7 +128,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
              label={formData.status ? "Active" : "Inactive"}
            />
            </div>
-         </div>
+         </div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

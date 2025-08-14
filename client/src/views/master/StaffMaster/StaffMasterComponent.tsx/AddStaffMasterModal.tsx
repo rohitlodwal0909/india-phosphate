@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
   
 } from 'flowbite-react';
 import { useState } from 'react';
@@ -32,7 +32,7 @@ const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designation
     designation_id: '',
     qualification_id: '',
     created_by:logindata?.admin?.id,
-    status: 'Inactive',
+    status: 'Active',
   });
 
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
@@ -77,7 +77,7 @@ const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designation
         joining_date: '',
         designation_id: '',
         qualification_id: '',
-        status: 'Inactive',
+        status: 'Active',
         created_by:logindata?.admin?.id
       });
       setProfilePhoto(null);
@@ -170,7 +170,7 @@ const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designation
             </select>
             {errors.qualification_id && <p className="text-red-500 text-xs">{errors.qualification_id}</p>}
           </div>
-   <div className="col-span-4 gap-2 ">
+   {/* <div className="col-span-4 gap-2 ">
                       <Label htmlFor="status" value="Status" />
                      
                       <div className="flex gap-3 mt-3">
@@ -184,7 +184,7 @@ const AddStaffMasterModal = ({ show, setShowmodal ,Qualificationdata,Designation
                       />
                       <span>{formData.status === 'Active' ? 'Active' : 'Inactive'}</span>
                       </div>
-</div>
+</div> */}
 
           {/* Address */}
           <div className="col-span-12">

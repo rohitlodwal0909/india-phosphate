@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -39,7 +39,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['hsn_code', 'gst_rate'];
+    const required = ['hsn_code', 'gst_rate','cgst_rate','sgst_rate','igst_rate'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -106,7 +106,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
           ].map(({ id, label }) => (
             <div className="col-span-6" key={id}>
               <Label htmlFor={id} value={label} />
-              {id === 'gst_rate' && <span className="text-red-700 ps-1">*</span>}
+             <span className="text-red-700 ps-1">*</span>
               <TextInput
                 id={id}
                 type="number"
@@ -136,7 +136,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
             />
           </div>
 
-          {/* Status Toggle */}
+          {/* Status Toggle
           <div className="col-span-6">
             <Label htmlFor="status" value="Status" />
             <div className="col-span-6 mt-6 flex items-center">
@@ -147,7 +147,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
                 label={formData.status ? 'Active' : 'Inactive'}
               />
             </div>
-          </div>
+          </div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

@@ -150,6 +150,7 @@ const EditStockMasterModal = ({
   const renderInput = (id, label, type = 'text', disabled = false) => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
+        <span className="text-red-700 ps-1">*</span>
       <TextInput
         id={id}
         type={type}
@@ -172,6 +173,7 @@ const EditStockMasterModal = ({
           {/* Item ID dropdown with auto-fill */}
           <div className="col-span-4">
             <Label htmlFor="item_id" value="Item" />
+              <span className="text-red-700 ps-1">*</span>
             <Select
               id="item_id"
               value={formData.item_id}
@@ -196,6 +198,7 @@ const EditStockMasterModal = ({
           {/* Batch number from dropdown */}
           <div className="col-span-4">
             <Label htmlFor="batch_no" value="Batch Number" />
+              <span className="text-red-700 ps-1">*</span>
             <Select
               id="batch_no"
               value={formData.batch_no}
@@ -222,6 +225,7 @@ const EditStockMasterModal = ({
           {/* Location from locationList */}
           <div className="col-span-4">
             <Label htmlFor="location_id" value="Location / Warehouse" />
+              <span className="text-red-700 ps-1">*</span>
             <Select
               id="location_id"
               value={formData.location_id}

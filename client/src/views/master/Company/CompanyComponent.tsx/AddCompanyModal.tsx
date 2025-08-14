@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
  
 } from 'flowbite-react';
 import { useState } from 'react';
@@ -35,7 +35,7 @@ const AddCompanyModal = ({ show, setShowmodal, logindata ,Statedata}) => {
     cin_number: '',
     pan_number: '',
     created_by: logindata?.admin?.id || '',
-    status: 'Inactive',
+    status: 'Active',
   });
   
 const [cityOptions, setCityOptions] = useState<string[]>([]);
@@ -102,7 +102,7 @@ const handleStateChange = (value: string) => {
         cin_number: '',
         pan_number: '',
         created_by: logindata?.admin?.id,
-        status: "Inactive",
+        status: "Active",
       });
       setShowmodal(false);
     } catch (err: any) {
@@ -130,7 +130,7 @@ const handleStateChange = (value: string) => {
 ].map(({ id, label, type }) => (
   <div className="col-span-6" key={id}>
     <Label htmlFor={id} value={label} />
-
+ <span className="text-red-700 ps-1">*</span>
     {id === 'state_id' ? (
       <select
         id="state_id"
@@ -177,7 +177,7 @@ const handleStateChange = (value: string) => {
   </div>
 ))}
  {/* Status Toggle */}
-          <div className="col-span-6  gap-2 ">
+          {/* <div className="col-span-6  gap-2 ">
             <Label htmlFor="status" value="Status" />
             <div className='flex items-center pt-3 '>
             <ToggleSwitch
@@ -188,11 +188,12 @@ const handleStateChange = (value: string) => {
               }
             />
             </div>
-          </div>
+          </div> */}
 
           {/* Address */}
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
+              <span className="text-red-700 ps-1">*</span>
             <textarea
               id="address"
               value={formData.address}

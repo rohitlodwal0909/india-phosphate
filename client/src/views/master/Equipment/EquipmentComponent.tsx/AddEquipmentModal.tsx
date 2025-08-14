@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
   Select,
 } from 'flowbite-react';
 import { useState } from 'react';
@@ -121,7 +121,7 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
           </div>
 
           {/* Status */}
-          <div className="col-span-6 mt-2">
+          {/* <div className="col-span-6 mt-2">
             <Label htmlFor="status" value="Status" />
             <div className="mt-2">
               <ToggleSwitch
@@ -131,7 +131,7 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
                 label={formData.status ? 'Active' : 'Inactive'}
               />
             </div>
-          </div>
+          </div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

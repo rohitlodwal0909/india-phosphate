@@ -273,6 +273,7 @@ const PermissionsTable: React.FC = () => {
   const [permissions] = useState(SidebarContent || []);
   const dispatch = useDispatch<AppDispatch>();
   const [activePermissions, setActivePermissions] = useState([]);
+  const [searchTerm, setSearchTerm]= useState("")
   const roleData = useSelector((state: any) => state.rolepermission.roledata);
 
   const [formData, setFormData] = useState({
@@ -380,11 +381,18 @@ const PermissionsTable: React.FC = () => {
       <div className="p-4 rounded-sm shadow-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Permissions</h2>
-          <div className='flex'>
+          <div className='flex gap-3'>
+            <input
+          type="text"
+          placeholder="Search..."
+          className="border rounded-md border-gray-300"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
             <div className='me-3'>
               <select
                 id="role"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border rounded-md border-gray-300"
                 value={formData.role_id}
                 onChange={(e) => {
                   const newRoleId = Number(e.target.value);
@@ -402,7 +410,6 @@ const PermissionsTable: React.FC = () => {
             </div>
           </div>
         </div>
-
         <div className="overflow-x-auto">
           {formData.role_id ? (
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table table-hover">
@@ -420,42 +427,57 @@ const PermissionsTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {permissions.map((module) =>
-                  module.items?.flatMap((item) =>
-                    item.children?.map((sub, subIndex) => (
-                      <tr
-                        key={`${module.id}-${subIndex}`}
-                        className="hover:bg-gray-50 transition duration-150 ease-in-out bg-white dark:bg-gray-900"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-300">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full border border-blue-500 flex items-center justify-center text-sm">
-                              <Icon icon={sub?.icon} height={18} color="blue" />
-                            </div>
-                            <div className="ml-4 text-sm font-medium">{module.name}</div>
-                          </div>
-                        </td>
+           {permissions
+  .filter((module) => 
+    module.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    module.items?.some((item) =>
+      item.children?.some((sub) =>
+        sub.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+  )
+  .flatMap((module) =>
+    module.items
+      ?.flatMap((item) =>
+        item.children
+          ?.filter((sub) =>
+            module.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            sub.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map((sub, subIndex) => (
+            <tr
+              key={`${module.id}-${subIndex}`}
+              className="hover:bg-gray-50 transition duration-150 ease-in-out bg-white dark:bg-gray-900"
+            >
+              <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-300">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full border border-blue-500 flex items-center justify-center text-sm">
+                    <Icon icon={sub?.icon} height={18} color="blue" />
+                  </div>
+                  <div className="ml-4 text-sm font-medium">{module.name}</div>
+                </div>
+              </td>
 
-                        <td className="px-6 py-5 text-gray-900 dark:text-gray-300 flex items-center">
-                          <Icon icon={sub?.icon} height={18} color="blue" />
-                          <span className="ms-2">{sub.name}</span>
-                        </td>
+              <td className="px-6 py-5 text-gray-900 dark:text-gray-300 flex items-center">
+                <Icon icon={sub?.icon} height={18} color="blue" />
+                <span className="ms-2">{sub.name}</span>
+              </td>
 
-                        {["view", "add", "edit", "delete"].map((perm) => (
-                          <td key={perm} className="px-6 py-4 whitespace-nowrap">
-                            {renderToggle(
-                              module.id,
-                             
-                              perm as "view" | "add" | "edit" | "delete",
-                              getPermissionStatus(module.id, sub.subId, perm),
-                              sub.subId
-                            )}
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  )
-                )}
+              {["view", "add", "edit", "delete"].map((perm) => (
+                <td key={perm} className="px-6 py-4 whitespace-nowrap">
+                  {renderToggle(
+                    module.id,
+                    perm as "view" | "add" | "edit" | "delete",
+                    getPermissionStatus(module.id, sub.subId, perm),
+                    sub.subId
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))
+      )
+  )}
+
               </tbody>
             </table>
           ) : (

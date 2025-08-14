@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -22,7 +22,7 @@ const AddDesignationModal = ({ show, setShowmodal,logindata }) => {
 
   const [formData, setFormData] = useState({
     designation_name: '',
-    status: 'Inactive', // default value
+    status: 'Active', // default value
     created_by :logindata?.admin?.id
   });
 
@@ -55,7 +55,7 @@ const AddDesignationModal = ({ show, setShowmodal,logindata }) => {
       dispatch(GetDesignation());
       setFormData({
         designation_name: '',
-        status: 'Inactive',
+        status: 'Active',
         created_by :logindata?.admin?.id
       });
       setShowmodal(false);
@@ -69,7 +69,7 @@ const AddDesignationModal = ({ show, setShowmodal,logindata }) => {
       <ModalHeader>Create New Designation</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          <div className="col-span-6">
+          <div className="col-span-12">
             <Label htmlFor="designation_name" value="Designation Name" />
             <span className="text-red-700 ps-1">*</span>
             <TextInput
@@ -86,7 +86,7 @@ const AddDesignationModal = ({ show, setShowmodal,logindata }) => {
             )}
           </div>
 
-          <div className="col-span-6 gap-2 ">
+          {/* <div className="col-span-6 gap-2 ">
             <Label htmlFor="status" value="Status" />
            
             <div className="flex gap-3 mt-3">
@@ -100,7 +100,7 @@ const AddDesignationModal = ({ show, setShowmodal,logindata }) => {
             />
             <span>{formData.status === 'Active' ? 'Active' : 'Inactive'}</span>
             </div>
-          </div>
+          </div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

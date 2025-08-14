@@ -80,7 +80,7 @@ const DesignationTable = () => {
         />}
     {permissions?.add &&    <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
          Create Designation  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
-        </Button>}
+        </Button> }
       </div>
 
     { permissions?.view ? <><div className="overflow-x-auto">
@@ -105,7 +105,7 @@ const DesignationTable = () => {
             ) : currentItems.length > 0 ? (
               currentItems.map((item: any, index: number) => (
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">#{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
                  
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     {(item?.designation_name || "-")

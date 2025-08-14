@@ -114,6 +114,7 @@ const EditBatchMasterModal = ({ show, setShowmodal, logindata, BatchMasterData ,
           ].map(({ id, label, type = 'text' }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
+                <span className="text-red-700 ps-1">*</span>
                { id=== "batch_number" ? <select
               id="batch_number"
               value={formData.batch_number}
@@ -142,7 +143,8 @@ const EditBatchMasterModal = ({ show, setShowmodal, logindata, BatchMasterData ,
 
           {/* Raw Materials Used */}
           <div className="col-span-4">
-            <Label htmlFor="raw_materials_used" value="Raw Materials Used (JSON format)" />
+            <Label htmlFor="raw_materials_used" value="Raw Materials Used" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="raw_materials_used"
               value={formData.raw_materials_used}

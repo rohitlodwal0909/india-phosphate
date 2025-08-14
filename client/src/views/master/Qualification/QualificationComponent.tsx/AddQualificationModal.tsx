@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -22,7 +22,7 @@ const AddQualificationModal = ({ show, setShowmodal ,logindata}) => {
 
   const [formData, setFormData] = useState({
     qualification_name: '',
-    status: 'Inactive', // default status
+    status: 'Active', // default status
       created_by :logindata?.admin?.id
   });
 
@@ -53,7 +53,7 @@ const AddQualificationModal = ({ show, setShowmodal ,logindata}) => {
       dispatch(GetQualification());
       setFormData({
         qualification_name: '',
-        status: 'Inactive',
+        status: 'Active',
           created_by :logindata?.admin?.id
       });
       setShowmodal(false);
@@ -67,7 +67,7 @@ const AddQualificationModal = ({ show, setShowmodal ,logindata}) => {
       <ModalHeader>Create New Qualification</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          <div className="col-span-6">
+          <div className="col-span-12">
             <Label htmlFor="qualification_name" value="Qualification Name" />
             <span className="text-red-700 ps-1">*</span>
             <TextInput
@@ -85,7 +85,7 @@ const AddQualificationModal = ({ show, setShowmodal ,logindata}) => {
           </div>
 
           {/* Toggle Status */}
-          <div className="col-span-6 gap-2 ">
+          {/* <div className="col-span-6 gap-2 ">
             <Label htmlFor="status" value="Status" />
            
             <div className="flex gap-3 mt-3">
@@ -99,7 +99,7 @@ const AddQualificationModal = ({ show, setShowmodal ,logindata}) => {
             />
             <span>{formData.status === 'Active' ? 'Active' : 'Inactive'}</span>
             </div>
-          </div>
+          </div> */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

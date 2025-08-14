@@ -107,7 +107,7 @@ const EditBmrMasterModal = ({ show, setShowmodal, BmrMasterData, logindata }) =>
             <div key={id} className="col-span-12 md:col-span-6">
               <Label htmlFor={id} value={label} />
               <span className="text-red-700 ps-1">
-                {['bmr_code', 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date'].includes(id) ? '*' : ''}
+              *
               </span>
               <TextInput
                 id={id}

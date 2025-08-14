@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 import { addSalesMaster, GetSalesMaster } from 'src/features/master/SalesMaster/SalesMasterSlice';
 
 const paymentModes = ['Cash', 'Credit', 'UPI', 'Online'];
-const statusOptions = ['Pending', 'Completed', 'Cancelled'];
+// const statusOptions = ['Pending', 'Completed', 'Cancelled'];
 
 const AddSalesMasterModal = ({ show, setShowmodal, logindata, CustomerData }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -111,6 +111,8 @@ const handleChange = (field: string, value: any) => {
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           <div className="col-span-4">
             <Label htmlFor="invoice_no" value="Invoice No" />
+               <span className="text-red-700 ps-1">*</span>
+
             <TextInput
               id="invoice_no"
               value={formData.invoice_no}
@@ -135,6 +137,8 @@ const handleChange = (field: string, value: any) => {
 
           <div className="col-span-4">
   <Label htmlFor="customer_id" value="Customer ID" />
+               <span className="text-red-700 ps-1">*</span>
+
   <select
     id="customer_id"
     value={formData.customer_id}
@@ -155,6 +159,8 @@ const handleChange = (field: string, value: any) => {
 
           <div className="col-span-4">
             <Label htmlFor="payment_mode" value="Payment Mode" />
+               <span className="text-red-700 ps-1">*</span>
+
             <select
               id="payment_mode"
               value={formData.payment_mode}
@@ -176,6 +182,8 @@ const handleChange = (field: string, value: any) => {
           {['subtotal_amount', 'tax_amount', 'discount_amount', 'grand_total', 'paid_amount', 'balance_amount'].map((field) => (
             <div className="col-span-4" key={field}>
               <Label htmlFor={field} value={field.replace('_', ' ').toLowerCase()} />
+               <span className="text-red-700 ps-1">*</span>
+
               <TextInput
                 id={field}
                 type="number"
@@ -188,8 +196,10 @@ const handleChange = (field: string, value: any) => {
             </div>
           ))}
 
-          <div className="col-span-4">
+          {/* <div className="col-span-4">
             <Label htmlFor="status" value="Status" />
+               <span className="text-red-700 ps-1">*</span>
+
             <select
               id="status"
               value={formData.status}
@@ -202,11 +212,11 @@ const handleChange = (field: string, value: any) => {
               ))}
             </select>
             {errors.status && <p className="text-red-500 text-xs">{errors.status}</p>}
-          </div>
+          </div> */}
 
           
            <div className="col-span-6">
-            <Label htmlFor="product_details" value="Product Details (JSON)" />
+            <Label htmlFor="product_details" value="Product Details" />
             <Textarea
               id="product_details"
               value={formData.product_details}

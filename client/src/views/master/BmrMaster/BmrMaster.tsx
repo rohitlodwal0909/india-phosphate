@@ -6,8 +6,8 @@ const BmrMaster = () => {
   
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Bmr Master ", to: "/" }]}
-        title="Bmr Master"/>
+      <BreadcrumbComp    items={[{ title: "BMR Master ", to: "/" }]}
+        title="BMR Master"/>
          <CardBox>
         <BmrMasterTable/>
         </CardBox>

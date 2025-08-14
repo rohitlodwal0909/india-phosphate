@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  ToggleSwitch,
+  // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -39,7 +39,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
     preferred_routes: '',
     freight_rate_type: '',
     payment_terms: '',
-    is_active: false,
+    is_active: true,
     created_by: logindata?.admin?.id || '',
     date: '',
     time: '',
@@ -126,7 +126,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
         preferred_routes: '',
         freight_rate_type: '',
         payment_terms: '',
-        is_active: false,
+        is_active: true,
         created_by: logindata?.admin?.id || '',
         date: '',
         time: '',
@@ -158,6 +158,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           ].map(({ id, label, type }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
+               <span className="text-red-700 ps-1">*</span>
               { id === 'vehicle_types' ? (
       <select
         id={id}
@@ -188,8 +189,10 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           ))}
 
           {/* State Dropdown */}
-          <div className="col-span-4">
+          <div className="col-span-6">
             <Label htmlFor="state" value="State" />
+               <span className="text-red-700 ps-1">*</span>
+
             <select
               id="state"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -207,8 +210,10 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           </div>
 
           {/* City Dropdown */}
-          <div className="col-span-4">
+          <div className="col-span-6">
             <Label htmlFor="city" value="City" />
+               <span className="text-red-700 ps-1">*</span>
+
             <select
               id="city"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -226,7 +231,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           </div>
 
           {/* Toggle is_active */}
-          <div className="col-span-4">
+          {/* <div className="col-span-4">
             <Label htmlFor="is_active" value="Status" />
             <div className="flex items-center pt-3">
               <ToggleSwitch
@@ -235,9 +240,11 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
                 onChange={(checked) => handleChange('is_active', checked)}
               />
             </div>
-          </div>
+          </div> */}
    <div className="col-span-6">
                        <Label htmlFor="time" value="Time" />
+               <span className="text-red-700 ps-1">*</span>
+
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                                          <TimePicker
                                              value={formData.time ? dayjs(formData.time) : null}
@@ -278,6 +285,8 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
                      </div>
           <div className="col-span-6">
             <Label htmlFor="date" value="Date" />
+               <span className="text-red-700 ps-1">*</span>
+
             <TextInput
               id="date"
               value={formData.date}
@@ -292,6 +301,8 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           {/* Address */}
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
+               <span className="text-red-700 ps-1">*</span>
+
             <textarea
               id="address"
               value={formData.address}

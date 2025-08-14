@@ -19,6 +19,7 @@ router.post("/store-document", upload.single('document_file'), DocumentControlle
 router.get("/get-document", DocumentController.getAllDocument);
 router.get("/view-document/:id", DocumentController.getDocumentById);
 router.put("/update-document/:id",upload.single('document_file'), DocumentController.updateDocument);
+router.put("/status-document/:id", DocumentController.updateDocumentStatus);
 router.delete("/delete-document/:id", DocumentController.deleteDocument);
 
 module.exports = router;

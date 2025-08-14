@@ -100,6 +100,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Material Name */}
           <div className="col-span-6">
             <Label htmlFor="material_name" value="Material Name" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="material_name"
               placeholder='Enter Material Name'
@@ -114,6 +115,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Material Code */}
           <div className="col-span-6">
             <Label htmlFor="material_code" value="Material Code" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="material_code"
               value={formData.material_code}
@@ -130,6 +132,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Standard Rate */}
           <div className="col-span-6">
             <Label htmlFor="purchase_rate" value="Purchase Rate" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="purchase_rate"
               type="number"
@@ -143,6 +146,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           </div>
            <div className="col-span-6">
             <Label htmlFor="current_stock" value="Current Stock" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="current_stock"
               type="text"
@@ -158,6 +162,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Stock Quantity */}
           <div className="col-span-6">
             <Label htmlFor="stock_quantity" value="Stock Quantity" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="stock_quantity"
               type="number"
@@ -173,6 +178,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Min Required Stock */}
           <div className="col-span-6">
             <Label htmlFor="min_required_stock" value="Min Required Stock" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="min_required_stock"
               type="number"
@@ -188,6 +194,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* HSN Code */}
           <div className="col-span-6">
             <Label htmlFor="hsn_code" value="HSN Code" />
+             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="hsn_code"
               type="text"
@@ -203,6 +210,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Material Type */}
           <div className="col-span-6">
             <Label htmlFor="material_type" value="Material Type" />
+             <span className="text-red-700 ps-1">*</span>
             <select
               id="material_type"
               value={formData.material_type}
@@ -219,6 +227,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Supplier */}
           <div className="col-span-6">
             <Label htmlFor="supplier_id" value="Supplier" />
+             <span className="text-red-700 ps-1">*</span>
             <select
               id="supplier_id"
               value={formData.supplier_id}
@@ -238,6 +247,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* Unit of Measurement */}
           <div className="col-span-6">
             <Label htmlFor="unit_of_measurement" value="Unit of Measurement" />
+             <span className="text-red-700 ps-1">*</span>
             <select
               id="unit_of_measurement"
               value={formData.unit_of_measurement}

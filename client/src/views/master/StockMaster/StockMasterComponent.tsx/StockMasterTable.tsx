@@ -98,7 +98,7 @@ const StockMasterTable = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />}
        { permissions?.add &&  <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
-         Create StockMaster  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
+         Create Stock Master  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>}
       </div>
 
@@ -124,13 +124,13 @@ const StockMasterTable = () => {
     ) : currentItems.length > 0 ? (
       currentItems.map((item: any, index: number) => (
         <tr key={item.id} className="bg-white dark:bg-gray-900">
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">#{(currentPage - 1) * pageSize + index + 1}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.batch_no || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.item_type || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.quantity_in_stock || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             <Badge
-              color={item.status == "Active" ? "lightprimary" : item.status == "Used" ? "lightwarning" : "lighterror"}
+              color={item.status == "Active" ? "lightprimary" : item.status == "Used" ? "lightwarning" :item.status == "Expired" ? "lighterror":  "lightsuccess"}
               className="capitalize"
             >
               {item.status || "-"}

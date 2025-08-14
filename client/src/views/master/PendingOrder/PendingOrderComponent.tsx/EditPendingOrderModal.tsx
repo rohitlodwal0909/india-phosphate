@@ -99,6 +99,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Order Number */}
           <div className="col-span-4">
             <Label htmlFor="order_number" value="Order Number" />
+              <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="order_number"
               value={formData.order_number}
@@ -113,6 +114,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Customer Name / ID */}
           <div className="col-span-4">
             <Label htmlFor="customer_name_or_id" value="Customer Name / ID" />
+              <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="customer_name_or_id"
               value={formData.customer_name_or_id}
@@ -129,6 +131,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Order Date */}
           <div className="col-span-4">
             <Label htmlFor="order_date" value="Order Date" />
+              <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="order_date"
               type="date"
@@ -143,6 +146,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Expected Delivery Date */}
           <div className="col-span-4">
             <Label htmlFor="expected_delivery_date" value="Expected Delivery Date" />
+              <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="expected_delivery_date"
               type="date"
@@ -159,6 +163,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Products Ordered */}
           <div className="col-span-4">
             <Label htmlFor="products_ordered" value="Products Ordered (Raw Material Code)" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="products_ordered"
               value={formData.products_ordered}
@@ -178,6 +183,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Total Quantity */}
           <div className="col-span-4">
             <Label htmlFor="total_quantity" value="Total Quantity" />
+              <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="total_quantity"
               value={formData.total_quantity}
@@ -194,6 +200,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Quantity Delivered */}
           <div className="col-span-4">
             <Label htmlFor="quantity_delivered" value="Quantity Delivered" />
+              <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="quantity_delivered"
               value={formData.quantity_delivered}
@@ -210,6 +217,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
           {/* Order Status */}
           <div className="col-span-4">
             <Label htmlFor="order_status" value="Order Status" />
+              <span className="text-red-700 ps-1">*</span>
             <select
               id="order_status"
               value={formData.order_status}

@@ -165,7 +165,7 @@ useEffect(() => {
 ].map(({ id, label, type }) => (
   <div className="col-span-6" key={id}>
     <Label htmlFor={id} value={label} />
-
+  <span className="text-red-700 ps-1">*</span>
     {id === 'state_id' ? (
       <select
         id="state_id"
@@ -228,6 +228,7 @@ useEffect(() => {
           {/* Address */}
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
+              <span className="text-red-700 ps-1">*</span>
             <textarea
               id="address"
               value={formData.address}
