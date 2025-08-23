@@ -1,3 +1,4 @@
-export const apiUrl = "http://localhost:5000/api";
+export const apiUrl = "http://buildblockcompany.online/api";
+// http://buildblockcompany.online
  export const fakeUrl = "https://fake-json-api.mock.beeceptor.com/users";
-export const ImageUrl = "http://localhost:5000";
+export const ImageUrl = "http://buildblockcompany.online";
