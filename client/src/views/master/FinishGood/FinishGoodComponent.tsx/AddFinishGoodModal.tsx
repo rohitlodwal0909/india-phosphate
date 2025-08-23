@@ -22,7 +22,7 @@ const AddFinishGoodModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
-    product_code: '',
+    // product_code: '',
     product_name: '',
     product_description: '',
     batch_size: '',
@@ -61,7 +61,7 @@ const AddFinishGoodModal = ({ show, setShowmodal, logindata }) => {
       toast.success(result.message || 'Finish good created successfully');
       dispatch(GetFinishGood());
       setFormData({
-        product_code: '',
+        // product_code: '',
         product_name: '',
         product_description: '',
         batch_size: '',
@@ -130,7 +130,7 @@ const renderSelect = (id: string, label: string, options: any) => (
       <ModalHeader>Create Finish Good</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          {renderInput('product_code', 'Product Code')}
+          {/* {renderInput('product_code', 'Product Code')} */}
           {renderInput('product_name', 'Product Name')}
           {renderInput('batch_size', 'Batch Size')}
       {renderSelect('unit_of_measure', 'Unit of Measure', allUnits)}

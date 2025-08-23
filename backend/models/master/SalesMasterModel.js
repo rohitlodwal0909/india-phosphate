@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     balance_amount: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      allowNull: true,
     },
     status: {
       type: DataTypes.ENUM('Completed', 'Pending', 'Cancelled'),

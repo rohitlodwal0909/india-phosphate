@@ -6,7 +6,6 @@ const { PendingOrder, User} = db;
 exports.createPendingOrder = async (req, res, next) => {
   try {
     const {
-      order_number,
       customer_name_or_id,
       order_date,
       expected_delivery_date,
@@ -19,20 +18,22 @@ exports.createPendingOrder = async (req, res, next) => {
     } = req.body;
 
     // Optional: Check for duplicate order_number
-    const existingOrder = await PendingOrder.findOne({
-      where: { order_number },
+     const lastOrder = await PendingOrder.findOne({
+      order: [["created_at", "DESC"]],
     });
 
-    if (existingOrder) {
-      const error = new Error("Order number already exists.");
-      error.status = 400;
-      return next(error);
+    
+  let nextOrderNumber = "ORD-0001"; // default
+    if (lastOrder && lastOrder.order_number) {
+      const lastNumber = parseInt(lastOrder.order_number.split("-")[1]);
+      const newNumber = (lastNumber + 1).toString().padStart(4, "0");
+      nextOrderNumber = `ORD-${newNumber}`;
     }
 
     const quantity_pending = total_quantity - quantity_delivered;
 
     const newOrder = await PendingOrder.create({
-      order_number,
+      order_number:nextOrderNumber,
       customer_name_or_id,
       order_date,
       expected_delivery_date,
@@ -52,7 +53,7 @@ exports.createPendingOrder = async (req, res, next) => {
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `Pending 0rder number '${order_number}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Pending 0rder number '${nextOrderNumber}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
     await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json({
       message: "Pending order created successfully",

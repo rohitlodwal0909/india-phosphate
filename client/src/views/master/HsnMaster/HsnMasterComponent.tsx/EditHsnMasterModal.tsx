@@ -22,7 +22,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
 
   const [formData, setFormData] = useState({
     id: '',
-    hsn_code: '',
+    // hsn_code: '',
     description: '',
     gst_rate: '',
     cgst_rate: '',
@@ -38,7 +38,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
     if (HsnMasterData) {
       setFormData({
         id: HsnMasterData?.id || '',
-        hsn_code: HsnMasterData?.hsn_code || '',
+        // hsn_code: HsnMasterData?.hsn_code || '',
         description: HsnMasterData?.description || '',
         gst_rate: HsnMasterData?.gst_rate || '',
         cgst_rate: HsnMasterData?.cgst_rate || '',
@@ -56,7 +56,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
   };
 
   const validateForm = () => {
-    const required = ['hsn_code', 'gst_rate'];
+    const required = [ 'gst_rate','cgst_rate','sgst_rate','igst_rate'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -87,7 +87,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {/* HSN Code */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label htmlFor="hsn_code" value="HSN Code" />
             <span className="text-red-700 ps-1">*</span>
             <TextInput
@@ -102,7 +102,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
             {errors.hsn_code && (
               <p className="text-red-500 text-xs">{errors.hsn_code}</p>
             )}
-          </div>
+          </div> */}
 
           {/* GST Fields */}
           {[

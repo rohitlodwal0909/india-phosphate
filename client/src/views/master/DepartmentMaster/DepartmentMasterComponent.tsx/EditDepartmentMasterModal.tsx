@@ -24,7 +24,7 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
     id:'',
-    department_code: '',
+    // department_code: '',
     department_name: '',
     description: '',
     hod: '',
@@ -38,7 +38,7 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
     if (DepartmentMasterData) {
       setFormData({
         id: DepartmentMasterData?.id || '',
-        department_code: DepartmentMasterData?.department_code || '',
+        // department_code: DepartmentMasterData?.department_code || '',
         department_name: DepartmentMasterData?.department_name || '',
         description: DepartmentMasterData?.description || '',
         hod: DepartmentMasterData?.hod || '',
@@ -53,7 +53,7 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
   };
 
   const validateForm = () => {
-    const required = ['department_code', 'department_name'];
+    const required = [ 'department_name'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -68,11 +68,11 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
 
     try {
       const result = await dispatch(updateDepartmentMaster(formData)).unwrap();
-      toast.success(result.message || 'Department created successfully');
+      toast.success(result.message || 'Department updated successfully');
       dispatch(GetDepartmentMaster());
       setFormData({
         id:'',
-        department_code: '',
+        // department_code: '',
         department_name: '',
         description: '',
         hod: '',
@@ -91,12 +91,12 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-            {
-              id: 'department_code',
-              label: 'Department Code',
-              type: 'text',
-              placeholder: 'Enter unique department code',
-            },
+            // {
+            //   id: 'department_code',
+            //   label: 'Department Code',
+            //   type: 'text',
+            //   placeholder: 'Enter unique department code',
+            // },
             {
               id: 'department_name',
               label: 'Department Name',
@@ -120,17 +120,7 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
             </div>
           ))}
 
-          <div className="col-span-12">
-            <Label htmlFor="description" value="Description" />
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Optional description"
-              className="w-full border rounded-md p-2 border-gray-300"
-              rows={2}
-            />
-          </div>
+         
 
           <div className="col-span-6">
             <Label htmlFor="hod" value="Head of Department (HOD)" />
@@ -144,7 +134,17 @@ const EditDepartmentMasterModal = ({ show, setShowmodal, logindata ,DepartmentMa
               />
            
           </div>
-
+ <div className="col-span-12">
+            <Label htmlFor="description" value="Description" />
+            <textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleChange('description', e.target.value)}
+              placeholder="Optional description"
+              className="w-full border rounded-md p-2 border-gray-300"
+              rows={2}
+            />
+          </div>
           <div className="col-span-6 ">
              <Label htmlFor="status" value="Status" />
             <div className="col-span-6 mt-3 flex items-center">

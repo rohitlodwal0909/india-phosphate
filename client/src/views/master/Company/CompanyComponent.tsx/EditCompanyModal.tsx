@@ -35,6 +35,10 @@ const EditCompanyModal = ({ show, setShowmodal, logindata , CompanyData ,Stateda
     gst_number: '',
     cin_number: '',
     pan_number: '',
+     tin_number:'',
+      din_number:'',
+      msme_reg:'',
+      domestic:'',
     created_by: logindata?.admin?.id || '',
     status: 'Inactive',
   });
@@ -82,6 +86,10 @@ useEffect(() => {
       cin_number: CompanyData.cin_number || '',
       pan_number: CompanyData.pan_number || '',
       created_by: logindata?.admin?.id || '',
+       tin_number: CompanyData.tin_number|| '',
+      din_number: CompanyData.din_number|| '',
+      msme_reg: CompanyData.msme_reg|| '',
+      domestic: CompanyData.domestic|| '',
       status: CompanyData.status || 'Inactive',
     });
 
@@ -136,6 +144,10 @@ useEffect(() => {
         gst_number: '',
         cin_number: '',
         pan_number: '',
+         tin_number:'',
+      din_number:'',
+      msme_reg:'',
+      domestic:'',
         created_by: logindata?.admin?.id,
         status: "Inactive",
       });
@@ -162,6 +174,10 @@ useEffect(() => {
   { id: 'gst_number', label: 'GST Number', type: 'text' },
   { id: 'cin_number', label: 'CIN Number', type: 'text' },
   { id: 'pan_number', label: 'PAN Number', type: 'text' },
+  { id: 'tin_number', label: 'TIN Number', type: 'text' },
+  { id: 'din_number', label: 'DIN Number', type: 'text' },
+  { id: 'msme_reg', label: 'MSME registration', type: 'text' },
+  { id: 'domestic', label: 'Domestic', type: 'text' },
 ].map(({ id, label, type }) => (
   <div className="col-span-6" key={id}>
     <Label htmlFor={id} value={label} />

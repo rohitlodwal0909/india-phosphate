@@ -92,7 +92,7 @@ const MakeMasterTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Make Name", "Make Code ", "Created By ", "Status", "Description" ,"Action"].map((title) => (
+              {["Sr.No", "Make Code ", "Make Name",  "Created By ", "Status", "Description" ,"Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -111,12 +111,12 @@ const MakeMasterTable = () => {
               currentItems.map((item: any, index: number) => (
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
-                 
+                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.make_code  || "-"}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     {(item?.make_name || "-")
                       .replace(/^\w/, (c: string) => c.toUpperCase())}
                   </td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.make_code  || "-"}</td>
+                
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.created_by_username}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300"> 
                            <Badge color={ item.status == 1 ? `lightprimary` :"lightwarning"}

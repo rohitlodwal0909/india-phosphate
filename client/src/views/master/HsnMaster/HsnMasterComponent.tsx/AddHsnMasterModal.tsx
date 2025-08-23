@@ -21,7 +21,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
-    hsn_code: '',
+    // hsn_code: '',
     description: '',
     gst_rate: '',
     cgst_rate: '',
@@ -39,7 +39,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['hsn_code', 'gst_rate','cgst_rate','sgst_rate','igst_rate'];
+    const required = [ 'gst_rate','cgst_rate','sgst_rate','igst_rate'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -59,7 +59,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
       toast.success(result.message || 'HSN Master added successfully');
       dispatch(GetHsnMaster());
       setFormData({
-        hsn_code: '',
+        // hsn_code: '',
         description: '',
         gst_rate: '',
         cgst_rate: '',
@@ -70,7 +70,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
       });
       setShowmodal(false);
     } catch (err: any) {
-      toast.error(err?.message || 'Something went wrong');
+      toast.error(err?.message ||err|| 'Something went wrong');
     }
   };
 
@@ -80,7 +80,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {/* HSN Code */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label htmlFor="hsn_code" value="HSN Code" />
             <span className="text-red-700 ps-1">*</span>
             <TextInput
@@ -95,7 +95,7 @@ const AddHsnMasterModal = ({ show, setShowmodal, logindata }) => {
             {errors.hsn_code && (
               <p className="text-red-500 text-xs">{errors.hsn_code}</p>
             )}
-          </div>
+          </div> */}
 
           {/* GST Rates */}
           {[

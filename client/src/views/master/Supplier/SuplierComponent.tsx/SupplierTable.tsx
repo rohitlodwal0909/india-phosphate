@@ -13,6 +13,7 @@ import { deleteSupplier, GetSupplier } from "src/features/master/Supplier/Suppli
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import NotPermission from "src/utils/NotPermission";
+import ViewSupplierModal from "./ViewSupplierModal";
 
 const SupplierTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -22,6 +23,8 @@ const SupplierTable = () => {
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
+    const [viewModal ,setViewModal ]= useState(false)
+  
   const [selectedrow, setSelectedRow] = useState<any>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -91,7 +94,7 @@ const SupplierTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Supplier Name", "Email ", "Contact No ", "Address", "Action"].map((title) => (
+              {["Sr.No", "Supplier Name", "Email ", "Contact No ", "Address", "Manufacturer Type","Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -118,11 +121,15 @@ const SupplierTable = () => {
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.email  || "-"}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.contact_no || "-"}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.address || "-"}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.manufacturer_type || "-"}</td>
                   
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       
                         <>
+                         <Button size="sm" color={"lightsecondary"} className="p-0" onClick={() => {setViewModal(true), setSelectedRow(item)}}>
+                <Icon icon="hugeicons:view" height={18} />
+              </Button>
                          {permissions?.edit && <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
@@ -180,6 +187,7 @@ const SupplierTable = () => {
         selectedUser={selectedrow}
         title="Are you sure you want to Delete this Supplier?"
       />
+       <ViewSupplierModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal}  />
 
       <AddSupplierModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />
       <EditSupplierModal show={editmodal} setShowmodal={setEditmodal} SupplierData={selectedrow} logindata={logindata} />

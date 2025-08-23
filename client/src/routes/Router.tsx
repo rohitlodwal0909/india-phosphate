@@ -8,7 +8,7 @@ import ProtectedRoute from 'src/components/shared/ProtectedRoute'; // ✅ Import
 import AuthGuard from 'src/utils/Authcard';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
-const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
+// const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
 const RmCode = Loadable(lazy(() => import('src/views/master/RmCode/RmCode')));
 const Unit = Loadable(lazy(() => import('src/views/master/Unit/Unit')));
 const StaffMaster = Loadable(lazy(() => import('src/views/master/StaffMaster/StaffMaster')));
@@ -91,7 +91,7 @@ const fullLayoutChildren = [
   { path: '/master/company', element: <Company/> },
   { path: '/master/supplier', element: <Supplier/> },
   { path: '/master/customer', element: <Customer/> },
-  { path: '/master/category', element: <Category/> },
+  // { path: '/master/category', element: <Category/> },
   { path: '/master/rm-code', element: <RmCode/> },
   { path: '/master/unit', element: <Unit/> },
   { path: '/master/make-masters', element: <MakeMaster/> },

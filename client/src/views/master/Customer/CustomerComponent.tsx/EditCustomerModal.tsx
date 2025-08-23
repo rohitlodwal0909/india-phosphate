@@ -18,7 +18,7 @@ import {
 
 const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
-
+ const domesticOptions = ["National", "International"];
   const [formData, setFormData] = useState({
     id: '',
     user_id:logindata?.admin.id,
@@ -26,6 +26,9 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
     email: '',
     address: '',
     contact_no: '',
+     gst_number:"",
+    invoice_no:"",
+    domestic:"",
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -39,6 +42,9 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
         address: CustomerData?.address || '',
          contact_no: CustomerData?.contact_no || '',
         user_id:logindata?.admin.id,
+         gst_number:CustomerData?.gst_number || "",
+    invoice_no:CustomerData?.invoice_no || "",
+    domestic:CustomerData?.domestic || "",
       });
     }
   }, [CustomerData]);
@@ -49,7 +55,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['customer_name', 'email', 'address', 'contact_no'];
+    const required = ['customer_name', 'email', 'address', 'contact_no','gst_number','invoice_no','domestic'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -96,9 +102,21 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
               type: 'email',
               placeholder: 'Enter email',
             },
+             {
+              id: 'gst_number',
+              label: 'GST Number',
+              type: 'text',
+              placeholder: 'Enter GST Number',
+            },
+             {
+              id: 'invoice_no',
+              label: 'Invoice Number',
+              type: 'text',
+              placeholder: 'Enter Invoice Number',
+            },
            
           ].map(({ id, label, type, placeholder }) => (
-            <div className={`${type ==="email" ? "col-span-12" :"col-span-6"}`} key={id}>
+            <div className={`${type ==="email" ? "col-span-6" :"col-span-6"}`} key={id}>
               <Label htmlFor={id} value={label} />
               <span className="text-red-700 ps-1">*</span>
               <TextInput
@@ -114,6 +132,24 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
             </div>
           ))}
 
+<div className="col-span-6">
+            <Label htmlFor="domestic" value="Domestic" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <select
+              id="domestic"
+              value={formData.domestic}
+              onChange={(e) => handleChange('domestic', e.target.value)}
+              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+
+            >
+              <option value="">Select Domestic</option>
+              {domesticOptions.map((mode) => (
+                <option key={mode} value={mode}>{mode}</option>
+              ))}
+            </select>
+            {errors.domestic && <p className="text-red-500 text-xs">{errors.domestic}</p>}
+          </div>
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
             <span className="text-red-700 ps-1">*</span>

@@ -6,7 +6,7 @@ import {
   ModalHeader,
   Label,
   TextInput,
- 
+
   Textarea
 } from 'flowbite-react';
 import { useEffect, useState } from 'react';
@@ -15,10 +15,11 @@ import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { updateSalesMaster, GetSalesMaster } from 'src/features/master/SalesMaster/SalesMasterSlice';
 
-const paymentModes = ['Cash', 'Credit', 'UPI', 'Online', 'Cheque'];
+
+const paymentModes = ['LC', 'Advanced', 'CAD', 'DAP','Creadit','Bank Contract'];
 const statusOptions = ['Completed', 'Pending', 'Cancelled'];
 
-const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,CustomerData}) => {
+const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata, CustomerData }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const initialForm = {
@@ -64,20 +65,18 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
     }
   }, [SalesMasterData]);
 
-  const handleChange = (field: string, value: any) => {
+const handleChange = (field: string, value: any) => {
   setFormData((prev) => {
     const updatedData = { ...prev, [field]: value };
 
-    // Auto-calculate grand_total only if all 3 fields have valid numeric values
+    // Auto-calculate grand_total only if subtotal and tax are valid numbers
     const subtotal = parseFloat(field === 'subtotal_amount' ? value : updatedData.subtotal_amount);
     const tax = parseFloat(field === 'tax_amount' ? value : updatedData.tax_amount);
-    const discount = parseFloat(field === 'discount_amount' ? value : updatedData.discount_amount);
 
-    const hasAllFields =
-      !isNaN(subtotal) && !isNaN(tax) && !isNaN(discount);
+    const hasBothFields = !isNaN(subtotal) && !isNaN(tax);
 
-    if (hasAllFields) {
-      updatedData.grand_total = subtotal + tax - discount;
+    if (hasBothFields) {
+      updatedData.grand_total = subtotal + tax;
     }
 
     return updatedData;
@@ -109,14 +108,14 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
       dispatch(GetSalesMaster());
       setShowmodal(false);
     } catch (err: any) {
-      toast.error(err?.message ||err||  'Something went wrong');
+      toast.error(err?.message || err || 'Something went wrong');
     }
   };
 
   const renderInput = (id, label, type = 'text') => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
-        <span className="text-red-700 ps-1">*</span>
+      <span className="text-red-700 ps-1">*</span>
       <TextInput
         id={id}
         type={type}
@@ -132,8 +131,8 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
   const renderSelect = (id, label, options) => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
-               <span className="text-red-700 ps-1">*</span>
-      <select  id={id} value={formData[id]} onChange={(e) => handleChange(id, e.target.value)}  className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5" >
+      <span className="text-red-700 ps-1">*</span>
+      <select id={id} value={formData[id]} onChange={(e) => handleChange(id, e.target.value)} className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5" >
         <option value="">Select {label}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
@@ -153,7 +152,7 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
           {renderInput('invoice_no', 'Invoice No')}
           {renderInput('invoice_date', 'Invoice Date', 'date')}
           <div className="col-span-4">
-          <Label htmlFor="customer_id" value="Customer ID" />
+            <Label htmlFor="customer_id" value="Customer Name" />
             <span className="text-red-700 ps-1">*</span>
             <select
               id="customer_id"
@@ -162,34 +161,34 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
               className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
             >
               <option value="">Select Customer</option>
-            { CustomerData?.map((items)=>(
-          <option value={items?.id}>{items?.customer_name}</option>
-            ))  }
-              
+              {CustomerData?.map((items) => (
+                <option value={items?.id}>{items?.customer_name}</option>
+              ))}
+
               {/* You can map customer list here dynamically */}
             </select>
             {errors.customer_id && (
               <p className="text-red-500 text-xs">{errors.customer_id}</p>
             )}
           </div>
-         
-      
+
+
           {renderSelect('payment_mode', 'Payment Mode', paymentModes)}
-          {renderInput('subtotal_amount', 'Subtotal Amount', 'number')}
+          {renderInput('subtotal_amount', 'Amount', 'number')}
           {renderInput('tax_amount', 'Tax Amount', 'number')}
-          {renderInput('discount_amount', 'Discount Amount', 'number')}
+          {/* {renderInput('discount_amount', 'Discount Amount', 'number')} */}
           {renderInput('grand_total', 'Grand Total', 'number')}
           {renderInput('paid_amount', 'Paid Amount', 'number')}
-          {renderInput('balance_amount', 'Balance Amount', 'number')}
+          {/* {renderInput('balance_amount', 'Balance Amount', 'number')} */}
           {renderSelect('status', 'Status', statusOptions)}
 
           <div className="col-span-6">
-            <Label htmlFor="product_details" value="Product Details (JSON)" />
+            <Label htmlFor="product_details" value="Product Details   " />
             <Textarea
               id="product_details"
               rows={2}
               value={formData.product_details}
-               className='rounded-md'
+              className='rounded-md'
               onChange={(e) => handleChange('product_details', e.target.value)}
               placeholder="[{ name: '', qty: '', rate: '', tax: '', amount: '' }]"
             />
@@ -201,7 +200,7 @@ const EditSalesMasterModal = ({ show, setShowmodal, SalesMasterData, logindata ,
               id="remarks"
               rows={2}
               value={formData.remarks}
-               className='rounded-md'
+              className='rounded-md'
               onChange={(e) => handleChange('remarks', e.target.value)}
               placeholder="Additional remarks (optional)"
             />

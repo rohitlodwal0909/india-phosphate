@@ -22,7 +22,7 @@ const EditBmrMasterModal = ({ show, setShowmodal, BmrMasterData, logindata }) =>
 
   const [formData, setFormData] = useState({
     id: '',
-    bmr_code: '',
+    // bmr_code: '',
     product_name: '',
     batch_number: '',
     manufacturing_date: '',
@@ -42,7 +42,7 @@ const EditBmrMasterModal = ({ show, setShowmodal, BmrMasterData, logindata }) =>
     if (BmrMasterData) {
       setFormData({
         id: BmrMasterData?.id || '',
-        bmr_code: BmrMasterData?.bmr_code || '',
+        // bmr_code: BmrMasterData?.bmr_code || '',
         product_name: BmrMasterData?.product_name || '',
         batch_number: BmrMasterData?.batch_number || '',
         manufacturing_date: BmrMasterData?.manufacturing_date || '',
@@ -64,7 +64,7 @@ const EditBmrMasterModal = ({ show, setShowmodal, BmrMasterData, logindata }) =>
   };
 
   const validateForm = () => {
-    const required = ['bmr_code', 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date'];
+    const required = [ 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -93,7 +93,7 @@ const EditBmrMasterModal = ({ show, setShowmodal, BmrMasterData, logindata }) =>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-            { id: 'bmr_code', label: 'BMR Code' },
+            // { id: 'bmr_code', label: 'BMR Code' },
             { id: 'product_name', label: 'Product Name' },
             { id: 'batch_number', label: 'Batch Number' },
             { id: 'manufacturing_date', label: 'Manufacturing Date', type: 'date' },

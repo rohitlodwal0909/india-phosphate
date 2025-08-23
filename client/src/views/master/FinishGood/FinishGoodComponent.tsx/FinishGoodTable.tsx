@@ -94,8 +94,8 @@ const filteredItems = (FinishGooddata || []).filter((item: any) => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Product Code", "Product Name", "Description", "Batch Size", "UOM",
-        "Packing Details", "HSN Code", "GST", "Storage Condition", "MRP","Action"].map((title) => (
+              {["Sr.No", "Product Code", "Product Name", "Batch Size", "UOM",
+        "Packing Details", "HSN Code", "GST", "Storage Condition", "MRP",  "Description","Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -118,7 +118,6 @@ const filteredItems = (FinishGooddata || []).filter((item: any) => {
                 
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_code || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_name || "-"}</td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_description || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.batch_size || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.unit_of_measure || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.packing_details || "-"}</td>
@@ -127,6 +126,7 @@ const filteredItems = (FinishGooddata || []).filter((item: any) => {
           {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.shelf_life || "-"}</td> */}
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.storage_condition || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.mrp || "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_description || "-"}</td>
 
           {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             {item?.created_by && logindata?.admin?.id ==  item?.created_by ? logindata?.admin?.username : "-"}

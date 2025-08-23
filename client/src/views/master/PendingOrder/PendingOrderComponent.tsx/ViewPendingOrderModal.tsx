@@ -24,7 +24,7 @@ const ViewPendingOrderModal = ({
 }: Props) => {
   const fields = [
     ["Order Number", selectedRow?.order_number],
-    ["Customer Name / ID", selectedRow?.customer_name_or_id],
+    ["Customer Name ", selectedRow?.customer_name_or_id],
     ["Order Date", selectedRow?.order_date],
     ["Expected Delivery Date", selectedRow?.expected_delivery_date],
     ["Products Ordered", selectedRow?.products_ordered],

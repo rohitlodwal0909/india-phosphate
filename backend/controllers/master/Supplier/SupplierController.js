@@ -5,7 +5,10 @@ const { Supplier,User} = db;
 // Create
 exports.createSupplier = async (req, res,next) => {
   try {
-    const { supplier_name, email, address, contact_no, user_id } = req.body;
+    const { supplier_name, email, address, contact_no, user_id ,manufacturer_type,supplier_type,
+    gst_number,
+    invoice_no,
+    domestic} = req.body;
     const existingSupplier = await Supplier.findOne({ where: { email } });
     if (existingSupplier) {
       const error = new Error( "A supplier with this email already exists.");
@@ -18,7 +21,12 @@ exports.createSupplier = async (req, res,next) => {
       email,
       address,
       contact_no,
-      user_id
+      user_id,
+      manufacturer_type,
+      supplier_type,
+    gst_number,
+    invoice_no,
+    domestic
     });
 
     // Log entry setup
@@ -84,13 +92,21 @@ exports.updateSupplier = async (req, res,next) => {
       return next(error)
     }
 
-    const { supplier_name, email, address, contact_no } = req.body;
+    const { supplier_name, email, address, contact_no ,manufacturer_type,supplier_type,
+    gst_number,
+    invoice_no,
+    domestic} = req.body;
 
     await supplier.update({
       supplier_name,
       email,
       address,
       contact_no,
+      manufacturer_type,
+      supplier_type,
+    gst_number,
+    invoice_no,
+    domestic
     });
 
     const user_id = req.body?.user_id || supplier.user_id;

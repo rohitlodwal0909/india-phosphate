@@ -21,7 +21,7 @@ const ViewPackingMaterialModal = ({
   modalPlacement,
   setPlaceModal,
   selectedRow,
-supplierdata
+// supplierdata
 }: Props) => {
   
 
@@ -29,7 +29,7 @@ supplierdata
   ["Material Name", selectedRow?.material_name],
   ["Material Code", selectedRow?.material_code],
   ["Material Type", selectedRow?.material_type],
-  ["Supplier Name", selectedRow?.supplier_id ?  supplierdata?.find((id)=>id.id == selectedRow?.supplier_id)?.supplier_name  : "-"],
+  // ["Supplier Name", selectedRow?.supplier_id ?  supplierdata?.find((id)=>id.id == selectedRow?.supplier_id)?.supplier_name  : "-"],
   ["Unit", selectedRow?.unit_of_measurement],
   ["Purchase Rate", selectedRow?.purchase_rate],
   ["Current Stock", selectedRow?.current_stock],

@@ -3,23 +3,42 @@ const db = require("../../../models");
 const { BmrMaster ,User} = db;
 
 // Create
-exports.create = async (req, res ,next) => {
+exports.create = async (req, res, next) => {
   try {
+    // Step 1: Get latest BMR record to generate next code
+    const lastBmr = await BmrMaster.findOne({
+      order: [["created_at", "DESC"]],
+    });
+
+    let nextBmrCode = "BMR-0001"; // default for first record
+    if (lastBmr && lastBmr.bmr_code) {
+      const lastNumber = parseInt(lastBmr.bmr_code.split("-")[1]);
+      const newNumber = (lastNumber + 1).toString().padStart(4, "0");
+      nextBmrCode = `BMR-${newNumber}`;
+    }
+
+    // Step 2: Assign the generated bmr_code to req.body
+    req.body.bmr_code = nextBmrCode;
+
+    // Step 3: Create new BMR entry
     const data = await BmrMaster.create(req.body);
-     const user_id = req.body.created_by;
-    const bmr_code = req.body.bmr_code;
-      const user = await User.findByPk(user_id);
+
+    // Step 4: Logging
+    const user_id = req.body.created_by;
+    const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `BMR code '${bmr_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
-       await createLogEntry({ user_id: user_id, message: logMessage });
+    const logMessage = `BMR code '${nextBmrCode}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry({ user_id: user_id, message: logMessage });
+
     res.status(201).json(data);
   } catch (err) {
-    next(err)
+    console.error("Create BMR Error:", err);
+    next(err);
   }
 };
 

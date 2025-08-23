@@ -13,6 +13,7 @@ import { deleteCustomer, GetCustomer } from "src/features/master/Customer/Custom
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import NotPermission from "src/utils/NotPermission";
+import ViewCustomerModal from "./ViewCustomerModal";
 
 const CustomerTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -22,6 +23,7 @@ const CustomerTable = () => {
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
+    const [viewModal ,setViewModal ]= useState(false)
   const [selectedrow, setSelectedRow] = useState<any>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -125,6 +127,9 @@ const CustomerTable = () => {
                     <div className="flex justify-start gap-2">
                       
                         <>
+                         <Button size="sm" color={"lightsecondary"} className="p-0" onClick={() => {setViewModal(true), setSelectedRow(item)}}>
+                <Icon icon="hugeicons:view" height={18} />
+              </Button>
                           { permissions?.edit &&<Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
@@ -181,7 +186,7 @@ const CustomerTable = () => {
         selectedUser={selectedrow}
         title="Are you sure you want to Delete this Customer?"
       />
-
+       <ViewCustomerModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} />
       <AddCustomerModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />
       <EditCustomerModal show={editmodal} setShowmodal={setEditmodal} CustomerData={selectedrow} logindata={logindata} />
     </div>

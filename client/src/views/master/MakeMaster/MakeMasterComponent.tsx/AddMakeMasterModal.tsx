@@ -22,7 +22,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
-    make_code: '',
+    // make_code: '',
     make_name: '',
     description: '',
     status: true,
@@ -37,7 +37,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['make_code', 'make_name'];
+    const required = [ 'make_name'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -57,7 +57,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
       toast.success(result.message || 'Make Master created successfully');
       dispatch(GetMakeMaster());
       setFormData({
-        make_code: '',
+        // make_code: '',
         make_name: '',
         description: '',
         status: true,
@@ -75,12 +75,12 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-            {
-              id: 'make_code',
-              label: 'Make Code',
-              type: 'text',
-              placeholder: 'Enter make code',
-            },
+            // {
+            //   id: 'make_code',
+            //   label: 'Make Code',
+            //   type: 'text',
+            //   placeholder: 'Enter make code',
+            // },
             {
               id: 'make_name',
               label: 'Make Name',
@@ -88,7 +88,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
               placeholder: 'Enter make name',
             },
           ].map(({ id, label, type, placeholder }) => (
-            <div className="col-span-6" key={id}>
+            <div className="col-span-12" key={id}>
               <Label htmlFor={id} value={label} />
               <span className="text-red-700 ps-1">*</span>
               <TextInput

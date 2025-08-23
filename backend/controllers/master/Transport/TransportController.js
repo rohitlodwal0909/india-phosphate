@@ -5,15 +5,17 @@ const { Transport ,User} = db;
 // Create
 exports.createTransport = async (req, res,next ) => {
   try {
-
+   const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+     req.body.date = entry_date;
+    req.body.time = entry_time;
     const newTransport = await Transport.create(req.body);
 
             const user_id = req.body?.created_by|| newTransport.created_by 
       const user = await User.findByPk(user_id);
      const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0];
-    const entry_time = now.toTimeString().split(" ")[0];
+   
     const logMessage =  `Transport name '${req.body?.transporter_name}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
         await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json(newTransport);
@@ -90,8 +92,7 @@ exports.updateTransport = async (req, res, next) => {
        payment_terms,
       preferred_routes,
       freight_rate_type,
-      date,
-      time
+    
     } = req.body;
     const user_id = req.body?.created_by || Transports.created_by 
       const user = await User.findByPk(user_id);
@@ -119,8 +120,7 @@ exports.updateTransport = async (req, res, next) => {
        payment_terms,
       preferred_routes,
       freight_rate_type,
-      date,
-      time
+     
     });
 
     res.status(200).json({ message: "Transport updated successfully", data: Transports });

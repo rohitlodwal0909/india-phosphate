@@ -22,7 +22,7 @@ const EditMakeMasterModal = ({ show, setShowmodal, MakeMasterData, logindata }) 
 
   const [formData, setFormData] = useState({
     id: '',
-    make_code: '',
+    // make_code: '',
     make_name: '',
     description: '',
     status: true,
@@ -35,7 +35,7 @@ const EditMakeMasterModal = ({ show, setShowmodal, MakeMasterData, logindata }) 
     if (MakeMasterData) {
       setFormData({
         id: MakeMasterData?.id || '',
-        make_code: MakeMasterData?.make_code || '',
+        // make_code: MakeMasterData?.make_code || '',
         make_name: MakeMasterData?.make_name || '',
         description: MakeMasterData?.description || '',
         status: MakeMasterData?.status ?? true,
@@ -50,7 +50,7 @@ const EditMakeMasterModal = ({ show, setShowmodal, MakeMasterData, logindata }) 
   };
 
   const validateForm = () => {
-    const required = ['make_code', 'make_name', 'description'];
+    const required = [ 'make_name', 'description'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -79,12 +79,12 @@ const EditMakeMasterModal = ({ show, setShowmodal, MakeMasterData, logindata }) 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-            {
-              id: 'make_code',
-              label: 'Make Code',
-              type: 'text',
-              placeholder: 'Enter Make Code',
-            },
+            // {
+            //   id: 'make_code',
+            //   label: 'Make Code',
+            //   type: 'text',
+            //   placeholder: 'Enter Make Code',
+            // },
             {
               id: 'make_name',
               label: 'Make Name',
@@ -92,7 +92,7 @@ const EditMakeMasterModal = ({ show, setShowmodal, MakeMasterData, logindata }) 
               placeholder: 'Enter Make Name',
             },
           ].map(({ id, label, type, placeholder }) => (
-            <div className="col-span-6" key={id}>
+            <div className="col-span-12" key={id}>
               <Label htmlFor={id} value={label} />
               <span className="text-red-700 ps-1">*</span>
               <TextInput

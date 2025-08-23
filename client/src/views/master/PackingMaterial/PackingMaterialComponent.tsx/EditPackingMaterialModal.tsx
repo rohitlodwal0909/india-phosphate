@@ -16,14 +16,14 @@ import {
   GetPackingMaterial,
 } from 'src/features/master/PackingMaterial/PackingMaterialSlice';
 
-const materialTypeOptions = ['Primary', 'Secondary'];
+const materialTypeOptions = ['Bag Paper', 'Bag HDPE','Drum','Liner','Weight'];
 
 const EditPackingMaterialModal = ({
   show,
   setShowmodal,
   logindata,
   PackingMaterialData,
-  supplierData,
+  // supplierData,
   unitOptions,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,7 +33,7 @@ const EditPackingMaterialModal = ({
     material_name: '',
     material_code: '',
     material_type: '',
-    supplier_id: '',
+    // supplier_id: '',
     unit_of_measurement: '',
     purchase_rate: '',
     current_stock:'',
@@ -52,7 +52,7 @@ const EditPackingMaterialModal = ({
         material_name: PackingMaterialData.material_name || '',
         material_code: PackingMaterialData.material_code || '',
         material_type: PackingMaterialData.material_type || '',
-        supplier_id: PackingMaterialData.supplier_id?.toString() || '',
+        // supplier_id: PackingMaterialData.supplier_id?.toString() || '',
         unit_of_measurement: PackingMaterialData.unit_of_measurement?.toString() || '',
         purchase_rate: PackingMaterialData.purchase_rate || '',
         current_stock: PackingMaterialData.current_stock || '',
@@ -74,13 +74,13 @@ const EditPackingMaterialModal = ({
       'material_name',
       'material_code',
       'material_type',
-      'supplier_id',
+      // 'supplier_id',
       'unit_of_measurement',
       'purchase_rate',
       'current_stock',
       'stock_quantity',
       'min_required_stock',
-      'hsn_code',
+     
       'created_by',
     ];
     const newErrors: any = {};
@@ -121,7 +121,7 @@ const EditPackingMaterialModal = ({
           ].map(({ id, label, type = 'text' }) => (
             <div className="col-span-6" key={id}>
               <Label htmlFor={id} value={label} />
-                <span className="text-red-700 ps-1">*</span>
+                <span className="text-red-700 ps-1"> {id=== 'hsn_code' ? "":"*"}</span>
               <TextInput
                 id={id}
                 type={type}
@@ -156,7 +156,7 @@ const EditPackingMaterialModal = ({
           </div>
 
           {/* Supplier */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label htmlFor="supplier_id" value="Supplier" />
               <span className="text-red-700 ps-1">*</span>
             <select
@@ -173,7 +173,7 @@ const EditPackingMaterialModal = ({
               ))}
             </select>
             {errors.supplier_id && <p className="text-red-500 text-xs">{errors.supplier_id}</p>}
-          </div>
+          </div> */}
 
           {/* Unit of Measurement */}
           <div className="col-span-6">

@@ -5,7 +5,9 @@ const { Customer, User} = db;
 // Create
 exports.createCustomer = async (req, res,next) => {
   try {
-    const { customer_name, email, address, contact_no, user_id } = req.body;
+    const { customer_name, email, address, contact_no, user_id ,  gst_number,
+    invoice_no,
+    domestic} = req.body;
     const existingCustomer = await Customer.findOne({ where: { email } });
     if (existingCustomer) {
        const error = new Error( "A Customer with this email already exists." );
@@ -19,6 +21,9 @@ exports.createCustomer = async (req, res,next) => {
       email,
       address,
       contact_no,
+        gst_number,
+    invoice_no,
+    domestic,
       user_id
     });
 
@@ -89,13 +94,18 @@ exports.updateCustomer = async (req, res,next) => {
      
    
     }
-    const { customer_name, email, address, contact_no, user_id } = req.body;
+    const { customer_name, email, address, contact_no, user_id,  gst_number,
+    invoice_no,
+    domestic } = req.body;
 
     await customer.update({
       customer_name,
       email,
       address,
       contact_no,
+        gst_number,
+    invoice_no,
+    domestic,
       user_id
     });
 

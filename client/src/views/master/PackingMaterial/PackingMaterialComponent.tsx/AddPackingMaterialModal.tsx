@@ -16,14 +16,16 @@ import {
   GetPackingMaterial,
 } from 'src/features/master/PackingMaterial/PackingMaterialSlice';
 
-const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, unitOptions, }) => {
+const AddPackingMaterialModal = ({ show, setShowmodal, logindata, 
+  // supplierData,
+   unitOptions, }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     material_name: '',
     material_code: '',
     material_type: '',
-    supplier_id: '',
+    // supplier_id: '',
     unit_of_measurement: '',
     purchase_rate: '',
     stock_quantity: '',
@@ -46,13 +48,13 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
       'material_name',
       'material_code',
       'material_type',
-      'supplier_id',
+      // 'supplier_id',
       'unit_of_measurement',
       'purchase_rate',
       'current_stock',
       'stock_quantity',
       'min_required_stock',
-      'hsn_code',
+      
       'created_by',
       
     ];
@@ -76,7 +78,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
     material_name: '',
     material_code: '',
     material_type: '',
-    supplier_id: '',
+    // supplier_id: '',
     unit_of_measurement: '',
     purchase_rate: '',
     stock_quantity: '',
@@ -150,7 +152,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
             <TextInput
               id="current_stock"
               type="text"
-                placeholder='Enter Purchase Rate'
+                placeholder='Enter Current Stock'
               value={formData.current_stock}
               onChange={(e) => handleChange('current_stock', e.target.value)}
               color={errors.current_stock ? 'failure' : 'gray'}
@@ -194,7 +196,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
           {/* HSN Code */}
           <div className="col-span-6">
             <Label htmlFor="hsn_code" value="HSN Code" />
-             <span className="text-red-700 ps-1">*</span>
+             
             <TextInput
               id="hsn_code"
               type="text"
@@ -218,13 +220,16 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
               className="w-full border border-gray-300 p-2 rounded-md"
             >
               <option value="">Select Type</option>
-              <option value="Primary">Primary</option>
-              <option value="Secondary">Secondary</option>
+              <option value="Bag Paper">Bag Paper </option>
+              <option value="Bag HDPE">Bag HDPE</option>
+              <option value="Drum">Drum </option>
+              <option value="Liner">Liner</option>
+              <option value="Weight">Weight</option>
             </select>
             {errors.material_type && <p className="text-red-500 text-xs">{errors.material_type}</p>}
           </div>
 
-          {/* Supplier */}
+          {/* Supplier
           <div className="col-span-6">
             <Label htmlFor="supplier_id" value="Supplier" />
              <span className="text-red-700 ps-1">*</span>
@@ -242,7 +247,7 @@ const AddPackingMaterialModal = ({ show, setShowmodal, logindata, supplierData, 
               ))}
             </select>
             {errors.supplier_id && <p className="text-red-500 text-xs">{errors.supplier_id}</p>}
-          </div>
+          </div> */}
 
           {/* Unit of Measurement */}
           <div className="col-span-6">

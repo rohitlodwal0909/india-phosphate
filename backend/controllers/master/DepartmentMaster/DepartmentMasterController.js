@@ -7,7 +7,6 @@ const { DepartmentMaster, User} = db;
 exports.createDepartmentMaster = async (req, res, next) => {
   try {
     const {
-      department_code,
       department_name,
       description,
       hod,
@@ -15,17 +14,21 @@ exports.createDepartmentMaster = async (req, res, next) => {
       created_by
     } = req.body;
 
-    // Check for duplicate department_code
-    const existingDepartment = await DepartmentMaster.findOne({ where: { department_code } });
-    if (existingDepartment) {
-      const error = new Error("A department with this code already exists.");
-      error.status = 400;
-      return next(error);
+    // Step 1: Auto-generate department_code
+    const lastDepartment = await DepartmentMaster.findOne({
+      order: [["created_at", "DESC"]],
+    });
+
+    let nextDepartmentCode = "DEPT-0001"; // default
+    if (lastDepartment && lastDepartment.department_code) {
+      const lastNumber = parseInt(lastDepartment.department_code.split("-")[1]);
+      const newNumber = (lastNumber + 1).toString().padStart(4, "0");
+      nextDepartmentCode = `DEPT-${newNumber}`;
     }
 
-    // Create new department entry
+    // Step 2: Create new department entry
     const newDepartment = await DepartmentMaster.create({
-      department_code,
+      department_code: nextDepartmentCode,
       department_name,
       description,
       hod,
@@ -33,18 +36,22 @@ exports.createDepartmentMaster = async (req, res, next) => {
       created_by
     });
 
-    const user_id = req.body.created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    // Step 3: Log creation
+    const user_id = created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
 
-    // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `Department  code '${department_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    const logMessage = `Department code '${nextDepartmentCode}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry({ user_id, message: logMessage });
+
+    // Step 4: Send response
     res.status(201).json(newDepartment);
   } catch (error) {
+    console.error("Create Department Error:", error);
     next(error);
   }
 };

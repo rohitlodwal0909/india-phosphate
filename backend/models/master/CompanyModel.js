@@ -43,6 +43,18 @@ module.exports = (sequelize, DataTypes) => {
     pan_number: {
       type: DataTypes.STRING(10),
     },
+     tin_number: {
+      type: DataTypes.STRING(20),
+    },
+    din_number: {
+      type: DataTypes.STRING(21),
+    },
+    msme_reg: {
+      type: DataTypes.STRING(20),
+    },
+     domestic: {
+      type: DataTypes.STRING(20),
+    },
     created_by: {
       type: DataTypes.INTEGER,
     },

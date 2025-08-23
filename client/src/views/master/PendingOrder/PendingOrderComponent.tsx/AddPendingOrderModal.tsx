@@ -21,7 +21,7 @@ const AddPendingOrderModal = ({ show, setShowmodal, logindata, rmcodedata }) => 
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
-    order_number: '',
+    // order_number: '',
     customer_name_or_id: '',
     order_date: '',
     expected_delivery_date: '',
@@ -42,7 +42,7 @@ const AddPendingOrderModal = ({ show, setShowmodal, logindata, rmcodedata }) => 
 
   const validateForm = () => {
     const required = [
-      'order_number',
+    
       'customer_name_or_id',
       'order_date',
       'expected_delivery_date',
@@ -69,7 +69,7 @@ const AddPendingOrderModal = ({ show, setShowmodal, logindata, rmcodedata }) => 
 
       // Reset form
       setFormData({
-        order_number: '',
+        // order_number: '',
         customer_name_or_id: '',
         order_date: '',
         expected_delivery_date: '',
@@ -93,7 +93,7 @@ const AddPendingOrderModal = ({ show, setShowmodal, logindata, rmcodedata }) => 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {/* Order Number */}
-          <div className="col-span-4">
+          {/* <div className="col-span-4">
             <Label htmlFor="order_number" value="Order Number" />
                <span className="text-red-700 ps-1">*</span>
             
@@ -106,18 +106,18 @@ const AddPendingOrderModal = ({ show, setShowmodal, logindata, rmcodedata }) => 
               className='form-rounded-md'
             />
             {errors.order_number && <p className="text-red-500 text-xs">{errors.order_number}</p>}
-          </div>
+          </div> */}
 
           {/* Customer Name or ID */}
           <div className="col-span-4">
-            <Label htmlFor="customer_name_or_id" value="Customer Name / ID" />
+            <Label htmlFor="customer_name_or_id" value="Customer Name " />
                <span className="text-red-700 ps-1">*</span>
 
             <TextInput
               id="customer_name_or_id"
               value={formData.customer_name_or_id}
               onChange={(e) => handleChange('customer_name_or_id', e.target.value)}
-              placeholder="Enter Customer Name or ID"
+              placeholder="Enter Customer Name "
               color={errors.customer_name_or_id ? 'failure' : 'gray'}
                className='form-rounded-md'
             />

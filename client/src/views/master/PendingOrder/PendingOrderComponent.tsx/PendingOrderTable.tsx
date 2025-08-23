@@ -101,7 +101,7 @@ const PendingOrderTable = () => {
        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
      <thead className="bg-gray-50 dark:bg-gray-800">
     <tr>
-      {["Sr.No", "Order Number", "Customer Name / ID", "Products Ordered", "Quantity Pending", "Action"].map((title) => (
+      {["Sr.No", "Order Number", "Customer Name ", "Products Ordered", "Quantity Pending", "Action"].map((title) => (
         <th
           key={title}
           className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"

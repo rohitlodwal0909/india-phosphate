@@ -18,12 +18,16 @@ import {
 
 const AddCustomerModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
+   const domesticOptions = ["National", "International"];
   const [formData, setFormData] = useState({
     customer_name: '',
     email: '',
     address: '',
     contact_no: '',
     user_id: logindata?.admin?.id,
+     gst_number:"",
+    invoice_no:"",
+    domestic:"",
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -34,7 +38,7 @@ const AddCustomerModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['customer_name', 'email', 'address', 'contact_no'];
+    const required = ['customer_name', 'email', 'address', 'contact_no','gst_number','invoice_no','domestic'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -57,6 +61,9 @@ const AddCustomerModal = ({ show, setShowmodal, logindata }) => {
         address: '',
         contact_no: '',
         user_id: logindata?.admin?.id,
+         gst_number:"",
+    invoice_no:"",
+    domestic:"",
       });
       setShowmodal(false);
     } catch (err) {
@@ -88,9 +95,21 @@ const AddCustomerModal = ({ show, setShowmodal, logindata }) => {
               type: 'email',
               placeholder: 'Enter email',
             },
+             {
+              id: 'gst_number',
+              label: 'GST Number',
+              type: 'text',
+              placeholder: 'Enter GST Number',
+            },
+             {
+              id: 'invoice_no',
+              label: 'Invoice Number',
+              type: 'text',
+              placeholder: 'Enter Invoice Number',
+            },
            
           ].map(({ id, label, type, placeholder }) => (
-            <div className={`${type ==="email" ? "col-span-12" :"col-span-6"}`} key={id}>
+            <div className={`${type ==="email" ? "col-span-6" :"col-span-6"}`} key={id}>
               <Label htmlFor={id} value={label} />
               <span className="text-red-700 ps-1">*</span>
               <TextInput
@@ -106,6 +125,24 @@ const AddCustomerModal = ({ show, setShowmodal, logindata }) => {
             </div>
           ))}
 
+<div className="col-span-6">
+            <Label htmlFor="domestic" value="Domestic" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <select
+              id="domestic"
+              value={formData.domestic}
+              onChange={(e) => handleChange('domestic', e.target.value)}
+              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+
+            >
+              <option value="">Select Domestic</option>
+              {domesticOptions.map((mode) => (
+                <option key={mode} value={mode}>{mode}</option>
+              ))}
+            </select>
+            {errors.domestic && <p className="text-red-500 text-xs">{errors.domestic}</p>}
+          </div>
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
             <span className="text-red-700 ps-1">*</span>

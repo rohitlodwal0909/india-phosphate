@@ -3,10 +3,9 @@ const db = require("../../../models");
 const { FinishGood ,User} = db;
 
 // Create
-exports.createFinishGood = async (req, res,next) => {
-   try {
+exports.createFinishGood = async (req, res, next) => {
+  try {
     const {
-      product_code,
       product_name,
       product_description,
       batch_size,
@@ -20,8 +19,21 @@ exports.createFinishGood = async (req, res,next) => {
       created_by
     } = req.body;
 
+    // Step 1: Generate unique product_code
+    const lastProduct = await FinishGood.findOne({
+      order: [["created_at", "DESC"]],
+    });
+
+    let nextProductCode = "PROD-0001"; // Default if no previous entry
+    if (lastProduct && lastProduct.product_code) {
+      const lastCodeNum = parseInt(lastProduct.product_code.split("-")[1]);
+      const newCodeNum = (lastCodeNum + 1).toString().padStart(4, "0");
+      nextProductCode = `PROD-${newCodeNum}`;
+    }
+
+    // Step 2: Create new product entry
     const newFinishGood = await FinishGood.create({
-      product_code,
+      product_code: nextProductCode,
       product_name,
       product_description,
       batch_size,
@@ -35,25 +47,32 @@ exports.createFinishGood = async (req, res,next) => {
       created_by,
       created_at: new Date(),
     });
-      const user_id =  created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
 
-    // Step 4: Create log
+    // Step 3: Get username for log
+    const user_id = created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+
+    // Step 4: Log entry
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-const logMessage = `Finish Good with product name '${product_name}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    const logMessage = `Finish Good with product name '${product_name}'  was created by '${username}' on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry({ user_id: user_id, message: logMessage });
+
+    // Step 5: Return response
     return res.status(201).json({
       success: true,
-      message: 'Finish good created successfully',
+      message: "Finish good created successfully",
       data: newFinishGood,
     });
   } catch (err) {
+    console.error("Create FinishGood Error:", err);
     next(err);
   }
 };
+
 
 exports.getFinishGoodById = async (req, res,next) => {
   try {

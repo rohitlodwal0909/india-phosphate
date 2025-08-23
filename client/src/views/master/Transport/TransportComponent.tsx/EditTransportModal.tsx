@@ -21,10 +21,10 @@ import {
   GetTransport,
   updateTransport,
 } from 'src/features/master/Transport/TransportSlice';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+// import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import dayjs from 'dayjs';
 const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,TransportData}) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -47,8 +47,8 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
     payment_terms: '',
     is_active: false,
     created_by: logindata?.admin?.id || '',
-    date: '',
-    time: '',
+    // date: '',
+    // time: '',
   });
 
   const [cityOptions, setCityOptions] = useState<string[]>([]);
@@ -76,8 +76,8 @@ useEffect(() => {
       preferred_routes: TransportData.preferred_routes ?? '',
        payment_terms: TransportData.payment_terms ?? '',
       freight_rate_type: TransportData.freight_rate_type ?? '',
-      date: TransportData.date ?? '',
-      time: TransportData.time ?? '',
+      // date: TransportData.date ?? '',
+      // time: TransportData.time ?? '',
     });
 
     // Set city options based on selected state
@@ -170,8 +170,8 @@ useEffect(() => {
         payment_terms: '',
         is_active: false,
         created_by: logindata?.admin?.id || '',
-        date: '',
-        time: '',
+        // date: '',
+        // time: '',
       });
       setShowmodal(false);
     } catch (err: any) {
@@ -283,7 +283,7 @@ useEffect(() => {
             </div>
           </div>
 
-           <div className="col-span-6">
+           {/* <div className="col-span-6">
                       <Label htmlFor="time" value="Time" />
                         <span className="text-red-700 ps-1">*</span>
                          <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -339,7 +339,7 @@ useEffect(() => {
                        
                       />
                       {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
-                    </div>
+                    </div> */}
 
           {/* Address */}
           <div className="col-span-12">

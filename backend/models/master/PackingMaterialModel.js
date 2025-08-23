@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
     material_type: {
-      type: DataTypes.ENUM('Primary', 'Secondary'),
+      type: DataTypes.STRING,
     },
     supplier_id: {
       type: DataTypes.INTEGER,

@@ -16,10 +16,7 @@ import {
   addTransport,
   GetTransport,
 } from 'src/features/master/Transport/TransportSlice';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+
 const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -41,8 +38,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
     payment_terms: '',
     is_active: true,
     created_by: logindata?.admin?.id || '',
-    date: '',
-    time: '',
+
   });
 
   const [cityOptions, setCityOptions] = useState<string[]>([]);
@@ -82,12 +78,11 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
     'gst_number',
     'pan_number',
     'vehicle_types',
-    'preferred_routes',
+    // 'preferred_routes',
     'freight_rate_type',
     'payment_terms',
     'created_by' ,
-    'date',
-    'time'
+    
     ];
     const newErrors: any = {};
     required.forEach((field) => {
@@ -128,8 +123,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
         payment_terms: '',
         is_active: true,
         created_by: logindata?.admin?.id || '',
-        date: '',
-        time: '',
+       
       });
       setShowmodal(false);
     } catch (err: any) {
@@ -158,7 +152,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           ].map(({ id, label, type }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
-               <span className="text-red-700 ps-1">*</span>
+               <span className="text-red-700 ps-1">{ id === 'preferred_routes'? "":"*"}</span>
               { id === 'vehicle_types' ? (
       <select
         id={id}
@@ -241,63 +235,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
               />
             </div>
           </div> */}
-   <div className="col-span-6">
-                       <Label htmlFor="time" value="Time" />
-               <span className="text-red-700 ps-1">*</span>
-
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                         <TimePicker
-                                             value={formData.time ? dayjs(formData.time) : null}
-                                        onChange={(value:any) => handleChange('time', value)}
-                                           slotProps={{
-                                             textField: {
-                                               id: 'time',
-                                               fullWidth: true,
-                                           
-                                               sx: {
-                                                 '& .MuiInputBase-root': {
-                                                   fontSize: '14px',
-                                                   backgroundColor: '#f1f5f9',
-                                                   borderRadius: '6px',
-                                                 },
-                                                 '& .css-1hgcujo-MuiPickersInputBase-root-MuiPickersOutlinedInput-root': {
-                                                   height: '42px',
-                                                   fontSize: '14px',
-                                                   backgroundColor: '#f1f5f9',
-                                                   borderRadius: '6px',
-                                                 },
-                                                 '& input': {
-                                                   padding: '2px 0',
-                                                 },
-                                                 '& .MuiInputLabel-root': {
-                                                   fontSize: '13px',
-                                                 },
-                                                 '& .MuiOutlinedInput-notchedOutline': {
-                                                   borderColor: '#cbd5e1',
-                                                 },
-                                               },
-                                             },
-                                           }}
-                                         />
-                                       </LocalizationProvider>
-                      
-                       {errors.time && <p className="text-red-500 text-xs">{errors.time}</p>}
-                     </div>
-          <div className="col-span-6">
-            <Label htmlFor="date" value="Date" />
-               <span className="text-red-700 ps-1">*</span>
-
-            <TextInput
-              id="date"
-              value={formData.date}
-              placeholder="Enter date"
-              type='date'
-              onChange={(e) => handleChange('date', e.target.value)}
-            className='form-rounded-md'
-             
-            />
-            {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
-          </div>
+   
           {/* Address */}
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />

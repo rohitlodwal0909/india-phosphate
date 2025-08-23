@@ -9,6 +9,27 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+     manufacturer_type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    
+     supplier_type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    gst_number: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+     invoice_no: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    domestic: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     email: {
       type: DataTypes.STRING,
       validate: {

@@ -21,7 +21,7 @@ import {
 const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
-    department_code: '',
+    // department_code: '',
     department_name: '',
     description: '',
     hod: '',
@@ -37,7 +37,7 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['department_code', 'department_name'];
+    const required = [ 'department_name'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -55,7 +55,7 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
       toast.success(result.message || 'Department created successfully');
       dispatch(GetDepartmentMaster());
       setFormData({
-        department_code: '',
+        // department_code: '',
         department_name: '',
         description: '',
         hod: '',
@@ -74,12 +74,12 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-            {
-              id: 'department_code',
-              label: 'Department Code',
-              type: 'text',
-              placeholder: 'Enter unique department code',
-            },
+            // {
+            //   id: 'department_code',
+            //   label: 'Department Code',
+            //   type: 'text',
+            //   placeholder: 'Enter unique department code',
+            // },
             {
               id: 'department_name',
               label: 'Department Name',
@@ -103,18 +103,7 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
             </div>
           ))}
 
-          <div className="col-span-12">
-            <Label htmlFor="description" value="Description" />
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Optional description"
-              className="w-full border rounded-md p-2 border-gray-300"
-              rows={2}
-            />
-          </div>
-
+         
           <div className="col-span-6">
             <Label htmlFor="hod" value="Head of Department (HOD)" />
              <TextInput
@@ -127,6 +116,18 @@ const AddDepartmentMasterModal = ({ show, setShowmodal, logindata }) => {
               />
            
           </div>
+           <div className="col-span-12">
+            <Label htmlFor="description" value="Description" />
+            <textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleChange('description', e.target.value)}
+              placeholder="Optional description"
+              className="w-full border rounded-md p-2 border-gray-300"
+              rows={2}
+            />
+          </div>
+
 {/* 
  <div className="col-span-6 ">
              <Label htmlFor="status" value="Status" />

@@ -6,8 +6,8 @@ const MakeMaster = () => {
   
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "MakeMaster ", to: "/" }]}
-        title="MakeMaster"/>
+      <BreadcrumbComp    items={[{ title: "Make Master ", to: "/" }]}
+        title="Make Master"/>
          <CardBox>
         <MakeMasterTable/>
         </CardBox>

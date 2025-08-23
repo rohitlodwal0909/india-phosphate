@@ -21,7 +21,7 @@ const AddBmrMasterModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
-    bmr_code: '',
+    // bmr_code: '',
     product_name: '',
     batch_number: '',
     manufacturing_date: '',
@@ -43,7 +43,7 @@ const AddBmrMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['bmr_code', 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date','equipment_used','raw_materials','process_steps','qa_qc_signoff'];
+    const required = [ 'product_name', 'batch_number', 'manufacturing_date', 'expiry_date','equipment_used','raw_materials','process_steps','qa_qc_signoff'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -62,7 +62,7 @@ const AddBmrMasterModal = ({ show, setShowmodal, logindata }) => {
       dispatch(GetBmrMaster());
 
       setFormData({
-        bmr_code: '',
+        // bmr_code: '',
         product_name: '',
         batch_number: '',
         manufacturing_date: '',
@@ -89,7 +89,7 @@ const AddBmrMasterModal = ({ show, setShowmodal, logindata }) => {
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
 
           {[
-            { id: 'bmr_code', label: 'BMR Code' },
+            // { id: 'bmr_code', label: 'BMR Code' },
             { id: 'product_name', label: 'Product Name' },
             { id: 'batch_number', label: 'Batch Number' },
             { id: 'manufacturing_date', label: 'Manufacturing Date', type: 'date' },

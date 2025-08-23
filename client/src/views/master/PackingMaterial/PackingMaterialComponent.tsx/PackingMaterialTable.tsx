@@ -22,7 +22,7 @@ const PackingMaterialTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
   const { PackingMaterialdata, loading } = useSelector((state: any) => state.packing);
- const { supplierdata } = useSelector((state: any) => state.supplier);
+   const { supplierdata } = useSelector((state: any) => state.supplier);
   
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
@@ -204,8 +204,8 @@ const PackingMaterialTable = () => {
         title="Are you sure you want to Delete this Packing Material?"
       />
        <ViewPackingMaterialModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} supplierdata={supplierdata} />
-      <AddPackingMaterialModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}  supplierData={supplierdata}  unitOptions={allUnits}/>
-      <EditPackingMaterialModal show={editmodal} setShowmodal={setEditmodal} PackingMaterialData={selectedrow} logindata={logindata} supplierData={supplierdata}  unitOptions={allUnits} />
+      <AddPackingMaterialModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata}   unitOptions={allUnits}/>
+      <EditPackingMaterialModal show={editmodal} setShowmodal={setEditmodal} PackingMaterialData={selectedrow} logindata={logindata}   unitOptions={allUnits} />
     </div>
   );
 };

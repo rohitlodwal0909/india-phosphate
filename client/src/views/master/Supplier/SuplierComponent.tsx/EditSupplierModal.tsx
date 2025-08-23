@@ -18,7 +18,8 @@ import {
 
 const EditSupplierModal = ({ show, setShowmodal, SupplierData,logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
-
+const suppliertype = ['RM', 'PM', 'Machinery Lab', 'instrument','Stationery','Computer Peripherals'];
+ const domesticOptions = ["National", "International"];
   const [formData, setFormData] = useState({
     id: '',
     user_id:logindata?.admin.id,
@@ -26,6 +27,11 @@ const EditSupplierModal = ({ show, setShowmodal, SupplierData,logindata }) => {
     email: '',
     address: '',
     contact_no: '',
+    manufacturer_type:"",
+         supplier_type:"",
+    gst_number:"",
+    invoice_no:"",
+    domestic:"",
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -38,7 +44,12 @@ const EditSupplierModal = ({ show, setShowmodal, SupplierData,logindata }) => {
         email: SupplierData?.email || '',
         address: SupplierData?.address || '',
          contact_no: SupplierData?.contact_no || '',
+         manufacturer_type:SupplierData?.manufacturer_type || '',
         user_id:logindata?.admin.id,
+             supplier_type:SupplierData?.supplier_type ||"",
+    gst_number:SupplierData?.gst_number ||"",
+    invoice_no:SupplierData?.invoice_no ||"",
+    domestic:SupplierData?.domestic ||"",
       });
     }
   }, [SupplierData]);
@@ -49,7 +60,7 @@ const EditSupplierModal = ({ show, setShowmodal, SupplierData,logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['supplier_name', 'email', 'address', 'contact_no'];
+    const required = ['supplier_name', 'email', 'address', 'contact_no','manufacturer_type','supplier_type','gst_number','invoice_no','domestic'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -96,9 +107,27 @@ const EditSupplierModal = ({ show, setShowmodal, SupplierData,logindata }) => {
               type: 'email',
               placeholder: 'Enter email',
             },
+                       {
+              id: 'manufacturer_type',
+              label: 'Manufacturer Type',
+              type: 'text',
+              placeholder: 'Enter Manufacturer Type',
+            },
+              {
+              id: 'gst_number',
+              label: 'GST Number',
+              type: 'text',
+              placeholder: 'Enter GST Number',
+            },
+             {
+              id: 'invoice_no',
+              label: 'Invoice Number',
+              type: 'text',
+              placeholder: 'Enter Invoice Number',
+            },
            
           ].map(({ id, label, type, placeholder }) => (
-            <div className={`${type ==="email" ? "col-span-12" :"col-span-6"}`} key={id}>
+            <div className={`${type ==="email" ? "col-span-6" :"col-span-6"}`} key={id}>
               <Label htmlFor={id} value={label} />
               <span className="text-red-700 ps-1">*</span>
               <TextInput
@@ -114,6 +143,44 @@ const EditSupplierModal = ({ show, setShowmodal, SupplierData,logindata }) => {
             </div>
           ))}
 
+
+<div className="col-span-6">
+            <Label htmlFor="supplier_type" value="Supplier Type" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <select
+              id="supplier_type"
+              value={formData.supplier_type}
+              onChange={(e) => handleChange('supplier_type', e.target.value)}
+              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+
+            >
+              <option value="">Select Supplier type</option>
+              {suppliertype.map((mode) => (
+                <option key={mode} value={mode}>{mode}</option>
+              ))}
+            </select>
+            {errors.supplier_type && <p className="text-red-500 text-xs">{errors.supplier_type}</p>}
+          </div>
+
+<div className="col-span-6">
+            <Label htmlFor="domestic" value="Domestic" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <select
+              id="domestic"
+              value={formData.domestic}
+              onChange={(e) => handleChange('domestic', e.target.value)}
+              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+
+            >
+              <option value="">Select Domestic</option>
+              {domesticOptions.map((mode) => (
+                <option key={mode} value={mode}>{mode}</option>
+              ))}
+            </select>
+            {errors.domestic && <p className="text-red-500 text-xs">{errors.domestic}</p>}
+          </div>
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
             <span className="text-red-700 ps-1">*</span>

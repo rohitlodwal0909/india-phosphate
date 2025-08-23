@@ -4,10 +4,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-    },
+    }, 
     customer_name: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+     gst_number: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+     invoice_no: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+     domestic: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     email: {
       type: DataTypes.STRING,

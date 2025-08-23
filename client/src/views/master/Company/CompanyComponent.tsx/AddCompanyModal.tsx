@@ -20,7 +20,7 @@ import {
 
 const AddCompanyModal = ({ show, setShowmodal, logindata ,Statedata}) => {
   const dispatch = useDispatch<AppDispatch>();
-
+ const domesticOptions = ["National", "International"];
   const [formData, setFormData] = useState({
     company_code: '', // Optional: can auto-generate or input
     company_name: '',
@@ -34,6 +34,10 @@ const AddCompanyModal = ({ show, setShowmodal, logindata ,Statedata}) => {
     gst_number: '',
     cin_number: '',
     pan_number: '',
+    tin_number:'',
+      din_number:'',
+      msme_reg:'',
+      domestic:'',
     created_by: logindata?.admin?.id || '',
     status: 'Active',
   });
@@ -66,7 +70,7 @@ const handleStateChange = (value: string) => {
 
 
   const validateForm = () => {
-    const required = ['company_name', 'email', 'address', 'phone','company_code','city','state_id','country','pincode','gst_number','cin_number','pan_number','created_by','status'];
+    const required = ['company_name', 'email', 'address', 'phone','company_code','city','state_id','country','pincode','gst_number','cin_number','pan_number' ,'tin_number','din_number','msme_reg', 'domestic','created_by','status'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -101,6 +105,10 @@ const handleStateChange = (value: string) => {
         gst_number: '',
         cin_number: '',
         pan_number: '',
+         tin_number:'',
+      din_number:'',
+      msme_reg:'',
+      domestic:'',
         created_by: logindata?.admin?.id,
         status: "Active",
       });
@@ -122,13 +130,17 @@ const handleStateChange = (value: string) => {
   { id: 'phone', label: 'Phone', type: 'text' },
   { id: 'country', label: 'Country', type: 'text' },
   { id: 'pincode', label: 'Pincode', type: 'text' },
-  { id: 'state_id', label: 'State', type: 'text' },
+  { id: 'state_id', label: 'State', type: 'text' },   
   { id: 'city', label: 'City', type: 'text' },
   { id: 'gst_number', label: 'GST Number', type: 'text' },
   { id: 'cin_number', label: 'CIN Number', type: 'text' },
   { id: 'pan_number', label: 'PAN Number', type: 'text' },
+  { id: 'tin_number', label: 'TIN Number', type: 'text' },
+  { id: 'din_number', label: 'DIN Number', type: 'text' },
+  { id: 'msme_reg', label: 'MSME registration', type: 'text' },
+  
 ].map(({ id, label, type }) => (
-  <div className="col-span-6" key={id}>
+  <div className="col-span-4" key={id}>
     <Label htmlFor={id} value={label} />
  <span className="text-red-700 ps-1">*</span>
     {id === 'state_id' ? (
@@ -191,6 +203,25 @@ const handleStateChange = (value: string) => {
           </div> */}
 
           {/* Address */}
+          
+          <div className="col-span-4">
+                      <Label htmlFor="domestic" value="Domestic" />
+                      <span className="text-red-700 ps-1">*</span>
+          
+                      <select
+                        id="domestic"
+                        value={formData.domestic}
+                        onChange={(e) => handleChange('domestic', e.target.value)}
+                        className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+          
+                      >
+                        <option value="">Select Domestic</option>
+                        {domesticOptions.map((mode) => (
+                          <option key={mode} value={mode}>{mode}</option>
+                        ))}
+                      </select>
+                      {errors.domestic && <p className="text-red-500 text-xs">{errors.domestic}</p>}
+                    </div>
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
               <span className="text-red-700 ps-1">*</span>

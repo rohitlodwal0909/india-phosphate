@@ -14,7 +14,7 @@ import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { addSalesMaster, GetSalesMaster } from 'src/features/master/SalesMaster/SalesMasterSlice';
 
-const paymentModes = ['Cash', 'Credit', 'UPI', 'Online'];
+const paymentModes = ['LC', 'Advanced', 'CAD', 'DAP','Creadit','Bank Contract'];
 // const statusOptions = ['Pending', 'Completed', 'Cancelled'];
 
 const AddSalesMasterModal = ({ show, setShowmodal, logindata, CustomerData }) => {
@@ -25,13 +25,13 @@ const AddSalesMasterModal = ({ show, setShowmodal, logindata, CustomerData }) =>
     invoice_date: '',
     customer_id: '',
     payment_mode: '',
-    product_details:'',
+    product_details: '',
     subtotal_amount: '',
     tax_amount: '',
-    discount_amount: '',
+    // discount_amount: '',
     grand_total: '',
     paid_amount: '',
-    balance_amount: '',
+    // balance_amount: '',
     status: 'Pending',
     created_by: logindata?.admin?.id || '',
     remarks: '',
@@ -43,16 +43,14 @@ const handleChange = (field: string, value: any) => {
   setFormData((prev) => {
     const updatedData = { ...prev, [field]: value };
 
-    // Auto-calculate grand_total only if all 3 fields have valid numeric values
+    // Auto-calculate grand_total only if subtotal and tax are valid numbers
     const subtotal = parseFloat(field === 'subtotal_amount' ? value : updatedData.subtotal_amount);
     const tax = parseFloat(field === 'tax_amount' ? value : updatedData.tax_amount);
-    const discount = parseFloat(field === 'discount_amount' ? value : updatedData.discount_amount);
 
-    const hasAllFields =
-      !isNaN(subtotal) && !isNaN(tax) && !isNaN(discount);
+    const hasBothFields = !isNaN(subtotal) && !isNaN(tax);
 
-    if (hasAllFields) {
-      updatedData.grand_total = subtotal + tax - discount;
+    if (hasBothFields) {
+      updatedData.grand_total = subtotal + tax;
     }
 
     return updatedData;
@@ -74,7 +72,7 @@ const handleChange = (field: string, value: any) => {
     'tax_amount',
     'grand_total',
     'paid_amount',
-    'balance_amount',
+    // 'balance_amount',
     'status',
   ];
 
@@ -100,7 +98,7 @@ const handleChange = (field: string, value: any) => {
       setFormData(initialForm);
       setShowmodal(false);
     } catch (err: any) {
-      toast.error(err?.message || err|| 'Something went wrong');
+      toast.error(err?.message || err || 'Something went wrong');
     }
   };
 
@@ -111,7 +109,7 @@ const handleChange = (field: string, value: any) => {
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           <div className="col-span-4">
             <Label htmlFor="invoice_no" value="Invoice No" />
-               <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
 
             <TextInput
               id="invoice_no"
@@ -136,36 +134,36 @@ const handleChange = (field: string, value: any) => {
           </div>
 
           <div className="col-span-4">
-  <Label htmlFor="customer_id" value="Customer ID" />
-               <span className="text-red-700 ps-1">*</span>
+            <Label htmlFor="customer_id" value="Customer Name" />
+            <span className="text-red-700 ps-1">*</span>
 
-  <select
-    id="customer_id"
-    value={formData.customer_id}
-    onChange={(e) => handleChange('customer_id', e.target.value)}
-    className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
-  >
-    <option value="">Select Customer</option>
-  { CustomerData?.map((items)=>(
-<option value={items?.id}>{items?.customer_name}</option>
-  ))  }
-    
-    {/* You can map customer list here dynamically */}
-  </select>
-  {errors.customer_id && (
-    <p className="text-red-500 text-xs">{errors.customer_id}</p>
-  )}
-</div>
+            <select
+              id="customer_id"
+              value={formData.customer_id}
+              onChange={(e) => handleChange('customer_id', e.target.value)}
+              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+            >
+              <option value="">Select Customer</option>
+              {CustomerData?.map((items) => (
+                <option value={items?.id}>{items?.customer_name}</option>
+              ))}
+
+              {/* You can map customer list here dynamically */}
+            </select>
+            {errors.customer_id && (
+              <p className="text-red-500 text-xs">{errors.customer_id}</p>
+            )}
+          </div>
 
           <div className="col-span-4">
             <Label htmlFor="payment_mode" value="Payment Mode" />
-               <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
 
             <select
               id="payment_mode"
               value={formData.payment_mode}
               onChange={(e) => handleChange('payment_mode', e.target.value)}
-    className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
+              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
 
             >
               <option value="">Select Payment Mode</option>
@@ -177,18 +175,30 @@ const handleChange = (field: string, value: any) => {
           </div>
 
           {/* Product Details JSON input (for simplicity) */}
-         
+    <div className="col-span-4">
+            <Label htmlFor="subtotal_amount" value="Amount" />
+            <span className="text-red-700 ps-1">*</span>
 
-          {['subtotal_amount', 'tax_amount', 'discount_amount', 'grand_total', 'paid_amount', 'balance_amount'].map((field) => (
+            <TextInput
+              id="subtotal_amount"
+              value={formData.subtotal_amount}
+              className='form-rounded-md'
+              placeholder='Enter Invoice Number'
+              onChange={(e) => handleChange('subtotal_amount', e.target.value)}
+            />
+            {errors.subtotal_amount && <p className="text-red-500 text-xs">{errors.subtotal_amount}</p>}
+          </div>
+
+          {[ 'tax_amount',  'grand_total', 'paid_amount'].map((field) => (
             <div className="col-span-4" key={field}>
               <Label htmlFor={field} value={field.replace('_', ' ').toLowerCase()} />
-               <span className="text-red-700 ps-1">*</span>
+              <span className="text-red-700 ps-1">*</span>
 
               <TextInput
                 id={field}
                 type="number"
                 value={formData[field]}
-                 placeholder={`Enter ${field.replace('_', ' ').toLowerCase()}`}
+                placeholder={`Enter ${field.replace('_', ' ').toLowerCase()}`}
                 className='form-rounded-md'
                 onChange={(e) => handleChange(field, e.target.value)}
               />
@@ -214,15 +224,15 @@ const handleChange = (field: string, value: any) => {
             {errors.status && <p className="text-red-500 text-xs">{errors.status}</p>}
           </div> */}
 
-          
-           <div className="col-span-6">
+
+          <div className="col-span-6">
             <Label htmlFor="product_details" value="Product Details" />
             <Textarea
               id="product_details"
               value={formData.product_details}
-                className='rounded-md'
+              className='rounded-md'
               onChange={(e) => handleChange('product_details', e.target.value)}
-              placeholder='Example: name:Cement,quantity:2,rate:500,tax:18,amount:1180 '
+              placeholder='Example: name:Cement,quantity:2,rate:500 '
             />
             {errors.product_details && <p className="text-red-500 text-xs">{errors.product_details}</p>}
           </div>

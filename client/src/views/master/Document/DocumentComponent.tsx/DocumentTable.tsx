@@ -60,7 +60,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
   const handleStatuschange = (export_status: any, id:any) => {
  
     dispatch(UpdateStatus({ export_status , id })).unwrap().then(() => {
-      toast.success("Document Status  Change successfully!");
+      toast.success("Document status  change successfully!");
           dispatch(GetDocument());
     }).catch((err) => {
       toast.error(err || "Failed to update lead.");

@@ -26,10 +26,10 @@ const DepartmentMasterTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-const { selectedIconId } = useContext(CustomizerContext) || {};
-                  const permissions = useMemo(() => {
-                  return getPermissions(logindata, selectedIconId, 20);
-                    }, [logindata ,selectedIconId]);
+  const { selectedIconId } = useContext(CustomizerContext) || {};
+  const permissions = useMemo(() => {
+    return getPermissions(logindata, selectedIconId, 20);
+  }, [logindata, selectedIconId]);
   useEffect(() => {
     dispatch(GetDepartmentMaster());
   }, [dispatch]);
@@ -42,11 +42,11 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
   const handleDelete = async (userToDelete: any) => {
     if (!userToDelete) return;
     try {
-      await dispatch(deleteDepartmentMaster({id:userToDelete?.id ,user_id:logindata?.admin?.id})).unwrap();
+      await dispatch(deleteDepartmentMaster({ id: userToDelete?.id, user_id: logindata?.admin?.id })).unwrap();
       dispatch(GetDepartmentMaster());
       toast.success("The Department was successfully deleted.");
     } catch (error: any) {
-      
+
       if (error?.response?.status === 404) toast.error("User not found.");
       else if (error?.response?.status === 500) toast.error("Server error. Try again later.");
       else toast.error("Failed to delete user.");
@@ -57,14 +57,14 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
     const searchText = searchTerm.toLowerCase();
     const supllier = item?.department_name || "";
     const mouldNo = item?.department_code || "";
-    const hardness = item?.status == 1? "Active" : "";
+    const hardness = item?.status == 1 ? "Active" : "";
     const temperature = item?.description || "";
-   
+
     return (
       mouldNo.toString().toLowerCase().includes(searchText) ||
       supllier.toString().toLowerCase().includes(searchText) ||
       hardness.toString().toLowerCase().includes(searchText) ||
-      temperature.toString().toLowerCase().includes(searchText) 
+      temperature.toString().toLowerCase().includes(searchText)
     );
   });
 
@@ -82,104 +82,103 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-       {permissions?.add && <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
-         Create Department  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
+        {permissions?.add && <Button size="sm" className="p-0 bg-primary border rounded-md" onClick={() => { setAddmodal(true); }}  >
+          Create Department  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>}
       </div>
 
-     {permissions?.view ?  <> <div className="overflow-x-auto">
+      {permissions?.view ? <> <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
-                     <tr>
-                       {["Sr.No", "Department Name", "Department Code ", "Created By ","HOD", "Status", "Description" ,"Action"].map((title) => (
-                         <th
-                           key={title}
-                           className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
-                         >
-                           {title}
-                         </th>
-                       ))}
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                     {loading ? (
-                       <tr>
-                         <td colSpan={8} className="text-center py-6">Loading...</td>
-                       </tr>
-                     ) : currentItems.length > 0 ? (
-                       currentItems.map((item: any, index: number) => (
-                         <tr key={item.id} className="bg-white dark:bg-gray-900">
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1} </h6></td>
-                          
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                             {(item?.department_name || "-")
-                               .replace(/^\w/, (c: string) => c.toUpperCase())}
-                           </td>
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.department_code  || "-"}</td>
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.created_by_username}</td>
-                                              <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.hod  || "-"}</td>
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300"> 
-                                    <Badge color={ item.status == 1 ? `lightprimary` :"lightwarning"}
-                                                                         className="capitalize"
-                                                                       >
-                                                                         {item.status == 1 ? "Active" :"Inactive"}
-                                                                       </Badge>
-                                                                       </td>
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.description || "-"}</td>
-                           
-                           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                             <div className="flex justify-start gap-2">
-                               
-                                 <>
-                                    {permissions?.edit &&  <Tooltip content="Edit" placement="bottom">
-                                     <Button
-                                       size="sm"
-                                       className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
-                                       onClick={() => handleEdit(item)}
-                                     >
-                                       <Icon icon="solar:pen-outline" height={18} />
-                                     </Button>
-                                   </Tooltip>}
-                                    {permissions?.del &&  <Tooltip content="Delete" placement="bottom">
-                                     <Button
-                                       size="sm"
-                                       color="lighterror"
-                                       className="p-0"
-                                       onClick={() => {
-                                         setDeletemodal(true);
-                                         setSelectedRow(item);
-                                       }}
-                                     >
-                                       <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
-                                     </Button>
-                                   </Tooltip>}
-                                 </>
-                              
-                             </div>
-                           </td>
-                         </tr>
-                       ))
-                     ) : (
-                       <tr>
-                         <td colSpan={8} className="text-center py-8 px-4">
-                           <div className="flex flex-col items-center">
-                             <img src={noData} alt="No data" height={100} width={100} className="mb-4" />
-                             <p className="text-gray-500 dark:text-gray-400">No data available</p>
-                           </div>
-                         </td>
-                       </tr>
-                     )}
-                   </tbody>
+            <tr>
+              {["Sr.No", "Department Code ", "Department Name", "Created By ", "HOD", "Status", "Description", "Action"].map((title) => (
+                <th
+                  key={title}
+                  className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
+                >
+                  {title}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="text-center py-6">Loading...</td>
+              </tr>
+            ) : currentItems.length > 0 ? (
+              currentItems.map((item: any, index: number) => (
+                <tr key={item.id} className="bg-white dark:bg-gray-900">
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1} </h6></td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.department_code || "-"}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                    {(item?.department_name || "-")
+                      .replace(/^\w/, (c: string) => c.toUpperCase())}
+                  </td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.created_by_username}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.hod || "-"}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                    <Badge color={item.status == 1 ? `lightprimary` : "lightwarning"}
+                      className="capitalize"
+                    >
+                      {item.status == 1 ? "Active" : "Inactive"}
+                    </Badge>
+                  </td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.description || "-"}</td>
+
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                    <div className="flex justify-start gap-2">
+
+                      <>
+                        {permissions?.edit && <Tooltip content="Edit" placement="bottom">
+                          <Button
+                            size="sm"
+                            className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <Icon icon="solar:pen-outline" height={18} />
+                          </Button>
+                        </Tooltip>}
+                        {permissions?.del && <Tooltip content="Delete" placement="bottom">
+                          <Button
+                            size="sm"
+                            color="lighterror"
+                            className="p-0"
+                            onClick={() => {
+                              setDeletemodal(true);
+                              setSelectedRow(item);
+                            }}
+                          >
+                            <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                          </Button>
+                        </Tooltip>}
+                      </>
+
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} className="text-center py-8 px-4">
+                  <div className="flex flex-col items-center">
+                    <img src={noData} alt="No data" height={100} width={100} className="mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400">No data available</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
       </div>
 
-      <CommonPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        pageSize={pageSize}
-        setCurrentPage={setCurrentPage}
-        setPageSize={setPageSize}
-      /></> : <NotPermission/>}
+        <CommonPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          setCurrentPage={setCurrentPage}
+          setPageSize={setPageSize}
+        /></> : <NotPermission />}
 
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
@@ -189,7 +188,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
         title="Are you sure you want to Delete this DepartmentMaster?"
       />
 
-      <AddDepartmentMasterModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />
+      <AddDepartmentMasterModal setShowmodal={setAddmodal} show={addmodal} logindata={logindata} />
       <EditDepartmentMasterModal show={editmodal} setShowmodal={setEditmodal} DepartmentMasterData={selectedrow} logindata={logindata} />
     </div>
   );

@@ -5,43 +5,49 @@ const { MakeMaster, User} = db;
 // Create
 exports.createMakeMaster = async (req, res, next) => {
   try {
-    const { make_code, make_name, description, status, created_by } = req.body;
+    const { make_name, description, status, created_by } = req.body;
 
-    // Check if make_code or make_name already exists (optional)
-    const existingMake = await MakeMaster.findOne({
-      where: { make_code }
+    // Step 1: Auto-generate make_code
+    const lastMake = await MakeMaster.findOne({
+      order: [["created_at", "DESC"]],
     });
 
-    if (existingMake) {
-      const error = new Error("A Make master with this code already exists.");
-      error.status = 400;
-      return next(error);
+    let nextMakeCode = "MAKE-0001"; // default
+    if (lastMake && lastMake.make_code) {
+      const lastNumber = parseInt(lastMake.make_code.split("-")[1]);
+      const newNumber = (lastNumber + 1).toString().padStart(4, "0");
+      nextMakeCode = `MAKE-${newNumber}`;
     }
-        // Update allowed fields only
-     const user_id = created_by
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
-    // Step 4: Create log
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0];
-    const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `Make code '${make_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
-    // Create new MakeMaster entry
+
+    // Step 2: Create new MakeMaster entry
     const newMakeMaster = await MakeMaster.create({
-      make_code,
+      make_code: nextMakeCode,
       make_name,
       description,
       status,
       created_by
     });
 
+    // Step 3: Create log
+    const user_id = created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+
+    const now = new Date();
+    const entry_date = now.toISOString().split("T")[0];
+    const entry_time = now.toTimeString().split(" ")[0];
+    const logMessage = `Make code '${nextMakeCode}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry({ user_id, message: logMessage });
+
+    // Step 4: Return response
     res.status(201).json(newMakeMaster);
   } catch (error) {
     console.error("Create MakeMaster Error:", error);
     next(error);
   }
 };
+
 
 exports.getMakeMasterById = async (req, res,next) => {
   try {

@@ -22,7 +22,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
 
   const [formData, setFormData] = useState({
     id: '',
-    order_number: '',
+    // order_number: '',
     customer_name_or_id: '',
     order_date: '',
     expected_delivery_date: '',
@@ -45,7 +45,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
     if (PendingOrderData) {
       setFormData({
         id: PendingOrderData.id || '',
-        order_number: PendingOrderData.order_number || '',
+        // order_number: PendingOrderData.order_number || '',
         customer_name_or_id: PendingOrderData.customer_name_or_id || '',
         order_date: PendingOrderData.order_date?.slice(0, 10) || '',
         expected_delivery_date: PendingOrderData.expected_delivery_date?.slice(0, 10) || '',
@@ -61,7 +61,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
 
   const validateForm = () => {
     const required = [
-      'order_number',
+      // 'order_number',
       'customer_name_or_id',
       'order_date',
       'expected_delivery_date',
@@ -97,7 +97,7 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {/* Order Number */}
-          <div className="col-span-4">
+          {/* <div className="col-span-4">
             <Label htmlFor="order_number" value="Order Number" />
               <span className="text-red-700 ps-1">*</span>
             <TextInput
@@ -109,17 +109,17 @@ const EditPendingOrderModal = ({ show, setShowmodal, logindata, PendingOrderData
                 className='form-rounded-md'
             />
             {errors.order_number && <p className="text-red-500 text-xs">{errors.order_number}</p>}
-          </div>
+          </div> */}
 
           {/* Customer Name / ID */}
           <div className="col-span-4">
-            <Label htmlFor="customer_name_or_id" value="Customer Name / ID" />
+            <Label htmlFor="customer_name_or_id" value="Customer Name" />
               <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="customer_name_or_id"
               value={formData.customer_name_or_id}
               onChange={(e) => handleChange('customer_name_or_id', e.target.value)}
-              placeholder="Enter Customer Name or ID"
+              placeholder="Enter Customer Name "
               color={errors.customer_name_or_id ? 'failure' : 'gray'}
                 className='form-rounded-md'
             />

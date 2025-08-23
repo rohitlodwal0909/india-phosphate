@@ -3,25 +3,44 @@ const db = require("../../../models");
 const { HSN ,User } = db;
 
 // Create
-exports.create = async (req, res,next) => {
+exports.create = async (req, res, next) => {
   try {
+    // Step 1: Generate unique hsn_code
+    const lastHSN = await HSN.findOne({
+      order: [["created_at", "DESC"]],
+    });
+
+    let nextHsnCode = "HSN-0001"; // default
+    if (lastHSN && lastHSN.hsn_code) {
+      const lastNumber = parseInt(lastHSN.hsn_code.split("-")[1]);
+      const newNumber = (lastNumber + 1).toString().padStart(4, "0");
+      nextHsnCode = `HSN-${newNumber}`;
+    }
+
+    // Step 2: Create new HSN entry with auto hsn_code
+    req.body.hsn_code = nextHsnCode;
     const data = await HSN.create(req.body);
+
+    // Step 3: Send response first (non-blocking log)
     res.status(201).json(data);
-       const user_id =  data?.created_by || req.body?.created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
-    // Step 4: Create log
+
+    // Step 4: Logging
+    const user_id = data?.created_by || req.body?.created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `HSN code '${data?.hsn_code}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
-        
+    const logMessage = `HSN code '${nextHsnCode}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry({ user_id, message: logMessage });
+    
   } catch (err) {
-    next(err)
+    console.error("Create HSN Error:", err);
+    next(err);
   }
 };
-
 exports.findAll = async (req, res,next) => {
   try {
     const data = await HSN.findAll();

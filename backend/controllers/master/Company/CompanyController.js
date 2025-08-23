@@ -10,6 +10,10 @@ exports.createCompany = async (req, res, next) => {
       company_code, company_name,address,city,state_id,country, pincode, email, phone,
       gst_number, cin_number,
       pan_number,created_by,status,
+       tin_number,
+      din_number,
+      msme_reg,
+      domestic,
     } = req.body;
     // Check if company with same email already exists
     const existingCompany = await Company.findOne({ where: { email } });
@@ -32,6 +36,10 @@ exports.createCompany = async (req, res, next) => {
       gst_number,
       cin_number,
       pan_number,
+      tin_number,
+      din_number,
+      msme_reg,
+      domestic,
       created_by,
       status
     });
@@ -122,6 +130,10 @@ exports.updateCompany = async (req, res, next) => {
       gst_number,
       cin_number,
       pan_number,
+         tin_number,
+      din_number,
+      msme_reg,
+      domestic,
       created_by,
       status
     } = req.body;
@@ -140,6 +152,10 @@ exports.updateCompany = async (req, res, next) => {
       cin_number,
       pan_number,
       created_by,
+         tin_number,
+      din_number,
+      msme_reg,
+      domestic,
       status
     });
       const user_id = req.body.created_by || created_by;

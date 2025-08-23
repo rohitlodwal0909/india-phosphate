@@ -88,11 +88,12 @@ const SalesMasterTable = () => {
         </Button>}
       </div>
 
-      {permissions?.view ?  <><div className="overflow-x-auto">
+      {permissions?.view ?  <>
+      <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
   <thead className="bg-gray-50 dark:bg-gray-800">
     <tr>
-      {["Sr.No","Invoice No", "Invoice Date", "Customer ID", "Grand Total", "Paid Amount", "Status", "Action"].map((title) => (
+      {["Sr.No","Invoice No", "Invoice Date", "Customer Name", "Grand Total", "Paid Amount", "Status", "Action"].map((title) => (
         <th
           key={title}
           className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"

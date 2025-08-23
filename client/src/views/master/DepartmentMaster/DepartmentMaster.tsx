@@ -6,8 +6,8 @@ const DepartmentMaster = () => {
   
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "DepartmentMaster ", to: "/" }]}
-        title="DepartmentMaster"/>
+      <BreadcrumbComp    items={[{ title: "Department Master ", to: "/" }]}
+        title="Department Master"/>
          <CardBox>
         <DepartmentMasterTable/>
         </CardBox>
