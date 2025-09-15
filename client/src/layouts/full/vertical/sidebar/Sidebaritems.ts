@@ -59,100 +59,7 @@ const SidebarContent: MenuItem[] = [
       },
     ],
   },
-  // {
-  //   id: 2,
-  //   name: "Menu",
-  //   items: [
-  //     {
-  //       heading: "Multi level",
-  //       children: [
-  //         {
-  //           name: "Menu Level",
-  //           icon: "solar:widget-add-line-duotone",
-  //           id: uniqueId(),
-  //           children: [
-  //             {
-  //               id: uniqueId(),
-  //               name: "Level 1",
-  //               url: "",
-  //             },
-  //             {
-  //               id: uniqueId(),
-  //               name: "Level 1.1",
-  //               icon: "fad:armrecording",
-  //               url: "",
-  //               children: [
-  //                 {
-  //                   id: uniqueId(),
-  //                   name: "Level 2",
-  //                   url: "",
-  //                 },
-  //                 {
-  //                   id: uniqueId(),
-  //                   name: "Level 2.1",
-  //                   icon: "fad:armrecording",
-  //                   url: "",
-  //                   children: [
-  //                     {
-  //                       id: uniqueId(),
-  //                       name: "Level 3",
-  //                       url: "",
-  //                     },
-  //                     {
-  //                       id: uniqueId(),
-  //                       name: "Level 3.1",
-  //                       url: "",
-  //                     },
-  //                   ],
-  //                 },
-  //               ],
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       heading: "More Options",
-  //       children: [
-  //         {
-  //           id: uniqueId(),
-  //           url: "/sample-page",
-  //           name: "Applications",
-  //           icon: "solar:check-circle-bold",
-  //           color: "text-primary",
-  //         },
-  //         {
-  //           id: uniqueId(),
-  //           url: "",
-  //           name: "Form Options",
-  //           icon: "solar:check-circle-bold",
-  //           color: "text-secondary",
-  //         },
-  //         {
-  //           id: uniqueId(),
-  //           url: "",
-  //           name: "Table Variations",
-  //           icon: "solar:check-circle-bold",
-  //           color: "text-info",
-  //         },
-  //         {
-  //           id: uniqueId(),
-  //           url: "",
-  //           name: "Charts Selection",
-  //           icon: "solar:check-circle-bold",
-  //           color: "text-warning",
-  //         },
-  //         {
-  //           id: uniqueId(),
-  //           url: "",
-  //           name: "Widgets",
-  //           icon: "solar:check-circle-bold",
-  //           color: "text-success",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+  
    {
     id: 2,
     name: "inventory Managment",
@@ -195,17 +102,39 @@ const SidebarContent: MenuItem[] = [
           },
            {
             subId:4,
-            name: "Qa Batch Number",
+            name: "QA Batch Number",
             icon: "material-symbols:batch-prediction-outline-sharp",
             id: uniqueId(),
             url: "/inventory/qc-batch",
              add: false,
-        view: false,
-        edit: false,
-        delete: false,
+              view: false,
+              edit: false,
+              delete: false,
+          },
+              {
+            subId:5,
+            name: "QA/QC Approval",
+            icon: "material-symbols:batch-prediction-outline-sharp",
+            id: uniqueId(),
+            url: "/inventory/qa-qc-approval",
+             add: false,
+              view: false,
+              edit: false,
+              delete: false,
+          },
+          {
+            subId:6,
+            name: "FPR",
+            icon: "material-symbols:batch-prediction-outline-sharp",
+            id: uniqueId(),
+            url: "/inventory/fpr",
+             add: false,
+              view: false,
+              edit: false,
+              delete: false,
           },
            {
-            subId:5,
+            subId:7,
             name: "Production",
             icon: "fluent:production-20-filled",
             id: uniqueId(),
@@ -282,17 +211,7 @@ const SidebarContent: MenuItem[] = [
         edit: false,
         delete: false,
           },
-        //    {
-        //     name: "Category",
-        //     icon: "material-symbols:category-outline",
-        //     id: uniqueId(),
-        //     url: "/master/category",
-        //     subId:4,
-        //      add: false,
-        // view: false,
-        // edit: false,
-        // delete: false,
-        //   },
+      
            {
             name: "Accounts",
             icon: "mdi:account-key-outline",

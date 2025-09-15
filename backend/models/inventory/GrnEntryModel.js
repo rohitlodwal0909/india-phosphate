@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      qc_ref: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       manufacturer_name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -45,14 +49,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       remarks: DataTypes.TEXT,
       guard_entry_id: DataTypes.INTEGER,
-       user_id: DataTypes.INTEGER,
-pending_quantity: {
-  type: DataTypes.DECIMAL(10, 3), // or (10, 2) if 2 decimal places is enough
-  allowNull: true
-},
-      production_status:{
+      user_id: DataTypes.INTEGER,
+      pending_quantity: {
+        type: DataTypes.DECIMAL(10, 3), // or (10, 2) if 2 decimal places is enough
+        allowNull: true
+      },
+      production_status: {
         type: DataTypes.ENUM("PENDING", "ISSUE", "REJECTED"),
-       defaultValue: ""
+        defaultValue: ""
       }
     },
     {

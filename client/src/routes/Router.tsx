@@ -6,6 +6,8 @@ import Loadable from '../layouts/full/shared/loadable/Loadable';
 
 import ProtectedRoute from 'src/components/shared/ProtectedRoute'; // ✅ Import the guard
 import AuthGuard from 'src/utils/Authcard';
+import BatchApproved from 'src/views/inventory/batch-approved/BatchApproved';
+import FPR from 'src/views/inventory/fpr/FPR';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -46,6 +48,7 @@ const SeeAllNotifications = Loadable(lazy(() => import('src/views/Notifications/
 const Finishing = Loadable(lazy(() => import('src/views/inventory/finishing/Finishing')));
 const ChangePassword = Loadable(lazy(() => import('src/views/authentication/ChangePassword')));
 const Logs = Loadable(lazy(() => import('src/views/authentication/Logs')));
+
 // import { useSelector } from 'react-redux';
 const Usermanagment = Loadable(lazy(() => import('src/views/usermanagment/Usermanagment')));
 const GuardInventory = Loadable(lazy(() => import('src/views/inventory/Guardentry/GuardInventory')));
@@ -82,6 +85,8 @@ const fullLayoutChildren = [
   { path: '/inventory/store', element: <StoreInventory /> },
   { path: '/inventory/qc', element: <QcInventory /> },
   { path: '/inventory/qc-batch', element: <Qcbatch /> },
+  { path: '/inventory/qa-qc-approval', element: <BatchApproved /> },
+  { path: '/inventory/fpr', element: <FPR /> },
   { path: '/notifications', element: <SeeAllNotifications/> },
   { path: '/inventory/production', element: <ProductionInventory /> },
   { path: '/inventory/finishing', element: <Finishing /> },

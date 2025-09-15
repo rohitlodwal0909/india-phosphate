@@ -1,4 +1,4 @@
-const express = require("express")
+const express = require("express");
 const router = express.Router();
 
 const authRoutes = require("../routes/authentication/AuthRoutes");
@@ -14,32 +14,33 @@ const StaffMasterRoutes = require("../routes/master/StaffMasterRoutes");
 const RmCodeRoutes = require("../routes/master/RmCodeRoutes");
 const customerRoutes = require("../routes/master/CustomerRoutes");
 const NotificationRouter = require("../routes/notification/NotificationRoutes");
-const categoryRoutes = require("../routes/master/CategoryRoutes"); 
-const StateRoutes = require("../routes/master/StateRoutes"); 
-const CityRoutes = require("../routes/master/CityRoutes"); 
-const DesignationRoutes = require("../routes/master/DesignationRoutes"); 
-const InwardRoutes = require("../routes/master/InwardRoutes"); 
-const QualificationRoutes = require("../routes/master/QualificationRoutes"); 
-const UnitRoutes = require("../routes/master/UnitRoutes"); 
-const CompanyRoutes = require("../routes/master/CompanyRoutes")
-const DepartmentMasterRoutes = require("../routes/master/DepartmentMasterRoutes")
-const MakeMasterRoutes = require("../routes/master/MakeMasterRoutes")
-const AccountRoutes = require("../routes/master/AccountRoutes")
-const PackingMaterialRoutes = require("../routes/master/PackingMaterialRoutes")
-const TransportRoutes = require("../routes/master/TransportRoutes")
-const BatchMasterRoutes = require("../routes/master/BatchMasterRoutes")
-const PendingOrderRoutes = require("../routes/master/PendingOrderRoutes")
-const StockMasterRoutes = require("../routes/master/StockMasterRoutes")
-const SalesMasterRoutes = require("../routes/master/SalesMasterRoutes")
-const HsnMasterRoutes = require("../routes/master/HsnMasterRoutes")
-const CurrencyRoutes = require("../routes/master/CurrencyRoutes")
-const EquipmentRoutes = require("../routes/master/EquipmentRoutes")
-const OutwardRoutes = require("../routes/master/OutwardRoutes")
-const PurchaseRoutes = require("../routes/master/PurchaseRoutes")
-const BmrMasterRoutes = require("../routes/master/BmrMasterRoutes")
-const FinishGoodRoutes = require("../routes/master/FinishGoodRoutes")
-const FormulaRoutes = require("../routes/master/FormulaRoutes")
-const DocumentRoutes = require("../routes/master/DocumentRoutes")
+const categoryRoutes = require("../routes/master/CategoryRoutes");
+const StateRoutes = require("../routes/master/StateRoutes");
+const CityRoutes = require("../routes/master/CityRoutes");
+const DesignationRoutes = require("../routes/master/DesignationRoutes");
+const InwardRoutes = require("../routes/master/InwardRoutes");
+const QualificationRoutes = require("../routes/master/QualificationRoutes");
+const UnitRoutes = require("../routes/master/UnitRoutes");
+const CompanyRoutes = require("../routes/master/CompanyRoutes");
+const DepartmentMasterRoutes = require("../routes/master/DepartmentMasterRoutes");
+const MakeMasterRoutes = require("../routes/master/MakeMasterRoutes");
+const AccountRoutes = require("../routes/master/AccountRoutes");
+const PackingMaterialRoutes = require("../routes/master/PackingMaterialRoutes");
+const TransportRoutes = require("../routes/master/TransportRoutes");
+const BatchMasterRoutes = require("../routes/master/BatchMasterRoutes");
+const PendingOrderRoutes = require("../routes/master/PendingOrderRoutes");
+const StockMasterRoutes = require("../routes/master/StockMasterRoutes");
+const SalesMasterRoutes = require("../routes/master/SalesMasterRoutes");
+const HsnMasterRoutes = require("../routes/master/HsnMasterRoutes");
+const CurrencyRoutes = require("../routes/master/CurrencyRoutes");
+const EquipmentRoutes = require("../routes/master/EquipmentRoutes");
+const OutwardRoutes = require("../routes/master/OutwardRoutes");
+const PurchaseRoutes = require("../routes/master/PurchaseRoutes");
+const BmrMasterRoutes = require("../routes/master/BmrMasterRoutes");
+const FinishGoodRoutes = require("../routes/master/FinishGoodRoutes");
+const FormulaRoutes = require("../routes/master/FormulaRoutes");
+const DocumentRoutes = require("../routes/master/DocumentRoutes");
+const FprRoutes = require("../routes/inventory/FprRoutes");
 
 router.use("/api", authRoutes);
 router.use("/api", userRoutes);
@@ -54,32 +55,33 @@ router.use("/api", UnitRoutes);
 router.use("/api", RmCodeRoutes);
 router.use("/api", customerRoutes);
 router.use("/api", permissionRoutes);
-router.use("/api", NotificationRouter)
-router.use("/api", StaffMasterRoutes)
-router.use("/api", DesignationRoutes)
-router.use("/api", InwardRoutes)
-router.use("/api", QualificationRoutes)
-router.use("/api", StateRoutes)
-router.use("/api", CityRoutes)
-router.use("/api", CompanyRoutes)
-router.use("/api", MakeMasterRoutes)
-router.use("/api", DepartmentMasterRoutes)
-router.use("/api", AccountRoutes)
-router.use("/api", PackingMaterialRoutes)
-router.use("/api", TransportRoutes)
-router.use("/api", BatchMasterRoutes)
-router.use("/api", PendingOrderRoutes)
-router.use("/api", StockMasterRoutes)
-router.use("/api", SalesMasterRoutes)
-router.use("/api", HsnMasterRoutes)
-router.use("/api", HsnMasterRoutes)
-router.use("/api", CurrencyRoutes)
-router.use("/api", EquipmentRoutes)
-router.use("/api", OutwardRoutes)
-router.use("/api", PurchaseRoutes)
-router.use("/api", BmrMasterRoutes)
-router.use("/api", FinishGoodRoutes)
-router.use("/api", FormulaRoutes)
-router.use("/api", DocumentRoutes)
+router.use("/api", NotificationRouter);
+router.use("/api", StaffMasterRoutes);
+router.use("/api", DesignationRoutes);
+router.use("/api", InwardRoutes);
+router.use("/api", QualificationRoutes);
+router.use("/api", StateRoutes);
+router.use("/api", CityRoutes);
+router.use("/api", CompanyRoutes);
+router.use("/api", MakeMasterRoutes);
+router.use("/api", DepartmentMasterRoutes);
+router.use("/api", AccountRoutes);
+router.use("/api", PackingMaterialRoutes);
+router.use("/api", TransportRoutes);
+router.use("/api", BatchMasterRoutes);
+router.use("/api", PendingOrderRoutes);
+router.use("/api", StockMasterRoutes);
+router.use("/api", SalesMasterRoutes);
+router.use("/api", HsnMasterRoutes);
+router.use("/api", HsnMasterRoutes);
+router.use("/api", CurrencyRoutes);
+router.use("/api", EquipmentRoutes);
+router.use("/api", OutwardRoutes);
+router.use("/api", PurchaseRoutes);
+router.use("/api", BmrMasterRoutes);
+router.use("/api", FinishGoodRoutes);
+router.use("/api", FormulaRoutes);
+router.use("/api", DocumentRoutes);
+router.use("/api", FprRoutes);
 
-module.exports = router
+module.exports = router;

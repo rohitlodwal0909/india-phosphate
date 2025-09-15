@@ -7,10 +7,18 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true
       },
-      user_id:{
-        type:DataTypes.INTEGER
+      user_id: {
+        type: DataTypes.INTEGER
       },
-      qc_batch_number : DataTypes.STRING,
+      qc_batch_number: DataTypes.STRING,
+      product_name: DataTypes.STRING,
+      mfg_date: DataTypes.STRING,
+      exp_date: DataTypes.STRING,
+      grade: DataTypes.STRING,
+      size: DataTypes.STRING,
+      status: DataTypes.INTEGER,
+      reference_number: DataTypes.STRING,
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -31,12 +39,19 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
     }
   );
-Qcbatch.associate = (models) => {
-  Qcbatch.hasMany(models.ProductionResult, {
-    foreignKey: 'batch_id',      // Points to Qcbatch.id
-    sourceKey: 'id',
-    as: 'production_results',    // Optional alias
-  });
-};
+  Qcbatch.associate = (models) => {
+    Qcbatch.hasMany(models.ProductionResult, {
+      foreignKey: "batch_id", // Points to Qcbatch.id
+      sourceKey: "id",
+      as: "production_results" // Optional alias
+    });
+
+    Qcbatch.hasOne(models.BatchReleaseModel, {
+      foreignKey: "batch_id", // Points to Qcbatch.id
+      sourceKey: "id",
+      as: "batch_releases" // Optional alias
+    });
+  };
+
   return Qcbatch;
 };

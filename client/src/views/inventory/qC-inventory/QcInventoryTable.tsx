@@ -236,8 +236,8 @@ const [searchText, setSearchText] = useState('');
              row?.qc_result?.[0]?.testedBy?.username && !["APPROVED", "HOLD", "REJECTED"].includes(rowData.qa_qc_status) &&
                 <>
               <Button onClick={() => handleApprove(rowData)} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">APPROVE</Button>
-              <Button onClick={() => {    triggerGoogleTranslateRescan(); setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
-              <Button onClick={() =>{    triggerGoogleTranslateRescan(); handleReject(rowData)}} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button>
+              <Button onClick={() => {  triggerGoogleTranslateRescan(); setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
+              <Button onClick={() =>{  triggerGoogleTranslateRescan(); handleReject(rowData)}} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button>
               
                </>
                }

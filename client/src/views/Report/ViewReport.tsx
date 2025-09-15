@@ -14,7 +14,6 @@ const ViewReport = () => {
     const dispatch = useDispatch<AppDispatch>()
     const reportRef = useRef(null);
        const StoreData = useSelector((state: any) => state.storeinventory.storedata);
-     const guardData = useSelector((state: any) => state.checkininventory.checkindata);
      const Rawmaterial = useSelector((state: any) => state.qcinventory.finalresult);
       const Rawmaterialrmcode = useSelector((state: any) => state.qcinventory.qcdata);
     
@@ -64,7 +63,6 @@ const ViewReport = () => {
    
 
       
-console.log(guardData?.data)
 
   return (
     <>
@@ -177,7 +175,7 @@ grn_number}</div> {/* No right border for the last cell in the grid row */}
 quantity} <span className='ms-2'>{Rawmaterial?.grn_entry?.unit || testedBy?.unit} </span></div>
 
   <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">QC Reference No.</div>
-  <div className="col-span-2 border-r border-black border-t border-black p-1"></div>
+  <div className="col-span-2 border-r border-black border-t border-black p-1">{Rawmaterial?.grn_entry?.qc_ref || '---'}</div>
 
   <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">Truck No.</div>
   <div className="col-span-2 border-t border-black p-1">{testedBy?.guard_entry

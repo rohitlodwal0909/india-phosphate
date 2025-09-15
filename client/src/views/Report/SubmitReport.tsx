@@ -16,6 +16,8 @@ const SubmitReport = () => {
   const location = useLocation();
   const qcentry = location.state;
   const [data, setData] = useState([])
+  const [qcRef, setQcRef] = useState("");
+
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
      const logindata = useSelector((state: any) => state.authentication?.logindata);
   
@@ -141,8 +143,10 @@ const SubmitReport = () => {
       tested_by: logindata?.admin?.id,
       qc_id: data[0]?.id,
       data: formattedData,
-      rm_code: data[0]?.store_rm_code
+      rm_code: data[0]?.store_rm_code,
+      qcRef:qcRef
     };
+
 
     try {
       const response = await dispatch(RawMaterialResult(submissionPayload));
@@ -197,7 +201,15 @@ const SubmitReport = () => {
             <div className="col-span-2 border-r border-black border-t border-black p-1"> {data[0]?.quantity} <span className='ms-2'>{data[0]?.unit} </span></div>
 
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">QC Reference No.</div>
-            <div className="col-span-2 border-r border-black border-t border-black p-1">--</div>
+            <div className="col-span-2 border-r border-black border-t border-black p-1">
+              <input
+          type="text"
+          value={qcRef}
+          onChange={(e) => setQcRef(e.target.value)}
+          className="w-full outline-none"
+          placeholder="Enter QC Ref No."
+        />
+            </div>
 
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">Truck No.</div>
             <div className="col-span-2 border-t border-black p-1">{matchedGuardItems?.vehicle_number || ""}</div> {/* No right border for the last cell in the grid row */}

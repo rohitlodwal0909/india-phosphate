@@ -6,7 +6,7 @@ const { Server } = require("socket.io");
 
 const sequelize = require("./config/db");
 
-const router = require("./routes")
+const router = require("./routes");
 
 dotenv.config();
 const app = express();
@@ -15,13 +15,13 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 const io = new Server(server, {
   cors: {
     origin: "*",
-   methods: ["GET", "POST"] // or your frontend URL
-  },
+    methods: ["GET", "POST"] // or your frontend URL
+  }
 });
 // Make io available globally
 global.io = io;
@@ -30,7 +30,7 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 });
 
-app.use("/", router)
+app.use("/", router);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler caught:", err);
@@ -40,10 +40,9 @@ app.use((err, req, res, next) => {
   res.status(status).json({
     success: false,
     message,
-    code: status,
+    code: status
   });
 });
-
 
 //  DB connection and start
 sequelize
