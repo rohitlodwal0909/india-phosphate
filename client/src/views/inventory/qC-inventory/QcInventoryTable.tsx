@@ -125,23 +125,25 @@ const [searchText, setSearchText] = useState('');
     }
   };
 
-  const handleConfirmReject = async (data, remark) => {
-    try {
-      if(remark && data){
-        
-        const result = await dispatch(Rejectmodule({ user: data, remark ,user_id: logindata?.admin?.id})).unwrap();
-        dispatch(GetStoremodule());
-        toast.success(result?.message);
-      }
-    } catch (error) {
-      toast.error('Error occurred while dispatching reject module:', error);
+const handleConfirmReject = async (data, remark) => {
+  try {
+    if(remark && data){
+      const result = await dispatch(
+        Rejectmodule({ id: data, remark ,user_id: logindata?.admin?.id})
+      ).unwrap();
+      dispatch(GetStoremodule());
+      toast.success(result?.message);
     }
-  };
+  } catch (error) {
+    toast.error('Error occurred while dispatching reject module:', error);
+  }
+};
+
 
   const handleConfirmHold = async (data, remark) => {
     try {
        if(remark && data){
-       const result = await dispatch(Holdmodule({ user: data, remark ,user_id: logindata?.admin?.id})).unwrap();
+       const result = await dispatch(Holdmodule({ id: data, remark ,user_id: logindata?.admin?.id})).unwrap();
        dispatch(GetStoremodule());
        toast.success(result?.message);
        }
