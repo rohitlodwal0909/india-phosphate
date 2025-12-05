@@ -20,8 +20,8 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
 
   const [formData, setFormData] = useState({
     batch_number: '',
-    finishing: '',
-    unfinishing: '',
+    // finishing: '',
+    // unfinishing: '',
     finish_quantity: '',
     unfinish_quantity: '',
      user_id:logindata?.admin?.id
@@ -31,8 +31,8 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
     if (selectedRow) {
       setFormData({
         batch_number: selectedRow?.finishing_entries[0]?.batch_number,
-        finishing: selectedRow?.finishing_entries[0]?.finishing || '',
-        unfinishing: selectedRow?.finishing_entries[0]?.unfinishing || '',
+        // finishing: selectedRow?.finishing_entries[0]?.finishing || '',
+        // unfinishing: selectedRow?.finishing_entries[0]?.unfinishing || '',
         finish_quantity: selectedRow?.finishing_entries[0]?.finish_quantity || '',
         unfinish_quantity: selectedRow?.finishing_entries[0]?.unfinish_quantity || '',
          user_id:logindata?.admin?.id
@@ -57,16 +57,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
       <Modal.Header>Edit Finishing Entry</Modal.Header>
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-          <div className="col-span-6">
-            <Label htmlFor="finishing" value="Finishing" />
-            <TextInput
-              id="finishing"
-              name="finishing"
-              value={formData.finishing}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        
 
           <div className="col-span-6">
             <Label htmlFor="finish_quantity" value="Finish Quantity" />
@@ -80,17 +71,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
             />
           </div>
 
-          <div className="col-span-6">
-            <Label htmlFor="unfinishing" value="Unfinishing" />
-            <TextInput
-              id="unfinishing"
-              name="unfinishing"
-              value={formData.unfinishing}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
+        
           <div className="col-span-6">
             <Label htmlFor="unfinish_quantity" value="Unfinish Quantity" />
             <TextInput

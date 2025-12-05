@@ -87,7 +87,7 @@ const StateTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "State Name", "Action"].map((title) => (
+              {["Sr.No", "State Name", "State Code", "Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -109,6 +109,10 @@ const StateTable = () => {
                  
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     {(item?.state_name || "-")
+                      .replace(/^\w/, (c: string) => c.toUpperCase())}
+                  </td>
+                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                    {(item?.code || "-")
                       .replace(/^\w/, (c: string) => c.toUpperCase())}
                   </td>
                

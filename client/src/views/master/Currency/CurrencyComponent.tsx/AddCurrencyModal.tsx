@@ -18,7 +18,6 @@ const AddCurrencyModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 logindata
   const [formData, setFormData] = useState({
-    currency_code: '',
     currency_name: '',
     symbol: '',
     exchange_rate: '',
@@ -55,7 +54,6 @@ logindata
       toast.success(result.message || 'Currency added successfully');
       dispatch(GetCurrency());
       setFormData({
-        currency_code: '',
         currency_name: '',
         symbol: '',
         exchange_rate: '',
@@ -76,7 +74,6 @@ logindata
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
 
           {[
-            { id: 'currency_code', label: 'Currency Code', type: 'text' },
             { id: 'currency_name', label: 'Currency Name', type: 'text' },
             { id: 'symbol', label: 'Currency Symbol', type: 'text' },
             { id: 'exchange_rate', label: 'Exchange Rate', type: 'number' },

@@ -19,10 +19,10 @@ export interface MenuItem {
   children?: any;
   url?: any;
   subId?:any;
-     add?: any;
-        view?: any;
-        edit?: any;
-        delete?: any;
+  add?: any;
+  view?: any;
+  edit?: any;
+  delete?: any;
 }
 
 import { uniqueId } from "lodash";
@@ -111,30 +111,9 @@ const SidebarContent: MenuItem[] = [
               edit: false,
               delete: false,
           },
-              {
-            subId:5,
-            name: "QA/QC Approval",
-            icon: "material-symbols:batch-prediction-outline-sharp",
-            id: uniqueId(),
-            url: "/inventory/qa-qc-approval",
-             add: false,
-              view: false,
-              edit: false,
-              delete: false,
-          },
-          {
-            subId:6,
-            name: "FPR",
-            icon: "material-symbols:batch-prediction-outline-sharp",
-            id: uniqueId(),
-            url: "/inventory/fpr",
-             add: false,
-              view: false,
-              edit: false,
-              delete: false,
-          },
+
            {
-            subId:7,
+            subId:5,
             name: "Production",
             icon: "fluent:production-20-filled",
             id: uniqueId(),
@@ -144,7 +123,8 @@ const SidebarContent: MenuItem[] = [
         edit: false,
         delete: false,
           },
-           {
+
+          {
             subId:6,
             name: "Finish",
             icon: "fluent:check-20-filled",
@@ -155,16 +135,39 @@ const SidebarContent: MenuItem[] = [
         edit: false,
         delete: false,
           },
+              {
+            subId:7,
+            name: "QA/QC Approval",
+            icon: "material-symbols:batch-prediction-outline-sharp",
+            id: uniqueId(),
+            url: "/inventory/qa-qc-approval",
+             add: false,
+              view: false,
+              edit: false,
+              delete: false,
+          },
+          {
+            subId:7,
+            name: "FPR",
+            icon: "material-symbols:batch-prediction-outline-sharp",
+            id: uniqueId(),
+            url: "/inventory/fpr",
+             add: false,
+              view: false,
+              edit: false,
+              delete: false,
+          },
+          
           {
             subId:7,
             name: "Dispatch",
             icon: "mdi:disc",
             id: uniqueId(),
             url: "/inventory/dispatch",
-             add: false,
-        view: false,
-        edit: false,
-        delete: false,
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
           }
         ]
       },

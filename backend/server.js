@@ -1,6 +1,8 @@
+require("dotenv").config();
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
+const path = require("path");
+
 const http = require("http");
 const { Server } = require("socket.io");
 
@@ -8,7 +10,6 @@ const sequelize = require("./config/db");
 
 const router = require("./routes");
 
-dotenv.config();
 const app = express();
 const server = http.createServer(app);
 //  Body parser middleware

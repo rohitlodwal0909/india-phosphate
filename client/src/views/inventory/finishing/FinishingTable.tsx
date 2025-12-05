@@ -180,30 +180,8 @@ const filteredData = useMemo(() => {
       },
       header: () => <span>Quantity</span>
     }),
-    columnHelper.accessor("finishing", {
-      cell: (info) => {
-        const rowData = info?.row?.original;
-        const entry = Array.isArray(rowData?.finishing_entries) ? rowData.finishing_entries[0] : null;
-        return (
-          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-            {entry?.finishing ?? "-"}
-          </span>
-        );
-      },
-      header: () => <span>Finishing</span>,
-    }),
-    columnHelper.accessor("unfinishing", {
-      cell: (info) => {
-        const rowData = info?.row?.original;
-        const entry = Array.isArray(rowData?.finishing_entries) ? rowData.finishing_entries[0] : null;
-        return (
-          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-            {entry?.unfinishing ?? "-"}
-          </span>
-        );
-      },
-      header: () => <span>Unfinishing</span>,
-    }),
+   
+   
     columnHelper.accessor("unfinish_quantity", {
       cell: (info) => {
         const rowData = info?.row?.original;

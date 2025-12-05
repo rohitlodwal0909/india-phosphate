@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       qc_ref: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
       },
       manufacturer_name: {
         type: DataTypes.STRING,

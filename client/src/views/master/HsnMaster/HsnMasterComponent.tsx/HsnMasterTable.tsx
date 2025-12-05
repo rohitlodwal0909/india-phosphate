@@ -93,7 +93,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No",  "HSN Code","GST ","CGST","SGST ","IGST ", "Created By ", "Status", "Description" ,"Action"].map((title) => (
+              {["Sr.No",  "HSN Code","GST ", "Created By ", "Status", "Description" ,"Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -119,28 +119,16 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             {item?.gst_rate ?? "-"}
           </td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-            {item?.cgst_rate ?? "-"}
-          </td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-            {item?.sgst_rate ?? "-"}
-          </td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-            {item?.igst_rate ?? "-"}
-          </td>
+         
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.created_by_username}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300"> 
-                           <Badge color={ item.status  ? `lightprimary` :"lighterror"}
-                                                                className="capitalize"
-                                                              >
-                                                                {item.status  ? "Active" :"Inactive"}
-                                                              </Badge>
-                                                              </td>
+                  <Badge color={ item.status  ? `lightprimary` :"lighterror"} className="capitalize">
+                          {item.status  ? "Active" :"Inactive"}</Badge>
+                  </td>                  
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.description || "-"}</td>
                   
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
-                      
                         <>
                         {permissions?.edit &&    <Tooltip content="Edit" placement="bottom">
                             <Button

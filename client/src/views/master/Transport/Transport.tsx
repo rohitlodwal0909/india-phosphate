@@ -7,7 +7,7 @@ const Transport = () => {
   return (
     <>
       <BreadcrumbComp    items={[{ title: "Transport ", to: "/" }]}
-        title="Transport"/>
+        title="Transport Mode"/>
          <CardBox>
        
          <TransportTable/>

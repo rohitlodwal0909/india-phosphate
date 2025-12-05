@@ -4,9 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 import { addStore, GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 
 import { allUnits } from 'src/utils/AllUnit';
 import { AppDispatch } from 'src/store';
@@ -15,8 +13,8 @@ import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 type FormDataType = {
   user_id:any;
   supplier_name: string;
-  grn_date: string;
-  grn_time: any;
+  // grn_date: string;
+  // grn_time: any;
   // grn_number: string;
   manufacturer_name: string;
   invoice_number: string;
@@ -33,8 +31,8 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
   const [formData, setFormData] = useState<FormDataType>({
     user_id:logindata?.admin?.id,
     supplier_name: '',
-    grn_date: '',
-    grn_time: null,
+    // grn_date: '',
+    // grn_time: null,
     // grn_number: "",
     manufacturer_name: '',
     invoice_number: '',
@@ -49,8 +47,8 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
 
   const requiredFields = [
     'supplier_name',
-    'grn_date',
-    'grn_time',
+    // 'grn_date',
+    // 'grn_time',
     // 'grn_number',
     'manufacturer_name',
     'invoice_number',
@@ -75,11 +73,11 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
     setFormData({ ...formData, guard_entry_id: selectedRow?.id, quantity: selectedRow?.quantity_net, unit: selectedRow?.quantity_unit });
   }, [selectedRow])
 
-  const [showTimePicker, setShowTimePicker] = useState(true); // Add this
+  // const [showTimePicker, setShowTimePicker] = useState(true); 
 
   const handleClose = () => {
     // Step 1: Unmount MUI TimePicker by toggling it off
-    setShowTimePicker(false);
+    // setShowTimePicker(false);
 
     // Step 2: Delay Flowbite modal closing until TimePicker unmounts
     setTimeout(() => {
@@ -87,7 +85,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
 
       // Reset TimePicker after modal fully closes
       setTimeout(() => {
-        setShowTimePicker(true);
+        // setShowTimePicker(true);
         setFormData((prev) => ({ ...prev, grn_time: null }));
       }, 100);
     }, 100); // Give MUI enough time to unmount
@@ -122,8 +120,8 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
         toast.success("Store data added successfully!");
         setFormData({
           supplier_name: '',
-          grn_date: '',
-          grn_time:null,
+          // grn_date: '',
+          // grn_time:null,
           // grn_number: "",
           manufacturer_name: '',
           invoice_number: '',
@@ -301,17 +299,17 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
           /> */}
 
           {/* Date */}
-          <InputField
+          {/* <InputField
             id="grn_date"
             label="GRN Date"
             type="date"
             value={formData.grn_date}
             onChange={handleChange}
             error={errors.grn_date}
-          />
+          /> */}
 
           {/* Time */}
-          <div className="sm:col-span-6 col-span-12 w-full">
+          {/* <div className="sm:col-span-6 col-span-12 w-full">
             <Label htmlFor="grn_time" value="GRN Time" className='' />
             <div className='pt-2'>
               {showTimePicker && (
@@ -355,7 +353,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
               )}
             </div>
 
-          </div>
+          </div> */}
           {/* GRN Number */}
           {/* <InputField
             id="grn_number"

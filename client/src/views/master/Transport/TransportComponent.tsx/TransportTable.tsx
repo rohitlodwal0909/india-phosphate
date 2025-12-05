@@ -91,7 +91,7 @@ const TransportTable = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />}
        {permissions?.add &&   <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
-         Create Transport  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
+         Create Transport Mode  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>}
       </div>
 
@@ -127,10 +127,10 @@ const TransportTable = () => {
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.contact_person || "-"}</td>
                   {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.address || "-"}</td> */}
                    {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.city || "-"}</td>
-  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.state || "-"}</td> */}
-  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.gst_number || "-"}</td>
-  <td className="py-3 px-4 text-gray-900 dark:text-gray-300"> 
-    <Badge color={ item.is_active == 1 ?`lightprimary`:"lightwarning"}
+            <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.state || "-"}</td> */}
+            <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.gst_number || "-"}</td>
+            <td className="py-3 px-4 text-gray-900 dark:text-gray-300"> 
+            <Badge color={ item.is_active == 1 ?`lightprimary`:"lightwarning"}
                                               className="capitalize"
                                             >
                                               {item.is_active==1 ?"Active":"Inactive" }

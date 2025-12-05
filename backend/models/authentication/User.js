@@ -32,20 +32,19 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: "active"
       },
-     phone:{
+      phone: {
         type: DataTypes.STRING,
         allowNull: true
       },
-       address:{
+      address: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      profile_image:{
-        type: DataTypes.STRING,
-      
+      profile_image: {
+        type: DataTypes.STRING
       },
-      gender:{
-         type: DataTypes.STRING,
+      gender: {
+        type: DataTypes.STRING,
         allowNull: true
       },
       created_at: {

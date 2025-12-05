@@ -22,7 +22,6 @@ const EditCurrencyModal = ({ show, setShowmodal, CurrencyData, logindata }) => {
 
   const [formData, setFormData] = useState({
     id: '',
-    currency_code: '',
     currency_name: '',
     symbol: '',
     exchange_rate: '',
@@ -37,7 +36,6 @@ const EditCurrencyModal = ({ show, setShowmodal, CurrencyData, logindata }) => {
     if (CurrencyData) {
       setFormData({
         id: CurrencyData?.id || '',
-        currency_code: CurrencyData?.currency_code || '',
         currency_name: CurrencyData?.currency_name || '',
         symbol: CurrencyData?.symbol || '',
         exchange_rate: CurrencyData?.exchange_rate || '',
@@ -54,7 +52,7 @@ const EditCurrencyModal = ({ show, setShowmodal, CurrencyData, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['currency_code', 'currency_name', 'exchange_rate', 'country'];
+    const required = ['currency_name', 'exchange_rate', 'country'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -85,7 +83,6 @@ const EditCurrencyModal = ({ show, setShowmodal, CurrencyData, logindata }) => {
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-            { id: 'currency_code', label: 'Currency Code', type: 'text' },
             { id: 'currency_name', label: 'Currency Name', type: 'text' },
             { id: 'symbol', label: 'Currency Symbol', type: 'text' },
             { id: 'exchange_rate', label: 'Exchange Rate', type: 'number' },

@@ -133,7 +133,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
 
   return (
     <Modal show={show} onClose={() => setShowmodal(false)} size="4xl">
-      <ModalHeader>Create New Transport</ModalHeader>
+      <ModalHeader>Create New Transport Mode</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[

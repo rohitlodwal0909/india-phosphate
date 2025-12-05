@@ -20,6 +20,7 @@ const AddStateModal = ({ show, setShowmodal,logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
     state_name: '',
+    code: '',
       created_by:logindata?.admin?.id
   });
 
@@ -50,6 +51,7 @@ const AddStateModal = ({ show, setShowmodal,logindata }) => {
       dispatch(GetState());
       setFormData({
         state_name: '',
+        code: '',
         created_by:logindata?.admin?.id
       });
       setShowmodal(false);
@@ -69,6 +71,12 @@ const AddStateModal = ({ show, setShowmodal,logindata }) => {
               label: 'State Name',
               type: 'text',
               placeholder: 'Enter State name',
+            },
+            {
+              id: 'code',
+              label: 'State Code',
+              type: 'text',
+              placeholder: 'Enter Code',
             },
             
           ].map(({ id, label, type, placeholder }) => (

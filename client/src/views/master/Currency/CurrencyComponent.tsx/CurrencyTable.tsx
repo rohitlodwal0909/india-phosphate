@@ -54,7 +54,6 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
 
   const filteredItems = (Currencydata || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
-    const supllier = item?.currency_code || "";
     const mouldNo = item?.currency_name || "";
     const hardness = item?.symbol || "";
     const temperature = item?.exchange_rate || "";
@@ -94,7 +93,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No",   "Currency Code","Currency Name","Symbol", "Exchange Rate", "Country","Status","Action"].map((title) => (
+              {["Sr.No","Currency Name","Symbol", "Exchange Rate", "Country","Status","Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -114,9 +113,7 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
                  
-                 <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-            {item?.currency_code || "-"}
-          </td>
+                 
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             {item?.currency_name || "-"}
           </td>

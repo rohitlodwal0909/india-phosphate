@@ -22,6 +22,7 @@ const EditStateModal = ({ show, setShowmodal, StateData ,logindata}) => {
   const [formData, setFormData] = useState({
     id: '',
     state_name: '',
+    code: '',
     created_by:logindata?.admin?.id
   });
 
@@ -33,6 +34,7 @@ const EditStateModal = ({ show, setShowmodal, StateData ,logindata}) => {
       setFormData({
         id: StateData?.id || '',
         state_name: StateData?.state_name || '',
+        code: StateData?.code || '',
           created_by:logindata?.admin?.id
       });
     }
@@ -44,7 +46,7 @@ const EditStateModal = ({ show, setShowmodal, StateData ,logindata}) => {
   };
 
   const validateForm = () => {
-    const required = ['state_name'];
+    const required = ['state_name','code'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -86,6 +88,21 @@ const EditStateModal = ({ show, setShowmodal, StateData ,logindata}) => {
                 className='form-rounded-md'
               />
               {errors?.state_name && <p className="text-red-500 text-xs"> {errors?.state_name }</p>}
+            </div>
+
+            <div className={` col-span-12`}>
+              <Label value="State Code" />
+              <span className="text-red-700 ps-1">*</span>
+              <TextInput
+               
+                type="text"
+                value={formData?.code}
+                placeholder="Enter Code"
+                onChange={(e) => handleChange("code", e.target.value)}
+                color={errors?.code ? 'failure' : 'gray'}
+                className='form-rounded-md'
+              />
+              {errors?.code && <p className="text-red-500 text-xs"> {errors?.code }</p>}
             </div>
          
         </form>

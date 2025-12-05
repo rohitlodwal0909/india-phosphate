@@ -178,10 +178,10 @@ useEffect(() => {
       toast.error(err?.message || 'Something went wrong');
     }
   };
-
+  
   return (
     <Modal show={show} onClose={() => setShowmodal(false)} size="4xl">
-      <ModalHeader>Edit Transport</ModalHeader>
+      <ModalHeader>Edit Transport Mode</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[

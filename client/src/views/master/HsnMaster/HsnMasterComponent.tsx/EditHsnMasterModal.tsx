@@ -25,9 +25,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
     // hsn_code: '',
     description: '',
     gst_rate: '',
-    cgst_rate: '',
-    sgst_rate: '',
-    igst_rate: '',
+   
     status: true,
     created_by: logindata?.admin?.id,
   });
@@ -41,9 +39,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
         // hsn_code: HsnMasterData?.hsn_code || '',
         description: HsnMasterData?.description || '',
         gst_rate: HsnMasterData?.gst_rate || '',
-        cgst_rate: HsnMasterData?.cgst_rate || '',
-        sgst_rate: HsnMasterData?.sgst_rate || '',
-        igst_rate: HsnMasterData?.igst_rate || '',
+       
         status: HsnMasterData?.status ?? true,
         created_by: logindata?.admin?.id,
       });
@@ -56,7 +52,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
   };
 
   const validateForm = () => {
-    const required = [ 'gst_rate','cgst_rate','sgst_rate','igst_rate'];
+    const required = [ 'gst_rate'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -107,9 +103,7 @@ const EditHsnMasterModal = ({ show, setShowmodal, HsnMasterData, logindata }) =>
           {/* GST Fields */}
           {[
             { id: 'gst_rate', label: 'GST Rate ' },
-            { id: 'cgst_rate', label: 'CGST Rate ' },
-            { id: 'sgst_rate', label: 'SGST Rate ' },
-            { id: 'igst_rate', label: 'IGST Rate ' },
+        
           ].map(({ id, label }) => (
             <div className="col-span-6" key={id}>
               <Label htmlFor={id} value={label} />
