@@ -93,6 +93,7 @@ function GuardTable() {
       header: "Inward Number",
       cell: info => <div className="truncate max-w-56"><h6 className="text-base">{info.getValue() || "-"}</h6></div>
     }),
+    columnHelper.accessor("name", { header: "Name", cell: info => info.getValue() || "-" }),
     columnHelper.accessor("guard_type", { header: "Guard Type", cell: info => info.getValue() || "-" }),
     columnHelper.accessor("vehicle_number", { header: "Vehicle", cell: info => info.getValue() || "-" }),
     columnHelper.accessor("quantity_net", {

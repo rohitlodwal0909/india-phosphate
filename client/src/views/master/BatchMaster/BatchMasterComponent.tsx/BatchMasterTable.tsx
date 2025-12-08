@@ -32,8 +32,10 @@ const BatchMasterTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [viewModal ,setViewModal ]= useState(false)
+  const [viewModal ,setViewModal ]= useState(false);
+
      const { selectedIconId } = useContext(CustomizerContext) || {};
+
             const permissions = useMemo(() => {
             return getPermissions(logindata, selectedIconId, 8);
               }, [logindata ,selectedIconId]);
@@ -101,7 +103,7 @@ const BatchMasterTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
   <thead className="bg-gray-50 dark:bg-gray-800">
     <tr>
-      {["Sr.No", "Batch Number", "Product Name", "Quantity", "Status", "Action"].map((title) => (
+      {["Sr.No", "Batch Number", "Product Name","Grade","Expiry Date", "Quantity", "Status", "Action"].map((title) => (
         <th
           key={title}
           className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -122,6 +124,8 @@ const BatchMasterTable = () => {
           <td className="py-3 px-4 text-base"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.batch_number || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_name || "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.grade || "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.expiry_date || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.quantity_produced || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             <Badge

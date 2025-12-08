@@ -123,8 +123,8 @@ const filteredData = useMemo(() => {
       ? item.finishing_entries[0]
       : null;
 
-    const finish = entry?.finishing?.toLowerCase() || "";
-    const unfinish = entry?.unfinishing?.toLowerCase() || "";
+    // const finish = entry?.finishing?.toLowerCase() || "";
+    // const unfinish = entry?.unfinishing?.toLowerCase() || "";
     const finishQty = entry?.finish_quantity?.toString().toLowerCase() || "";
     const unfinishQty = entry?.unfinish_quantity?.toString().toLowerCase() || "";
 
@@ -133,8 +133,6 @@ const filteredData = useMemo(() => {
       batchNumber.includes(keyword) ||
       rmCodes.some((code) => code.toLowerCase().includes(keyword)) ||
       quantities.some((qty) => qty.includes(keyword)) ||
-      finish.includes(keyword) ||
-      unfinish.includes(keyword) ||
       finishQty.includes(keyword) ||
       unfinishQty.includes(keyword)
     );
@@ -153,7 +151,7 @@ const filteredData = useMemo(() => {
         const batchId = rowData?.batch_id;
 
         const matchedBatch = qcAlldata?.data?.find((qc: any) => qc.id == batchId);
-
+        
         return (
           <p>{matchedBatch?.qc_batch_number || "No Code"}</p>
         );

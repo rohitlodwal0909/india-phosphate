@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { StockMaster, User} = db;
+const { StockMaster, User } = db;
 
 // Create
 exports.createStockMaster = async (req, res, next) => {
@@ -11,6 +11,9 @@ exports.createStockMaster = async (req, res, next) => {
       item_name,
       item_code,
       batch_no,
+      purchase_number,
+      material_name,
+      gst_no,
       uom,
       quantity_in_stock,
       minimum_stock_level,
@@ -31,20 +34,23 @@ exports.createStockMaster = async (req, res, next) => {
       return next(error);
     }
 
-     const user_id = last_updated_by|| req.body.last_updated_by 
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    const user_id = last_updated_by || req.body.last_updated_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage =  `Stock with batch number '${batch_no}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    const logMessage = `Stock with batch number '${batch_no}' was created by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     const newStock = await StockMaster.create({
       item_type,
       item_id,
       item_name,
       item_code,
       batch_no,
+      purchase_number,
+      material_name,
+      gst_no,
       uom,
       quantity_in_stock,
       minimum_stock_level,
@@ -67,37 +73,36 @@ exports.createStockMaster = async (req, res, next) => {
   }
 };
 
-exports.getStockMasterById = async (req, res,next) => {
+exports.getStockMasterById = async (req, res, next) => {
   try {
     const StockMasters = await StockMaster.findByPk(req.params.id);
-    if (!StockMasters){
-       const error = new Error( "Make master entry not found" );
-       error.status = 404;
-      return next(error); 
-     }
-   
+    if (!StockMasters) {
+      const error = new Error("Make master entry not found");
+      error.status = 404;
+      return next(error);
+    }
 
     res.json(StockMasters);
   } catch (error) {
-  next(error)
+    next(error);
   }
 };
 
-        // Read By ID
-       exports.getAllStockMaster = async (req, res, next) => {
+// Read By ID
+exports.getAllStockMaster = async (req, res, next) => {
   try {
     const makeList = await StockMaster.findAll({
       where: {
         deleted_at: null
       },
-      order: [['created_at', 'DESC']]
+      order: [["created_at", "DESC"]]
     });
 
     const resultWithUsernames = await Promise.all(
       makeList.map(async (make) => {
         const user = await User.findOne({
           where: { id: make.last_updated_by },
-          attributes: ['username']
+          attributes: ["username"]
         });
 
         return {
@@ -132,6 +137,9 @@ exports.updateStockMaster = async (req, res, next) => {
       item_name,
       item_code,
       batch_no,
+      purchase_number,
+      material_name,
+      gst_no,
       uom,
       quantity_in_stock,
       minimum_stock_level,
@@ -142,20 +150,23 @@ exports.updateStockMaster = async (req, res, next) => {
       last_updated_by,
       status
     } = req.body;
-     const user_id = last_updated_by|| req.body.last_updated_by 
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    const user_id = last_updated_by || req.body.last_updated_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage =  `Stock with batch number '${batch_no}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    const logMessage = `Stock with batch number '${batch_no}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await existingStock.update({
       item_type,
       item_id,
       item_name,
       item_code,
       batch_no,
+      purchase_number,
+      material_name,
+      gst_no,
       uom,
       quantity_in_stock,
       minimum_stock_level,
@@ -178,27 +189,27 @@ exports.updateStockMaster = async (req, res, next) => {
   }
 };
 
-
 // Delete
-exports.deleteStockMaster = async (req, res,next) => {
+exports.deleteStockMaster = async (req, res, next) => {
   try {
     const StockMasters = await StockMaster.findByPk(req.params.id);
 
-    if (!StockMasters){ const error = new Error( "Make master entry not found" );
-       error.status = 404;
-      return next(error); 
-     }
-           const user_id = StockMasters?.last_updated_by|| req.body.last_updated_by 
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    if (!StockMasters) {
+      const error = new Error("Make master entry not found");
+      error.status = 404;
+      return next(error);
+    }
+    const user_id = StockMasters?.last_updated_by || req.body.last_updated_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage =  `Stock with batch number '${StockMasters?.batch_no}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    const logMessage = `Stock with batch number '${StockMasters?.batch_no}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await StockMasters.destroy();
     res.json({ message: "Make master entry deleted" });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };

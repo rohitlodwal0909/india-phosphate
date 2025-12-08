@@ -1,23 +1,16 @@
 module.exports = (sequelize, DataTypes) => {
   const Finishing = sequelize.define(
-    'Finishing',
+    "Finishing",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-  user_id:{
-        type: DataTypes.INTEGER,
-          },
-      finishing: {
-        type: DataTypes.STRING,
-        allowNull: false
+      user_id: {
+        type: DataTypes.INTEGER
       },
-      unfinishing: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
+
       finish_quantity: {
         type: DataTypes.INTEGER,
         allowNull: false
@@ -40,19 +33,19 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: 'finishing',
+      tableName: "finishing",
       underscored: true,
       timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at'
+      createdAt: "created_at",
+      updatedAt: "updated_at"
     }
   );
   Finishing.associate = (models) => {
-   Finishing.belongsTo(models.ProductionResult, {
-    foreignKey: 'batch_number',
-      targetKey: 'batch_id',
-    as: 'production_entry'
-  });
+    Finishing.belongsTo(models.ProductionResult, {
+      foreignKey: "batch_number",
+      targetKey: "batch_id",
+      as: "production_entry"
+    });
   };
   return Finishing;
 };

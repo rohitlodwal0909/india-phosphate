@@ -14,6 +14,7 @@ interface GuardAddModalProps {
 
 interface FormData {
   user_id: string;
+  name: string;
   guard_type: string;
   vehicle_number: string;
   product_name: string;
@@ -33,6 +34,7 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({ placeModal, modalPlacemen
   const dispatch = useDispatch<any>();
   const [formData, setFormData] = useState<FormData>({
     user_id: '',
+    name: '',
     guard_type: '',
     vehicle_number: '',
     product_name: '',
@@ -110,6 +112,7 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({ placeModal, modalPlacemen
       setPlaceModal(false);
       setFormData({
         user_id: logindata?.admin?.id || '',
+        name: '',
         guard_type: '',
         vehicle_number: '',
         product_name: '',
@@ -133,6 +136,21 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({ placeModal, modalPlacemen
       <ModalBody className="overflow-auto">
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-6">
           {/* Select Guard Type */}
+          <div className="sm:col-span-6 col-span-12">
+              <Label htmlFor="name" value="Name" />
+              <span className="text-red-700 ps-1">*</span>
+              <TextInput
+                id="name"
+                type="text"
+                placeholder="Enter Name"
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                color={errors.name ? 'failure' : 'gray'}
+                style={{ borderRadius: '5px' }}
+                helperText={errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
+              />
+            </div>
+
           <div className="sm:col-span-6 col-span-12">
             <Label htmlFor="guard_type" value="Select Guard Type" />
             <span className="text-red-700 ps-1">*</span>

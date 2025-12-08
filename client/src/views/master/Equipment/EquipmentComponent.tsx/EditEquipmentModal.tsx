@@ -84,14 +84,14 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
 
           {/* Name */}
           <div className="col-span-6">
-            <Label htmlFor="name" value="Equipment Name" />
+            <Label htmlFor="name" value="Assets Name" />
             <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="name"
               type="text"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="Enter equipment name"
+              placeholder="Enter assets name"
               color={errors.name ? 'failure' : 'gray'}
             />
             {errors.name && (

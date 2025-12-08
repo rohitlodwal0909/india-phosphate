@@ -16,6 +16,7 @@ type Props = {
   selectedRow: any;
  Designationdata:any;
  Qualificationdata:any;
+ DepartmentData:any;
 };
 
 const ViewStaffMasterModal = ({
@@ -23,10 +24,10 @@ const ViewStaffMasterModal = ({
   modalPlacement,
   setPlaceModal,
   selectedRow,
-Qualificationdata,
-Designationdata
+  Qualificationdata,
+  Designationdata,
+  DepartmentData
 }: Props) => {
-console.log(selectedRow)
 // Find actual qualification name from ID
 const qualificationName = Qualificationdata?.find(
   (q: any) => q.id == selectedRow?.qualification_id
@@ -36,6 +37,11 @@ const qualificationName = Qualificationdata?.find(
 const designationName = Designationdata?.find(
   (d: any) => d.id == selectedRow?.designation_id
 )?.designation_name || "-";
+
+const departmentName = DepartmentData?.find(
+  (d: any) => d.id == selectedRow?.department
+)?.department_name || "-";
+
   const fields = [
   ["Name", selectedRow?.full_name],
   ["Email", selectedRow?.email],
@@ -43,9 +49,11 @@ const designationName = Designationdata?.find(
   ["Mobile Number", selectedRow?.mobile_number],
   ["Qualification", qualificationName],
   ["Designation", designationName],
+  ["Department", departmentName],
   ["District", selectedRow?.date_of_birth],
-  ["Tehsil", selectedRow?.joining_date],
+  ["Joined date", selectedRow?.joining_date],
   ["Address", selectedRow?.address],
+  ["Kyc Details", selectedRow?.kyc_details],
   ["Gender", selectedRow?.gender],
 
 

@@ -12,19 +12,23 @@ import AddStaffMasterModal from "./AddStaffMasterModal";
 import { deleteStaffMaster, GetStaffMaster } from "src/features/master/StaffMaster/StaffMasterSlice";
 import { GetDesignation } from "src/features/master/Designation/DesignationSlice";
 import { GetQualification } from "src/features/master/Qualification/QualificationSlice";
+import { GetDepartmentMaster } from "src/features/master/DepartmentMaster/DepartmentMasterSlice";
 import ViewStaffMasterModal from "./ViewStaffMasterModal";
 import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
 import AddPasswordModal from "./AddPasswordModal";
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import NotPermission from "src/utils/NotPermission";
+import { formatDate } from "src/utils/Datetimeformate";
 
 const StaffMasterTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
   const { staffmasterdata, loading } = useSelector((state: any) => state.staffmaster);
-    const { Designationdata } = useSelector((state: any) => state.designation);
+  const { Designationdata } = useSelector((state: any) => state.designation);
   const { Qualificationdata} = useSelector((state: any) => state.qualification);
+  const { DepartmentMasterdata } = useSelector((state: any) => state.departmentmaster);
+
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
@@ -40,9 +44,10 @@ const StaffMasterTable = () => {
                     return getPermissions(logindata, selectedIconId, 21);
                       }, [logindata ,selectedIconId]);
   useEffect(() => {
-    dispatch(GetStaffMaster());
+        dispatch(GetStaffMaster());
         dispatch(GetDesignation());
         dispatch(GetQualification());
+        dispatch(GetDepartmentMaster());
   }, [dispatch]);
 
   const handleEdit = (entry: any) => {
@@ -102,7 +107,7 @@ const StaffMasterTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", "Name", "Email ", "Mobile No.", "Address","Status",  "Action"].map((title) => (
+              {["Sr.No", "Name", "Email ", "Department", "Joined Date",  "Mobile No.", "Address", "Status",   "Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -126,10 +131,14 @@ const StaffMasterTable = () => {
                     {(item?.full_name || "-")
                       .replace(/^\w/, (c: string) => c.toUpperCase())}
                   </td>
+                 
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.email  || "-"}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{ DepartmentMasterdata?.find(
+                  (d: any) => d.id == item?.department
+                )?.department_name || "-"}</td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{formatDate(item?.joining_date) || "-"}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.mobile_number || "-"}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.address || "-"}</td>
-
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><Badge
                                            
                                                color={ item.status === "Active"?`lightprimary`:"lightwarning"}
@@ -137,8 +146,8 @@ const StaffMasterTable = () => {
                                              >
                                                {item.status}
                                              </Badge></td>
-                  {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.date_of_birth || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.joining_date || "-"}</td> */}
+                  {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.date_of_birth || "-"}</td> */}
+                  
                   
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
@@ -207,10 +216,10 @@ const StaffMasterTable = () => {
         title="Are you sure you want to Delete this Staff Master?"
       />
       
-        <ViewStaffMasterModal   placeModal={viewmodal} modalPlacement={"center"} setPlaceModal={setviewmodal} selectedRow={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata} />
+        <ViewStaffMasterModal   placeModal={viewmodal} modalPlacement={"center"} setPlaceModal={setviewmodal} selectedRow={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata} DepartmentData={DepartmentMasterdata}/>
        <AddPasswordModal setShowmodal={setAddPasswordmodal} show={addpasswordmodal} StaffMasterData={selectedrow}  />
-      <AddStaffMasterModal setShowmodal={setAddmodal} show={addmodal} Designationdata={Designationdata} Qualificationdata={Qualificationdata} logindata={logindata} />
-      <EditStaffMasterModal show={editmodal} setShowmodal={setEditmodal} StaffMasterData={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata}logindata={logindata} />
+      <AddStaffMasterModal setShowmodal={setAddmodal} show={addmodal} Designationdata={Designationdata} Qualificationdata={Qualificationdata} DepartmentData={DepartmentMasterdata} logindata={logindata} />
+      <EditStaffMasterModal show={editmodal} setShowmodal={setEditmodal} StaffMasterData={selectedrow}  Designationdata={Designationdata} Qualificationdata={Qualificationdata} DepartmentData={DepartmentMasterdata} logindata={logindata} />
     </div>
   );
 };

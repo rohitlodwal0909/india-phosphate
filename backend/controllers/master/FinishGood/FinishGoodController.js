@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { FinishGood ,User} = db;
+const { FinishGood, User } = db;
 
 // Create
 exports.createFinishGood = async (req, res, next) => {
@@ -21,7 +21,7 @@ exports.createFinishGood = async (req, res, next) => {
 
     // Step 1: Generate unique product_code
     const lastProduct = await FinishGood.findOne({
-      order: [["created_at", "DESC"]],
+      order: [["created_at", "DESC"]]
     });
 
     let nextProductCode = "PROD-0001"; // Default if no previous entry
@@ -45,7 +45,7 @@ exports.createFinishGood = async (req, res, next) => {
       storage_condition,
       mrp,
       created_by,
-      created_at: new Date(),
+      created_at: new Date()
     });
 
     // Step 3: Get username for log
@@ -65,7 +65,7 @@ exports.createFinishGood = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       message: "Finish good created successfully",
-      data: newFinishGood,
+      data: newFinishGood
     });
   } catch (err) {
     console.error("Create FinishGood Error:", err);
@@ -73,62 +73,58 @@ exports.createFinishGood = async (req, res, next) => {
   }
 };
 
-
-exports.getFinishGoodById = async (req, res,next) => {
+exports.getFinishGoodById = async (req, res, next) => {
   try {
     const FinishGoods = await FinishGood.findByPk(req.params.id);
-    if (!FinishGoods){
-       const error = new Error( "Finish Good entry not found" );
-       error.status = 404;
-      return next(error)
+    if (!FinishGoods) {
+      const error = new Error("Finish Good entry not found");
+      error.status = 404;
+      return next(error);
     }
-   
+
     res.json(FinishGoods);
   } catch (error) {
-   next(error)
+    next(error);
   }
 };
 
 // Read By ID
-exports.getAllFinishGood = async (req, res,next) => {
+exports.getAllFinishGood = async (req, res, next) => {
   try {
     const FinishGoods = await FinishGood.findAll({
-     
-      order: [['created_at', 'DESC']]
+      order: [["created_at", "DESC"]]
     });
-    
 
     res.status(200).json(FinishGoods);
   } catch (error) {
-   next(error)
+    next(error);
   }
 };
 
-
 // Update
-exports.updateFinishGood = async (req, res,next) => {
+exports.updateFinishGood = async (req, res, next) => {
   try {
     const { id } = req.params;
     // Check if record exists
     const existingFinishGood = await FinishGood.findByPk(id);
 
     if (!existingFinishGood) {
-      const error = new Error( "Finish Good entry not found" );
-       error.status = 404;
-      return next(error)
+      const error = new Error("Finish Good entry not found");
+      error.status = 404;
+      return next(error);
     }
 
     // Update record
-       const user_id = req?.body?.created_by ||  existingFinishGood?.created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    const user_id = req?.body?.created_by || existingFinishGood?.created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
 
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
     const logMessage = `Finish Good with product name '${existingFinishGood?.product_name}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await existingFinishGood.update({
       ...req.body
     });
@@ -142,27 +138,28 @@ exports.updateFinishGood = async (req, res,next) => {
   }
 };
 
-
-
 // Delete
-exports.deleteFinishGood = async (req, res,next) => {
+
+exports.deleteFinishGood = async (req, res, next) => {
   try {
     const FinishGoods = await FinishGood.findByPk(req.params.id);
-    if (!FinishGoods){   const error = new Error( "Finish Good entry not found" );
-       error.status = 404;
-      return next(error)}
-          const user_id = req?.body?.user_id|| FinishGoods?.created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    if (!FinishGoods) {
+      const error = new Error("Finish Good entry not found");
+      error.status = 404;
+      return next(error);
+    }
+    const user_id = req?.body?.user_id || FinishGoods?.created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
     const logMessage = `Finish Good with product name '${FinishGoods?.product_name}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
-     await FinishGoods.destroy();
+    await createLogEntry({ user_id: user_id, message: logMessage });
+    await FinishGoods.destroy();
     res.json({ message: "Finish Good entry deleted" });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };

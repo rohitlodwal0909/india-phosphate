@@ -40,13 +40,25 @@ function App() {
         socket.off("new_notification");
       };
     }, []); 
-       useEffect(() => {
+
+    useEffect(() => {
+
      const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
-    if (stored?.admin?.id) {
+    //  const token = stored?.token;
+
+  //     if (!token) {
+  //   window.location.href = "/admin/login";
+  //   return;
+  // }
+
+    if (stored?.admin?.id)
+    {
       dispatch(GetAuthenticationmodule(stored.admin.id));
       dispatch(GetNotification(stored?.admin?.id))
     }
+
   }, [dispatch]);
+
    useEffect(() => {
     const initializeGoogleTranslate = () => {
       if (window.google?.translate?.TranslateElement && !window.translateElementInitialized) {

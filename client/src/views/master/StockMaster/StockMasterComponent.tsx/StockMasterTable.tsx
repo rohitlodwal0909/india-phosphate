@@ -106,7 +106,7 @@ const StockMasterTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
   <thead className="bg-gray-50 dark:bg-gray-800">
     <tr>
-      {["Sr.No", "Batch Number", "Item  Type", " Stock Quantity", "Status", "Action"].map((title) => (
+      {["Sr.No", "Batch Number", "Purchase number", "Material Name", "GST number", "Item  Type", " Stock Quantity", "Status", "Action"].map((title) => (
         <th
           key={title}
           className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -126,6 +126,9 @@ const StockMasterTable = () => {
         <tr key={item.id} className="bg-white dark:bg-gray-900">
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.batch_no || "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.purchase_number || "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.material_name || "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.gst_no || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.item_type || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.quantity_in_stock || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">

@@ -37,6 +37,9 @@ const AddStockMasterModal = ({
     item_id: '',
     item_name: '',
     item_code: '',
+    purchase_number: '',
+    material_name: '',
+    gst_no: '',
     batch_no: '',
     uom: '',
     quantity_in_stock: '',
@@ -72,11 +75,14 @@ const AddStockMasterModal = ({
   const requiredFields = [
     'item_type',
     'item_id',
+    'purchase_number',
+    'material_name',
+    'gst_no',
     'batch_no',
     'uom',
-  'item_name',
-  'item_code',
-  'rack_no',
+    'item_name',
+    'item_code',
+    'rack_no',
     'quantity_in_stock',
     'minimum_stock_level',
     'reorder_level',
@@ -135,7 +141,7 @@ const AddStockMasterModal = ({
   const renderInput = (id, label, type = 'text', disabled = false) => (
     <div className="col-span-4">
       <Label htmlFor={id} value={label} />
-               <span className="text-red-700 ps-1">*</span>
+        <span className="text-red-700 ps-1">*</span>
 
       <TextInput
         id={id}
@@ -206,6 +212,11 @@ const AddStockMasterModal = ({
           </div>
 
           {renderSelect('uom', 'Unit of Measurement', uomOptions, formData.uom)}
+           
+          {renderInput('purchase_number', 'Purchase Number', 'text')}
+          {renderInput('material_name', 'Material Name', 'text')}
+          {renderInput('gst_no', 'GST No.', 'text')}
+
           {renderInput('quantity_in_stock', 'Quantity in Stock', 'number')}
           {renderInput('minimum_stock_level', 'Minimum Stock Level', 'number')}
           {renderInput('reorder_level', 'Reorder Level', 'number')}

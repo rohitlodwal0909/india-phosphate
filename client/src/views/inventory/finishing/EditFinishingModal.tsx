@@ -47,8 +47,6 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData)
-
     handleupdatedentry(formData)
   };
 

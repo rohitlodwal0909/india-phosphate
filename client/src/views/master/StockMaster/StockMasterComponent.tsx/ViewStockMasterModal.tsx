@@ -47,6 +47,10 @@ const formattedTime = dateObj.toLocaleTimeString('en-US', {
     ["Item Name", selectedRow?.item_name],
     ["Item Code", selectedRow?.item_code],
     ["Batch Number", selectedRow?.batch_no],
+    ["Purchase number", selectedRow?.purchase_number],
+    ["Material Name", selectedRow?.material_name],
+    ["GST number", selectedRow?.gst_no],
+
     ["UOM", selectedRow?.uom],
     ["Quantity In Stock", selectedRow?.quantity_in_stock],
     ["Minimum Stock Level", selectedRow?.minimum_stock_level],

@@ -39,6 +39,9 @@ const EditStockMasterModal = ({
     item_id: '',
     item_name: '',
     item_code: '',
+    purchase_number:'',
+    material_name:'',
+    gst_no:'',
     batch_no: '',
     uom: '',
     quantity_in_stock: '',
@@ -62,6 +65,9 @@ const EditStockMasterModal = ({
         item_id: StockMasterData.item_id || '',
         item_name: StockMasterData.item_name || '',
         item_code: StockMasterData.item_code || '',
+        purchase_number:StockMasterData.purchase_number || '',
+        material_name:StockMasterData.material_name || '',
+        gst_no:StockMasterData.gst_no || '',
         batch_no: StockMasterData.batch_no || '',
         uom: StockMasterData.uom || '',
         quantity_in_stock: StockMasterData.quantity_in_stock || '',
@@ -98,6 +104,9 @@ const EditStockMasterModal = ({
       'item_type',
       'item_id',
       'batch_no',
+      'purchase_number',
+      'material_name',
+      'gst_no',
       'uom',
       'quantity_in_stock',
       'minimum_stock_level',
@@ -218,6 +227,9 @@ const EditStockMasterModal = ({
           </div>
 
           {renderSelect('uom', 'Unit of Measurement', uomOptions, formData.uom)}
+          {renderInput('purchase_number', 'Purchase Number', 'text')}
+          {renderInput('material_name', 'Material Name', 'text')}
+          {renderInput('gst_no', 'GST No.', 'text')}
           {renderInput('quantity_in_stock', 'Quantity in Stock', 'number')}
           {renderInput('minimum_stock_level', 'Minimum Stock Level', 'number')}
           {renderInput('reorder_level', 'Reorder Level', 'number')}

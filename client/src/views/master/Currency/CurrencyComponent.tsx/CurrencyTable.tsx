@@ -62,7 +62,6 @@ const { selectedIconId } = useContext(CustomizerContext) || {};
    
     return (
       mouldNo.toString().toLowerCase().includes(searchText) ||
-      supllier.toString().toLowerCase().includes(searchText) ||
       hardness.toString().toLowerCase().includes(searchText) ||
       temperature.toString().toLowerCase().includes(searchText) ||
       country.toString().toLowerCase().includes(searchText) ||

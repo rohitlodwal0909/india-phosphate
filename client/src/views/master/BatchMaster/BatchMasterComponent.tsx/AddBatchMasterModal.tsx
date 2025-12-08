@@ -24,6 +24,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
     product_name: '',
     production_date: '',
     expiry_date: '',
+    grade: '',
     quantity_produced: '',
     raw_materials_used: '',
     process_details: '',
@@ -41,7 +42,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
   };
 
   const validateForm = () => {
-    const required = ['bmr_number', 'batch_number', 'product_name', 'production_date', 'expiry_date', 'quantity_produced','raw_materials_used','verified_by','approved_by'];
+    const required = ['bmr_number', 'batch_number', 'product_name', 'production_date','grade', 'expiry_date', 'quantity_produced','raw_materials_used','verified_by','approved_by'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -66,6 +67,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
         product_name: '',
         production_date: '',
         expiry_date: '',
+        grade: '',
         quantity_produced: '',
         raw_materials_used: '',
         process_details: '',
@@ -92,6 +94,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
             { id: 'product_name', label: 'Product Name' },
             { id: 'production_date', label: 'Production Date', type: 'date' },
             { id: 'expiry_date', label: 'Expiry Date', type: 'date' },
+            { id: 'grade', label: 'Grade' },
             { id: 'quantity_produced', label: 'Quantity Produced' },
             { id: 'verified_by', label: 'Verified By' },
             { id: 'approved_by', label: 'Approved By' },

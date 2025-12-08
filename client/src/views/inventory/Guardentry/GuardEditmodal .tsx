@@ -6,6 +6,7 @@ const GuardEditmodal = ({ editModal, modalPlacement, setEditModal, selectedUser,
 
   const [formData, setFormData] = useState({
     user_id: logindata?.admin?.id,
+    name: "",
     guard_type: "",
     vehicle_number: "",
     product_name: "",
@@ -20,6 +21,7 @@ const GuardEditmodal = ({ editModal, modalPlacement, setEditModal, selectedUser,
     if (selectedUser) {
       setFormData({
         user_id: logindata?.admin?.id,
+        name: selectedUser.name || "",
         guard_type: selectedUser.guard_type || "",
         vehicle_number: selectedUser.vehicle_number || "",
         product_name: selectedUser.product_name || "",
@@ -71,6 +73,18 @@ const GuardEditmodal = ({ editModal, modalPlacement, setEditModal, selectedUser,
       <ModalBody className="overflow-auto ">
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-6">
           
+           <div className="sm:col-span-6 col-span-12">
+              <Label htmlFor="name" value="Enter Name" />
+              <TextInput
+                id="name"
+                type="text"
+                placeholder="Enter Name"
+                value={formData.name}
+                style={{borderRadius:"8px"}}
+                onChange={(e) => handleChange('name', e.target.value)}
+              />
+            </div>
+            
           {/* Guard Type */}
           <div className="sm:col-span-6 col-span-12">
             <Label htmlFor="guard_type" value="Select Guard Type" />

@@ -17,6 +17,7 @@ import { GetAllQcbatch } from "src/features/Inventorymodule/Qcinventorymodule/Qc
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import NotPermission from "src/utils/NotPermission";
+import { formatDate } from "src/utils/Datetimeformate";
 
 const PendingOrderTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -101,7 +102,7 @@ const PendingOrderTable = () => {
        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
      <thead className="bg-gray-50 dark:bg-gray-800">
     <tr>
-      {["Sr.No", "Order Number", "Customer Name ", "Products Ordered", "Quantity Pending", "Action"].map((title) => (
+      {["Sr.No", "Order Number", "Customer Name ", "Products Ordered", "Quantity Pending", "Date", "Action"].map((title) => (
         <th
           key={title}
           className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -126,6 +127,7 @@ const PendingOrderTable = () => {
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.customer_name_or_id || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.products_ordered || "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.quantity_pending ?? "-"}</td>
+          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{formatDate(item?.order_date) ?? "-"}</td>
           <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             <div className="flex justify-start gap-2">
               <Button size="sm" color="lightsecondary" className="p-0" onClick={() => { setViewModal(true); setSelectedRow(item); }}>
