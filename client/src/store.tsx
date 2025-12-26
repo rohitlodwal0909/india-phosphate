@@ -11,6 +11,7 @@ import NotificationSlice from '../src/features/Notifications/NotificationSlice'
 import SupplierSlice from '../src/features/master/Supplier/SupplierSlice'
 import StaffMasterSlice from '../src/features/master/StaffMaster/StaffMasterSlice'
 import RmCodeSlice from '../src/features/master/RmCode/RmCodeSlice'
+import PmCodeSlice from '../src/features/master/PmCode/PmCodeSlice'
 import CategorySlice from '../src/features/master/Category/CategorySlice'
 import UnitSlice from '../src/features/master/Unit/UnitSlice'
 import DesignationSlice from '../src/features/master/Designation/DesignationSlice'
@@ -39,6 +40,7 @@ import FinishGoodSlice from '../src/features/master/FinishGood/FinishGoodSlice'
 import FormulaSlice from '../src/features/master/Formula/FormulaSlice'
 import DocumentSlice from '../src/features/master/Documents/DocumentSlice'
 import FprSlice from '../src/features/Inventorymodule/FPR/FprSlice'
+import BmrRecordSlice from '../src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice'
 
 export const store = configureStore({
   reducer: {
@@ -50,11 +52,13 @@ export const store = configureStore({
    rolepermission :PermissionSlice,
    dispatchData: DispatchSlice,
    productionData :ProdutionSlice,
+   bmrRecords:BmrRecordSlice,
     notifications : NotificationSlice,
     supplier : SupplierSlice,
     category : CategorySlice,
     customer : CustomerSlice,
     rmcodes:RmCodeSlice,
+    pmcodes:PmCodeSlice,
     unit:UnitSlice,
     staffmaster:StaffMasterSlice,
     designation:DesignationSlice,

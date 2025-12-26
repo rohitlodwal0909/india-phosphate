@@ -13,49 +13,41 @@ import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 type FormDataType = {
   user_id:any;
   supplier_name: string;
-  // grn_date: string;
-  // grn_time: any;
-  // grn_number: string;
   manufacturer_name: string;
   invoice_number: string;
   guard_entry_id: any;
   batch_number: string;
   store_rm_code: string;
-  // container_count: string;
-  // container_unit: string;
+  store_pm_code: string,
+  equipment: string,
   quantity: string;
   unit: string;
 };
-const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow, storedata ,logindata,supplierdata}) => {
+const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmCodes, equipments, selectedRow,logindata,supplierdata}) => {
   const { rmcodedata, loading } = useSelector((state: any) => state.rmcodes);
   const [formData, setFormData] = useState<FormDataType>({
     user_id:logindata?.admin?.id,
     supplier_name: '',
-    // grn_date: '',
-    // grn_time: null,
-    // grn_number: "",
     manufacturer_name: '',
     invoice_number: '',
     guard_entry_id: selectedRow?.id,
     batch_number: '',
     store_rm_code: '',
-    // container_count: '',
-    // container_unit: '',
+    store_pm_code: '',
+    equipment: '',
     quantity: selectedRow?.quantity_net,
     unit: selectedRow?.quantity_unit
   });
 
   const requiredFields = [
     'supplier_name',
-    // 'grn_date',
-    // 'grn_time',
-    // 'grn_number',
     'manufacturer_name',
     'invoice_number',
     'batch_number',
     'store_rm_code',
-    // 'container_count',
-    // 'container_unit',
+    'store_pm_code',
+    'equipment',
+    
   ];
   const dispatch = useDispatch<AppDispatch>();
   const [errors, setErrors] = useState<Partial<FormDataType>>({});
@@ -64,8 +56,6 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
     setErrors({ ...errors, [field]: '' }); // clear error on change
   };
 
-
-  
     useEffect(() => {
       dispatch(GetRmCode());
     }, [dispatch]);
@@ -101,7 +91,6 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
         newErrors[field] = 'This field is required';
       }
     });
-    console.log(storedata)
     // const isDuplicateGRN = storedata?.some(
     //   (item) => item.grn_number.trim() === formData.grn_number.trim()
     // );
@@ -120,16 +109,14 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
         toast.success("Store data added successfully!");
         setFormData({
           supplier_name: '',
-          // grn_date: '',
-          // grn_time:null,
-          // grn_number: "",
+
           manufacturer_name: '',
           invoice_number: '',
           guard_entry_id: '',
           batch_number: '',
           store_rm_code: '',
-          // container_count: '',
-          // container_unit: '',
+          store_pm_code: '',
+          equipment: '',
           quantity: '',
           unit: '',
           user_id:logindata?.admin?.id
@@ -289,81 +276,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
                   ))}
             </select>
           </div>
-          {/* <InputField
-            id="supplier_name"               // id must match formData key
-            label="Supplier Name"
-            value={formData.supplier_name}  // value from formData
-            onChange={handleChange}
-            error={errors.supplier_name}
-            placeholder="Enter Supplier Name"
-          /> */}
-
-          {/* Date */}
-          {/* <InputField
-            id="grn_date"
-            label="GRN Date"
-            type="date"
-            value={formData.grn_date}
-            onChange={handleChange}
-            error={errors.grn_date}
-          /> */}
-
-          {/* Time */}
-          {/* <div className="sm:col-span-6 col-span-12 w-full">
-            <Label htmlFor="grn_time" value="GRN Time" className='' />
-            <div className='pt-2'>
-              {showTimePicker && (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <TimePicker
-                    key={showTimePicker ? 'open' : 'closed'}
-                    value={formData.grn_time}
-                    onChange={(value) => handleChange('grn_time', value)}
-                    slotProps={{
-                      textField: {
-                        id: 'grn_time',
-                        fullWidth: true,
-                        error: !!errors.grn_time,
-                        helperText: errors.grn_time || '',
-                        sx: {
-                          '& .MuiInputBase-root': {
-                            fontSize: '14px',
-                            backgroundColor: '#f1f5f9',
-                            borderRadius: '6px',
-                          },
-                          '& .css-1hgcujo-MuiPickersInputBase-root-MuiPickersOutlinedInput-root': {
-                            height: '42px',
-                            fontSize: '14px',
-                            backgroundColor: '#f1f5f9',
-                            borderRadius: '6px',
-                          },
-                          '& input': {
-                            padding: '2px 0',
-                          },
-                          '& .MuiInputLabel-root': {
-                            fontSize: '13px',
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#cbd5e1',
-                          },
-                        },
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              )}
-            </div>
-
-          </div> */}
-          {/* GRN Number */}
-          {/* <InputField
-            id="grn_number"
-            label="GRN Number"
-            value={formData.grn_number}
-            onChange={handleChange}
-            error={errors.grn_number}
-            placeholder="Enter GRN Number"
-          /> */}
-
+         
           {/* Manufacturer Name */}
           <InputField
             id="manufacturer_name"
@@ -423,42 +336,65 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, sel
     <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
   )}
 </div>
-          {/* Container Count */}
 
-          {/* <div className="sm:col-span-6 col-span-12">
-            <Label htmlFor="quantity_net" value={`Containers${formData?.container_unit ? ` (${formData.container_unit})` : ''}`} />
-            <span className="text-red-700 ps-1">*</span>
-            <div className="mt-3">
+<div className="sm:col-span-6 col-span-12">
+  <label
+    htmlFor="equipment"
+    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+  >
+    Equipment
+  </label>
+  <select
+    id="equipment"
+    name="equipment"
+    value={formData.equipment}
+      onChange={(e) => handleChange("equipment", e.target.value)}
+    className={`bg-gray-50 border ${
+      errors.equipment ? "border-red-500" : "border-gray-300"
+    } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+  >
+    <option value="">Select Equipment List</option>
+    {!loading &&
+      equipments?.map((item: any) => (
+        <option key={item.id} value={item.id}>
+          {item.name}
+        </option>
+      ))}
+  </select>
+  {errors.equipment && (
+    <p className="mt-1 text-sm text-red-500">{errors.equipment}</p>
+  )}
+</div>
 
-              <div className="flex rounded-md shadow-sm">
-              
-                <input
-                  type="text"
-                  id='container_count'
-                  name="container_count"
-                  placeholder="Number Of container"
-                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
-                  onChange={(e) => handleChange("container_count", e.target.value)}
-                  value={formData.container_count}
-                />
-        
-                <select
-                  id="container_unit"
-                  name="container_unit"
-                  value={formData.container_unit}
-                  onChange={(e) => handleChange("container_unit", e.target.value)}
-                  className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">Unit</option>
-                  {allUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
-                      {unit.value}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div> */}
+<div className="sm:col-span-6 col-span-12">
+  <label
+    htmlFor="store_pm_code"
+    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+  >
+    Store PM Code
+  </label>
+  <select
+    id="store_pm_code"
+    name="store_pm_code"
+    value={formData.store_pm_code}
+      onChange={(e) => handleChange("store_pm_code", e.target.value)}
+    className={`bg-gray-50 border ${
+      errors.store_pm_code ? "border-red-500" : "border-gray-300"
+    } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+  >
+    <option value="">Select PM Code</option>
+    {!loading &&
+      pmCodes?.map((item: any) => (
+        <option key={item.id} value={item.id}>
+          {item.pm_code}
+        </option>
+      ))}
+  </select>
+  {errors.store_pm_code && (
+    <p className="mt-1 text-sm text-red-500">{errors.store_pm_code}</p>
+  )}
+</div>
+          
 
           {/* Submit/Cancel Buttons */}
           <div className="col-span-12 flex justify-end items-center gap-[1rem] ">

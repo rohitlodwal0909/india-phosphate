@@ -1,14 +1,3 @@
-// export interface ChildItem {
-//   id?: number | string;
-//   name?: string;
-//   icon?: any;
-//   children?: ChildItem[];
-//   item?: any;
-//   url?: any;
-//   color?: string;
-//   subId:any;
-// }
-
 export interface MenuItem {
   heading?: string;
   name?: string;
@@ -85,31 +74,73 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/inventory/store",
              add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },
+
+          {
+        subId: 2,
+        name: "BMR",
+        icon: "carbon:ibm-gcm",
+        id: uniqueId(),
+        url: "/inventory/bmr",
+        add: false,
         view: false,
         edit: false,
         delete: false,
-          },
+
+      
+        children: 
+        [
           {
-             subId:3,
+            subId: 1,
+            name: "BMR Creation",
+         icon: "carbon:document-add",
+            id: uniqueId(),
+            url: "/inventory/bmr/create",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },  
+          {
+            subId: 2,
+            name: "Line Clearance Dispensing",
+    icon: "carbon:task-complete",
+            id: uniqueId(),
+            url: "/inventory/bmr/line-clearance",
+            add: false,
+
+            view: false,
+            edit: false,
+            delete: false,
+          },          
+        ]
+      },
+
+          {
+            subId:3,
             name: "QA/QC Inspection",
             icon: "token:qrdo",
             id: uniqueId(),
             url: "/inventory/qc",
-             add: false,
-        view: false,
-        edit: false,
-        delete: false,
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
           },
+
            {
             subId:4,
             name: "QA Batch Number",
             icon: "material-symbols:batch-prediction-outline-sharp",
             id: uniqueId(),
             url: "/inventory/qc-batch",
-             add: false,
-              view: false,
-              edit: false,
-              delete: false,
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
           },
 
            {
@@ -337,11 +368,22 @@ const SidebarContent: MenuItem[] = [
         delete: false,
           },
           {
+            name: "PM Code",
+            icon: "file-icons:codeship",
+            id: uniqueId(),
+            url: "/master/pm-code",
+            subId:16,
+             add: false,
+              view: false,
+              edit: false,
+              delete: false,
+          },
+          {
             name: "Units",
             icon: "material-symbols:ac-unit-rounded",
             id: uniqueId(),
             url: "/master/unit",
-            subId:16,
+            subId:17,
              add: false,
         view: false,
         edit: false,
@@ -352,7 +394,7 @@ const SidebarContent: MenuItem[] = [
             icon: "hugeicons:manager",
             id: uniqueId(),
             url: "/master/designation",
-            subId:17,
+            subId:18,
              add: false,
         view: false,
         edit: false,
@@ -363,7 +405,7 @@ const SidebarContent: MenuItem[] = [
             icon: "healthicons:i-exam-qualification-outline",
             id: uniqueId(),
             url: "/master/qualification",
-            subId:18,
+            subId:19,
              add: false,
         view: false,
         edit: false,
@@ -374,7 +416,7 @@ const SidebarContent: MenuItem[] = [
             icon: "eos-icons:state",
             id: uniqueId(),
             url: "/master/make-masters",
-            subId:19,
+            subId:20,
              add: false,
         view: false,
         edit: false,
@@ -385,7 +427,7 @@ const SidebarContent: MenuItem[] = [
             icon: "icon-park-outline:city",
             id: uniqueId(),
             url: "/master/department-masters",
-            subId:20,
+            subId:31,
              add: false,
         view: false,
         edit: false,

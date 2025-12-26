@@ -1,80 +1,85 @@
 module.exports = (sequelize, DataTypes) => {
   const BmrMaster = sequelize.define(
-    'BmrMaster',
+    "BmrMaster",
     {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
-        primaryKey: true,
+        primaryKey: true
       },
       bmr_code: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: false
       },
       product_name: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: false
       },
-      batch_number: {
+      batch_size: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: false
       },
-      manufacturing_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false,
+      product_code: {
+        type: DataTypes.STRING(100),
+        allowNull: false
       },
-      expiry_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: true,
+      shelf_life: {
+        type: DataTypes.STRING(50),
+        allowNull: true
       },
       equipment_used: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: true
       },
       raw_materials: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: true
       },
       process_steps: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: true
       },
+      storage_conditions: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+
       packaging_details: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: true
       },
       qa_qc_signoff: {
         type: DataTypes.STRING(255),
-        allowNull: true,
+        allowNull: true
       },
       remarks: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: true
       },
       created_by: {
         type: DataTypes.STRING(100),
-        allowNull: true,
+        allowNull: true
       },
-       created_at: {
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+      created_at: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+      },
+      deleted_at: {
+        type: DataTypes.DATE,
+        allowNull: true
+      }
     },
     {
       timestamps: true, // adds createdAt and updatedAt
-      paranoid: true,   // adds deletedAt for soft deletes
-      tableName: 'bmr_master',
-       createdAt: 'created_at',
-    deletedAt: 'deleted_at',
-    updatedAt: 'updated_at',
+      paranoid: true, // adds deletedAt for soft deletes
+      tableName: "bmr_master",
+      createdAt: "created_at",
+      deletedAt: "deleted_at",
+      updatedAt: "updated_at"
     }
   );
 

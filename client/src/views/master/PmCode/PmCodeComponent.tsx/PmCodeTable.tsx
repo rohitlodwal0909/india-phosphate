@@ -7,47 +7,40 @@ import CommonPagination from "../../../../utils/CommonPagination";
 import ComonDeletemodal from "../../../../utils/deletemodal/ComonDeletemodal";
 import { AppDispatch } from "src/store";
 import { toast } from "react-toastify";
-import EditBmrMasterModal from "./EditBmrMasterModal";
-import AddBmrMasterModal from "./AddBmrMasterModal";
-import { deleteBmrMaster, GetBmrMaster } from "src/features/master/BmrMaster/BmrMasterSlice";
-import ViewBmrMasterModal from "./ViewBmrMasterModal";
+
+import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
+import RawMaterialViewModal from "./RawMaterialViewModal";
+import AddRawMaterialModal from "./AddRawMaterialModal";
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import NotPermission from "src/utils/NotPermission";
-import { GetRmCode } from "src/features/master/RmCode/RmCodeSlice";
-import { GetEquipment } from "src/features/master/Equipment/EquipmentSlice";
+import EditPmCodeModal from "./EditPmCodeModal";
+import AddPmCodeModal from "./AddPmCodeModal";
+import { deletePmCode, GetPmCode } from "src/features/master/PmCode/PmCodeSlice";
 
-const BmrMasterTable = () => {
+const PmCodeTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
-  const dispatch = useDispatch<AppDispatch>();
-  const { BmrMasterdata, loading } = useSelector((state: any) => state.bmrmaster);
+  const dispatch  = useDispatch<AppDispatch>();
+  const { pmcodedata, loading } = useSelector((state: any) => state.pmcodes);
 
-    const rawMaterials = useSelector(
-    (state: any) => state.rmcodes.rmcodedata
-  );
+  const [editmodal, setEditmodal]   = useState(false);
+  const [addmodal, setAddmodal]     = useState(false);
+  const [materialaddmodal, setMaterialaddmodal] = useState(false);
+  const [viewmodal, setviewmodal]   = useState(false);
+  const [deletemodal, setDeletemodal]  = useState(false);
+  const [selectedrow, setSelectedRow]  = useState<any>();
+  const [currentPage, setCurrentPage]  = useState(1);
+  const [pageSize, setPageSize]                 = useState(10);
+  const [searchTerm, setSearchTerm]             = useState("");
+  const { selectedIconId }                      = useContext(CustomizerContext) || {};
 
-  const equipments = useSelector(
-    (state: any) => state.equipment.Equipmentdata
-  );
-  // const { supplierdata } = useSelector((state: any) => state.supplier);
-  const [editmodal, setEditmodal] = useState(false);
-  const [addmodal, setAddmodal] = useState(false);
-  const [deletemodal, setDeletemodal] = useState(false);
-  const [selectedrow, setSelectedRow] = useState<any>();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-    const [viewModal ,setViewModal ]= useState(false)
-   const { selectedIconId } = useContext(CustomizerContext) || {};
-     const permissions = useMemo(() => {
-        return getPermissions(logindata, selectedIconId, 27);
-                        }, [logindata ,selectedIconId]);
+  const permissions = useMemo(() => {
+
+                  return getPermissions(logindata, selectedIconId, 15);
+                    }, [logindata ,selectedIconId]);
 
   useEffect(() => {
-    dispatch(GetBmrMaster());
-    // dispatch(GetSupplier());
-    dispatch(GetRmCode());
-    dispatch(GetEquipment());
+    dispatch(GetPmCode());
   }, [dispatch]);
 
   const handleEdit = (entry: any) => {
@@ -58,9 +51,9 @@ const BmrMasterTable = () => {
   const handleDelete = async (userToDelete: any) => {
     if (!userToDelete) return;
     try {
-      await dispatch(deleteBmrMaster({id:userToDelete?.id ,user_id:logindata?.admin?.id})).unwrap();
-      dispatch(GetBmrMaster());
-      toast.success("The Bmr was successfully deleted.");
+      await dispatch(deletePmCode({id:userToDelete?.id ,user_id:logindata?.admin?.id})).unwrap();
+      dispatch(GetPmCode());
+      toast.success("Pm code was successfully deleted.");
     } catch (error: any) {
       console.error("Delete failed:", error);
       if (error?.response?.status === 404) toast.error("User not found.");
@@ -69,23 +62,15 @@ const BmrMasterTable = () => {
     }
   };
 
-const filteredItems = (BmrMasterdata || []).filter((item: any) => {
-  const searchText = searchTerm.toLowerCase();
-  return (
-    String(item?.bmr_code)?.toLowerCase().includes(searchText) ||
-    String(item?.product_name)?.toLowerCase().includes(searchText) ||
-    String(item?.batch_size)?.toLowerCase().includes(searchText) ||
-    String(item?.manufacturing_date)?.toLowerCase().includes(searchText) ||
-    String(item?.expiry_date)?.toLowerCase().includes(searchText) ||
-    String(item?.equipment_used)?.toLowerCase().includes(searchText) ||
-    String(item?.raw_materials)?.toLowerCase().includes(searchText) ||
-    String(item?.process_steps)?.toLowerCase().includes(searchText) ||
-    String(item?.packaging_details)?.toLowerCase().includes(searchText) ||
-    String(item?.qa_qc_signoff)?.toLowerCase().includes(searchText) ||
-    String(item?.remarks)?.toLowerCase().includes(searchText)
-  );
-});
-
+  const filteredItems = (pmcodedata || []).filter((item: any) => {
+    const searchText = searchTerm.toLowerCase();
+    const name = item?.name || "";
+    const pmcode = item?.pm_code || "";
+    return (
+      pmcode.toString().toLowerCase().includes(searchText) ||
+      name.toString().toLowerCase().includes(searchText) 
+    );
+  });
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const currentItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -93,30 +78,24 @@ const filteredItems = (BmrMasterdata || []).filter((item: any) => {
   return (
     <div>
       {/* Search Bar */}
-      <div className="flex justify-end mb-3 gap-2">
-        <input
+    <div className="flex justify-end mb-3 gap-2">
+        {   permissions?.view &&   <input
           type="text"
           placeholder="Search..."
           className="border rounded-md border-gray-300"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-        />
-     { permissions?.add && <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
-         Create BMR Master  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
+        />}
+        {permissions?.add &&  <Button size="sm" className="p-0 bg-primary border rounded-md"   onClick={() => { setAddmodal(true); }}  >
+         Create Pm Code  {/* <Icon icon="ic:baseline-plus" height={18} /> */}
         </Button>}
       </div>
-     { permissions?.view  ? 
-     <> <div className="overflow-x-auto">
+
+     { permissions?.view ? <> <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No",  "BMR Code",
-        "Product Name",
-        "Batch Size",
-       
-        "Shelf Life",
-       
-        ,"Action"].map((title) => (
+              {["Sr.No", " Name", "PM Code ", "Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -134,21 +113,24 @@ const filteredItems = (BmrMasterdata || []).filter((item: any) => {
             ) : currentItems.length > 0 ? (
               currentItems.map((item: any, index: number) => (
                 <tr key={item.id} className="bg-white dark:bg-gray-900">
-                  <td className="py-3 px-4 text-base"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300"><h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6></td>
                  
-                    <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.bmr_code || "-"}</td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.product_name || "-"}</td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.batch_size || "-"}</td>
-          <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.shelf_life || "-"}</td>
-          
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                    {(item?.name || "-")
+                      .replace(/^\w/, (c: string) => c.toUpperCase())}
+                  </td>
+                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.pm_code  || "-"}</td>
                   <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       
                         <>
-                         <Button size="sm" color="lightsecondary" className="p-0" onClick={() => { setViewModal(true); setSelectedRow(item); }}>
-                                        <Icon icon="hugeicons:view" height={18} />
+                         <Button onClick={() => { setMaterialaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(item); }} color="secondary" outline size="sm" className="p-0 bg-lightprimary text-primary hover:bg-primary hover:text-white">
+                                        <Icon icon="material-symbols:add-rounded" height={18} />
                                       </Button>
-                        {  permissions?.edit &&    <Tooltip content="Edit" placement="bottom">
+                                          <Button color="secondary" outline size="sm" onClick={() => { setviewmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(item); }}  className="p-0 bg-lightsecondary text-secondary hover:bg-secondary hover:text-white">
+                                                          <Icon icon="solar:eye-outline" height={18} />
+                                                        </Button>
+                         {permissions?.edit &&   <Tooltip content="Edit" placement="bottom">
                             <Button
                               size="sm"
                               className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
@@ -157,7 +139,7 @@ const filteredItems = (BmrMasterdata || []).filter((item: any) => {
                               <Icon icon="solar:pen-outline" height={18} />
                             </Button>
                           </Tooltip>}
-                        {  permissions?.del &&    <Tooltip content="Delete" placement="bottom">
+                         {permissions?.del &&   <Tooltip content="Delete" placement="bottom">
                             <Button
                               size="sm"
                               color="lighterror"
@@ -171,6 +153,7 @@ const filteredItems = (BmrMasterdata || []).filter((item: any) => {
                             </Button>
                           </Tooltip>}
                         </>
+                     
                     </div>
                   </td>
                 </tr>
@@ -188,6 +171,7 @@ const filteredItems = (BmrMasterdata || []).filter((item: any) => {
           </tbody>
         </table>
       </div>
+
       <CommonPagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -201,13 +185,15 @@ const filteredItems = (BmrMasterdata || []).filter((item: any) => {
         isOpen={deletemodal}
         setIsOpen={setDeletemodal}
         selectedUser={selectedrow}
-        title="Are you sure you want to Delete this Bmr ?"
+        title="Are you sure you want to Delete this Rm Code?"
       />
-      <ViewBmrMasterModal setPlaceModal={setViewModal} modalPlacement={"center"} selectedRow={selectedrow} placeModal={viewModal} />
-      <AddBmrMasterModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} rawMaterials={rawMaterials} equipments={equipments}/>
-      <EditBmrMasterModal show={editmodal} setShowmodal={setEditmodal} BmrMasterData={selectedrow} rawMaterials={rawMaterials} equipments={equipments}   logindata={logindata}/>
+
+      <AddPmCodeModal setShowmodal={setAddmodal} show={addmodal}  logindata={logindata} />
+      <AddRawMaterialModal setShowmodal={setMaterialaddmodal} show={materialaddmodal}  selectedRow={selectedrow} />
+      <RawMaterialViewModal setPlaceModal={setviewmodal} placeModal={viewmodal} modalPlacement={"center"} selectedRow={selectedrow} />
+      <EditPmCodeModal show={editmodal} setShowmodal={setEditmodal} RmCodeData={selectedrow} logindata={logindata} />
     </div>
   );
 };
 
-export default BmrMasterTable;
+export default PmCodeTable;

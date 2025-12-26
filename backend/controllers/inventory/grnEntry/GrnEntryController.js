@@ -3,7 +3,8 @@ const {
 } = require("../../../helper/SendNotification");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { GrnEntry, RawMaterialQcResult, User, GuardEntry, Notification } = db;
+const { GrnEntry, RawMaterialQcResult, User, PmCode, Equipment, GuardEntry } =
+  db;
 
 // Create GRN Entry
 exports.store = async (req, res, next) => {
@@ -103,7 +104,19 @@ exports.show = async (req, res, next) => {
     const entry = await GrnEntry.findOne({
       where: {
         guard_entry_id: id
-      }
+      },
+      include: [
+        {
+          model: PmCode,
+          as: "pm_code",
+          required: false
+        },
+        {
+          model: Equipment,
+          as: "equipments",
+          required: false
+        }
+      ]
     });
     if (!entry) {
       const error = new Error("GRN Entry not found");

@@ -129,6 +129,7 @@ const filteredData = useMemo(() => {
     const unfinishQty = entry?.unfinish_quantity?.toString().toLowerCase() || "";
 
     // Match against all visible fields
+    
     return (
       batchNumber.includes(keyword) ||
       rmCodes.some((code) => code.toLowerCase().includes(keyword)) ||
@@ -136,6 +137,7 @@ const filteredData = useMemo(() => {
       finishQty.includes(keyword) ||
       unfinishQty.includes(keyword)
     );
+
   });
 }, [data, searchText, qcAlldata]);
 
@@ -151,7 +153,7 @@ const filteredData = useMemo(() => {
         const batchId = rowData?.batch_id;
 
         const matchedBatch = qcAlldata?.data?.find((qc: any) => qc.id == batchId);
-        
+
         return (
           <p>{matchedBatch?.qc_batch_number || "No Code"}</p>
         );

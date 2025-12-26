@@ -18,12 +18,14 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 const AddCityModal = ({ show, setShowmodal, selectRow, stateList, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(
+    {
     state_id: "",
     city_name: [""],
     pincode: [""],
     created_by: logindata?.admin?.id,
-  });
+    }
+  );
 
   const [errors, setErrors] = useState<any>({});
 
@@ -39,12 +41,12 @@ const AddCityModal = ({ show, setShowmodal, selectRow, stateList, logindata }) =
     updatedItems[index] = value;
 
     setFormData((prev) => ({ ...prev, [key]: updatedItems }));
-
     setErrors((prev) => {
       const newErr = { ...prev };
       delete newErr[`${key}_${index}`];
       return newErr;
     });
+
   };
 
   const addMore = () => {
@@ -147,7 +149,7 @@ const AddCityModal = ({ show, setShowmodal, selectRow, stateList, logindata }) =
           </div>
 
           {/* Dynamic City + Pincode Fields */}
-          {formData.city_name.map((city, index) => (
+          {formData.city_name.map((_, index) => (
             <div
               className="col-span-12 grid grid-cols-12 gap-3 items-start"
               key={index}
@@ -230,3 +232,5 @@ const AddCityModal = ({ show, setShowmodal, selectRow, stateList, logindata }) =
 };
 
 export default AddCityModal;
+
+

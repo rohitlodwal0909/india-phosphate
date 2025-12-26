@@ -28,9 +28,7 @@ const ViewBmrMasterModal = ({
 const fields = [
   ['BMR Code', selectedRow?.bmr_code],
   ['Product Name', selectedRow?.product_name],
-  ['Batch Number', selectedRow?.batch_number],
-  ['Manufacturing Date', selectedRow?.manufacturing_date],
-  ['Expiry Date', selectedRow?.expiry_date],
+  ['Batch Size', selectedRow?.batch_size],
   ['Equipment Used', selectedRow?.equipment_used],
   ['Raw Materials', selectedRow?.raw_materials],
   ['Process Steps', selectedRow?.process_steps],

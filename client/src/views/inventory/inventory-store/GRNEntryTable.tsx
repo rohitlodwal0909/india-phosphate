@@ -20,6 +20,8 @@ import Portal from "src/utils/Portal";
 import { GetSupplier } from "src/features/master/Supplier/SupplierSlice";
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
+import { GetPmCode } from "src/features/master/PmCode/PmCodeSlice";
+import { GetEquipment } from "src/features/master/Equipment/EquipmentSlice";
 
 const columnHelper = createColumnHelper<any>();
 
@@ -34,16 +36,23 @@ const GRNEntryTable: React.FC = () => {
   const guardData = useSelector((state: RootState) => state.checkininventory.checkindata) as any
   const StoreData = useSelector((state: RootState) => state.storeinventory.storedata) as any
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+  const pmCodes = useSelector((state: RootState) => state.pmcodes.pmcodedata) as any;
+  const equipments = useSelector((state: RootState) => state.equipment.Equipmentdata) as any;
+
  const { supplierdata,  } = useSelector((state: any) => state.supplier);
+
      const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(() => {
   return getPermissions(logindata, selectedIconId, 2);
 }, [logindata ,selectedIconId]);
+
   useEffect(() => {
     if (logindata?.admin?.id) {
       dispatch(GetCheckinmodule(logindata.admin.id));
       dispatch(GetStoremodule());
-         dispatch(GetSupplier());
+      dispatch(GetSupplier());
+      dispatch(GetPmCode());
+      dispatch(GetEquipment());
     }
   }, [dispatch, logindata?.admin?.id]);
 
@@ -70,7 +79,6 @@ useEffect(() => {
     if (!selectedRow?.id) return toast.error("No entry selected for deletion.");
     try {
       const matched = StoreData?.data?.find((i) => i.guard_entry_id === selectedRow?.id);
-      console.log(matched)
 
       await dispatch(deleteStore({id :matched?.id ,user_id:logindata?.admin?.id})).unwrap();
            dispatch(GetCheckinmodule(logindata.admin.id));
@@ -233,7 +241,7 @@ useEffect(() => {
       <PaginationComponent table={table} />
 
       {modals.delete && <Portal><ComonDeletemodal isOpen setIsOpen={() => closeModal("delete")} selectedUser={selectedRow} title="Are you sure you want to Delete this Store Entry?" handleConfirmDelete={handleDeleteConfirm} /></Portal>}
-      {modals.addEdit && <Portal><StoreInventoryAddmodal setPlaceModal={() => closeModal("addEdit")} modalPlacement="center" selectedRow={selectedRow} placeModal storedata={StoreData?.data} logindata={logindata} supplierdata={supplierdata}/></Portal>}
+      {modals.addEdit && <Portal><StoreInventoryAddmodal setPlaceModal={() => closeModal("addEdit")} modalPlacement="center" pmCodes={pmCodes} equipments={equipments} selectedRow={selectedRow} placeModal  logindata={logindata} supplierdata={supplierdata}/></Portal>}
       {modals.view && <Portal><ViewStoremodel setPlaceModal={() => closeModal("view")} modalPlacement="center" selectedRow={selectedRow} placeModal  supplierdata={supplierdata}/></Portal>}
     </>
   ) : (

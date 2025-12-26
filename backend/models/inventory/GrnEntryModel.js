@@ -43,6 +43,8 @@ module.exports = (sequelize, DataTypes) => {
       container_unit: DataTypes.STRING,
       store_location: DataTypes.STRING,
       store_rm_code: DataTypes.STRING,
+      store_pm_code: DataTypes.INTEGER,
+      equipment: DataTypes.INTEGER,
       qa_qc_status: {
         type: DataTypes.ENUM("APPROVED", "REJECTED", "PENDING"),
         defaultValue: "PENDING"
@@ -74,6 +76,14 @@ module.exports = (sequelize, DataTypes) => {
     GrnEntry.hasMany(models.RawMaterialQcResult, {
       foreignKey: "qc_id",
       as: "qc_result"
+    });
+    GrnEntry.belongsTo(models.PmCode, {
+      foreignKey: "store_pm_code",
+      as: "pm_code"
+    });
+    GrnEntry.belongsTo(models.Equipment, {
+      foreignKey: "equipment",
+      as: "equipments"
     });
   };
 

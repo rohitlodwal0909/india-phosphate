@@ -12,4 +12,3 @@ exports.createLogEntry = async ({ user_id, message }) => {
     console.error("Error creating log entry:", error);
   }
 };
-

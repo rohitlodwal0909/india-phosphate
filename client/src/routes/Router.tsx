@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { lazy, useState } from 'react';
+import { lazy } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom'; // 🛠 make sure it's 'react-router-dom'
 import Loadable from '../layouts/full/shared/loadable/Loadable';
 
@@ -8,6 +6,9 @@ import ProtectedRoute from 'src/components/shared/ProtectedRoute'; // ✅ Import
 import AuthGuard from 'src/utils/Authcard';
 import BatchApproved from 'src/views/inventory/batch-approved/BatchApproved';
 import FPR from 'src/views/inventory/fpr/FPR';
+import BmrInventory from 'src/views/inventory/bmr/bmr-creation/BmrInventory';
+import PmCode from 'src/views/master/PmCode/PmCode';
+import LineClearance from 'src/views/inventory/bmr/line-clearance/LineClearance';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -91,6 +92,9 @@ const fullLayoutChildren = [
   { path: '/inventory/production', element: <ProductionInventory /> },
   { path: '/inventory/finishing', element: <Finishing /> },
   { path: '/inventory/dispatch', element: <DispatchInventory /> },
+  { path: '/inventory/bmr/create', element: <BmrInventory /> },
+  { path: '/inventory/bmr/line-clearance', element: <LineClearance /> },
+
  
   { path: '/inventory/report/:id', element: <SubmitReport/> },
   { path: '/master/company', element: <Company/> },
@@ -98,6 +102,7 @@ const fullLayoutChildren = [
   { path: '/master/customer', element: <Customer/> },
   // { path: '/master/category', element: <Category/> },
   { path: '/master/rm-code', element: <RmCode/> },
+  { path: '/master/pm-code', element: <PmCode/> },
   { path: '/master/unit', element: <Unit/> },
   { path: '/master/make-masters', element: <MakeMaster/> },
   { path: '/master/department-masters', element: <DepartmentMaster/> },

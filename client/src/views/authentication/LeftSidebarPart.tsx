@@ -13,7 +13,7 @@ const LeftSidebarPart = () => {
         <div className="xl:w-7/12 xl:px-0 px-6">
           <h2 className="text-white text-[40px] font-bold leading-[normal]">
          
-         India Phosphate
+          India Phosphate
           </h2>
           <p className="opacity-75 text-white my-4 text-base font-medium">
           Login to manage your data with industry-standard encryption and real-time protection.
@@ -22,6 +22,8 @@ const LeftSidebarPart = () => {
         </div>
       </div>
     </>
+
+
   );
 };
 
