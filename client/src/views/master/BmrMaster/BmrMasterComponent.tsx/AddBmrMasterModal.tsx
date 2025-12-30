@@ -38,7 +38,9 @@ const [formData, setFormData] = useState<any>({
   storage_conditions: '',
   packaging_details: '',
   equipment_used: [],
-  raw_materials: '',
+  raw_materials: [
+    { material: null, standard_qty: '' }
+  ],
   process_steps: '',
   qa_qc_signoff: '',
   remarks: '',
@@ -101,10 +103,15 @@ const [formData, setFormData] = useState<any>({
     e.preventDefault();
     if (!validateForm()) return;
 
-    const payload = {
-      ...formData,
-      equipment_used: formData.equipment_used.map((e: any) => e.value), // ✅ array
-      raw_materials: formData.raw_materials.value, // ✅ single
+    const payload = 
+    {
+        ...formData,
+        equipment_used: formData.equipment_used.map((e: any) => e.value), 
+        raw_materials: formData.raw_materials.map((r: any) => 
+          ({
+              raw_material_id: r.material.value,
+              standard_qty: r.standard_qty,
+          })),
     };
 
     try {
@@ -117,6 +124,28 @@ const [formData, setFormData] = useState<any>({
     }
   };
 
+  const addRawMaterialRow = () => {
+  setFormData((prev: any) => ({
+    ...prev,
+    raw_materials: [
+      ...prev.raw_materials,
+      { material: null, standard_qty: '' }
+    ],
+  }));
+};
+
+const removeRawMaterialRow = (index: number) => {
+  setFormData((prev: any) => ({
+    ...prev,
+    raw_materials: prev.raw_materials.filter((_: any, i: number) => i !== index),
+  }));
+};
+
+const updateRawMaterial = (index: number, field: string, value: any) => {
+  const updated = [...formData.raw_materials];
+  updated[index][field] = value;
+  setFormData({ ...formData, raw_materials: updated });
+};
   /* ======================
      JSX
   ====================== */
@@ -148,17 +177,46 @@ const [formData, setFormData] = useState<any>({
           </div>
 
           {/* RAW MATERIAL (SINGLE SELECT) */}
-          <div className="col-span-12 md:col-span-6">
-            <Label value="Raw Materials" />
-            <Select
-              options={rawMaterialOptions}
-              value={formData.raw_materials}
-              onChange={(val) => handleChange('raw_materials', val)}
-            />
-            {errors.raw_materials && (
-              <p className="text-red-500 text-xs">{errors.raw_materials}</p>
-            )}
-          </div>
+          {formData.raw_materials.map((row: any, index: number) => (
+  <div key={index} className="col-span-12 grid grid-cols-12 gap-3 items-end">
+
+    {/* RAW MATERIAL */}
+    <div className="col-span-12 md:col-span-6">
+      <Label value="Raw Material" />
+      <Select
+        options={rawMaterialOptions}
+        value={row.material}
+        onChange={(val) => updateRawMaterial(index, 'material', val)}
+      />
+    </div>
+
+    {/* STANDARD QTY */}
+    <div className="col-span-10 md:col-span-4">
+      <Label value="Standard Qty" />
+      <TextInput
+        placeholder="Enter Qty"
+        value={row.standard_qty}
+        onChange={(e) =>
+          updateRawMaterial(index, 'standard_qty', e.target.value)
+        }
+      />
+    </div>
+
+    {/* ADD / REMOVE */}
+    <div className="col-span-2 md:col-span-2 flex gap-2">
+      {index === 0 ? (
+        <Button color="success" onClick={addRawMaterialRow}>
+          +
+        </Button>
+      ) : (
+        <Button color="failure" onClick={() => removeRawMaterialRow(index)}>
+          ✕
+        </Button>
+      )}
+    </div>
+  </div>
+))}
+
 
           {/* EQUIPMENT (MULTI SELECT) */}
           <div className="col-span-12 md:col-span-6">

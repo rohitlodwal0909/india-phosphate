@@ -386,7 +386,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
     {!loading &&
       pmCodes?.map((item: any) => (
         <option key={item.id} value={item.id}>
-          {item.pm_code}
+          {item.name}
         </option>
       ))}
   </select>

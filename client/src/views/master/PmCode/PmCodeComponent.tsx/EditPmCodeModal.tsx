@@ -6,59 +6,65 @@ import {
   ModalHeader,
   Label,
   TextInput,
+  Select,
 } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 
-import { GetPmCode, updatePmCode } from 'src/features/master/PmCode/PmCodeSlice';
+import {
+  GetPmCode,
+  updatePmCode,
+} from 'src/features/master/PmCode/PmCodeSlice';
 
-const EditPmCodeModal = ({ show, setShowmodal, RmCodeData,logindata }) => {
+const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     id: '',
-    user_id:logindata?.admin.id,
+    user_id: logindata?.admin?.id,
     name: '',
-    pm_code: '',
+    packaging_type: '',
   });
 
-  const [errors, setErrors] = useState<any>({});
+ const [errors, setErrors] = useState<any>({});
 
   useEffect(() => {
     if (RmCodeData) {
       setFormData({
         id: RmCodeData?.id || '',
         name: RmCodeData?.name || '',
-        pm_code: RmCodeData?.pm_code || '',
-        user_id:logindata?.admin.id,
+        packaging_type: RmCodeData?.packaging_type || '',
+        user_id: logindata?.admin?.id,
       });
     }
-  }, [RmCodeData]);
+  }, [RmCodeData, logindata]);
 
-  const handleChange = (field, value) => {
-  const newValue = field === 'pm_code' ? value.toUpperCase() : value;
-
-  setFormData((prevData) => ({
-    ...prevData,
-    [field]: newValue,
-  }));
-
-  if (errors[field]) {
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [field]: '',
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
     }));
-  }
-};
+
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: '',
+      }));
+    }
+  };
 
   const validateForm = () => {
-    const required = ['name', 'pm_code'];
+    const required = ['name', 'packaging_type'];
     const newErrors: any = {};
+
     required.forEach((field) => {
-      if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
+      if (!formData[field]) {
+        newErrors[field] = `${field.replace('_', ' ')} is required`;
+      }
     });
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -69,57 +75,73 @@ const EditPmCodeModal = ({ show, setShowmodal, RmCodeData,logindata }) => {
 
     try {
       const result = await dispatch(updatePmCode(formData)).unwrap();
-      toast.success(result.message || 'Pm code updated successfully');
+      toast.success(result.message || 'PM Code updated successfully');
       dispatch(GetPmCode());
       setShowmodal(false);
     } catch (err) {
-      toast.error('Failed to update RmCode');
+      toast.error('Failed to update PM Code');
     }
   };
 
   return (
     <Modal show={show} onClose={() => setShowmodal(false)} size="2xl">
-      <ModalHeader>Edit Pm Code</ModalHeader>
+      <ModalHeader>Edit PM Code</ModalHeader>
+
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          {[
-            {
-              id: 'name',
-              label: 'Name',
-              type: 'text',
-              placeholder: 'Enter  name',
-            },
-             {
-              id: 'pm_code',
-              label: 'PM Code',
-              type: 'text',
-              placeholder: 'Enter Pm Code name',
-            }
-          ].map(({ id, label, type, placeholder }) => (
-            <div className={`col-span-6`} key={id}>
-              <Label htmlFor={id} value={label} />
-              <span className="text-red-700 ps-1">*</span>
-              <TextInput
-                id={id}
-                type={type}
-                value={formData[id]}
-                placeholder={placeholder}
-                onChange={(e) => handleChange(id, e.target.value)}
-                color={errors[id] ? 'failure' : 'gray'}
-                className='form-rounded-md'
-              />
-              {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
-            </div>
-          ))}
 
-        
+          {/* Name */}
+          <div className="col-span-6">
+            <Label htmlFor="name" value="Name" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <TextInput
+              id="name"
+              type="text"
+              value={formData.name}
+              placeholder="Enter name"
+              onChange={(e) => handleChange('name', e.target.value)}
+              color={errors.name ? 'failure' : 'gray'}
+            />
+
+            {errors.name && (
+              <p className="text-red-500 text-xs">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Packaging Type */}
+          <div className="col-span-6">
+            <Label htmlFor="packaging_type" value="Packaging Type" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <Select
+              id="packaging_type"
+              value={formData.packaging_type}
+              onChange={(e) =>
+                handleChange('packaging_type', e.target.value)
+              }
+              color={errors.packaging_type ? 'failure' : 'gray'}
+            >
+              <option value="">Select Packaging Type</option>
+              <option value="bag">Bag</option>
+              <option value="drum">Drum</option>
+            </Select>
+
+            {errors.packaging_type && (
+              <p className="text-red-500 text-xs">
+                {errors.packaging_type}
+              </p>
+            )}
+          </div>
+
         </form>
       </ModalBody>
+
       <ModalFooter className="justify-end">
         <Button color="gray" onClick={() => setShowmodal(false)}>
           Cancel
         </Button>
-        <Button type="submit" color="primary" onClick={handleSubmit}>
+        <Button color="primary" onClick={handleSubmit}>
           Update
         </Button>
       </ModalFooter>

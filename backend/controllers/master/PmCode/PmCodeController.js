@@ -5,10 +5,10 @@ const { PmCode, PmRawMaterial, User } = db;
 // Create
 exports.createPmCode = async (req, res, next) => {
   try {
-    const { name, pm_code, user_id } = req.body;
+    const { name, packaging_type, user_id } = req.body;
     const newPmCode = await PmCode.create({
       name,
-      pm_code,
+      packaging_type,
       user_id
     });
 
@@ -21,7 +21,7 @@ exports.createPmCode = async (req, res, next) => {
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    const logMessage = `Pm Code '${pm_code}' was created by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Pm Code '${name}' was created by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
       user_id,
@@ -81,11 +81,11 @@ exports.updatePmCode = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    const { name, pm_code, user_id } = req.body;
+    const { name, packaging_type, user_id } = req.body;
 
     await pmCode.update({
       name,
-      pm_code
+      packaging_type
     });
 
     const now = new Date();
@@ -95,7 +95,7 @@ exports.updatePmCode = async (req, res, next) => {
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    const logMessage = `Pm Code '${pm_code}' was updated by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Pm Code '${name}' was updated by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
       user_id,
@@ -123,7 +123,7 @@ exports.deletePmCode = async (req, res, next) => {
     const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
     const user = await User.findByPk(user_id);
     const username = user ? user?.username : "Unknown User";
-    const logMessage = `Rm Code  ${pmcodes?.pm_code}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Rm Code  ${pmcodes?.name}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
     await createLogEntry({
       user_id,
       message: logMessage

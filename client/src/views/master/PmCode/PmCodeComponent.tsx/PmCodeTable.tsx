@@ -65,7 +65,7 @@ const PmCodeTable = () => {
   const filteredItems = (pmcodedata || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
     const name = item?.name || "";
-    const pmcode = item?.pm_code || "";
+    const pmcode = item?.packaging_type || "";
     return (
       pmcode.toString().toLowerCase().includes(searchText) ||
       name.toString().toLowerCase().includes(searchText) 
@@ -95,7 +95,7 @@ const PmCodeTable = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {["Sr.No", " Name", "PM Code ", "Action"].map((title) => (
+              {["Sr.No", " Name", "Packaging Type", "Action"].map((title) => (
                 <th
                   key={title}
                   className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -119,8 +119,12 @@ const PmCodeTable = () => {
                     {(item?.name || "-")
                       .replace(/^\w/, (c: string) => c.toUpperCase())}
                   </td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">{item?.pm_code  || "-"}</td>
-                  <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                              {item?.packaging_type
+                                ? item.packaging_type.charAt(0).toUpperCase() + item.packaging_type.slice(1)
+                                : '-'}
+                            </td>                  
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                     <div className="flex justify-start gap-2">
                       
                         <>

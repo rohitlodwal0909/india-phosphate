@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       user_id: {
         type: DataTypes.INTEGER
       },
-      pm_code: {
+      packaging_type: {
         type: DataTypes.STRING(100),
         allowNull: false
       },
