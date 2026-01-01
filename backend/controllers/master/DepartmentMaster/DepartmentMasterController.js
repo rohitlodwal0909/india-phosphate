@@ -1,22 +1,15 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { DepartmentMaster, User} = db;
-
+const { DepartmentMaster, User } = db;
 
 // Create Department
 exports.createDepartmentMaster = async (req, res, next) => {
   try {
-    const {
-      department_name,
-      description,
-      hod,
-      status,
-      created_by
-    } = req.body;
+    const { department_name, description, hod, status, created_by } = req.body;
 
     // Step 1: Auto-generate department_code
     const lastDepartment = await DepartmentMaster.findOne({
-      order: [["created_at", "DESC"]],
+      order: [["created_at", "DESC"]]
     });
 
     let nextDepartmentCode = "DEPT-0001"; // default
@@ -56,20 +49,18 @@ exports.createDepartmentMaster = async (req, res, next) => {
   }
 };
 
-
-exports.getDepartmentMasterById = async (req, res,next) => {
+exports.getDepartmentMasterById = async (req, res, next) => {
   try {
     const DepartmentMasters = await DepartmentMaster.findByPk(req.params.id);
-    if (!DepartmentMasters){
-       const error = new Error( "Department entry not found" );
-       error.status = 404;
-      return next(error); 
-     }
-   
+    if (!DepartmentMasters) {
+      const error = new Error("Department entry not found");
+      error.status = 404;
+      return next(error);
+    }
 
     res.json(DepartmentMasters);
   } catch (error) {
-  next(error)
+    next(error);
   }
 };
 
@@ -78,19 +69,19 @@ exports.getAllDepartmentMaster = async (req, res, next) => {
   try {
     const departmentList = await DepartmentMaster.findAll({
       where: { deleted_at: null },
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]]
     });
 
     const resultWithUsernames = await Promise.all(
       departmentList.map(async (dept) => {
         const user = await User.findOne({
           where: { id: dept.created_by },
-          attributes: ['username'],
+          attributes: ["username"]
         });
 
         return {
           ...dept.toJSON(),
-          created_by_username: user?.username || null,
+          created_by_username: user?.username || null
         };
       })
     );
@@ -100,7 +91,6 @@ exports.getAllDepartmentMaster = async (req, res, next) => {
     next(error);
   }
 };
-
 
 // Update
 exports.updateDepartmentMaster = async (req, res, next) => {
@@ -137,15 +127,15 @@ exports.updateDepartmentMaster = async (req, res, next) => {
     });
 
     const user_id = req.body.created_by || department?.created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
 
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
     const logMessage = `Department  code '${department_code}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    await createLogEntry({ user_id: user_id, message: logMessage });
     // Return updated object
     res.status(200).json(department);
   } catch (error) {
@@ -154,30 +144,29 @@ exports.updateDepartmentMaster = async (req, res, next) => {
   }
 };
 
-
-
 // Delete
-exports.deleteDepartmentMaster = async (req, res,next) => {
+exports.deleteDepartmentMaster = async (req, res, next) => {
   try {
     const DepartmentMasters = await DepartmentMaster.findByPk(req.params.id);
 
-    if (!DepartmentMasters){ const error = new Error( "Department entry not found" );
-       error.status = 404;
-      return next(error); 
-     }
-         const user_id = req.body.user_id || DepartmentMasters?.created_by;
-      const user = await User.findByPk(user_id);
-     const username = user ? user.username : "Unknown User";
+    if (!DepartmentMasters) {
+      const error = new Error("Department entry not found");
+      error.status = 404;
+      return next(error);
+    }
+    const user_id = req.body.user_id || DepartmentMasters?.created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
 
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
     const logMessage = `Department  code '${DepartmentMasters?.department_code}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
-        await createLogEntry({ user_id: user_id, message: logMessage });
+    await createLogEntry({ user_id: user_id, message: logMessage });
     await DepartmentMasters.destroy();
     res.json({ message: "Department Master entry deleted" });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };

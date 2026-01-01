@@ -72,7 +72,7 @@ console.log(selectedRow)
             icon={() => <Icon icon="solar:shield-user-outline" height={20} />}
           >
                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 my-2">
-           {fields.map(([label, value]) => (
+           {fields?.map(([label, value]) => (
           <div
             key={label}
             className="bg-gray-50 rounded-md p-4 shadow-sm hover:shadow-md transition-shadow"

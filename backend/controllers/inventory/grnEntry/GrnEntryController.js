@@ -2,6 +2,7 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const { createLogEntry } = require("../../../helper/createLogEntry");
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
 const { GrnEntry, RawMaterialQcResult, User, PmCode, Equipment, GuardEntry } =
   db;
@@ -10,10 +11,8 @@ const { GrnEntry, RawMaterialQcResult, User, PmCode, Equipment, GuardEntry } =
 exports.store = async (req, res, next) => {
   try {
     const { user_id, store_rm_code } = req.body;
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
-    // 1️⃣ Find last GRN number
+    const { entry_date, entry_time } = getISTDateTime();
+
     const lastEntry = await GrnEntry.findOne({
       order: [["createdAt", "DESC"]],
       attributes: ["grn_number"]
@@ -69,7 +68,7 @@ exports.store = async (req, res, next) => {
 exports.index = async (req, res, next) => {
   try {
     const entries = await GrnEntry.findAll({
-      // order: [["created_at", "DESC"]],
+      order: [["created_at", "DESC"]],
       include: [
         {
           model: RawMaterialQcResult,
@@ -87,7 +86,7 @@ exports.index = async (req, res, next) => {
         {
           model: GuardEntry,
           as: "guard_entry",
-          required: false
+          required: true
         }
       ]
     });
@@ -146,9 +145,8 @@ exports.update = async (req, res, next) => {
 
     const user = await User.findByPk(oldUserId);
     const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0];
-    const entry_time = now.toTimeString().split(" ")[0];
+
+    const { entry_date, entry_time } = getISTDateTime();
 
     const logMessage = `Store entry for RM Code '${entry.store_rm_code}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
     await createLogEntry({ user_id: oldUserId, message: logMessage });
@@ -174,12 +172,9 @@ exports.destroy = async (req, res, next) => {
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0];
-    const entry_time = now.toTimeString().split(" ")[0];
+    const { entry_date, entry_time } = getISTDateTime();
 
     const logMessage = `Store entry for RM Code '${store_rm_code}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
-
     await createLogEntry({ user_id, message: logMessage });
 
     await entry.destroy();

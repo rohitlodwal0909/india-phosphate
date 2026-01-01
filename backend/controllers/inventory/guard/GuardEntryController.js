@@ -2,8 +2,10 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const { createLogEntry } = require("../../../helper/createLogEntry");
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
 const { GuardEntry, User, GrnEntry } = db;
+
 exports.store = async (req, res, next) => {
   const {
     user_id,
@@ -18,10 +20,7 @@ exports.store = async (req, res, next) => {
     remark
   } = req.body;
 
-  // Generate current date and time
-  const now = new Date();
-  const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-  const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+  const { entry_date, entry_time } = getISTDateTime();
 
   try {
     // Find the latest inward_number to increment
@@ -112,9 +111,9 @@ exports.deleteGuardEntry = async (req, res, next) => {
     const { inward_number } = entry;
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+
+    const { entry_date, entry_time } = getISTDateTime();
+
     const logMessage = `Guard entry '${inward_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
     await createLogEntry({
       user_id,
@@ -152,9 +151,8 @@ exports.updateGuardEntry = async (req, res, next) => {
       return next(error);
     }
 
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
+
     await entry.update({
       inward_number,
       vehicle_number,
@@ -168,9 +166,11 @@ exports.updateGuardEntry = async (req, res, next) => {
       entry_date,
       entry_time
     });
+
     const user = await User.findByPk(user_id);
     const username = user ? user?.username : "Unknown User";
     const logMessage = `Guard entry '${inward_number}' was updated by '${username}' on ${entry_date} at ${entry_time}.`;
+
     await createLogEntry({
       user_id,
       message: logMessage

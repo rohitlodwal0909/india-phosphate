@@ -22,6 +22,7 @@ import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
 import { GetPmCode } from "src/features/master/PmCode/PmCodeSlice";
 import { GetEquipment } from "src/features/master/Equipment/EquipmentSlice";
+import { formatDate, formatTime } from "src/utils/Datetimeformate";
 
 const columnHelper = createColumnHelper<any>();
 
@@ -124,6 +125,22 @@ useEffect(() => {
       return row ? `${row.quantity || "-"} ${row.unit || ""}` : "-";
     },
   }),
+  columnHelper.display({
+        id: "entry_date_time",
+        header: "Entry Date Time",
+        cell: info => {
+          const data  = info?.row?.original?.grn_entries[0];
+          const formattedDate = data?.grn_date ? formatDate(data?.grn_date) : '-';
+          const formattedTime = data?.grn_time ? formatTime(data?.grn_time) : '-';
+          return (
+            <div>
+              <p>{formattedDate}</p>
+              <span>{formattedTime}</span>
+            </div>
+          );
+        }
+      }),
+      
   columnHelper.accessor("status", {
     header: "Status",
     cell: (info) => {

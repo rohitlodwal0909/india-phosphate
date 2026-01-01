@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Logoutmodel from "./Logoutmodel";
 import { useSelector } from "react-redux";
+import { ImageUrl } from "src/constants/contant";
 
 const Profile = () => {
   const navigate = useNavigate()
@@ -37,7 +38,7 @@ const Profile = () => {
             <img
              src={
     logindata?.admin?.profile_image
-      ? `http://localhost:5000${logindata.admin.profile_image}?t=${logindata.admin.updated_at || Date.now()}`
+      ? `${ImageUrl}${logindata.admin.profile_image}?t=${logindata.admin.updated_at || Date.now()}`
       : user1
   }
  

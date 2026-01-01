@@ -25,6 +25,7 @@ import { Link, useNavigate } from "react-router";
 import { AppDispatch } from "src/store";
 import { CustomizerContext } from "src/context/CustomizerContext";
 import { getPermissions } from "src/utils/getPermissions";
+import { formatDate, formatTime } from "src/utils/Datetimeformate";
 
 export interface PaginationTableType {
   id: number;
@@ -77,9 +78,16 @@ const [searchText, setSearchText] = useState('');
   const permissions = useMemo(() => {
   return getPermissions(logindata, selectedIconId, 3);
 }, [logindata ,selectedIconId]);
-  useEffect(() => {
-    if (StoreData?.data) setData(StoreData.data);
-  }, [StoreData]);
+
+useEffect(() => {
+  if (StoreData?.data) {
+    const materialData = StoreData.data.filter(
+      (item) => item.type == "material"
+    );
+    setData(materialData);
+  }
+}, [StoreData]);
+
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -189,10 +197,24 @@ const handleConfirmReject = async (data, remark) => {
       cell: (info) => <p>{info.getValue() || "N0 Nmber"}</p>,
       header: () => <span>GRN_Number</span>,
     }),
-    columnHelper.accessor("remarks", {
-      cell: (info) => <p>{info.getValue() || "N0 Remark"}</p>,
-      header: () => <span>Remark</span>,
-    }),
+
+    columnHelper.display({
+        id: "entry_date_time",
+        header: "Entry Date Time",
+        cell: info => {
+          const data  = info?.row?.original;
+          const formattedDate = data?.grn_date ? formatDate(data?.grn_date) : '-';
+          const formattedTime = data?.grn_time ? formatTime(data?.grn_time) : '-';
+          return (
+            <div>
+              <p>{formattedDate}</p>
+              <span>{formattedTime}</span>
+            </div>
+          );
+        }
+      }),
+
+
     columnHelper.accessor("qa_qc_status", {
       cell: (info) => {
         const status = info.getValue() || "New";

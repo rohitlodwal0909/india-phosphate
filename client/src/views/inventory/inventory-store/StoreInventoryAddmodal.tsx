@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 import { addStore, GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
-
-
 import { allUnits } from 'src/utils/AllUnit';
 import { AppDispatch } from 'src/store';
 import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
@@ -17,14 +15,17 @@ type FormDataType = {
   invoice_number: string;
   guard_entry_id: any;
   batch_number: string;
+  type:string,
   store_rm_code: string;
   store_pm_code: string,
   equipment: string,
   quantity: string;
   unit: string;
 };
+
 const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmCodes, equipments, selectedRow,logindata,supplierdata}) => {
   const { rmcodedata, loading } = useSelector((state: any) => state.rmcodes);
+
   const [formData, setFormData] = useState<FormDataType>({
     user_id:logindata?.admin?.id,
     supplier_name: '',
@@ -32,6 +33,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
     invoice_number: '',
     guard_entry_id: selectedRow?.id,
     batch_number: '',
+    type:'',
     store_rm_code: '',
     store_pm_code: '',
     equipment: '',
@@ -43,12 +45,9 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
     'supplier_name',
     'manufacturer_name',
     'invoice_number',
-    'batch_number',
-    'store_rm_code',
-    'store_pm_code',
-    'equipment',
-    
+    'batch_number',  
   ];
+
   const dispatch = useDispatch<AppDispatch>();
   const [errors, setErrors] = useState<Partial<FormDataType>>({});
   const handleChange = (field, value) => {
@@ -59,6 +58,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
     useEffect(() => {
       dispatch(GetRmCode());
     }, [dispatch]);
+
   useEffect(() => {
     setFormData({ ...formData, guard_entry_id: selectedRow?.id, quantity: selectedRow?.quantity_net, unit: selectedRow?.quantity_unit });
   }, [selectedRow])
@@ -66,16 +66,10 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
   // const [showTimePicker, setShowTimePicker] = useState(true); 
 
   const handleClose = () => {
-    // Step 1: Unmount MUI TimePicker by toggling it off
-    // setShowTimePicker(false);
-
-    // Step 2: Delay Flowbite modal closing until TimePicker unmounts
+    
     setTimeout(() => {
       setPlaceModal(false);
-
-      // Reset TimePicker after modal fully closes
       setTimeout(() => {
-        // setShowTimePicker(true);
         setFormData((prev) => ({ ...prev, grn_time: null }));
       }, 100);
     }, 100); // Give MUI enough time to unmount
@@ -91,13 +85,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
         newErrors[field] = 'This field is required';
       }
     });
-    // const isDuplicateGRN = storedata?.some(
-    //   (item) => item.grn_number.trim() === formData.grn_number.trim()
-    // );
-
-    // if (isDuplicateGRN) {
-    //   newErrors.grn_number = 'GRN Number already exists';
-    // }
+    
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -109,7 +97,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
         toast.success("Store data added successfully!");
         setFormData({
           supplier_name: '',
-
+          type:'',
           manufacturer_name: '',
           invoice_number: '',
           guard_entry_id: '',
@@ -307,93 +295,132 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
             placeholder="Enter Batch Number"
           />
 
+          <div className="sm:col-span-6 col-span-12">
+            <label
+              htmlFor="store_rm_code"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Select Type
+            </label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+                onChange={(e) => handleChange("type", e.target.value)}
+              className={`bg-gray-50 border ${
+                errors.store_rm_code ? "border-red-500" : "border-gray-300"
+              } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+            >
+              <option value="">Select Type</option>
+              <option value="equipment">Equipment</option>
+              <option value="material">Material</option>
+              
+            </select>
+            {errors.store_rm_code && (
+              <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
+            )}
+          </div>
+
           {/* Store RM Code */}
-        <div className="sm:col-span-6 col-span-12">
-  <label
-    htmlFor="store_rm_code"
-    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-  >
-    Store RM Code
-  </label>
-  <select
-    id="store_rm_code"
-    name="store_rm_code"
-    value={formData.store_rm_code}
-      onChange={(e) => handleChange("store_rm_code", e.target.value)}
-    className={`bg-gray-50 border ${
-      errors.store_rm_code ? "border-red-500" : "border-gray-300"
-    } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-  >
-    <option value="">Select RM Code</option>
-    {!loading &&
-      rmcodedata?.map((item: any) => (
-        <option key={item.id} value={item.rm_code}>
-          {item.rm_code}
-        </option>
-      ))}
-  </select>
-  {errors.store_rm_code && (
-    <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
-  )}
-</div>
+          {
+            formData.type == 'material' && (
+              <> 
+            <div className="sm:col-span-6 col-span-12">
+            <label
+              htmlFor="store_rm_code"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Store RM Code
+            </label>
+            <select
+              id="store_rm_code"
+              name="store_rm_code"
+              value={formData.store_rm_code}
+                onChange={(e) => handleChange("store_rm_code", e.target.value)}
+              className={`bg-gray-50 border ${
+                errors.store_rm_code ? "border-red-500" : "border-gray-300"
+              } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+            >
+              <option value="">Select RM Code</option>
+              {!loading &&
+                rmcodedata?.map((item: any) => (
+                  <option key={item.id} value={item.rm_code}>
+                    {item.rm_code}
+                  </option>
+                ))}
+            </select>
+            {errors.store_rm_code && (
+              <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
+            )}
+             </div>
 
-<div className="sm:col-span-6 col-span-12">
-  <label
-    htmlFor="equipment"
-    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-  >
-    Equipment
-  </label>
-  <select
-    id="equipment"
-    name="equipment"
-    value={formData.equipment}
-      onChange={(e) => handleChange("equipment", e.target.value)}
-    className={`bg-gray-50 border ${
-      errors.equipment ? "border-red-500" : "border-gray-300"
-    } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-  >
-    <option value="">Select Equipment List</option>
-    {!loading &&
-      equipments?.map((item: any) => (
-        <option key={item.id} value={item.id}>
-          {item.name}
-        </option>
-      ))}
-  </select>
-  {errors.equipment && (
-    <p className="mt-1 text-sm text-red-500">{errors.equipment}</p>
-  )}
-</div>
+              <div className="sm:col-span-6 col-span-12">
+                <label
+                  htmlFor="store_pm_code"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Select PM 
+                </label>
+                <select
+                  id="store_pm_code"
+                  name="store_pm_code"
+                  value={formData.store_pm_code}
+                    onChange={(e) => handleChange("store_pm_code", e.target.value)}
+                  className={`bg-gray-50 border ${
+                    errors.store_pm_code ? "border-red-500" : "border-gray-300"
+                  } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                >
+                  <option value="">Select PM </option>
+                  {!loading &&
+                    pmCodes?.map((item: any) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                </select>
+                {errors.store_pm_code && (
+                  <p className="mt-1 text-sm text-red-500">{errors.store_pm_code}</p>
+                )}
+              </div>
+              </>
+            )
+          }
 
-<div className="sm:col-span-6 col-span-12">
-  <label
-    htmlFor="store_pm_code"
-    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-  >
-    Store PM Code
-  </label>
-  <select
-    id="store_pm_code"
-    name="store_pm_code"
-    value={formData.store_pm_code}
-      onChange={(e) => handleChange("store_pm_code", e.target.value)}
-    className={`bg-gray-50 border ${
-      errors.store_pm_code ? "border-red-500" : "border-gray-300"
-    } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-  >
-    <option value="">Select PM Code</option>
-    {!loading &&
-      pmCodes?.map((item: any) => (
-        <option key={item.id} value={item.id}>
-          {item.name}
-        </option>
-      ))}
-  </select>
-  {errors.store_pm_code && (
-    <p className="mt-1 text-sm text-red-500">{errors.store_pm_code}</p>
-  )}
-</div>
+
+           {
+            formData.type == 'equipment' && ( 
+            <div className="sm:col-span-6 col-span-12">
+              <label
+                htmlFor="equipment"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Equipment
+              </label>
+              <select
+                id="equipment"
+                name="equipment"
+                value={formData.equipment}
+                  onChange={(e) => handleChange("equipment", e.target.value)}
+                className={`bg-gray-50 border ${
+                  errors.equipment ? "border-red-500" : "border-gray-300"
+                } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+              >
+                <option value="">Select Equipment List</option>
+                {!loading &&
+                  equipments?.map((item: any) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+              </select>
+              {errors.equipment && (
+                <p className="mt-1 text-sm text-red-500">{errors.equipment}</p>
+              )}
+            </div>
+
+            ) }
+
+
           
 
           {/* Submit/Cancel Buttons */}
