@@ -10,6 +10,7 @@ const {
   GrnEntry,
   Qcbatch,
   Notification,
+  Finishing,
   User
 } = db;
 // Update Guard Entry
@@ -295,9 +296,14 @@ exports.addQcBatch = async (req, res, next) => {
 exports.getAllQcBatches = async (req, res, next) => {
   try {
     const batches = await Qcbatch.findAll({
-      order: [["created_at", "DESC"]]
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: Finishing,
+          as: "finishing"
+        }
+      ]
     });
-
     res.status(200).json({
       message: "QC Batches fetched successfully.",
       data: batches

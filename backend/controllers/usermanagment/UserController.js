@@ -2,24 +2,21 @@ const bcrypt = require("bcryptjs");
 const db = require("../../models");
 const { User } = db;
 
-
-exports.register = async (req, res,next) => {
+exports.register = async (req, res, next) => {
   const { username, email, password, role_id } = req.body;
 
   try {
     // Check if user already exists
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({ where: { username } });
 
     if (existingUser) {
-       const error = new Error( "Email already exists");
-       error.status = 400;
-      return next(error); 
-     
+      const error = new Error("Username already exists");
+      error.status = 400;
+      return next(error);
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
     // Create user
     const user = await User.create({
       username,
@@ -40,11 +37,11 @@ exports.register = async (req, res,next) => {
       }
     });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };
 
-exports.delete = async (req, res,next) => {
+exports.delete = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -52,10 +49,9 @@ exports.delete = async (req, res,next) => {
     const user = await User.findOne({ where: { id } });
 
     if (!user) {
-       const error = new Error( "User not found");
-       error.status = 404;
-      return next(error); 
-    
+      const error = new Error("User not found");
+      error.status = 404;
+      return next(error);
     }
 
     // Soft delete user (paranoid: true in model will auto set deleted_at)
@@ -63,15 +59,15 @@ exports.delete = async (req, res,next) => {
 
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
- next(error)
+    next(error);
   }
 };
 
-exports.listAllUsers = async (req, res,next) => {
+exports.listAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll({ paranoid: true }); // Includes deleted users
     res.status(200).json(users);
   } catch (error) {
-    next(error)
+    next(error);
   }
 };

@@ -4,7 +4,7 @@ const {
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
-const { GuardEntry, User, GrnEntry } = db;
+const { GuardEntry, User, GrnEntry, PmCode } = db;
 
 exports.store = async (req, res, next) => {
   const {
@@ -85,7 +85,14 @@ exports.guardEntry = async (req, res, next) => {
         {
           model: GrnEntry,
           as: "grn_entries", // Must match the association alias
-          required: false
+          required: false,
+          include: [
+            {
+              model: PmCode,
+              as: "pm_code",
+              required: false
+            }
+          ]
         }
       ]
     });

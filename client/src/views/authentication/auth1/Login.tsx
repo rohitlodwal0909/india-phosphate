@@ -1,11 +1,8 @@
-
-
-import Logo from "src/layouts/full/shared/logo/Logo";
-import AuthLogin from "../authforms/AuthLogin";
-import LeftSidebarPart from "../LeftSidebarPart";
+import Logo from 'src/layouts/full/shared/logo/Logo';
+import AuthLogin from '../authforms/AuthLogin';
+import LeftSidebarPart from '../LeftSidebarPart';
 
 const Login = () => {
-
   return (
     <>
       <div className="relative overflow-hidden h-screen">
@@ -18,14 +15,10 @@ const Login = () => {
               <div className="max-w-[420px] w-full mx-auto">
                 <Logo />
                 <h3 className="text-2xl font-bold my-3">Sign In</h3>
-                <p className="text-darklink text-sm font-medium">
-                  India Phosphate Dashboard
-                </p>
+                <p className="text-darklink text-sm font-medium">India Phosphate Dashboard</p>
                 {/* <SocialButtons title="or sign in with" /> */}
                 <AuthLogin />
-                <div className="flex gap-2 text-base text-ld font-medium mt-6 items-center justify-center">
-                 
-                </div>
+                <div className="flex gap-2 text-base text-ld font-medium mt-6 items-center justify-center"></div>
               </div>
             </div>
           </div>

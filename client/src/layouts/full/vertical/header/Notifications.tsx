@@ -12,9 +12,10 @@ import { AppDispatch } from "src/store";
 
 import notificationicon from '../../../../assets/images/logos/notification2.png';
 import notificationicon2 from '../../../../assets/images/logos/notification.png';
+import { ImageUrl } from "src/constants/contant";
 
 
-const socket = io("http://localhost:5000");
+const socket = io(ImageUrl);
 
 const Notifications = ({logindata}) => {
 

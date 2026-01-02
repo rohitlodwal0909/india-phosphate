@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Label, TextInput } from "flowbite-react";
+import React, { useEffect, useState } from 'react';
+import { Button, Modal, Label, TextInput } from 'flowbite-react';
 
 interface VehicleDispatchModalProps {
   openModal: boolean;
@@ -16,14 +16,12 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
   handlesubmit,
   logindata,
 }) => {
-
   const [formData, setFormData] = useState({
-    finish_quantity: "",
-    unfinish_quantity: "",
-    batch_number: "",
+    finish_quantity: '',
+    unfinish_quantity: '',
+    batch_number: '',
     user_id: logindata?.admin?.id,
   });
-
 
   // Load batch number when modal opens / row changes
   useEffect(() => {
@@ -47,9 +45,9 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
   const closeModal = () => {
     setOpenModal(false);
     setFormData({
-      finish_quantity: "",
-      unfinish_quantity: "",
-      batch_number: "",
+      finish_quantity: '',
+      unfinish_quantity: '',
+      batch_number: '',
       user_id: logindata?.admin?.id,
     });
   };
@@ -59,7 +57,7 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
 
     // Validation
     if (!formData.finish_quantity || !formData.unfinish_quantity) {
-      alert("Please enter both quantities");
+      alert('Please enter both quantities');
       return;
     }
 

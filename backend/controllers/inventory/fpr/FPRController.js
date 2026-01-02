@@ -3,7 +3,7 @@ const {
 } = require("../../../helper/SendNotification");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Qcbatch, BatchReleaseModel } = db;
+const { Qcbatch, BatchReleaseModel, Finishing } = db;
 
 exports.index = async (req, res, next) => {
   try {
@@ -16,6 +16,11 @@ exports.index = async (req, res, next) => {
         {
           model: BatchReleaseModel,
           as: "batch_releases",
+          required: false
+        },
+        {
+          model: Finishing,
+          as: "finishing",
           required: false
         }
       ]

@@ -46,6 +46,11 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: "batch_id",
       as: "production_entry"
     });
+    Finishing.belongsTo(models.Qcbatch, {
+      foreignKey: "batch_number", // The field in ProductionResult
+      targetKey: "id", // The field in Qcbatch
+      as: "finish_batch" // Optional alias
+    });
   };
   return Finishing;
 };

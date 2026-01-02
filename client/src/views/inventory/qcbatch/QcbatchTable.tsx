@@ -6,42 +6,38 @@ import {
   getSortedRowModel,
   useReactTable,
   createColumnHelper,
-} from "@tanstack/react-table";
-import { Button, Tooltip } from "flowbite-react";
-import { Icon } from "@iconify/react";
-import { useEffect, useState, useMemo, useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
-import { toast } from "react-toastify";
+} from '@tanstack/react-table';
+import { Button, Tooltip } from 'flowbite-react';
+import { Icon } from '@iconify/react';
+import { useEffect, useState, useMemo, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
+import { toast } from 'react-toastify';
 
-import ComonDeletemodal from "src/utils/deletemodal/ComonDeletemodal";
-import PaginationComponent from "src/utils/PaginationComponent";
-import TableComponent from "src/utils/TableComponent";
-import AddQcbatchModal from "./AddQcbatchModal";
-import { AppDispatch } from "src/store";
-import Portal from "src/utils/Portal";
+import ComonDeletemodal from 'src/utils/deletemodal/ComonDeletemodal';
+import PaginationComponent from 'src/utils/PaginationComponent';
+import TableComponent from 'src/utils/TableComponent';
+import AddQcbatchModal from './AddQcbatchModal';
+import { AppDispatch } from 'src/store';
+import Portal from 'src/utils/Portal';
 import {
   Deleteqcbatch,
   GetAllQcbatch,
-} from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
-import { CustomizerContext } from "src/context/CustomizerContext";
-import { getPermissions } from "src/utils/getPermissions";
+} from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+import { CustomizerContext } from 'src/context/CustomizerContext';
+import { getPermissions } from 'src/utils/getPermissions';
 
 const columnHelper = createColumnHelper<any>();
 
 function QcbatchTable() {
   const dispatch = useDispatch<AppDispatch>();
 
-  const logindata = useSelector(
-    (state: any) => state.authentication?.logindata
-  );
-  const qcAlldata = useSelector(
-    (state: any) => state.qcinventory.qcbatchdata
-  );
+  const logindata = useSelector((state: any) => state.authentication?.logindata);
+  const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
 
   const [data, setData] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState<any | null>(null);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [addModal, setAddmodal] = useState(false);
   // const [editModal, setEditModal] = useState(false);
@@ -49,16 +45,17 @@ function QcbatchTable() {
   const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(
     () => getPermissions(logindata, selectedIconId, 4),
-    [logindata, selectedIconId]
+    [logindata, selectedIconId],
   );
 
   // Fetch QC batches
   useEffect(() => {
-    dispatch(GetAllQcbatch()).unwrap().catch((error) => {
-      console.error("Error fetching QC batches:", error);
-    });
+    dispatch(GetAllQcbatch())
+      .unwrap()
+      .catch((error) => {
+        console.error('Error fetching QC batches:', error);
+      });
   }, [dispatch]);
-  
 
   // Sync Redux state to local state
   useEffect(() => {
@@ -70,27 +67,27 @@ function QcbatchTable() {
     if (!searchText) return data;
     return data.filter((item) =>
       Object.values(item).some((val) =>
-        String(val).toLowerCase().includes(searchText.toLowerCase())
-      )
+        String(val).toLowerCase().includes(searchText.toLowerCase()),
+      ),
     );
   }, [data, searchText]);
 
   // Handle delete
   const handleConfirmDelete = async () => {
-    if (!selectedRow?.id) return toast.error("No entry selected.");
+    if (!selectedRow?.id) return toast.error('No entry selected.');
     try {
       const res = await dispatch(
         Deleteqcbatch({
           id: selectedRow.id,
           user_id: logindata?.admin?.id,
-        })
+        }),
       ).unwrap();
       if (res) {
-        toast.success("QA Batch deleted successfully!");
+        toast.success('QA Batch deleted successfully!');
         setData((prev) => prev.filter((item) => item.id !== selectedRow.id));
       }
     } catch (err: any) {
-      toast.error(err.message || "Delete failed");
+      toast.error(err.message || 'Delete failed');
     } finally {
       setIsOpen(false);
     }
@@ -98,8 +95,8 @@ function QcbatchTable() {
 
   // Table columns
   const getColumns = (handlers: any) => [
-    columnHelper.accessor("id", {
-      header: "S. No.",
+    columnHelper.accessor('id', {
+      header: 'S. No.',
       cell: (info) => {
         const rowIndex = info.row.index + 1;
         return (
@@ -109,29 +106,29 @@ function QcbatchTable() {
         );
       },
     }),
-    columnHelper.accessor("qc_batch_number", {
-      header: "Batch Number",
-      cell: (info) => info.getValue() || "-",
+    columnHelper.accessor('qc_batch_number', {
+      header: 'Batch Number',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("product_name", {
-      header: "Product Name",
-      cell: (info) => info.getValue() || "-",
+    columnHelper.accessor('product_name', {
+      header: 'Product Name',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("mfg_date", {
-      header: "Mfg Date",
-      cell: (info) => info.getValue() || "-",
+    columnHelper.accessor('mfg_date', {
+      header: 'Mfg Date',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("exp_date", {
-      header: "Exp Date",
-      cell: (info) => info.getValue() || "-",
+    columnHelper.accessor('exp_date', {
+      header: 'Exp Date',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("grade", {
-      header: "Grade",
-      cell: (info) => info.getValue() || "-",
+    columnHelper.accessor('grade', {
+      header: 'Grade',
+      cell: (info) => info.getValue() || '-',
     }),
     columnHelper.display({
-      id: "actions",
-      header: "Actions",
+      id: 'actions',
+      header: 'Actions',
       cell: (info) => {
         const row = info.row.original;
         return (
@@ -185,7 +182,7 @@ function QcbatchTable() {
             setIsOpen(true);
           },
         }),
-      [permissions]
+      [permissions],
     ),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -223,11 +220,7 @@ function QcbatchTable() {
       {permissions?.view ? (
         <>
           <div className="overflow-x-auto">
-            <TableComponent
-              table={table}
-              flexRender={flexRender}
-              columns={table.getAllColumns()}
-            />
+            <TableComponent table={table} flexRender={flexRender} columns={table.getAllColumns()} />
           </div>
           <PaginationComponent table={table} />
         </>
@@ -272,4 +265,3 @@ function QcbatchTable() {
 }
 
 export default QcbatchTable;
-

@@ -4,12 +4,12 @@ const db = require("../../models");
 const { User, RolePermissionModel, Log } = db;
 
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
   try {
-    const admin = await User.findOne({ where: { email: email } });
+    const admin = await User.findOne({ where: { username } });
 
     if (!admin) {
-      const error = new Error("Invalid Email");
+      const error = new Error("Invalid Username");
       error.status = 404;
       return next(error); // send to global handler
     }
@@ -25,7 +25,7 @@ exports.login = async (req, res, next) => {
 
     //  Generate JWT Token
     const token = jwt.sign(
-      { id: admin.id, email: admin.email },
+      { id: admin.id, username: admin.username },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
     );
@@ -42,7 +42,7 @@ exports.login = async (req, res, next) => {
       admin: {
         id: admin.id,
         name: admin.username,
-        email: admin.email,
+        username: admin.username,
         role_id: admin.role_id,
         phone: admin?.phone,
         address: admin?.address,

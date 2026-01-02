@@ -1,52 +1,67 @@
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Label, TextInput } from 'flowbite-react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Label,
+  TextInput,
+} from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
-import { addStore, GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
+import {
+  addStore,
+  GetStoremodule,
+} from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
 import { allUnits } from 'src/utils/AllUnit';
 import { AppDispatch } from 'src/store';
 import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 
 type FormDataType = {
-  user_id:any;
+  user_id: any;
   supplier_name: string;
   manufacturer_name: string;
   invoice_number: string;
   guard_entry_id: any;
   batch_number: string;
-  type:string,
+  type: string;
   store_rm_code: string;
-  store_pm_code: string,
-  equipment: string,
+  store_pm_code: string;
+  equipment: string;
   quantity: string;
   unit: string;
 };
 
-const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmCodes, equipments, selectedRow,logindata,supplierdata}) => {
+const StoreInventoryAddmodal = ({
+  placeModal,
+  modalPlacement,
+  setPlaceModal,
+  pmCodes,
+  equipments,
+  selectedRow,
+  logindata,
+  supplierdata,
+}) => {
   const { rmcodedata, loading } = useSelector((state: any) => state.rmcodes);
 
   const [formData, setFormData] = useState<FormDataType>({
-    user_id:logindata?.admin?.id,
+    user_id: logindata?.admin?.id,
     supplier_name: '',
     manufacturer_name: '',
     invoice_number: '',
     guard_entry_id: selectedRow?.id,
     batch_number: '',
-    type:'',
+    type: '',
     store_rm_code: '',
     store_pm_code: '',
     equipment: '',
     quantity: selectedRow?.quantity_net,
-    unit: selectedRow?.quantity_unit
+    unit: selectedRow?.quantity_unit,
   });
 
-  const requiredFields = [
-    'supplier_name',
-    'manufacturer_name',
-    'invoice_number',
-    'batch_number',  
-  ];
+  const requiredFields = ['supplier_name', 'manufacturer_name', 'invoice_number', 'batch_number'];
 
   const dispatch = useDispatch<AppDispatch>();
   const [errors, setErrors] = useState<Partial<FormDataType>>({});
@@ -55,18 +70,22 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
     setErrors({ ...errors, [field]: '' }); // clear error on change
   };
 
-    useEffect(() => {
-      dispatch(GetRmCode());
-    }, [dispatch]);
+  useEffect(() => {
+    dispatch(GetRmCode());
+  }, [dispatch]);
 
   useEffect(() => {
-    setFormData({ ...formData, guard_entry_id: selectedRow?.id, quantity: selectedRow?.quantity_net, unit: selectedRow?.quantity_unit });
-  }, [selectedRow])
+    setFormData({
+      ...formData,
+      guard_entry_id: selectedRow?.id,
+      quantity: selectedRow?.quantity_net,
+      unit: selectedRow?.quantity_unit,
+    });
+  }, [selectedRow]);
 
-  // const [showTimePicker, setShowTimePicker] = useState(true); 
+  // const [showTimePicker, setShowTimePicker] = useState(true);
 
   const handleClose = () => {
-    
     setTimeout(() => {
       setPlaceModal(false);
       setTimeout(() => {
@@ -75,29 +94,28 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
     }, 100); // Give MUI enough time to unmount
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors: Partial<Record<keyof FormDataType, string>> = {};
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       if (!formData[field] || formData[field].toString().trim() === '') {
         newErrors[field] = 'This field is required';
       }
     });
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     try {
-      const res = await dispatch(addStore(formData)).unwrap()
+      const res = await dispatch(addStore(formData)).unwrap();
       if (res) {
-        toast.success("Store data added successfully!");
+        toast.success('Store data added successfully!');
         setFormData({
           supplier_name: '',
-          type:'',
+          type: '',
           manufacturer_name: '',
           invoice_number: '',
           guard_entry_id: '',
@@ -107,28 +125,22 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
           equipment: '',
           quantity: '',
           unit: '',
-          user_id:logindata?.admin?.id
-        })
-        dispatch(GetCheckinmodule(logindata?.admin?.id))
-        dispatch(GetStoremodule())
-        handleClose()
+          user_id: logindata?.admin?.id,
+        });
+        dispatch(GetCheckinmodule(logindata?.admin?.id));
+        dispatch(GetStoremodule());
+        handleClose();
       }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update entry');
     }
-    catch (err: any) {
-      toast.error(err.message || "Failed to update entry");
-    }
-
   };
 
-
   return (
-    <Modal size="3xl" show={placeModal} position={modalPlacement} onClose={handleClose} >
-
+    <Modal size="3xl" show={placeModal} position={modalPlacement} onClose={handleClose}>
       <ModalHeader className="pb-0">New Store Entry</ModalHeader>
       <ModalBody>
         <form className="grid grid-cols-12 gap-5" onSubmit={handleSubmit}>
-          {/* Inward No. */}
-          {/* Guard Type - Always Show */}
           <div className="sm:col-span-6 col-span-12">
             <Label htmlFor="guard_type" value="Select Guard Type" />
             <select
@@ -146,7 +158,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
           </div>
 
           {/* Conditionally show for vehicle_number */}
-          {selectedRow?.guard_type === "Vehicle" && (
+          {selectedRow?.guard_type === 'Vehicle' && (
             <>
               <div className="sm:col-span-6 col-span-12">
                 <Label htmlFor="vehicleNo" value="Vehicle No." />
@@ -154,7 +166,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                   id="vehicleNo"
                   name="vehicle_number"
                   type="text"
-                  style={{ borderRadius: "8px" }}
+                  style={{ borderRadius: '8px' }}
                   value={selectedRow?.vehicle_number}
                   readOnly
                 />
@@ -163,7 +175,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
           )}
 
           {/* Conditionally show for courier */}
-          {selectedRow?.guard_type === "Courier" && (
+          {selectedRow?.guard_type === 'Courier' && (
             <>
               <div className="sm:col-span-6 col-span-12">
                 <Label htmlFor="senderName" value="Sender Name" />
@@ -171,7 +183,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                   id="senderName"
                   name="sender_name"
                   type="text"
-                  style={{ borderRadius: "8px" }}
+                  style={{ borderRadius: '8px' }}
                   value={selectedRow?.sender_name}
                   readOnly
                 />
@@ -182,7 +194,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                   id="productName"
                   name="product_name"
                   type="text"
-                  style={{ borderRadius: "8px" }}
+                  style={{ borderRadius: '8px' }}
                   value={selectedRow?.product_name}
                   readOnly
                 />
@@ -193,7 +205,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                   id="productId"
                   name="product_id"
                   type="text"
-                  style={{ borderRadius: "8px" }}
+                  style={{ borderRadius: '8px' }}
                   value={selectedRow?.product_id}
                   readOnly
                 />
@@ -201,18 +213,17 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
             </>
           )}
 
-          {selectedRow?.guard_type == "Other" && (
+          {selectedRow?.guard_type == 'Other' && (
             <div className="sm:col-span-6 col-span-12">
               <Label htmlFor="remark" value="Remark" />
               <TextInput
                 id="remark"
                 name="remark"
                 type="text"
-                style={{ borderRadius: "8px" }}
+                style={{ borderRadius: '8px' }}
                 value={selectedRow?.remark}
                 readOnly
               />
-
             </div>
           )}
           {/* Always show Quantity (Net) if available */}
@@ -220,7 +231,6 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
             <div className="sm:col-span-6 col-span-12">
               <Label htmlFor="quantityNet" value="Quantity (Net)" />
               <div className="flex rounded-md shadow-sm mt-2">
-
                 {/* Quantity input (read-only) */}
                 <input
                   type="text"
@@ -248,7 +258,7 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
           )}
 
           {/* Supplier Name */}
-            <div className="sm:col-span-6 col-span-12">
+          <div className="sm:col-span-6 col-span-12">
             <Label htmlFor="guard_type" value="Supplier" />
             <select
               id="supplier_name"
@@ -257,14 +267,14 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
               className="w-full p-2  border rounded-md border-gray-300"
             >
               <option value="">Select Supplier </option>
-             {supplierdata.map((supplier) => (
-                    <option key={supplier.id} value={supplier.id}>
-                      {supplier.supplier_name}
-                    </option>
-                  ))}
+              {supplierdata.map((supplier) => (
+                <option key={supplier.id} value={supplier.id}>
+                  {supplier.supplier_name}
+                </option>
+              ))}
             </select>
           </div>
-         
+
           {/* Manufacturer Name */}
           <InputField
             id="manufacturer_name"
@@ -306,15 +316,14 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
               id="type"
               name="type"
               value={formData.type}
-                onChange={(e) => handleChange("type", e.target.value)}
+              onChange={(e) => handleChange('type', e.target.value)}
               className={`bg-gray-50 border ${
-                errors.store_rm_code ? "border-red-500" : "border-gray-300"
+                errors.store_rm_code ? 'border-red-500' : 'border-gray-300'
               } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
             >
               <option value="">Select Type</option>
               <option value="equipment">Equipment</option>
               <option value="material">Material</option>
-              
             </select>
             {errors.store_rm_code && (
               <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
@@ -322,52 +331,51 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
           </div>
 
           {/* Store RM Code */}
-          {
-            formData.type == 'material' && (
-              <> 
-            <div className="sm:col-span-6 col-span-12">
-            <label
-              htmlFor="store_rm_code"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Store RM Code
-            </label>
-            <select
-              id="store_rm_code"
-              name="store_rm_code"
-              value={formData.store_rm_code}
-                onChange={(e) => handleChange("store_rm_code", e.target.value)}
-              className={`bg-gray-50 border ${
-                errors.store_rm_code ? "border-red-500" : "border-gray-300"
-              } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-            >
-              <option value="">Select RM Code</option>
-              {!loading &&
-                rmcodedata?.map((item: any) => (
-                  <option key={item.id} value={item.rm_code}>
-                    {item.rm_code}
-                  </option>
-                ))}
-            </select>
-            {errors.store_rm_code && (
-              <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
-            )}
-             </div>
+          {formData.type == 'material' && (
+            <>
+              <div className="sm:col-span-6 col-span-12">
+                <label
+                  htmlFor="store_rm_code"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Store RM Code
+                </label>
+                <select
+                  id="store_rm_code"
+                  name="store_rm_code"
+                  value={formData.store_rm_code}
+                  onChange={(e) => handleChange('store_rm_code', e.target.value)}
+                  className={`bg-gray-50 border ${
+                    errors.store_rm_code ? 'border-red-500' : 'border-gray-300'
+                  } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
+                >
+                  <option value="">Select RM Code</option>
+                  {!loading &&
+                    rmcodedata?.map((item: any) => (
+                      <option key={item.id} value={item.rm_code}>
+                        {item.rm_code}
+                      </option>
+                    ))}
+                </select>
+                {errors.store_rm_code && (
+                  <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
+                )}
+              </div>
 
               <div className="sm:col-span-6 col-span-12">
                 <label
                   htmlFor="store_pm_code"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Select PM 
+                  Select PM
                 </label>
                 <select
                   id="store_pm_code"
                   name="store_pm_code"
                   value={formData.store_pm_code}
-                    onChange={(e) => handleChange("store_pm_code", e.target.value)}
+                  onChange={(e) => handleChange('store_pm_code', e.target.value)}
                   className={`bg-gray-50 border ${
-                    errors.store_pm_code ? "border-red-500" : "border-gray-300"
+                    errors.store_pm_code ? 'border-red-500' : 'border-gray-300'
                   } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
                 >
                   <option value="">Select PM </option>
@@ -382,13 +390,10 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                   <p className="mt-1 text-sm text-red-500">{errors.store_pm_code}</p>
                 )}
               </div>
-              </>
-            )
-          }
+            </>
+          )}
 
-
-           {
-            formData.type == 'equipment' && ( 
+          {formData.type == 'equipment' && (
             <div className="sm:col-span-6 col-span-12">
               <label
                 htmlFor="equipment"
@@ -400,9 +405,9 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                 id="equipment"
                 name="equipment"
                 value={formData.equipment}
-                  onChange={(e) => handleChange("equipment", e.target.value)}
+                onChange={(e) => handleChange('equipment', e.target.value)}
                 className={`bg-gray-50 border ${
-                  errors.equipment ? "border-red-500" : "border-gray-300"
+                  errors.equipment ? 'border-red-500' : 'border-gray-300'
                 } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
               >
                 <option value="">Select Equipment List</option>
@@ -413,15 +418,9 @@ const StoreInventoryAddmodal = ({ placeModal, modalPlacement, setPlaceModal, pmC
                     </option>
                   ))}
               </select>
-              {errors.equipment && (
-                <p className="mt-1 text-sm text-red-500">{errors.equipment}</p>
-              )}
+              {errors.equipment && <p className="mt-1 text-sm text-red-500">{errors.equipment}</p>}
             </div>
-
-            ) }
-
-
-          
+          )}
 
           {/* Submit/Cancel Buttons */}
           <div className="col-span-12 flex justify-end items-center gap-[1rem] ">
@@ -459,4 +458,3 @@ const InputField = ({ id, label, type = 'text', value, onChange, error, placehol
   </div>
 );
 export default StoreInventoryAddmodal;
-

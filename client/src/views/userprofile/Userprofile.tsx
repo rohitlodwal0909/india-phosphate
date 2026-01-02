@@ -14,6 +14,7 @@ import { AuthenticationUpdatemodule } from 'src/features/authentication/Authenti
 import { toast } from 'react-toastify';
 import { AppDispatch } from 'src/store';
 import { GetRole } from 'src/features/authentication/PermissionSlice';
+import { ImageUrl } from 'src/constants/contant';
 
 
 // const roleOptions = [
@@ -111,7 +112,7 @@ useEffect(()=>{
     selectedImage
       ? selectedImage
       : logindata?.admin?.profile_image
-      ? "http://localhost:5000" + logindata.admin.profile_image
+      ? ImageUrl + logindata.admin.profile_image
       : userImg
   }
                 alt="logo"

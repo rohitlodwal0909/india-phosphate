@@ -104,18 +104,18 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },  
-          {
-            subId: 2,
-            name: "Line Clearance Dispensing",
-    icon: "carbon:task-complete",
-            id: uniqueId(),
-            url: "/inventory/bmr/line-clearance",
-            add: false,
+    //       {
+    //         subId: 2,
+    //         name: "Line Clearance Dispensing",
+    // icon: "carbon:task-complete",
+    //         id: uniqueId(),
+    //         url: "/inventory/bmr/line-clearance",
+    //         add: false,
 
-            view: false,
-            edit: false,
-            delete: false,
-          },          
+    //         view: false,
+    //         edit: false,
+    //         delete: false,
+    //       },          
         ]
       },
 

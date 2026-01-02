@@ -13,13 +13,7 @@ interface BmrAddProps {
   logindata: any;
 }
 
-const BmrAdd: React.FC<BmrAddProps> = ({
-  openModal,
-  setOpenModal,
-  StoreData,
-  logindata,
-}) => {
-
+const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState<any>({
     user_id: logindata?.admin?.id,
@@ -28,16 +22,13 @@ const BmrAdd: React.FC<BmrAddProps> = ({
     mfg_date: '',
     exp_date: '',
     mfg_start: '',
-    mfg_complete: '',
     remarks: '',
   });
 
   const [errors, setErrors] = useState<any>({});
 
   // 🔁 Common Input Change
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
@@ -46,7 +37,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({
   // ✅ Product Dropdown Options
   const productOptions =
     StoreData?.map((item: any) => ({
-      value: item.id,           // ✅ product_id
+      value: item.id, // ✅ product_id
       label: item.product_name, // UI label
     })) || [];
 
@@ -54,14 +45,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = [
-      'bmr_product_id',
-      'batch_no',
-      'mfg_date',
-      'exp_date',
-      'mfg_start',
-      'mfg_complete',
-    ];
+    const requiredFields = ['bmr_product_id', 'batch_no', 'mfg_date', 'exp_date', 'mfg_start'];
 
     const newErrors: any = {};
     requiredFields.forEach((field) => {
@@ -87,7 +71,6 @@ const BmrAdd: React.FC<BmrAddProps> = ({
           mfg_date: '',
           exp_date: '',
           mfg_start: '',
-          mfg_complete: '',
           remarks: '',
         });
 
@@ -104,17 +87,14 @@ const BmrAdd: React.FC<BmrAddProps> = ({
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-
           {/* PRODUCT */}
-         {/* PRODUCT */}
+          {/* PRODUCT */}
           <div className="sm:col-span-6 col-span-12">
             <Label value="Product Name" />
             <Select
               options={productOptions}
               value={
-                productOptions.find(
-                  (opt: any) => opt.value === formData.bmr_product_id
-                ) || null
+                productOptions.find((opt: any) => opt.value === formData.bmr_product_id) || null
               }
               onChange={(selected: any) => {
                 setFormData({
@@ -125,12 +105,9 @@ const BmrAdd: React.FC<BmrAddProps> = ({
               }}
             />
             {errors.bmr_product_id && (
-              <span className="text-red-500 text-sm">
-                {errors.bmr_product_id}
-              </span>
+              <span className="text-red-500 text-sm">{errors.bmr_product_id}</span>
             )}
           </div>
-
 
           {/* BATCH NO */}
           <div className="sm:col-span-6 col-span-12">
@@ -141,11 +118,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({
               value={formData.batch_no}
               onChange={handleChange}
             />
-            {errors.batch_no && (
-              <span className="text-red-500 text-sm">
-                {errors.batch_no}
-              </span>
-            )}
+            {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
           </div>
 
           {/* MFG DATE */}
@@ -181,17 +154,6 @@ const BmrAdd: React.FC<BmrAddProps> = ({
             />
           </div>
 
-          {/* MFG COMPLETED */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Mfg Completed" />
-            <TextInput
-              type="datetime-local"
-              name="mfg_complete"
-              value={formData.mfg_complete}
-              onChange={handleChange}
-            />
-          </div>
-
           {/* REMARKS */}
           <div className="col-span-12">
             <Label value="Remarks" />
@@ -212,7 +174,6 @@ const BmrAdd: React.FC<BmrAddProps> = ({
               Submit
             </Button>
           </div>
-
         </form>
       </Modal.Body>
     </Modal>
