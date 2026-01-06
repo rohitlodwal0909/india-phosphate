@@ -80,23 +80,23 @@ const SidebarContent: MenuItem[] = [
           },
 
           {
-        subId: 2,
-        name: "BMR",
-        icon: "carbon:ibm-gcm",
-        id: uniqueId(),
-        url: "/inventory/bmr",
-        add: false,
-        view: false,
-        edit: false,
-        delete: false,
+            subId: 10,
+            name: "BMR",
+            icon: "carbon:ibm-gcm",
+            id: uniqueId(),
+            url: "/inventory/bmr",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
 
       
         children: 
         [
           {
-            subId: 1,
+            subId: 11,
             name: "BMR Creation",
-         icon: "carbon:document-add",
+            icon: "carbon:document-add",
             id: uniqueId(),
             url: "/inventory/bmr/create",
             add: false,
@@ -104,21 +104,20 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },  
-    //       {
-    //         subId: 2,
-    //         name: "Line Clearance Dispensing",
-    // icon: "carbon:task-complete",
-    //         id: uniqueId(),
-    //         url: "/inventory/bmr/line-clearance",
-    //         add: false,
+          // {
+          //   subId: 2,
+          //   name: "Line Clearance Dispensing",
+          //   icon: "carbon:task-complete",
+          //   id: uniqueId(),
+          //   url: "/inventory/bmr/line-clearance",
+          //   add: false,
 
-    //         view: false,
-    //         edit: false,
-    //         delete: false,
-    //       },          
+          //   view: false,
+          //   edit: false,
+          //   delete: false,
+          // },          
         ]
       },
-
           {
             subId:3,
             name: "QA/QC Inspection",
@@ -178,7 +177,7 @@ const SidebarContent: MenuItem[] = [
               delete: false,
           },
           {
-            subId:7,
+            subId:8,
             name: "FPR",
             icon: "material-symbols:batch-prediction-outline-sharp",
             id: uniqueId(),
@@ -190,7 +189,7 @@ const SidebarContent: MenuItem[] = [
           },
           
           {
-            subId:7,
+            subId:9,
             name: "Dispatch",
             icon: "mdi:disc",
             id: uniqueId(),

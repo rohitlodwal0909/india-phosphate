@@ -3,7 +3,7 @@ const db = require("../../models");
 const { User } = db;
 
 exports.register = async (req, res, next) => {
-  const { username, email, password, role_id } = req.body;
+  const { username, password, role_id } = req.body;
 
   try {
     // Check if user already exists
@@ -20,7 +20,6 @@ exports.register = async (req, res, next) => {
     // Create user
     const user = await User.create({
       username,
-      email,
       password: hashedPassword,
       role_id,
       status: "Inactive" // default status
@@ -31,7 +30,6 @@ exports.register = async (req, res, next) => {
       user: {
         id: user.id,
         username: user.username,
-        email: user.email,
         role_id: user.role_id,
         status: user.status
       }

@@ -31,6 +31,7 @@ import BmrAdd from './BmrAdd';
 import { GetBmrMaster } from 'src/features/master/BmrMaster/BmrMasterSlice';
 import BmrEdit from './BmrEdit';
 import BmrView from './BmrView';
+import { useNavigate } from 'react-router';
 
 /* =======================
    BMR DATA TYPE
@@ -51,6 +52,7 @@ const columnHelper = createColumnHelper<BmrDataType>();
 
 const BmrCreateTable = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
@@ -76,6 +78,10 @@ const BmrCreateTable = () => {
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 7);
   }, [logindata, selectedIconId]);
+
+  const handleAddData = (id) => {
+    navigate('/inventory/bmr/process/' + id);
+  };
 
   /* =======================
      FETCH BMR RECORDS
@@ -170,6 +176,14 @@ const BmrCreateTable = () => {
           const row = info.row.original;
           return (
             <div className="flex gap-2 notranslate" translate="no">
+              {permissions.add && (
+                <Tooltip content="Plus">
+                  <Button size="xs" color="success" onClick={() => handleAddData(row?.id)}>
+                    <Icon icon="material-symbols:add-rounded" height={18} />
+                  </Button>
+                </Tooltip>
+              )}
+
               {permissions.view && (
                 <Tooltip content="View">
                   <Button

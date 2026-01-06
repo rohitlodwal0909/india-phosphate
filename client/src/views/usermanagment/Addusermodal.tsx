@@ -8,14 +8,14 @@ import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { AppDispatch } from 'src/store';
 interface RegisterFormType {
   username: string;
-  email: string;
+  // email: string;
   password: string;
   role_id: string;
 }
 const Addusermodal = ({ placeModal, modalPlacement, setPlaceModal, roleData }) => {
   const [formData, setFormData] = useState<RegisterFormType>({
     username: '',
-    email: '',
+    // email: '',
     password: '',
     role_id: '',
   });
@@ -32,7 +32,7 @@ const Addusermodal = ({ placeModal, modalPlacement, setPlaceModal, roleData }) =
   const validateForm = () => {
     const newErrors: Partial<RegisterFormType> = {};
     if (!formData.username) newErrors.username = 'Username is required';
-    if (!formData.email) newErrors.email = 'Email is required';
+    // if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (!formData.role_id) newErrors.role_id = 'Role is required';
 
@@ -50,7 +50,7 @@ const Addusermodal = ({ placeModal, modalPlacement, setPlaceModal, roleData }) =
       dispatch(GetUsermodule());
       setFormData({
         username: '',
-        email: '',
+        // email: '',
         password: '',
         role_id: '',
       });
@@ -93,7 +93,7 @@ const Addusermodal = ({ placeModal, modalPlacement, setPlaceModal, roleData }) =
             </div>
 
             {/* Email */}
-            <div className="col-span-12">
+            {/* <div className="col-span-12">
               <div className="mb-2 block">
                 <Label htmlFor="email" value="Email" />
                 <span className="text-red-700 ps-1 ">*</span>
@@ -110,7 +110,7 @@ const Addusermodal = ({ placeModal, modalPlacement, setPlaceModal, roleData }) =
                   errors?.email && <span className="text-red-500 text-xs">{errors.email}</span>
                 }
               />
-            </div>
+            </div> */}
             {/* Password */}
             <div className="col-span-12">
               <div className="mb-2 block">

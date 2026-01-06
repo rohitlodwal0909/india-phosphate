@@ -97,10 +97,13 @@ exports.updateProfile = async (req, res, next) => {
     }
     const { username, email, password, phone, address, gender, role_id } =
       req.body;
+
     const profileImageFile = req.file;
+
     const profileImagePath = profileImageFile
       ? `/uploads/${profileImageFile.filename}`
       : admin.profile_image;
+
     // Optional: check for duplicate email if updating
     if (email && email !== admin.email) {
       const existing = await User.findOne({ where: { email } });

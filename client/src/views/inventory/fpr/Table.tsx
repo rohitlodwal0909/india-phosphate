@@ -63,7 +63,7 @@ function Table() {
   }, [approvedBatch]);
 
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 1);
+    return getPermissions(logindata, selectedIconId, 8);
   }, [logindata, selectedIconId]);
 
   // ✅ Search + filter

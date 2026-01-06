@@ -5,47 +5,41 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  createColumnHelper
-} from "@tanstack/react-table";
-import { Button, Tooltip } from "flowbite-react";
-import { Icon } from "@iconify/react";
-import { useEffect, useState, useMemo, useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
+  createColumnHelper,
+} from '@tanstack/react-table';
+import { Button, Tooltip } from 'flowbite-react';
+import { Icon } from '@iconify/react';
+import { useEffect, useState, useMemo, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  GetCheckinmodule,
-} from "src/features/Inventorymodule/guardmodule/GuardSlice";
+import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 
-import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
-import { toast } from "react-toastify";
+import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
+import { toast } from 'react-toastify';
 
-import PaginationComponent from "src/utils/PaginationComponent";
-import TableComponent from "src/utils/TableComponent";
-import { AppDispatch } from "src/store";
-import Portal from "src/utils/Portal";
-import { getPermissions } from "src/utils/getPermissions";
-import { CustomizerContext } from "src/context/CustomizerContext";
-import Addmodal from "./Addmodal";
+import PaginationComponent from 'src/utils/PaginationComponent';
+import TableComponent from 'src/utils/TableComponent';
+import { AppDispatch } from 'src/store';
+import Portal from 'src/utils/Portal';
+import { getPermissions } from 'src/utils/getPermissions';
+import { CustomizerContext } from 'src/context/CustomizerContext';
+import Addmodal from './Addmodal';
 import {
   GetAllQcbatch,
-  batchStatusChange
-} from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
+  batchStatusChange,
+} from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 const columnHelper = createColumnHelper<any>();
 
 function Table() {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedIconId } = useContext(CustomizerContext) || {};
-  const logindata = useSelector(
-    (state: any) => state.authentication?.logindata
-  );
-  const batchrecord = useSelector(
-    (state: any) => state.qcinventory.qcbatchdata
-  );
+  const logindata = useSelector((state: any) => state.authentication?.logindata);
+  const batchrecord = useSelector((state: any) => state.qcinventory.qcbatchdata);
 
   const [data, setData] = useState<any[]>([]);
   const [selectedRow, setSelectedRow] = useState<any | null>(null);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const [addModal, setAddmodal] = useState(false);
   const [onreload, setOnreload] = useState(false);
 
@@ -57,11 +51,11 @@ function Table() {
     try {
       const updated = await dispatch(batchStatusChange(id)).unwrap();
       if (updated) {
-        toast.success("Status updated successfully!");
+        toast.success('Status updated successfully!');
         setOnreload(true);
       }
     } catch (err: any) {
-      toast.error(err?.message || "Failed to update status");
+      toast.error(err?.message || 'Failed to update status');
     }
   };
 
@@ -77,7 +71,7 @@ function Table() {
     dispatch(GetAllQcbatch())
       .unwrap()
       .catch((error) => {
-        console.error("Error fetching QC batches:", error);
+        console.error('Error fetching QC batches:', error);
       });
     setOnreload(false);
   }, [dispatch, onreload]);
@@ -88,85 +82,88 @@ function Table() {
   }, [batchrecord]);
 
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 1);
+    return getPermissions(logindata, selectedIconId, 7);
   }, [logindata, selectedIconId]);
 
   // ✅ Search + filter
-const filteredData = useMemo(() => {
-  return data.filter((item) => {
-    const searchMatch =
-      !searchText ||
-      Object.values(item).some((val) =>
-        String(val).toLowerCase().includes(searchText.toLowerCase())
-      );
-    return searchMatch;
-  });
-}, [data, searchText]);
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const searchMatch =
+        !searchText ||
+        Object.values(item).some((val) =>
+          String(val).toLowerCase().includes(searchText.toLowerCase()),
+        );
+      return searchMatch;
+    });
+  }, [data, searchText]);
+
+  console.log(logindata);
 
   // ✅ Columns
   const getColumns = (handlers: any) => [
-    columnHelper.accessor("qc_batch_number", {
-      header: "Batch Number",
+    columnHelper.accessor('qc_batch_number', {
+      header: 'Batch Number',
       cell: (info) => (
         <div className="truncate max-w-56">
-          <h6 className="text-base">{info.getValue() || "-"}</h6>
+          <h6 className="text-base">{info.getValue() || '-'}</h6>
         </div>
-      )
+      ),
     }),
-    columnHelper.accessor("product_name", {
-      header: "Product Name",
-      cell: (info) => info.getValue() || "-"
+    columnHelper.accessor('product_name', {
+      header: 'Product Name',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("mfg_date", {
-      header: "Mfg Date",
-      cell: (info) => info.getValue() || "-"
+    columnHelper.accessor('mfg_date', {
+      header: 'Mfg Date',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("exp_date", {
-      header: "Exp Date",
-      cell: (info) => info.getValue() || "-"
+    columnHelper.accessor('exp_date', {
+      header: 'Exp Date',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("grade", {
-      header: "Grade",
-      cell: (info) => info.getValue() || "-"
+    columnHelper.accessor('grade', {
+      header: 'Grade',
+      cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor("size", {
-      header: "Size",
-      cell: (info) => info.getValue() || "-"
+    columnHelper.accessor('size', {
+      header: 'Size',
+      cell: (info) => info.getValue() || '-',
     }),
-    
-   columnHelper.accessor("status", {
-  header: "Status",
-  cell: (info) => {
-    const rowData = info.row.original;
-    const isApproved = rowData.status === "Approved";
 
-    return (
-      <div className="flex gap-2 notranslate" translate="no">
-        <Button
-          outline
-          size="xs"
-          className={`rounded-md font-medium
-            ${isApproved 
-              ? "border border-green-600 text-green-600 hover:bg-green-600 hover:text-white" 
-              : "border border-red-600 text-red-600 hover:bg-red-600 hover:text-white"}
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: (info) => {
+        const rowData = info.row.original;
+        const isApproved = rowData.status === 'Approved';
+
+        return (
+          <div className="flex gap-2 notranslate" translate="no">
+            <Button
+              outline
+              size="xs"
+              className={`rounded-md font-medium
+            ${
+              isApproved
+                ? 'border border-green-600 text-green-600 hover:bg-green-600 hover:text-white'
+                : 'border border-red-600 text-red-600 hover:bg-red-600 hover:text-white'
+            }
           `}
-          onClick={() => {
-            onhandleStatusChange(rowData);
-            setTimeout(triggerGoogleTranslateRescan, 50);
-          }}
-        >
-          {isApproved ? "Approved" : "Not Approved"}
-        </Button>
-      </div>
-    );
-  }
-}),
-
+              onClick={() => {
+                onhandleStatusChange(rowData);
+                setTimeout(triggerGoogleTranslateRescan, 50);
+              }}
+            >
+              {isApproved ? 'Approved' : 'Not Approved'}
+            </Button>
+          </div>
+        );
+      },
+    }),
 
     // ✅ Actions
     columnHelper.display({
-      id: "actions",
-      header: "Actions",
+      id: 'actions',
+      header: 'Actions',
       cell: (info) => {
         const row = info.row.original;
 
@@ -190,8 +187,8 @@ const filteredData = useMemo(() => {
         );
       },
       enableSorting: false,
-      enableColumnFilter: false
-    })
+      enableColumnFilter: false,
+    }),
   ];
 
   // ✅ Table
@@ -203,15 +200,15 @@ const filteredData = useMemo(() => {
           onAdd: (row: any) => {
             setSelectedRow(row);
             setAddmodal(true);
-          }
+          },
         }),
-      [permissions]
+      [permissions],
     ),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 10 } }
+    initialState: { pagination: { pageSize: 10 } },
   });
 
   return (
@@ -233,11 +230,7 @@ const filteredData = useMemo(() => {
       {permissions?.view ? (
         <>
           <div className="overflow-x-auto">
-            <TableComponent
-              table={table}
-              flexRender={flexRender}
-              columns={table.getAllColumns()}
-            />
+            <TableComponent table={table} flexRender={flexRender} columns={table.getAllColumns()} />
           </div>
           <PaginationComponent table={table} />
         </>
@@ -267,7 +260,7 @@ const filteredData = useMemo(() => {
             placeModal={addModal}
             logindata={logindata}
             rowData={selectedRow}
-            setOnreload={setOnreload}   
+            setOnreload={setOnreload}
           />
         </Portal>
       )}

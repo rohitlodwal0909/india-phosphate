@@ -47,6 +47,7 @@ function QcbatchTable() {
     () => getPermissions(logindata, selectedIconId, 4),
     [logindata, selectedIconId],
   );
+  console.log(permissions);
 
   // Fetch QC batches
   useEffect(() => {

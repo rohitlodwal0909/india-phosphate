@@ -4,7 +4,11 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
-import { getLineClearance, saveLineClearance, updateLineClearance } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import {
+  getLineClearance,
+  saveLineClearance,
+  updateLineClearance,
+} from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 
 interface LineClearanceAddProps {
   openModal: boolean;
@@ -34,7 +38,7 @@ const LineClearanceAdd: React.FC<LineClearanceAddProps> = ({
   recordId,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-const [editId, setEditId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState<any>({
     user_id: logindata?.admin?.id,
@@ -64,11 +68,7 @@ const [editId, setEditId] = useState<number | null>(null);
       label: item.full_name,
     })) || [];
 
-  const handleKeyPointChange = (
-    key: string,
-    type: 'cleaning' | 'checked',
-    option: any
-  ) => {
+  const handleKeyPointChange = (key: string, type: 'cleaning' | 'checked', option: any) => {
     setFormData((prev: any) => ({
       ...prev,
       key_points: {
@@ -81,93 +81,77 @@ const [editId, setEditId] = useState<number | null>(null);
     }));
   };
 
-useEffect(() => {
-  if (!openModal || !recordId) return;
+  useEffect(() => {
+    if (!openModal || !recordId) return;
 
-  dispatch(getLineClearance(recordId))
-    .unwrap()
-    .then((res) => {
-      if (!res?.data) return;
+    dispatch(getLineClearance(recordId))
+      .unwrap()
+      .then((res) => {
+        if (!res?.data) return;
 
-      const response = res.data;
+        const response = res.data;
 
-      setEditId(response.id);
+        setEditId(response.id);
 
-      setFormData({
-        user_id: response.user_id,
-        bmr_id: response.bmr_id,
-        clearance_date: response.clearance_date,
-        batch_no: response.batch_no,
+        setFormData({
+          user_id: response.user_id,
+          bmr_id: response.bmr_id,
+          clearance_date: response.clearance_date,
+          batch_no: response.batch_no,
 
-        bmr_product_id: productOptions.find(
-          (p) => p.value === response.bmr_product_id
-        ) || null,
+          bmr_product_id: productOptions.find((p) => p.value === response.bmr_product_id) || null,
 
-        cleaning_by: staffOptions.find(
-          (s) => s.value === response.cleaning_by
-        ) || null,
+          cleaning_by: staffOptions.find((s) => s.value === response.cleaning_by) || null,
 
-        checked_by: staffOptions.find(
-          (s) => s.value === response.checked_by
-        ) || null,
+          checked_by: staffOptions.find((s) => s.value === response.checked_by) || null,
 
-        key_points: response.key_points.reduce((acc: any, kp: any) => {
-          acc[kp.key_name] = {
-            cleaning: yesNoNaOptions.find(
-              (o) => o.value === kp.cleaning_status
-            ) || null,
-            checked: yesNoNaOptions.find(
-              (o) => o.value === kp.checked_status
-            ) || null,
-          };
-          return acc;
-        }, {}),
+          key_points: response.key_points.reduce((acc: any, kp: any) => {
+            acc[kp.key_name] = {
+              cleaning: yesNoNaOptions.find((o) => o.value === kp.cleaning_status) || null,
+              checked: yesNoNaOptions.find((o) => o.value === kp.checked_status) || null,
+            };
+            return acc;
+          }, {}),
+        });
       });
-    });
-}, [openModal, recordId, dispatch]);
+  }, [openModal, recordId, dispatch]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
+    const payload = {
+      ...formData,
+      cleaning_by: formData.cleaning_by?.value,
+      checked_by: formData.checked_by?.value,
+      bmr_product_id: formData.bmr_product_id?.value,
+      key_points: Object.fromEntries(
+        Object.entries(formData.key_points).map(([k, v]: any) => [
+          k,
+          {
+            cleaning: v.cleaning?.value,
+            checked: v.checked?.value,
+          },
+        ]),
+      ),
+    };
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  const payload = {
-    ...formData,
-    cleaning_by: formData.cleaning_by?.value,
-    checked_by: formData.checked_by?.value,
-    bmr_product_id: formData.bmr_product_id?.value,
-    key_points: Object.fromEntries(
-      Object.entries(formData.key_points).map(([k, v]: any) => [
-        k,
-        {
-          cleaning: v.cleaning?.value,
-          checked: v.checked?.value,
-        },
-      ])
-    ),
-  };
-
-  try {
-    if (editId) {
-      await dispatch(updateLineClearance({ id: editId, payload })).unwrap();
-      toast.success("Line Clearance Updated");
-    } else {
-      await dispatch(saveLineClearance(payload)).unwrap();
-      toast.success("Line Clearance Saved");
+    try {
+      if (editId) {
+        await dispatch(updateLineClearance({ id: editId, payload })).unwrap();
+        toast.success('Line Clearance Updated');
+      } else {
+        await dispatch(saveLineClearance(payload)).unwrap();
+        toast.success('Line Clearance Saved');
+      }
+      setOpenModal(false);
+    } catch {
+      toast.error('Operation Failed');
     }
-
-    setOpenModal(false);
-  } catch {
-    toast.error("Operation Failed");
-  }
-};
-
+  };
 
   const KeyPointRow = ({ label, name }: any) => (
     <div className="grid grid-cols-12 gap-3 col-span-12">
-      <div className="col-span-12 lg:col-span-4 font-medium">
-        {label}
-      </div>
+      <div className="col-span-12 lg:col-span-4 font-medium">{label}</div>
 
       <div className="col-span-12 sm:col-span-6 lg:col-span-4">
         <Label className="lg:hidden mb-1 block" value="Cleaning Done By (Production)" />
@@ -176,9 +160,7 @@ useEffect(() => {
           options={yesNoNaOptions}
           menuPortalTarget={document.body}
           styles={selectStyles}
-          onChange={(opt) =>
-            handleKeyPointChange(name, 'cleaning', opt)
-          }
+          onChange={(opt) => handleKeyPointChange(name, 'cleaning', opt)}
         />
       </div>
 
@@ -189,9 +171,7 @@ useEffect(() => {
           options={yesNoNaOptions}
           menuPortalTarget={document.body}
           styles={selectStyles}
-          onChange={(opt) =>
-            handleKeyPointChange(name, 'checked', opt)
-          }
+          onChange={(opt) => handleKeyPointChange(name, 'checked', opt)}
         />
       </div>
     </div>
@@ -203,15 +183,12 @@ useEffect(() => {
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-
           <div className="col-span-12 sm:col-span-6">
             <Label value="Clearance Date" />
             <TextInput
               type="date"
               value={formData.clearance_date}
-              onChange={(e) =>
-                setFormData({ ...formData, clearance_date: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, clearance_date: e.target.value })}
             />
           </div>
 
@@ -222,9 +199,7 @@ useEffect(() => {
               options={productOptions}
               menuPortalTarget={document.body}
               styles={selectStyles}
-              onChange={(opt) =>
-                setFormData({ ...formData, bmr_product_id: opt })
-              }
+              onChange={(opt) => setFormData({ ...formData, bmr_product_id: opt })}
             />
           </div>
 
@@ -232,9 +207,7 @@ useEffect(() => {
             <Label value="Batch No" />
             <TextInput
               value={formData.batch_no}
-              onChange={(e) =>
-                setFormData({ ...formData, batch_no: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, batch_no: e.target.value })}
             />
           </div>
 
@@ -245,9 +218,7 @@ useEffect(() => {
               options={staffOptions}
               menuPortalTarget={document.body}
               styles={selectStyles}
-              onChange={(opt) =>
-                setFormData({ ...formData, cleaning_by: opt })
-              }
+              onChange={(opt) => setFormData({ ...formData, cleaning_by: opt })}
             />
           </div>
 
@@ -258,9 +229,7 @@ useEffect(() => {
               options={staffOptions}
               menuPortalTarget={document.body}
               styles={selectStyles}
-              onChange={(opt) =>
-                setFormData({ ...formData, checked_by: opt })
-              }
+              onChange={(opt) => setFormData({ ...formData, checked_by: opt })}
             />
           </div>
 
@@ -273,7 +242,10 @@ useEffect(() => {
           <KeyPointRow label="Absence of previous batch material" name="prev_batch_material" />
           <KeyPointRow label="Absence of previous batch labels" name="prev_batch_labels" />
           <KeyPointRow label="Cleanliness of area" name="area_cleanliness" />
-          <KeyPointRow label="Calibration of weighing balances" name="weighing_balance_calibration" />
+          <KeyPointRow
+            label="Calibration of weighing balances"
+            name="weighing_balance_calibration"
+          />
 
           <div className="col-span-12 flex justify-end gap-3 mt-4">
             <Button color="gray" onClick={() => setOpenModal(false)}>

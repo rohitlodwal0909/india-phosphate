@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -7,25 +7,24 @@ import {
   getSortedRowModel,
   useReactTable,
   createColumnHelper,
-} from "@tanstack/react-table";
-import { Button, Tooltip } from "flowbite-react";
-import { Icon } from "@iconify/react";
-import { useDispatch, useSelector } from "react-redux";
+} from '@tanstack/react-table';
+import { Button, Tooltip } from 'flowbite-react';
+import { Icon } from '@iconify/react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import TableComponent from "src/utils/TableComponent";
-import PaginationComponent from "src/utils/PaginationComponent";
-import Portal from "src/utils/Portal";
-import { triggerGoogleTranslateRescan } from "src/utils/triggerTranslateRescan";
+import TableComponent from 'src/utils/TableComponent';
+import PaginationComponent from 'src/utils/PaginationComponent';
+import Portal from 'src/utils/Portal';
+import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 
-import { AppDispatch, RootState } from "src/store";
-import { CustomizerContext } from "src/context/CustomizerContext";
-import { getPermissions } from "src/utils/getPermissions";
-import {  GetBmrRecords } from "src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice";
-import { GetBmrMaster } from "src/features/master/BmrMaster/BmrMasterSlice";
-import LineClearanceView from "./LineClearanceView";
-import LineClearanceAdd from "./LineClearanceAdd";
-import { GetStaffMaster } from "src/features/master/StaffMaster/StaffMasterSlice";
-
+import { AppDispatch, RootState } from 'src/store';
+import { CustomizerContext } from 'src/context/CustomizerContext';
+import { getPermissions } from 'src/utils/getPermissions';
+import { GetBmrRecords } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import { GetBmrMaster } from 'src/features/master/BmrMaster/BmrMasterSlice';
+import LineClearanceView from './LineClearanceView';
+import LineClearanceAdd from './LineClearanceAdd';
+import { GetStaffMaster } from 'src/features/master/StaffMaster/StaffMasterSlice';
 
 /* =======================
    BMR DATA TYPE
@@ -48,25 +47,19 @@ const columnHelper = createColumnHelper<BmrDataType>();
 const LineClearanceTable = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const logindata = useSelector(
-    (state: RootState) => state.authentication?.logindata
-  ) as any;
+  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
   /* ✅ Redux se direct array aa raha hai */
-  const bmrRecords = useSelector(
-    (state: RootState) => state.bmrRecords.data
-  ) as BmrDataType[];
+  const bmrRecords = useSelector((state: RootState) => state.bmrRecords.data) as BmrDataType[];
 
- const bmr = useSelector(
-    (state: RootState) => state.bmrmaster.BmrMasterdata
-  ) as BmrDataType[];
+  const bmr = useSelector((state: RootState) => state.bmrmaster.BmrMasterdata) as BmrDataType[];
 
-   const staff = useSelector(
-    (state: RootState) => state.staffmaster.staffmasterdata
+  const staff = useSelector(
+    (state: RootState) => state.staffmaster.staffmasterdata,
   ) as BmrDataType[];
 
   const [data, setData] = useState<BmrDataType[]>([]);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
 
   const [modals, setModals] = useState({
     add: false,
@@ -74,7 +67,6 @@ const LineClearanceTable = () => {
     view: false,
     delete: false,
   });
-
 
   const [selectedRow, setSelectedRow] = useState<BmrDataType | null>(null);
 
@@ -89,8 +81,8 @@ const LineClearanceTable = () => {
   ======================= */
   useEffect(() => {
     dispatch(GetBmrRecords());
-    dispatch(GetBmrMaster())
-    dispatch(GetStaffMaster())
+    dispatch(GetBmrMaster());
+    dispatch(GetStaffMaster());
   }, [dispatch]);
 
   /* =======================
@@ -102,30 +94,21 @@ const LineClearanceTable = () => {
     }
   }, [bmrRecords]);
 
-
   /* =======================
      MODAL HANDLER
   ======================= */
-  const handleModal = (
-    type: keyof typeof modals,
-    value: boolean,
-    row?: BmrDataType
-  ) => {
+  const handleModal = (type: keyof typeof modals, value: boolean, row?: BmrDataType) => {
     setSelectedRow(row || null);
     setModals((prev) => ({ ...prev, [type]: value }));
     setTimeout(triggerGoogleTranslateRescan, 200);
   };
-
-
 
   /* =======================
      SEARCH FILTER
   ======================= */
   const filteredData = useMemo(() => {
     return data.filter((item) =>
-      JSON.stringify(item)
-        .toLowerCase()
-        .includes(searchText.toLowerCase())
+      JSON.stringify(item).toLowerCase().includes(searchText.toLowerCase()),
     );
   }, [data, searchText]);
 
@@ -134,50 +117,37 @@ const LineClearanceTable = () => {
   ======================= */
   const columns = useMemo(
     () => [
-      columnHelper.accessor("id", {
-        header: "S. No.",
+      columnHelper.accessor('id', {
+        header: 'S. No.',
         cell: (info) => <span>#{info.row.index + 1}</span>,
       }),
 
-      columnHelper.accessor(
-        (row) => row.records?.product_name,
-        {
-          id: "product_name",
-          header: "Product Name",
-          cell: (info) => info.getValue() || "-",
-        }
-      ),
-
-      columnHelper.accessor("batch_no", {
-        header: "Batch No",
+      columnHelper.accessor((row) => row.records?.product_name, {
+        id: 'product_name',
+        header: 'Product Name',
+        cell: (info) => info.getValue() || '-',
       }),
 
-      columnHelper.accessor(
-        (row) => row.records?.batch_size,
-        {
-          id: "batch_size",
-          header: "Batch Size",
-          cell: (info) => info.getValue() || "-",
-        }
-      ),
+      columnHelper.accessor('batch_no', {
+        header: 'Batch No',
+      }),
 
-      
+      columnHelper.accessor((row) => row.records?.batch_size, {
+        id: 'batch_size',
+        header: 'Batch Size',
+        cell: (info) => info.getValue() || '-',
+      }),
 
       columnHelper.display({
-        id: "actions",
-        header: "Actions",
+        id: 'actions',
+        header: 'Actions',
         cell: (info) => {
           const row = info.row.original;
           return (
             <div className="flex gap-2 notranslate" translate="no">
               {permissions.view && (
                 <Tooltip content="View">
-                  <Button
-                    size="xs"
-                    color="primary"
-                    
-                    onClick={() => handleModal("view", true, row)}
-                  >
+                  <Button size="xs" color="primary" onClick={() => handleModal('view', true, row)}>
                     <Icon icon="solar:eye-outline" height={18} />
                   </Button>
                 </Tooltip>
@@ -185,24 +155,17 @@ const LineClearanceTable = () => {
 
               {permissions.add && (
                 <Tooltip content="Plus">
-                  <Button
-                    size="xs"
-                    color="success"
-                    onClick={() => handleModal("add", true, row)}
-                  >
-                  <Icon icon="material-symbols:add-rounded" height={18} />
-
+                  <Button size="xs" color="success" onClick={() => handleModal('add', true, row)}>
+                    <Icon icon="material-symbols:add-rounded" height={18} />
                   </Button>
                 </Tooltip>
               )}
-
-              
             </div>
           );
         },
       }),
     ],
-    [permissions]
+    [permissions],
   );
 
   const table = useReactTable({
@@ -214,7 +177,6 @@ const LineClearanceTable = () => {
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 10 } },
   });
-
 
   /* =======================
      JSX
@@ -231,18 +193,12 @@ const LineClearanceTable = () => {
             className="p-2 border rounded-md"
           />
         )}
-
-        
       </div>
 
       {permissions.view ? (
         <>
           <div className="w-full overflow-x-auto">
-            <TableComponent
-              table={table}
-              flexRender={flexRender}
-              columns={columns}
-            />
+            <TableComponent table={table} flexRender={flexRender} columns={columns} />
           </div>
           <PaginationComponent table={table} />
         </>
@@ -252,20 +208,28 @@ const LineClearanceTable = () => {
         </div>
       )}
 
-       {modals.add && (
+      {modals.add && (
         <Portal>
-        <LineClearanceAdd openModal={modals.add} setOpenModal={() => handleModal('add', false)} priviousProduct={bmr} logindata={logindata} staff={staff} recordId={selectedRow?.id}/>
-       </Portal>
-       )}
-  
-      
- {modals.view && (
-        <Portal>
-        
-   <LineClearanceView openModal={modals.view} setPlaceModal={() => handleModal('view', false)} selectedRow={selectedRow}/>
+          <LineClearanceAdd
+            openModal={modals.add}
+            setOpenModal={() => handleModal('add', false)}
+            priviousProduct={bmr}
+            logindata={logindata}
+            staff={staff}
+            recordId={selectedRow?.id}
+          />
+        </Portal>
+      )}
 
-</Portal>
-)}
+      {modals.view && (
+        <Portal>
+          <LineClearanceView
+            openModal={modals.view}
+            setPlaceModal={() => handleModal('view', false)}
+            selectedRow={selectedRow}
+          />
+        </Portal>
+      )}
     </div>
   );
 };

@@ -8,7 +8,7 @@ import BatchApproved from 'src/views/inventory/batch-approved/BatchApproved';
 import FPR from 'src/views/inventory/fpr/FPR';
 import BmrInventory from 'src/views/inventory/bmr/bmr-creation/BmrInventory';
 import PmCode from 'src/views/master/PmCode/PmCode';
-import LineClearance from 'src/views/inventory/bmr/line-clearance/LineClearance';
+import LineClearance from 'src/views/inventory/bmr/bmr-creation/bmr-process/LineClearance';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -22,9 +22,13 @@ const City = Loadable(lazy(() => import('src/views/master/City/City')));
 const Inward = Loadable(lazy(() => import('src/views/master/Inward/Inward')));
 const Company = Loadable(lazy(() => import('src/views/master/Company/Company')));
 const MakeMaster = Loadable(lazy(() => import('src/views/master/MakeMaster/MakeMaster')));
-const DepartmentMaster = Loadable(lazy(() => import('src/views/master/DepartmentMaster/DepartmentMaster')));
+const DepartmentMaster = Loadable(
+  lazy(() => import('src/views/master/DepartmentMaster/DepartmentMaster')),
+);
 const Account = Loadable(lazy(() => import('src/views/master/Account/Account')));
-const PackingMaterial = Loadable(lazy(() => import('src/views/master/PackingMaterial/PackingMaterial')));
+const PackingMaterial = Loadable(
+  lazy(() => import('src/views/master/PackingMaterial/PackingMaterial')),
+);
 const Transport = Loadable(lazy(() => import('src/views/master/Transport/Transport')));
 const BatchMaster = Loadable(lazy(() => import('src/views/master/BatchMaster/BatchMaster')));
 const PendingOrder = Loadable(lazy(() => import('src/views/master/PendingOrder/PendingOrder')));
@@ -42,18 +46,28 @@ const Document = Loadable(lazy(() => import('src/views/master/Document/Document'
 
 const WelcomeDashboard = Loadable(lazy(() => import('src/views/dashboard/WelcomeDashboard.tsx')));
 const SubmitReport = Loadable(lazy(() => import('src/views/Report/SubmitReport')));
-const ProductionInventory = Loadable(lazy(() => import('src/views/inventory/production/ProductionInventory')));
-const DispatchInventory = Loadable(lazy(() => import('src/views/inventory/dispatch-inventory/DispatchInventory')));
+const ProductionInventory = Loadable(
+  lazy(() => import('src/views/inventory/production/ProductionInventory')),
+);
+const DispatchInventory = Loadable(
+  lazy(() => import('src/views/inventory/dispatch-inventory/DispatchInventory')),
+);
 const Qcbatch = Loadable(lazy(() => import('src/views/inventory/qcbatch/Qcbatch')));
-const SeeAllNotifications = Loadable(lazy(() => import('src/views/Notifications/SeeAllNotifications')));
+const SeeAllNotifications = Loadable(
+  lazy(() => import('src/views/Notifications/SeeAllNotifications')),
+);
 const Finishing = Loadable(lazy(() => import('src/views/inventory/finishing/Finishing')));
 const ChangePassword = Loadable(lazy(() => import('src/views/authentication/ChangePassword')));
 const Logs = Loadable(lazy(() => import('src/views/authentication/Logs')));
 
 // import { useSelector } from 'react-redux';
 const Usermanagment = Loadable(lazy(() => import('src/views/usermanagment/Usermanagment')));
-const GuardInventory = Loadable(lazy(() => import('src/views/inventory/Guardentry/GuardInventory')));
-const StoreInventory = Loadable(lazy(() => import('src/views/inventory/inventory-store/StoreInventory')));
+const GuardInventory = Loadable(
+  lazy(() => import('src/views/inventory/Guardentry/GuardInventory')),
+);
+const StoreInventory = Loadable(
+  lazy(() => import('src/views/inventory/inventory-store/StoreInventory')),
+);
 const QcInventory = Loadable(lazy(() => import('src/views/inventory/qC-inventory/QcInventory')));
 const Userprofile = Loadable(lazy(() => import('src/views/userprofile/Userprofile')));
 const PermissionsTable = Loadable(lazy(() => import('src/views/permission/PermissionsTable')));
@@ -73,7 +87,7 @@ const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 /* Pages */
 
 const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
-    // const logindata = useSelector((state: any) => state.authentication?.logindata);
+// const logindata = useSelector((state: any) => state.authentication?.logindata);
 const isAdminRole = logindata?.admin?.role_id == 1;
 
 const fullLayoutChildren = [
@@ -88,98 +102,99 @@ const fullLayoutChildren = [
   { path: '/inventory/qc-batch', element: <Qcbatch /> },
   { path: '/inventory/qa-qc-approval', element: <BatchApproved /> },
   { path: '/inventory/fpr', element: <FPR /> },
-  { path: '/notifications', element: <SeeAllNotifications/> },
+  { path: '/notifications', element: <SeeAllNotifications /> },
   { path: '/inventory/production', element: <ProductionInventory /> },
   { path: '/inventory/finishing', element: <Finishing /> },
   { path: '/inventory/dispatch', element: <DispatchInventory /> },
   { path: '/inventory/bmr/create', element: <BmrInventory /> },
-  { path: '/inventory/bmr/line-clearance', element: <LineClearance /> },
+  { path: '/inventory/bmr/process/:id', element: <LineClearance /> },
 
- 
-  { path: '/inventory/report/:id', element: <SubmitReport/> },
-  { path: '/master/company', element: <Company/> },
-  { path: '/master/supplier', element: <Supplier/> },
-  { path: '/master/customer', element: <Customer/> },
+  { path: '/inventory/report/:id', element: <SubmitReport /> },
+  { path: '/master/company', element: <Company /> },
+  { path: '/master/supplier', element: <Supplier /> },
+  { path: '/master/customer', element: <Customer /> },
   // { path: '/master/category', element: <Category/> },
-  { path: '/master/rm-code', element: <RmCode/> },
-  { path: '/master/pm-code', element: <PmCode/> },
-  { path: '/master/unit', element: <Unit/> },
-  { path: '/master/make-masters', element: <MakeMaster/> },
-  { path: '/master/department-masters', element: <DepartmentMaster/> },
-  { path: '/master/accounts', element: <Account/> },
-  { path: '/master/packing-material', element: <PackingMaterial/> },
-  { path: '/master/transport', element: <Transport/> },
-  { path: '/master/batch-masters', element: <BatchMaster/> },
-  { path: '/master/pending-orders', element: <PendingOrder/> },
-  { path: '/master/stock-masters', element: <StockMaster/> },
-  { path: '/master/sales-masters', element: <SalesMaster/> },
-  { path: '/master/hsn-masters', element: <HsnMaster/> },
-  { path: '/master/currency-master', element: <Currency/> },
-  { path: '/master/equipment', element: <Equipment/> },
-  { path: '/master/outward', element: <Outward/> },
-  { path: '/master/purchase', element: <Purchase/> },
-  { path: '/master/bmr', element: <BmrMaster/> },
-  { path: '/master/unit', element: <Unit/> },
-  { path: '/master/staff-master', element: <StaffMaster/> },
-  { path: '/master/designation', element: <Designation/> },
-  { path: '/master/qualification', element: <Qualification/> },
-  { path: '/master/states', element: <State/> },
-  { path: '/master/cites', element: <City/> },
-  { path: '/master/inward', element: <Inward/> },
-  { path: '/master/finish-good', element: <FinishGood/> },
-  { path: '/master/formula', element: <Formula/> },
-  { path: '/master/document', element: <Document/> },
+  { path: '/master/rm-code', element: <RmCode /> },
+  { path: '/master/pm-code', element: <PmCode /> },
+  { path: '/master/unit', element: <Unit /> },
+  { path: '/master/make-masters', element: <MakeMaster /> },
+  { path: '/master/department-masters', element: <DepartmentMaster /> },
+  { path: '/master/accounts', element: <Account /> },
+  { path: '/master/packing-material', element: <PackingMaterial /> },
+  { path: '/master/transport', element: <Transport /> },
+  { path: '/master/batch-masters', element: <BatchMaster /> },
+  { path: '/master/pending-orders', element: <PendingOrder /> },
+  { path: '/master/stock-masters', element: <StockMaster /> },
+  { path: '/master/sales-masters', element: <SalesMaster /> },
+  { path: '/master/hsn-masters', element: <HsnMaster /> },
+  { path: '/master/currency-master', element: <Currency /> },
+  { path: '/master/equipment', element: <Equipment /> },
+  { path: '/master/outward', element: <Outward /> },
+  { path: '/master/purchase', element: <Purchase /> },
+  { path: '/master/bmr', element: <BmrMaster /> },
+  { path: '/master/unit', element: <Unit /> },
+  { path: '/master/staff-master', element: <StaffMaster /> },
+  { path: '/master/designation', element: <Designation /> },
+  { path: '/master/qualification', element: <Qualification /> },
+  { path: '/master/states', element: <State /> },
+  { path: '/master/cites', element: <City /> },
+  { path: '/master/inward', element: <Inward /> },
+  { path: '/master/finish-good', element: <FinishGood /> },
+  { path: '/master/formula', element: <Formula /> },
+  { path: '/master/document', element: <Document /> },
 
   { path: '*', element: <Navigate to="/auth/404" /> },
 ];
 
 // Only add sensitive routes if NOT role_id === 1
 if (isAdminRole) {
-  fullLayoutChildren.splice(2, 0, { path: '/user-profile/user-managment', element: <Usermanagment /> }); // insert after user-profile
+  fullLayoutChildren.splice(2, 0, {
+    path: '/user-profile/user-managment',
+    element: <Usermanagment />,
+  }); // insert after user-profile
   fullLayoutChildren.push({ path: '/permission', element: <PermissionsTable /> });
 }
 
 const Router = [
- {
-  path: '/',
-  element: <AuthGuard />, // Protects private pages
-  children: [
-    {
-      path: '/',
-      element: <FullLayout />,
-      children: fullLayoutChildren,
-    },
-  ],
-},
+  {
+    path: '/',
+    element: <AuthGuard />, // Protects private pages
+    children: [
+      {
+        path: '/',
+        element: <FullLayout />,
+        children: fullLayoutChildren,
+      },
+    ],
+  },
 
-{
-  path: '/',
-  element: <BlankLayout />,
-  children: [
-    {
-      path: '/admin/login',
-      element: (
-        <ProtectedRoute>
-          <Login />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: '/admin/register',
-      element: (
-        <ProtectedRoute>
-          <Register />
-        </ProtectedRoute>
-      ),
-    },
-    { path: '/admin/forgot-password', element: <ForgotPassword /> },
-    { path: '/admin/two-steps', element: <TwoSteps /> },
-    { path: '/admin/maintenance', element: <Maintainance /> },
-    { path: '/auth/404', element: <Error /> },
-    { path: '*', element: <Navigate to="/auth/404" /> },
-  ],
-}
-
+  {
+    path: '/',
+    element: <BlankLayout />,
+    children: [
+      {
+        path: '/admin/login',
+        element: (
+          <ProtectedRoute>
+            <Login />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/admin/register',
+        element: (
+          <ProtectedRoute>
+            <Register />
+          </ProtectedRoute>
+        ),
+      },
+      { path: '/admin/forgot-password', element: <ForgotPassword /> },
+      { path: '/admin/two-steps', element: <TwoSteps /> },
+      { path: '/admin/maintenance', element: <Maintainance /> },
+      { path: '/auth/404', element: <Error /> },
+      { path: '*', element: <Navigate to="/auth/404" /> },
+    ],
+  },
 ];
 
 const router = createBrowserRouter(Router);

@@ -1,32 +1,24 @@
-import { Field } from "@headlessui/react";
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Button,
-  TextInput,
-  Label,
-  Select,
-} from "flowbite-react";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
+import { Field } from '@headlessui/react';
+import { Modal, ModalBody, ModalHeader, Button, TextInput, Label, Select } from 'flowbite-react';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import {
   GetAllQcbatch,
   qcBatchadd,
-} from "src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice";
-import { AppDispatch } from "src/store";
+} from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+import { AppDispatch } from 'src/store';
 
 const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [form, setForm] = useState({
-    batch_no: "",
-    product_name: "",
-    mfg_date: "",
-    exp_date: "",
-    grade: "",
-    size: "",
+    batch_no: '',
+    product_name: '',
+    mfg_date: '',
+    exp_date: '',
+    grade: '',
+    size: '',
   });
 
   const handleChange = (e) => {
@@ -48,27 +40,27 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
           grade: form.grade,
           size: form.size,
           user_id: logindata?.admin?.id,
-        })
+        }),
       );
 
       if (result.payload) {
         if (result.payload.message) {
           dispatch(GetAllQcbatch());
           setForm({
-            batch_no: "",
-            product_name: "",
-            mfg_date: "",
-            exp_date: "",
-            grade: "",
-            size: "",
+            batch_no: '',
+            product_name: '',
+            mfg_date: '',
+            exp_date: '',
+            grade: '',
+            size: '',
           });
-          toast.success("QC Batch created successfully.");
+          toast.success('QC Batch created successfully.');
           setPlaceModal(false);
         } else {
           toast.error(result.payload);
         }
       } else {
-        toast.error("Failed to create QC Batch.");
+        toast.error('Failed to create QC Batch.');
       }
     } catch (error) {
       toast.error(error.message);
@@ -144,11 +136,7 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
 
             <Field className="col-span-1">
               <Label className="mb-2 block font-medium">Grade</Label>
-              <Select
-                name="grade"
-                value={form.grade}
-                onChange={handleChange}
-              >
+              <Select name="grade" value={form.grade} onChange={handleChange}>
                 <option value="">Select Grade</option>
                 <option value="IP">IP</option>
                 <option value="BP">BP</option>
@@ -157,8 +145,6 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
                 <option value="FCC">FCC</option>
               </Select>
             </Field>
-
-             
           </div>
 
           <div className="flex justify-center gap-4 mt-6">
