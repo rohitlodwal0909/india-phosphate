@@ -63,7 +63,7 @@ export const getIssuedRawMaterial = createAsyncThunk(
 
 export const deleteIssuedRawMaterial = createAsyncThunk(
   'issue/delete-raw-material',
-  async (id, { rejectWithValue }) => {
+  async (id: number, { rejectWithValue }) => {
     try {
       const response = await axios.delete(`${apiUrl}/issued-delete-rm/${id}`);
       return response.data;
