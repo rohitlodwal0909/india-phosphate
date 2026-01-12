@@ -1,8 +1,13 @@
 // components/PaginationComponent.tsx
 
-import { Table } from "@tanstack/react-table";
-import { IconChevronsLeft, IconChevronLeft, IconChevronRight, IconChevronsRight } from "@tabler/icons-react";
-import { Button } from "flowbite-react";
+import { Table } from '@tanstack/react-table';
+import {
+  IconChevronsLeft,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsRight,
+} from '@tabler/icons-react';
+import { Button } from 'flowbite-react';
 
 interface PaginationComponentProps<T> {
   table: Table<T>;

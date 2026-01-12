@@ -9,6 +9,9 @@ import FPR from 'src/views/inventory/fpr/FPR';
 import BmrInventory from 'src/views/inventory/bmr/bmr-creation/BmrInventory';
 import PmCode from 'src/views/master/PmCode/PmCode';
 import LineClearance from 'src/views/inventory/bmr/bmr-creation/bmr-process/LineClearance';
+import PmIssuedInventory from 'src/views/inventory/inventory-issued/pm-issued/PmIssuedInventory';
+import EquipementIssuedInventory from 'src/views/inventory/inventory-issued/equipement-issued/EquipementIssuedInventory';
+import RmIssuedInventory from 'src/views/inventory/inventory-issued/rm-issued/RmIssuedInventory';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -108,6 +111,9 @@ const fullLayoutChildren = [
   { path: '/inventory/dispatch', element: <DispatchInventory /> },
   { path: '/inventory/bmr/create', element: <BmrInventory /> },
   { path: '/inventory/bmr/process/:id', element: <LineClearance /> },
+  { path: '/inventory/inventory-pm', element: <PmIssuedInventory /> },
+  { path: '/inventory/inventory-equipment', element: <EquipementIssuedInventory /> },
+  { path: '/inventory/inventory-rm', element: <RmIssuedInventory /> },
 
   { path: '/inventory/report/:id', element: <SubmitReport /> },
   { path: '/master/company', element: <Company /> },

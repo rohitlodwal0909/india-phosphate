@@ -197,10 +197,20 @@ function QcInventoryTable() {
       },
       header: () => <span className="text-base">Inward Number</span>,
     }),
-    columnHelper.accessor('store_rm_code', {
-      cell: (info) => <p>{info.getValue() || 'N0 Code'}</p>,
-      header: () => <span>RM Code</span>,
+
+    columnHelper.accessor('guard_entry_id', {
+      cell: (info: any) => {
+        const rowData = info.row.original;
+        // const storeItem = guardData?.data?.find(item => item.id === rowData.guard_entry_id);
+        return (
+          <div className="truncate max-w-56">
+            <p>{rowData?.rmcode?.rm_code}</p>
+          </div>
+        );
+      },
+      header: () => <span className="text-base">RM Code</span>,
     }),
+
     columnHelper.accessor('grn_number', {
       cell: (info) => <p>{info.getValue() || 'N0 Nmber'}</p>,
       header: () => <span>GRN_Number</span>,

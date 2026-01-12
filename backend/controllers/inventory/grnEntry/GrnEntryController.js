@@ -4,13 +4,20 @@ const {
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
-const { GrnEntry, RawMaterialQcResult, User, PmCode, Equipment, GuardEntry } =
-  db;
+const {
+  GrnEntry,
+  RawMaterialQcResult,
+  User,
+  PmCode,
+  RmCode,
+  Equipment,
+  GuardEntry
+} = db;
 
 // Create GRN Entry
 exports.store = async (req, res, next) => {
   try {
-    const { user_id, store_rm_code } = req.body;
+    const { user_id, store_rm_code, type } = req.body;
     const { entry_date, entry_time } = getISTDateTime();
 
     const lastEntry = await GrnEntry.findOne({
@@ -26,9 +33,16 @@ exports.store = async (req, res, next) => {
       const nextNumber = lastNumber + 1;
       newGrnNumber = `GRN${String(nextNumber).padStart(4, "0")}`;
     }
+
+    let status = "PENDING";
+    if (type == "equipment") {
+      status = "APPROVED";
+    }
+
     const data = await GrnEntry.create({
       ...req.body,
       grn_number: newGrnNumber,
+      qa_qc_status: status,
       grn_date: entry_date,
       grn_time: entry_time
     });
@@ -87,6 +101,11 @@ exports.index = async (req, res, next) => {
           model: GuardEntry,
           as: "guard_entry",
           required: true
+        },
+        {
+          model: RmCode,
+          as: "rmcode",
+          required: false
         }
       ]
     });
@@ -108,6 +127,11 @@ exports.show = async (req, res, next) => {
         {
           model: PmCode,
           as: "pm_code",
+          required: false
+        },
+        {
+          model: RmCode,
+          as: "rmcode",
           required: false
         },
         {

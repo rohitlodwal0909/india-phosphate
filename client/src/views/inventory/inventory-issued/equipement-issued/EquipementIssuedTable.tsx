@@ -20,48 +20,49 @@ import Portal from 'src/utils/Portal';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 
 import { AppDispatch, RootState } from 'src/store';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
+import EquipementIssuedAdd from './EquipementIssuedAdd';
+import EquipementIssuedEdit from './EquipementIssuedEdit';
+
 import {
-  deleteBmrRecord,
-  GetBmrRecords,
-} from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
-import BmrAdd from './BmrAdd';
-import { GetBmrMaster } from 'src/features/master/BmrMaster/BmrMasterSlice';
-import BmrEdit from './BmrEdit';
-import BmrView from './BmrView';
-import { useNavigate } from 'react-router';
+  getIssuedEquipment,
+  getStoreEquipment,
+  deleteIssuedEquipment,
+} from 'src/features/Inventorymodule/InventoryIssued/IssueEquipmentSlice';
+import CurrentStocks from './CurrentStocks';
 
 /* =======================
    BMR DATA TYPE
 ======================= */
-interface BmrDataType {
+interface EquipementIssuedType {
   id: number;
-  batch_no: string;
-  mfg_date: string;
-  exp_date: string;
-  status: string;
-  records?: {
+  quantity: string;
+  person_name: string;
+  type: string;
+  note: string;
+  date: string;
+  issueequipment?: {
     id: number;
-    product_name: string;
+    name: string;
   };
 }
 
-const columnHelper = createColumnHelper<BmrDataType>();
+const columnHelper = createColumnHelper<EquipementIssuedType>();
 
-const BmrCreateTable = () => {
+const EquipementIssuedTable = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
+
+  const storeequipments = useSelector(
+    (state: RootState) => state.issueEquipment?.storeequipment,
+  ) as any;
+
+  const issueequipments = useSelector(
+    (state: RootState) => state.issueEquipment.issueequipment ?? [],
+  );
 
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  /* ✅ Redux se direct array aa raha hai */
-  const bmrRecords = useSelector((state: RootState) => state.bmrRecords.data) as BmrDataType[];
-
-  const bmrProductName = useSelector((state: RootState) => state.bmrmaster.BmrMasterdata);
-
-  const [data, setData] = useState<BmrDataType[]>([]);
   const [searchText, setSearchText] = useState('');
 
   const [modals, setModals] = useState({
@@ -71,39 +72,26 @@ const BmrCreateTable = () => {
     delete: false,
   });
 
-  const [selectedRow, setSelectedRow] = useState<BmrDataType | null>(null);
+  const [selectedRow, setSelectedRow] = useState<EquipementIssuedType | null>(null);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 10);
+    return getPermissions(logindata, selectedIconId, 11);
   }, [logindata, selectedIconId]);
-
-  const handleAddData = (id) => {
-    navigate('/inventory/bmr/process/' + id);
-  };
 
   /* =======================
      FETCH BMR RECORDS
   ======================= */
   useEffect(() => {
-    dispatch(GetBmrRecords());
-    dispatch(GetBmrMaster());
+    dispatch(getStoreEquipment());
+    dispatch(getIssuedEquipment());
   }, [dispatch]);
-
-  /* =======================
-     SET DATA (FIXED)
-  ======================= */
-  useEffect(() => {
-    if (Array.isArray(bmrRecords)) {
-      setData(bmrRecords);
-    }
-  }, [bmrRecords]);
 
   /* =======================
      MODAL HANDLER
   ======================= */
-  const handleModal = (type: keyof typeof modals, value: boolean, row?: BmrDataType) => {
+  const handleModal = (type: keyof typeof modals, value: boolean, row?: EquipementIssuedType) => {
     setSelectedRow(row || null);
     setModals((prev) => ({ ...prev, [type]: value }));
     setTimeout(triggerGoogleTranslateRescan, 200);
@@ -114,12 +102,12 @@ const BmrCreateTable = () => {
   ======================= */
   const handleConfirmDelete = async () => {
     if (!selectedRow?.id) return toast.error('No entry selected');
-
+    const id = selectedRow?.id;
     try {
-      await dispatch(deleteBmrRecord(selectedRow.id)).unwrap();
-      toast.success('BMR entry deleted successfully');
-      dispatch(GetStoremodule());
-      setData((prev) => prev.filter((i) => i.id !== selectedRow.id));
+      dispatch(deleteIssuedEquipment(id));
+      toast.success('Issued equipment deleted successfully');
+      dispatch(getIssuedEquipment());
+      dispatch(getStoreEquipment());
     } catch (err: any) {
       toast.error(err.message || 'Delete failed');
     } finally {
@@ -130,11 +118,12 @@ const BmrCreateTable = () => {
   /* =======================
      SEARCH FILTER
   ======================= */
+
   const filteredData = useMemo(() => {
-    return data.filter((item) =>
+    return issueequipments?.filter((item: any) =>
       JSON.stringify(item).toLowerCase().includes(searchText.toLowerCase()),
     );
-  }, [data, searchText]);
+  }, [issueequipments, searchText]); // ✅ correct dependency
 
   /* =======================
      TABLE COLUMNS
@@ -146,27 +135,27 @@ const BmrCreateTable = () => {
         cell: (info) => <span>#{info.row.index + 1}</span>,
       }),
 
-      columnHelper.accessor((row) => row.records?.product_name, {
-        id: 'product_name',
-        header: 'Product Name',
+      columnHelper.accessor((row) => row.issueequipment?.name, {
+        id: 'name',
+        header: 'Name of Equipment',
         cell: (info) => info.getValue() || '-',
       }),
 
-      columnHelper.accessor('batch_no', {
-        header: 'Batch No',
+      columnHelper.accessor('quantity', {
+        header: 'Quantity',
       }),
 
-      columnHelper.accessor('mfg_date', {
-        header: 'Mfg Date',
+      columnHelper.accessor('person_name', {
+        header: 'Name of person',
       }),
-
-      columnHelper.accessor('status', {
-        header: 'Status',
-        cell: (info) => (
-          <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 capitalize">
-            {info.getValue()}
-          </span>
-        ),
+      columnHelper.accessor('type', {
+        header: 'Type',
+      }),
+      columnHelper.accessor('note', {
+        header: 'Note',
+      }),
+      columnHelper.accessor('date', {
+        header: 'Date',
       }),
 
       columnHelper.display({
@@ -176,27 +165,6 @@ const BmrCreateTable = () => {
           const row = info.row.original;
           return (
             <div className="flex gap-2 notranslate" translate="no">
-              {permissions.add && (
-                <Tooltip content="Plus">
-                  <Button size="xs" color="success" onClick={() => handleAddData(row?.id)}>
-                    <Icon icon="material-symbols:add-rounded" height={18} />
-                  </Button>
-                </Tooltip>
-              )}
-
-              {permissions.view && (
-                <Tooltip content="View">
-                  <Button
-                    size="xs"
-                    color="primary"
-                    outline
-                    onClick={() => handleModal('view', true, row)}
-                  >
-                    <Icon icon="solar:eye-outline" height={18} />
-                  </Button>
-                </Tooltip>
-              )}
-
               {permissions.edit && (
                 <Tooltip content="Edit">
                   <Button
@@ -255,10 +223,15 @@ const BmrCreateTable = () => {
             className="p-2 border rounded-md"
           />
         )}
+        {permissions.view && (
+          <Button size="sm" color="success" onClick={() => handleModal('view', true)}>
+            Current Stocks
+          </Button>
+        )}
 
         {permissions.add && (
-          <Button size="sm" onClick={() => handleModal('add', true)}>
-            Add BMR
+          <Button size="sm" color="primary" onClick={() => handleModal('add', true)}>
+            Equipment Issued
           </Button>
         )}
       </div>
@@ -282,7 +255,7 @@ const BmrCreateTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to delete this BMR Entry?"
+            title="Are you sure you want to delete this equipment issued?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
@@ -290,32 +263,31 @@ const BmrCreateTable = () => {
 
       {modals.add && (
         <Portal>
-          <BmrAdd
+          <EquipementIssuedAdd
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
-            StoreData={bmrProductName}
+            storeequipments={storeequipments?.data}
             logindata={logindata}
           />
         </Portal>
       )}
       {modals.edit && selectedRow && (
         <Portal>
-          <BmrEdit
+          <EquipementIssuedEdit
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
-            StoreData={bmrProductName}
+            StoreData={storeequipments?.data}
             logindata={logindata}
           />
         </Portal>
       )}
-
       {modals.view && (
         <Portal>
-          <BmrView
+          <CurrentStocks
             openModal={modals.view}
-            setPlaceModal={() => handleModal('view', false)}
-            selectedRow={selectedRow}
+            setOpenModal={() => handleModal('view', false)}
+            storeequipments={storeequipments?.data}
           />
         </Portal>
       )}
@@ -323,4 +295,4 @@ const BmrCreateTable = () => {
   );
 };
 
-export default BmrCreateTable;
+export default EquipementIssuedTable;

@@ -1,13 +1,13 @@
 const db = require("../../models");
-const { RoleModel, RolePermissionModel,PermissionModel } = db;
+const { RoleModel, RolePermissionModel, PermissionModel } = db;
 
-exports.roles = async (req, res, next ) => {
+exports.roles = async (req, res, next) => {
   try {
     const roles = await RoleModel.findAll();
 
     res.json({ roles });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };
 
@@ -70,10 +70,16 @@ exports.roles = async (req, res, next ) => {
 //   }
 // };
 
-
 exports.savePermission = async (req, res, next) => {
   try {
-    const { role_id, module_id, submodule_id, permission_id, status } = req.body;
+    const {
+      role_id,
+      user_role_id,
+      module_id,
+      submodule_id,
+      permission_id,
+      status
+    } = req.body;
 
     if (!role_id || !module_id || !submodule_id || !permission_id) {
       const error = new Error("Missing required fields");
@@ -81,9 +87,14 @@ exports.savePermission = async (req, res, next) => {
       return next(error);
     }
 
-
     const getPermission = await RolePermissionModel.findOne({
-      where: { role_id, submodule_id, permission_id ,module_id}
+      where: {
+        role_id,
+        user_id: user_role_id,
+        submodule_id,
+        permission_id,
+        module_id
+      }
     });
 
     let action = "";
@@ -97,6 +108,7 @@ exports.savePermission = async (req, res, next) => {
     } else {
       await RolePermissionModel.create({
         role_id,
+        user_id: user_role_id,
         submodule_id,
         permission_id,
         status,
@@ -108,12 +120,11 @@ exports.savePermission = async (req, res, next) => {
     const permission = await PermissionModel.findOne({
       where: { id: permission_id }
     });
-    
-     const submoduleName = await RoleModel.findOne({
+
+    const submoduleName = await RoleModel.findOne({
       where: { id: submodule_id }
     });
-    
-  
+
     const permissionName = permission?.name || "Unknown Permission";
     const submodlenames = submoduleName?.name || "master" || "Dashboard";
     const readableStatus = status ? "enabled" : "disabled";
@@ -130,25 +141,24 @@ exports.savePermission = async (req, res, next) => {
   }
 };
 
-exports.getrolepermission = async (req, res,next ) => {
+exports.getrolepermission = async (req, res, next) => {
   try {
-    const { role_id } = req.params;
+    const { userId } = req.params;
 
-    if (!role_id) {
-       const error = new Error( "Missing required fields");
-           error.status = 400;
-        return next(error);
-
+    if (!userId) {
+      const error = new Error("Missing required fields");
+      error.status = 400;
+      return next(error);
     }
 
     const getPermission = await RolePermissionModel.findAll({
-      where: { role_id }
+      where: { user_id: userId }
     });
 
     return res.status(200).json({
       permission: getPermission
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };

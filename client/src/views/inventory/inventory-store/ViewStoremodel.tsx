@@ -15,7 +15,6 @@ const ViewStoreModel = ({
   selectedRow,
   supplierdata,
 }: Props) => {
-  console.log(selectedRow);
   const details = [
     [
       'Supplier Name',
@@ -33,7 +32,7 @@ const ViewStoreModel = ({
 
     ...(selectedRow?.type == 'material'
       ? [
-          ['Store RM Code', selectedRow?.store_rm_code],
+          ['Store RM Code', selectedRow?.rmcode?.rm_code],
           ['PM Name', selectedRow?.pm_code?.packaging_type || '-'],
         ]
       : []),

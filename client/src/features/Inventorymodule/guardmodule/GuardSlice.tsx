@@ -1,18 +1,18 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl }from '../../../constants/contant.tsx'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant.tsx';
 
 const initialState = {
   loading: false,
   error: null,
-  checkindata: [],         
-  addResult: null,  
+  checkindata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
 export const GetCheckinmodule = createAsyncThunk(
-  "checkins/fetch",
+  'checkins/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/guard-entries`);
@@ -25,20 +25,18 @@ export const GetCheckinmodule = createAsyncThunk(
         'Something went wrong while fetching check-ins.';
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
-
-
 export const addCheckin = createAsyncThunk(
-  "checkins/add",
-  async (newCheckin:any, { rejectWithValue }) => {
+  'checkins/add',
+  async (newCheckin: any, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/guard-entries`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
-      console.error("Add checkin error:", error);
+      console.error('Add checkin error:', error);
 
       // Try to extract a message from the server
       const message =
@@ -49,46 +47,41 @@ export const addCheckin = createAsyncThunk(
 
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const updateCheckin = createAsyncThunk(
-  "checkins/update",
+  'checkins/update',
   async (updatedCheckin: any, { rejectWithValue }) => {
     try {
       const response = await axios.put(
         `${apiUrl}/guard-entries/${updatedCheckin.id}`,
-        updatedCheckin
+        updatedCheckin,
       );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to update checkin."
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to update checkin.');
     }
-  }
+  },
 );
 
-export const deleteCheckin = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "checkins/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${apiUrl}/guard-entries/${id}`,{
-      data: { user_id }
+export const deleteCheckin = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('checkins/delete', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    await axios.delete(`${apiUrl}/guard-entries/${id}`, {
+      data: { user_id },
     });
-      return id;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
-    }
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
   }
-);
-
-
+});
 
 const CheckinSlice = createSlice({
-  name: "checkininventory",
+  name: 'checkininventory',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -134,4 +127,3 @@ const CheckinSlice = createSlice({
 });
 
 export default CheckinSlice.reducer;
-

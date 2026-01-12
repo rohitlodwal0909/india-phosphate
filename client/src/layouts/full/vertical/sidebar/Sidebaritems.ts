@@ -33,9 +33,9 @@ const SidebarContent: MenuItem[] = [
             url: "/",
             subId:1,
               add: false,
-           view: false,
-           edit: false,
-           delete: false,
+              view: false,
+              edit: false,
+              delete: false,
             
           },
           // {
@@ -117,7 +117,59 @@ const SidebarContent: MenuItem[] = [
           //   delete: false,
           // },          
         ]
-      },
+          },
+          {
+            subId: 11,
+            name: "Inventory",
+           icon: "carbon:inventory-management",
+            id: uniqueId(),
+            url: "/inventory/bmr",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
+
+      
+        children: 
+        [
+          {
+            subId: 111,
+            name: "PM",
+            icon: "carbon:box",
+            id: uniqueId(),
+            url: "/inventory/inventory-pm",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },  
+          {
+            subId: 112,
+            name: "RM",
+            icon: "file-icons:codeship",
+            // icon: "carbon:raw-material",
+            id: uniqueId(),
+            url: "/inventory/inventory-rm",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          }, 
+          {
+            subId: 113,
+            name: "Equipment",
+            icon: "carbon:tools",
+            id: uniqueId(),
+            url: "/inventory/inventory-equipment",
+            add: false,
+
+            view: false,
+            edit: false,
+            delete: false,
+          },         
+        ]
+          },
+
           {
             subId:3,
             name: "QA/QC Inspection",

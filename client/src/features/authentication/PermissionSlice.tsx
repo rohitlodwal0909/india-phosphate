@@ -1,20 +1,33 @@
-
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../constants/contant';
 const initialState = {
   loading: false,
   error: null,
-  roledata: [],         
-  savepermissionData: null,  
- permission :null
+  roledata: [],
+  savepermissionData: null,
+  permission: null,
 };
 
-export const GetRole= createAsyncThunk(
-  "role/fetch",
-  async (_, { rejectWithValue }) => {
+export const GetRole = createAsyncThunk('role/fetch', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`${apiUrl}/roles`);
+    return response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Something went wrong while fetching check-ins.';
+    return rejectWithValue(message);
+  }
+});
+
+export const SavePermission = createAsyncThunk(
+  'Save/fetch',
+  async (fromdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/roles`);
+      const response = await axios.post(`${apiUrl}/save/permission`, fromdata);
       return response.data;
     } catch (error) {
       const message =
@@ -24,18 +37,14 @@ export const GetRole= createAsyncThunk(
         'Something went wrong while fetching check-ins.';
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
-
-
-export const SavePermission= createAsyncThunk(
-  "Save/fetch",
-  async (fromdata:any, { rejectWithValue }) => {
-
-
+export const GetSavePermission = createAsyncThunk(
+  'Savepermission/fetch',
+  async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/save/permission`,fromdata);
+      const response = await axios.get(`${apiUrl}/role/permission/${userId}`);
       return response.data;
     } catch (error) {
       const message =
@@ -45,28 +54,10 @@ export const SavePermission= createAsyncThunk(
         'Something went wrong while fetching check-ins.';
       return rejectWithValue(message);
     }
-  }
-);
-
-
-export const GetSavePermission= createAsyncThunk(
-  "Savepermission/fetch",
-  async (role_id, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${apiUrl}/role/permission/${role_id}`);
-      return response.data;
-    } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        'Something went wrong while fetching check-ins.';
-      return rejectWithValue(message);
-    }
-  }
+  },
 );
 const PermissionSlice = createSlice({
-  name: "rolepermission",
+  name: 'rolepermission',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -103,10 +94,8 @@ const PermissionSlice = createSlice({
       .addCase(SavePermission.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      })
-
+      });
   },
 });
 
 export default PermissionSlice.reducer;
-

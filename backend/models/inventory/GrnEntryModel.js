@@ -89,6 +89,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "equipment",
       as: "equipments"
     });
+    GrnEntry.belongsTo(models.RmCode, {
+      foreignKey: "store_rm_code",
+      as: "rmcode"
+    });
   };
 
   return GrnEntry;

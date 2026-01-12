@@ -4,6 +4,5 @@ const PermissionController = require("../../controllers/authentication/Permissio
 
 router.get("/roles", PermissionController.roles);
 router.post("/save/permission", PermissionController.savePermission);
-router.get( "/role/permission/:role_id", PermissionController.getrolepermission
-);
+router.get("/role/permission/:userId", PermissionController.getrolepermission);
 module.exports = router;

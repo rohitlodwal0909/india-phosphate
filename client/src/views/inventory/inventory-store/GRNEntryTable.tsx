@@ -44,6 +44,7 @@ const GRNEntryTable: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const guardData = useSelector((state: RootState) => state.checkininventory.checkindata) as any;
+
   const StoreData = useSelector((state: RootState) => state.storeinventory.storedata) as any;
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
   const pmCodes = useSelector((state: RootState) => state.pmcodes.pmcodedata) as any;
@@ -51,8 +52,6 @@ const GRNEntryTable: React.FC = () => {
 
   const { supplierdata } = useSelector((state: any) => state.supplier);
   const { selectedIconId } = useContext(CustomizerContext) || {};
-
-  console.log(data);
 
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 2);
@@ -109,6 +108,7 @@ const GRNEntryTable: React.FC = () => {
         const matchType =
           !filters.guard_type ||
           item.guard_type?.toLowerCase().includes(filters.guard_type.toLowerCase());
+
         const matchSearch =
           !searchText ||
           Object.values(item).some((v) =>
@@ -140,7 +140,7 @@ const GRNEntryTable: React.FC = () => {
           const row = info?.row?.original?.grn_entries[0];
           if (!row) return '-';
 
-          return row?.store_rm_code || '-';
+          return row?.rmcode?.rm_code || '-';
         },
       }),
       columnHelper.accessor('pmcode', {
@@ -211,7 +211,7 @@ const GRNEntryTable: React.FC = () => {
 
           return (
             <div className="flex gap-2">
-              {!storeItem && permissions?.edit && (
+              {!storeItem && permissions?.add && (
                 <Button
                   size="sm"
                   className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"

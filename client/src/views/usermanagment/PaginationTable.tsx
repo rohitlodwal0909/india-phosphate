@@ -140,6 +140,7 @@ function PaginationTable({ roleData }) {
     columnHelper.accessor('actions', {
       cell: (info) => {
         const rowData = info.row.original;
+
         return (
           <div className="flex justify-start  item-center gap-2">
             {' '}
@@ -153,16 +154,18 @@ function PaginationTable({ roleData }) {
                 <Icon icon="solar:pen-outline" height={18} />
               </Button>
             </Tooltip>
-            <Tooltip content="Delete " placement="bottom">
-              <Button
-                size="sm"
-                color={'lighterror'}
-                className="p-0"
-                onClick={() => handleDelete(rowData)}
-              >
-                <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
-              </Button>
-            </Tooltip>
+            {rowData?.role_id !== 1 && (
+              <Tooltip content="Delete " placement="bottom">
+                <Button
+                  size="sm"
+                  color={'lighterror'}
+                  className="p-0"
+                  onClick={() => handleDelete(rowData)}
+                >
+                  <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                </Button>
+              </Tooltip>
+            )}
           </div>
         );
       },

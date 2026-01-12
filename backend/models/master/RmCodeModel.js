@@ -45,8 +45,12 @@ module.exports = (sequelize, DataTypes) => {
 
   RmCode.associate = (models) => {
     RmCode.hasMany(models.GrnEntry, {
-      foreignKey: "store_pm_code",
-      as: "pm_code"
+      foreignKey: "store_rm_code",
+      as: "rmcodes"
+    });
+    RmCode.hasMany(models.RMIssueModel, {
+      foreignKey: "rm_id",
+      as: "issuedRawMaterial"
     });
   };
 

@@ -27,11 +27,10 @@ import {
   deleteBmrRecord,
   GetBmrRecords,
 } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
-import BmrAdd from './BmrAdd';
+import PmIssuedAdd from './PmIssuedAdd';
 import { GetBmrMaster } from 'src/features/master/BmrMaster/BmrMasterSlice';
-import BmrEdit from './BmrEdit';
-import BmrView from './BmrView';
-import { useNavigate } from 'react-router';
+import PmIssuedEdit from './PmIssuedEdit';
+import PmIssuedView from './PmIssuedView';
 
 /* =======================
    BMR DATA TYPE
@@ -50,9 +49,8 @@ interface BmrDataType {
 
 const columnHelper = createColumnHelper<BmrDataType>();
 
-const BmrCreateTable = () => {
+const PmIssuedTable = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
 
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
@@ -78,10 +76,6 @@ const BmrCreateTable = () => {
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 10);
   }, [logindata, selectedIconId]);
-
-  const handleAddData = (id) => {
-    navigate('/inventory/bmr/process/' + id);
-  };
 
   /* =======================
      FETCH BMR RECORDS
@@ -148,25 +142,22 @@ const BmrCreateTable = () => {
 
       columnHelper.accessor((row) => row.records?.product_name, {
         id: 'product_name',
-        header: 'Product Name',
+        header: 'Name of bag',
         cell: (info) => info.getValue() || '-',
       }),
 
       columnHelper.accessor('batch_no', {
-        header: 'Batch No',
+        header: 'Quantity',
       }),
 
       columnHelper.accessor('mfg_date', {
-        header: 'Mfg Date',
+        header: 'Name of person',
       }),
-
-      columnHelper.accessor('status', {
-        header: 'Status',
-        cell: (info) => (
-          <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 capitalize">
-            {info.getValue()}
-          </span>
-        ),
+      columnHelper.accessor('mfg_date', {
+        header: 'Batch',
+      }),
+      columnHelper.accessor('mfg_date', {
+        header: 'Date',
       }),
 
       columnHelper.display({
@@ -176,14 +167,6 @@ const BmrCreateTable = () => {
           const row = info.row.original;
           return (
             <div className="flex gap-2 notranslate" translate="no">
-              {permissions.add && (
-                <Tooltip content="Plus">
-                  <Button size="xs" color="success" onClick={() => handleAddData(row?.id)}>
-                    <Icon icon="material-symbols:add-rounded" height={18} />
-                  </Button>
-                </Tooltip>
-              )}
-
               {permissions.view && (
                 <Tooltip content="View">
                   <Button
@@ -257,8 +240,8 @@ const BmrCreateTable = () => {
         )}
 
         {permissions.add && (
-          <Button size="sm" onClick={() => handleModal('add', true)}>
-            Add BMR
+          <Button size="sm" color="primary" onClick={() => handleModal('add', true)}>
+            PM Issued
           </Button>
         )}
       </div>
@@ -290,7 +273,7 @@ const BmrCreateTable = () => {
 
       {modals.add && (
         <Portal>
-          <BmrAdd
+          <PmIssuedAdd
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
             StoreData={bmrProductName}
@@ -300,7 +283,7 @@ const BmrCreateTable = () => {
       )}
       {modals.edit && selectedRow && (
         <Portal>
-          <BmrEdit
+          <PmIssuedEdit
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
@@ -312,7 +295,7 @@ const BmrCreateTable = () => {
 
       {modals.view && (
         <Portal>
-          <BmrView
+          <PmIssuedView
             openModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
@@ -323,4 +306,4 @@ const BmrCreateTable = () => {
   );
 };
 
-export default BmrCreateTable;
+export default PmIssuedTable;

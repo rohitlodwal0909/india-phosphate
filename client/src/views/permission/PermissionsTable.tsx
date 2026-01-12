@@ -10,6 +10,7 @@ import {
 } from 'src/features/authentication/PermissionSlice';
 import { toast } from 'react-toastify';
 import { AppDispatch } from 'src/store';
+import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 
 const PermissionsTable: React.FC = () => {
   const [permissions] = useState(SidebarContent || []);
@@ -17,9 +18,12 @@ const PermissionsTable: React.FC = () => {
   const [activePermissions, setActivePermissions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const roleData = useSelector((state: any) => state.rolepermission.roledata);
+  const allusers = useSelector((state: any) => state.usermanagement.userdata);
+  const [users, setusers] = useState([]);
 
   const [formData, setFormData] = useState({
     role_id: 0,
+    user_role_id: 0,
   });
 
   const permissionMap = {
@@ -29,35 +33,63 @@ const PermissionsTable: React.FC = () => {
     delete: 4,
   };
 
-  console.log(permissions);
-
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const resultAction = await dispatch(GetRole());
-        if (GetRole.rejected.match(resultAction)) {
-          console.error(
-            'Error fetching roles:',
-            resultAction.payload || resultAction.error.message,
-          );
-        } else {
-          const data = resultAction.payload;
-          const firstRoleId = data?.roles?.[0]?.id;
-          if (firstRoleId) {
-            setFormData((prev) => ({ ...prev, role_id: Number(firstRoleId) }));
-            handleGetRolePermission(firstRoleId);
-          }
+        // Fetch roles
+        const roleAction = await dispatch(GetRole());
+
+        // Fetch users/modules
+        const userAction = await dispatch(GetUsermodule());
+
+        if (GetRole.rejected.match(roleAction)) {
+          console.error('Error fetching roles:', roleAction.payload || roleAction.error.message);
+          return;
+        }
+
+        const rolesData = roleAction.payload;
+        const usersData = userAction.payload;
+
+        const firstRoleId = rolesData?.roles?.[0]?.id;
+
+        if (firstRoleId) {
+          setFormData((prev) => ({
+            ...prev,
+            role_id: Number(firstRoleId),
+          }));
+
+          const user = usersData?.find((user) => user.role_id === Number(firstRoleId));
+          const us = usersData?.filter((user) => user.role_id === Number(firstRoleId));
+
+          handleGetRolePermission(user?.id);
+          setFormData((prev) => ({
+            ...prev,
+            user_role_id: Number(user?.id),
+          }));
+          setusers(us);
         }
       } catch (error) {
         console.error('Unexpected error:', error);
       }
     };
+
     fetchInitialData();
   }, [dispatch]);
 
-  const handleGetRolePermission = async (role_id) => {
+  const handleOnchange = async (role_id) => {
     try {
-      const response = await dispatch(GetSavePermission(role_id)).unwrap();
+      const data = allusers.filter((user) => user.role_id === Number(role_id));
+      setusers(data);
+      // const response = await dispatch(GetSavePermission(role_id)).unwrap();
+      // setActivePermissions(response?.permission || []);
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+    }
+  };
+
+  const handleGetRolePermission = async (userId) => {
+    try {
+      const response = await dispatch(GetSavePermission(userId)).unwrap();
       setActivePermissions(response?.permission || []);
     } catch (error) {
       console.error('Error fetching permissions:', error);
@@ -66,12 +98,12 @@ const PermissionsTable: React.FC = () => {
 
   const getPermissionStatus = (moduleId, submoduleId, perm) => {
     const permissionId = permissionMap[perm];
+
     const match = activePermissions.find(
       (p) =>
         p.module_id === moduleId &&
         p.submodule_id === submoduleId &&
         p.permission_id === permissionId &&
-        p.role_id === Number(formData.role_id) &&
         p.role_id === Number(formData.role_id),
     );
     return match ? match.status : false;
@@ -85,6 +117,7 @@ const PermissionsTable: React.FC = () => {
   ) => {
     const updatedFormData = {
       role_id: Number(formData.role_id),
+      user_role_id: Number(formData.user_role_id),
       module_id: Number(moduleId),
       submodule_id: Number(subId),
       permission_id: permissionMap[perm],
@@ -94,7 +127,7 @@ const PermissionsTable: React.FC = () => {
     try {
       const response = await dispatch(SavePermission(updatedFormData)).unwrap();
       toast.success(response?.message || 'Permission updated successfully');
-      handleGetRolePermission(formData.role_id);
+      handleGetRolePermission(formData.user_role_id);
     } catch (err) {
       toast.error(err || 'Failed to update permission');
       console.error('Failed to save permission:', err);
@@ -103,7 +136,6 @@ const PermissionsTable: React.FC = () => {
 
   const renderToggle = (
     moduleId: number,
-
     perm: 'add' | 'view' | 'edit' | 'delete',
     value: boolean,
     subId: number,
@@ -143,13 +175,32 @@ const PermissionsTable: React.FC = () => {
                 onChange={(e) => {
                   const newRoleId = Number(e.target.value);
                   setFormData((prev) => ({ ...prev, role_id: newRoleId }));
-                  handleGetRolePermission(newRoleId);
+                  handleOnchange(newRoleId);
                 }}
               >
                 <option value="">Select Role</option>
                 {roleData?.roles?.map((items) => (
                   <option key={items?.id} value={items?.id}>
                     {items?.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="me-3">
+              <select
+                id="role"
+                className="w-full p-2 border rounded-md border-gray-300"
+                value={formData.user_role_id}
+                onChange={(e) => {
+                  const userId = Number(e.target.value);
+                  setFormData((prev) => ({ ...prev, user_role_id: userId }));
+                  handleGetRolePermission(userId);
+                }}
+              >
+                <option value="">Select Name</option>
+                {users?.map((items) => (
+                  <option key={items?.id} value={items?.id}>
+                    {items?.username}
                   </option>
                 ))}
               </select>

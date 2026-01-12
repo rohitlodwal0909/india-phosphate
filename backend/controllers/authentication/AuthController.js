@@ -59,12 +59,15 @@ exports.login = async (req, res, next) => {
 exports.getProfileById = async (req, res, next) => {
   try {
     const userId = req.params.id;
+
     const user = await User.findByPk(userId, {
       attributes: { exclude: ["password"] } // Hide password from response
     });
+
     const permissions = await RolePermissionModel.findAll({
       where: {
-        role_id: user.role_id
+        role_id: user.role_id,
+        user_id: userId
       }
     });
     if (!user) {

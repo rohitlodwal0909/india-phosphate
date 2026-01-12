@@ -43,6 +43,7 @@ const FormulaRoutes = require("../routes/master/FormulaRoutes");
 const DocumentRoutes = require("../routes/master/DocumentRoutes");
 const FprRoutes = require("../routes/inventory/FprRoutes");
 const BmrRoutes = require("../routes/inventory/BmrRecordRoutes");
+const IssuedRoutes = require("../routes/inventory/InventoryIssuedRoutes");
 
 router.use("/api", authRoutes);
 router.use("/api", BmrRoutes);
@@ -87,5 +88,6 @@ router.use("/api", FinishGoodRoutes);
 router.use("/api", FormulaRoutes);
 router.use("/api", DocumentRoutes);
 router.use("/api", FprRoutes);
+router.use("/api", IssuedRoutes);
 
 module.exports = router;

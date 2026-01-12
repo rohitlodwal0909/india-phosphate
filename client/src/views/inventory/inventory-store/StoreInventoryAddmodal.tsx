@@ -61,7 +61,13 @@ const StoreInventoryAddmodal = ({
     unit: selectedRow?.quantity_unit,
   });
 
-  const requiredFields = ['supplier_name', 'manufacturer_name', 'invoice_number', 'batch_number'];
+  const requiredFields = [
+    'supplier_name',
+    'manufacturer_name',
+    'invoice_number',
+    'batch_number',
+    'type',
+  ];
 
   const dispatch = useDispatch<AppDispatch>();
   const [errors, setErrors] = useState<Partial<FormDataType>>({});
@@ -103,6 +109,21 @@ const StoreInventoryAddmodal = ({
         newErrors[field] = 'This field is required';
       }
     });
+
+    if (formData.type === 'equipment') {
+      if (!formData.equipment) {
+        newErrors.equipment = 'Equipment is required';
+      }
+    }
+    // Material validation
+    if (formData.type === 'material') {
+      if (!formData.store_rm_code) {
+        newErrors.store_rm_code = 'RM Code is required';
+      }
+      if (!formData.store_pm_code) {
+        newErrors.store_pm_code = 'PM Code is required';
+      }
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -307,27 +328,26 @@ const StoreInventoryAddmodal = ({
 
           <div className="sm:col-span-6 col-span-12">
             <label
-              htmlFor="store_rm_code"
+              htmlFor="type"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              Select Type
+              Select Type <span className="text-red-700 ">*</span>
             </label>
+
             <select
               id="type"
               name="type"
               value={formData.type}
               onChange={(e) => handleChange('type', e.target.value)}
               className={`bg-gray-50 border ${
-                errors.store_rm_code ? 'border-red-500' : 'border-gray-300'
+                errors.type ? 'border-red-500' : 'border-gray-300'
               } text-gray-900 text-sm  rounded-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
             >
               <option value="">Select Type</option>
               <option value="equipment">Equipment</option>
               <option value="material">Material</option>
             </select>
-            {errors.store_rm_code && (
-              <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
-            )}
+            {errors.type && <p className="mt-1 text-sm text-red-500">{errors.type}</p>}
           </div>
 
           {/* Store RM Code */}
@@ -338,7 +358,7 @@ const StoreInventoryAddmodal = ({
                   htmlFor="store_rm_code"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Store RM Code
+                  Store RM Code <span className="text-red-700 ">*</span>
                 </label>
                 <select
                   id="store_rm_code"
@@ -352,7 +372,7 @@ const StoreInventoryAddmodal = ({
                   <option value="">Select RM Code</option>
                   {!loading &&
                     rmcodedata?.map((item: any) => (
-                      <option key={item.id} value={item.rm_code}>
+                      <option key={item.id} value={item.id}>
                         {item.rm_code}
                       </option>
                     ))}
@@ -367,7 +387,7 @@ const StoreInventoryAddmodal = ({
                   htmlFor="store_pm_code"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Select PM
+                  Select PM <span className="text-red-700 ">*</span>
                 </label>
                 <select
                   id="store_pm_code"
@@ -399,7 +419,7 @@ const StoreInventoryAddmodal = ({
                 htmlFor="equipment"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                Equipment
+                Equipment <span className="text-red-700 ">*</span>
               </label>
               <select
                 id="equipment"

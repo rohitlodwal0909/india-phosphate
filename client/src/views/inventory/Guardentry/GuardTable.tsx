@@ -16,6 +16,7 @@ import {
   GetCheckinmodule,
   updateCheckin,
 } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
+
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { formatDate, formatTime } from 'src/utils/Datetimeformate';
 import { toast } from 'react-toastify';
@@ -199,7 +200,6 @@ function GuardTable() {
           onEdit: (row: any) => {
             setSelectedRow(row);
             setEditModal(true);
-
             setTimeout(triggerGoogleTranslateRescan, 50);
           },
           onView: (row: any) => {

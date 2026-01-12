@@ -2,17 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-
 const http = require("http");
 const { Server } = require("socket.io");
-
 const sequelize = require("./config/db");
-
 const router = require("./routes");
-
 const app = express();
 const server = http.createServer(app);
 //  Body parser middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,9 +24,9 @@ const io = new Server(server, {
 // Make io available globally
 global.io = io;
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-});
+// io.on("connection", (socket) => {
+//   console.log("User connected:", socket.id);
+// });
 
 app.use("/", router);
 

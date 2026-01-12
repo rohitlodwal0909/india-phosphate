@@ -4,7 +4,7 @@ const {
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
-const { GuardEntry, User, GrnEntry, PmCode } = db;
+const { GuardEntry, User, GrnEntry, PmCode, RmCode } = db;
 
 exports.store = async (req, res, next) => {
   const {
@@ -90,6 +90,11 @@ exports.guardEntry = async (req, res, next) => {
             {
               model: PmCode,
               as: "pm_code",
+              required: false
+            },
+            {
+              model: RmCode,
+              as: "rmcode",
               required: false
             }
           ]

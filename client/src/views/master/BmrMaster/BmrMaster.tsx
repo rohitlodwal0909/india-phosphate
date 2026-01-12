@@ -3,16 +3,14 @@ import BmrMasterTable from './BmrMasterComponent.tsx/BmrMasterTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const BmrMaster = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "BMR Master ", to: "/" }]}
-        title="BMR Master"/>
-         <CardBox>
-        <BmrMasterTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'BMR Master ', to: '/' }]} title="BMR Master" />
+      <CardBox>
+        <BmrMasterTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default BmrMaster
+export default BmrMaster;
