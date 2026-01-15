@@ -20,6 +20,11 @@ interface GuardAddModalProps {
   logindata: any;
 }
 
+interface QuantityItem {
+  quantity_net: string;
+  quantity_unit: string;
+}
+
 interface FormData {
   user_id: string;
   name: string;
@@ -27,10 +32,10 @@ interface FormData {
   vehicle_number: string;
   product_name: string;
   product_id: string;
-  quantity_net: string;
   sender_name: string;
-  quantity_unit: string;
   inward_number: string;
+  quantities: QuantityItem[];
+
   remark: string;
 }
 
@@ -52,9 +57,8 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({
     vehicle_number: '',
     product_name: '',
     product_id: '',
-    quantity_net: '',
+    quantities: [{ quantity_net: '', quantity_unit: '' }],
     sender_name: '',
-    quantity_unit: '',
     inward_number: '',
     remark: '',
   });
@@ -94,35 +98,71 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({
       newErrors.guard_type = 'Guard Type is required';
     }
 
+    if (!formData.name) {
+      newErrors.name = 'Name is required';
+    }
+
+    // 🔹 Common Quantity Validation (Multiple)
+    if (!formData.quantities || formData.quantities.length === 0) {
+      newErrors.quantities = 'At least one quantity is required';
+    } else {
+      formData.quantities.forEach((q, index) => {
+        if (!q.quantity_net) {
+          newErrors[`quantity_net_${index}`] = 'Quantity is required';
+        }
+        if (!q.quantity_unit) {
+          newErrors[`quantity_unit_${index}`] = 'Unit is required';
+        }
+      });
+    }
+
+    // 🔹 Guard Type Based Validation
     switch (formData.guard_type.toLowerCase()) {
       case 'vehicle':
-        if (!formData.vehicle_number) newErrors.vehicle_number = 'Vehicle number is required';
-        if (!formData.quantity_net) newErrors.quantity_net = 'Net quantity is required';
-        if (!formData.quantity_unit) newErrors.quantity_unit = 'Quantity unit is required';
+        if (!formData.vehicle_number) {
+          newErrors.vehicle_number = 'Vehicle number is required';
+        }
         break;
+
       case 'material':
-        if (!formData.product_name) newErrors.product_name = 'Product name is required';
-        if (!formData.product_id) newErrors.product_id = 'Product ID is required';
-        if (!formData.quantity_net) newErrors.quantity_net = 'Net quantity is required';
-        if (!formData.quantity_unit) newErrors.quantity_unit = 'Quantity unit is required';
-        if (!formData.sender_name) newErrors.sender_name = 'Sender name is required';
+        if (!formData.product_name) {
+          newErrors.product_name = 'Product name is required';
+        }
+        if (!formData.product_id) {
+          newErrors.product_id = 'Product ID is required';
+        }
+        if (!formData.sender_name) {
+          newErrors.sender_name = 'Sender name is required';
+        }
         break;
+
       case 'visitor':
-        if (!formData.sender_name) newErrors.sender_name = 'Sender name is required';
+        if (!formData.sender_name) {
+          newErrors.sender_name = 'Sender name is required';
+        }
         break;
+
       default:
         break;
     }
 
+    // 🔹 If Errors Exist
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error('Please fill in all required fields based on type');
+      toast.error('Please fill all required fields');
       return;
     }
 
     try {
-      const result = await dispatch(addCheckin(formData)).unwrap();
+      const payload = {
+        ...formData,
+        user_id: logindata?.admin?.id,
+      };
+
+      const result = await dispatch(addCheckin(payload)).unwrap();
+
       setPlaceModal(false);
+      // 🔹 Reset Form
       setFormData({
         user_id: logindata?.admin?.id || '',
         name: '',
@@ -130,17 +170,41 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({
         vehicle_number: '',
         product_name: '',
         product_id: '',
-        quantity_net: '',
         sender_name: '',
-        quantity_unit: '',
         inward_number: '',
         remark: '',
+        quantities: [{ quantity_net: '', quantity_unit: '' }],
       });
+
       dispatch(GetCheckinmodule(logindata?.admin?.id));
-      toast.success(result?.message);
-    } catch (err) {
-      toast.error(`${err}`);
+      toast.success(result?.message || 'Entry added successfully');
+    } catch (err: any) {
+      toast.error(err?.message || 'Something went wrong');
     }
+  };
+
+  const handleQuantityChange = (
+    index: number,
+    field: 'quantity_net' | 'quantity_unit',
+    value: string,
+  ) => {
+    const updated = [...formData.quantities];
+    updated[index][field] = value;
+    setFormData((prev) => ({ ...prev, quantities: updated }));
+  };
+
+  const addQuantityRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      quantities: [...prev.quantities, { quantity_net: '', quantity_unit: '' }],
+    }));
+  };
+
+  const removeQuantityRow = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      quantities: prev.quantities.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -261,33 +325,47 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({
 
           {/* Quantity Field */}
           <div className="sm:col-span-6 col-span-12">
-            <Label htmlFor="quantity_net" value="Quantity (Net)" />
+            <Label value="Quantity (Net)" />
             <span className="text-red-700 ps-1">*</span>
-            <div className="flex rounded-md shadow-sm">
-              <input
-                type="text"
-                id="quantity"
-                name="quantity"
-                placeholder="Enter quantity"
-                className="w-full rounded-l-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
-                value={formData.quantity_net || ''}
-                onChange={(e) => handleChange('quantity_net', e.target.value)}
-              />
-              <select
-                id="quantity_unit"
-                name="quantity_unit"
-                value={formData.quantity_unit}
-                onChange={(e) => handleChange('quantity_unit', e.target.value)}
-                className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Unit</option>
-                {allUnits.map((unit) => (
-                  <option key={unit.value} value={unit.value}>
-                    {unit.value}
-                  </option>
-                ))}
-              </select>
-            </div>
+
+            {formData.quantities.map((qty, index) => (
+              <div key={index} className="flex rounded-md shadow-sm mt-1">
+                <input
+                  type="text"
+                  placeholder="Enter quantity"
+                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
+                  value={qty.quantity_net}
+                  onChange={(e) => handleQuantityChange(index, 'quantity_net', e.target.value)}
+                />
+
+                <select
+                  value={qty.quantity_unit}
+                  onChange={(e) => handleQuantityChange(index, 'quantity_unit', e.target.value)}
+                  className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
+                >
+                  <option value="">Unit</option>
+                  {allUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.value}
+                    </option>
+                  ))}
+                </select>
+
+                {formData.quantities.length > 1 && (
+                  <Button type="button" onClick={() => removeQuantityRow(index)} color="red">
+                    -
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={addQuantityRow}
+              color="primary"
+              className="mt-2 float-end"
+            >
+              +
+            </Button>
           </div>
 
           {/* Other Fields */}

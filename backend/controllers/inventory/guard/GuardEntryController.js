@@ -1,3 +1,4 @@
+const { sequelize } = require("../../../models");
 const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
@@ -7,72 +8,103 @@ const db = require("../../../models");
 const { GuardEntry, User, GrnEntry, PmCode, RmCode } = db;
 
 exports.store = async (req, res, next) => {
-  const {
-    user_id,
-    name,
-    guard_type,
-    product_name,
-    product_id,
-    quantity_net,
-    quantity_unit,
-    sender_name,
-    vehicle_number,
-    remark
-  } = req.body;
-
-  const { entry_date, entry_time } = getISTDateTime();
+  const t = await sequelize.transaction();
 
   try {
-    // Find the latest inward_number to increment
-    const latestEntry = await GuardEntry.findOne({
-      order: [["created_at", "DESC"]]
-    });
-
-    let nextNumber = 1;
-
-    if (latestEntry && latestEntry.inward_number) {
-      const lastNum = parseInt(latestEntry.inward_number.replace("INW-", ""));
-      if (!isNaN(lastNum)) {
-        nextNumber = lastNum + 1;
-      }
-    }
-    const inward_number = `INW-${nextNumber.toString().padStart(4, "0")}`;
-    const user = await User.findByPk(user_id);
-    const username = user ? user.username : "Unknown User";
-    const logMessage = `Guard entry '${inward_number}' was created by ${username} on ${entry_date} at ${entry_time}.`;
-    await createLogEntry({
-      user_id,
-      message: logMessage
-    });
-
-    const newEntry = await GuardEntry.create({
+    const {
       user_id,
       name,
       guard_type,
       product_name,
       product_id,
-      quantity_net,
-      quantity_unit,
       sender_name,
       vehicle_number,
-      inward_number,
-      entry_date,
-      entry_time,
-      remark
+      remark,
+      quantities
+    } = req.body;
+
+    const { entry_date, entry_time } = getISTDateTime();
+
+    /* ------------ Validation ------------ */
+    if (!user_id || !name || !guard_type) {
+      return res.status(400).json({ message: "Required fields missing" });
+    }
+
+    if (!Array.isArray(quantities) || quantities.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one quantity required" });
+    }
+
+    for (const q of quantities) {
+      if (!q.quantity_net || !q.quantity_unit) {
+        return res.status(400).json({
+          message: "Quantity net & unit required"
+        });
+      }
+    }
+
+    /* ------------ Get Last Inward Number ------------ */
+    const latestEntry = await GuardEntry.findOne({
+      order: [["created_at", "DESC"]],
+      transaction: t
+    });
+
+    let inwardCounter = 1;
+    if (latestEntry?.inward_number) {
+      const last = parseInt(latestEntry.inward_number.replace("INW-", ""));
+      if (!isNaN(last)) inwardCounter = last + 1;
+    }
+
+    /* ------------ Logging ------------ */
+    const user = await User.findByPk(user_id, { transaction: t });
+    const username = user?.username || "Unknown User";
+
+    /* ------------ CREATE MULTIPLE ROWS WITH MULTIPLE INWARD ------------ */
+    const rows = quantities.map((q) => {
+      const inward_number = `INW-${String(inwardCounter).padStart(4, "0")}`;
+      inwardCounter++; // 🔥 increment inward
+
+      return {
+        user_id,
+        name,
+        guard_type,
+        product_name,
+        product_id,
+        sender_name,
+        vehicle_number,
+        quantity_net: q.quantity_net,
+        quantity_unit: q.quantity_unit,
+        inward_number,
+        entry_date,
+        entry_time,
+        remark
+      };
+    });
+
+    const createdEntries = await GuardEntry.bulkCreate(rows, {
+      transaction: t
+    });
+
+    await createLogEntry({
+      user_id,
+      message: `${createdEntries.length} guard entries created by ${username} on ${entry_date} at ${entry_time}`
     });
 
     await createNotificationByRoleId({
       title: "New Guard Store",
-      message:
-        "Store verification required for the newly submitted guard entry ",
+      message: "Multiple inward entries created, store verification required",
       role_id: 2
     });
 
-    res.status(201).json({
-      message: "Guard Entry created successfully",
-      data: newEntry
+    await t.commit();
+
+    return res.status(201).json({
+      message: `${createdEntries.length} Guard Entries created successfully`,
+      data: createdEntries
     });
   } catch (error) {
+    await t.rollback();
     next(error);
   }
 };
@@ -134,7 +166,7 @@ exports.deleteGuardEntry = async (req, res, next) => {
 
     await entry.destroy();
 
-    res.status(200).json({ message: "Guard Entry deleted successfully" });
+    res.status(200).json({ message: "Guard entry deleted successfully" });
   } catch (error) {
     next(error);
   }

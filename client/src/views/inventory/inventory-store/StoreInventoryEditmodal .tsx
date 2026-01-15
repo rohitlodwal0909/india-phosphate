@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Label, TextInput } from 'flowbite-react';
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Label,
+  TextInput,
+} from 'flowbite-react';
 import { allUnits } from 'src/utils/AllUnit';
 
 const StoreInventoryEditmodal = ({
@@ -20,7 +28,7 @@ const StoreInventoryEditmodal = ({
     batchNo: '',
     storeRMCode: '',
     containers: '',
-    container_unit:''
+    container_unit: '',
   });
 
   useEffect(() => {
@@ -36,7 +44,7 @@ const StoreInventoryEditmodal = ({
         batchNo: selectedUser.batchNo || '',
         storeRMCode: selectedUser.storeRMCode || '',
         containers: selectedUser.containers || '',
-container_unit:selectedUser.container_unit||'' 
+        container_unit: selectedUser.container_unit || '',
       });
     }
   }, [selectedUser]);
@@ -57,7 +65,9 @@ container_unit:selectedUser.container_unit||''
 
   return (
     <Modal
-    show={editModal} position={modalPlacement} onClose={() => setEditModal(false)}
+      show={editModal}
+      position={modalPlacement}
+      onClose={() => setEditModal(false)}
       className="large"
     >
       <ModalHeader className="pb-0">Edit Inventory</ModalHeader>
@@ -80,12 +90,7 @@ container_unit:selectedUser.container_unit||''
           />
 
           {/* GRN Number */}
-          <InputField
-            id="grn"
-            label="GRN Number"
-            value={formData.grn}
-            onChange={handleChange}
-          />
+          <InputField id="grn" label="GRN Number" value={formData.grn} onChange={handleChange} />
 
           {/* Manufacturing Name */}
           <InputField
@@ -137,36 +142,33 @@ container_unit:selectedUser.container_unit||''
           />
 
           {/* Containers */}
-           <div className="sm:col-span-6 col-span-12">
-              <Label htmlFor="quantityNet" value="Quantity (Net)" />
-              <div className="flex rounded-md shadow-sm">
-                
-                {/* Quantity input (read-only) */}
-                <input
-                  type="text"  
-                  id="quantityNet"
-                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
-                  value={formData?.containers}
-                    onChange={(e) => handleChange("containers", e.target.value)}
-          
-                />
-          
-                {/* Unit select (disabled for read-only) */}
-                <select
-                  className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
-                  value={formData.container_unit}
-        onChange={(e) => handleChange("container_unit", e.target.value)}
-               
-                >
-                  <option value="">Unit</option>
-                  {allUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
-                      {unit.value}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="sm:col-span-6 col-span-12">
+            <Label htmlFor="quantityNet" value="Quantity (Net)" />
+            <div className="flex rounded-md shadow-sm">
+              {/* Quantity input (read-only) */}
+              <input
+                type="text"
+                id="quantityNet"
+                className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
+                value={formData?.containers}
+                onChange={(e) => handleChange('containers', e.target.value)}
+              />
+
+              {/* Unit select (disabled for read-only) */}
+              <select
+                className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
+                value={formData.container_unit}
+                onChange={(e) => handleChange('container_unit', e.target.value)}
+              >
+                <option value="">Unit</option>
+                {allUnits.map((unit) => (
+                  <option key={unit.value} value={unit.value}>
+                    {unit.value}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
 
           {/* Buttons */}
           <div className="col-span-12 flex justify-end items-center gap-[1rem]">
@@ -183,7 +185,6 @@ container_unit:selectedUser.container_unit||''
     </Modal>
   );
 };
-
 
 // Reusable InputField component
 const InputField = ({ id, label, type = 'text', value, onChange }) => (

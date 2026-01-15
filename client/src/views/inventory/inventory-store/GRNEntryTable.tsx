@@ -208,6 +208,7 @@ const GRNEntryTable: React.FC = () => {
           const storeItem = Array.isArray(StoreData?.data)
             ? StoreData.data.find((item) => item?.guard_entry_id === row?.id)
             : null;
+          const isCheck = row?.grn_entries.length === 1 ? true : false;
 
           return (
             <div className="flex gap-2">
@@ -235,7 +236,7 @@ const GRNEntryTable: React.FC = () => {
                 </Button>
               )}
 
-              {permissions?.del && (
+              {isCheck && permissions?.del && (
                 <Button
                   size="sm"
                   color="lighterror"
