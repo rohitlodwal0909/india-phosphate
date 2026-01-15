@@ -164,7 +164,6 @@ const SubmitReport = () => {
     }
   };
 
-  console.log(data);
   return (
     <CardBox>
       <div className="w-full mx-auto border border-black p-7 px-14 font-serif text-sm text-black">

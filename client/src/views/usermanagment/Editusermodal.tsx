@@ -8,164 +8,139 @@ import {
   Label,
   TextInput,
 } from 'flowbite-react';
-import { IconUser } from '@tabler/icons-react';
-// import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import { IconUser, IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetRole } from 'src/features/authentication/PermissionSlice';
 import { AppDispatch } from 'src/store';
-const Editusermodal = ({ setEditModal, modalPlacement, editModal, selectedUser, onUpdateUser }) => {
-  // 1. Set form state
+
+const Editusermodal = ({
+  setEditModal,
+  modalPlacement,
+  editModal,
+  selectedUser,
+  onUpdateUser,
+}: any) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const roleData = useSelector((state: any) => state.rolepermission.roledata);
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     role_id: '',
     user_id: '',
   });
-  const dispatch = useDispatch<AppDispatch>();
-  const roleData = useSelector((state: any) => state.rolepermission.roledata);
-  //  const [showPassword, setShowPassword] = useState(false);
 
+  // Fetch roles
   useEffect(() => {
-    const fetchCheckinData = async () => {
-      try {
-        const resultAction = await dispatch(GetRole());
-
-        if (GetRole.rejected.match(resultAction)) {
-          // Error aaya hai
-          console.error(
-            'Error fetching check-in module:',
-            resultAction.payload || resultAction.error.message,
-          );
-        }
-      } catch (error) {
-        // Agar dispatch ya network mein error aaya
-        console.error('Unexpected error:', error);
-      }
-    };
-
-    fetchCheckinData();
+    dispatch(GetRole());
   }, [dispatch]);
 
-  // 2. Load selectedUser data into form
+  // Load selected user
   useEffect(() => {
     if (selectedUser) {
       setFormData({
         username: selectedUser.username || '',
-        password: selectedUser.password, // Leave empty or mask for security
-        role_id: selectedUser?.role_id || '',
-        user_id: selectedUser?.id,
+        password: selectedUser.password || '',
+        role_id: selectedUser.role_id || '',
+        user_id: selectedUser.id,
       });
     }
   }, [selectedUser]);
 
-  // 3. Handle changes
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: value,
     }));
   };
 
-  // 4. Handle submit
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = (e: any) => {
     e.preventDefault();
     if (!selectedUser?.id) return;
 
     const updatedUser = {
-      ...selectedUser,
+      id: selectedUser.id,
       username: formData.username,
       role_id: formData.role_id,
-      password: formData.password,
-      user_id: formData?.user_id,
+      password: formData.password || undefined, // empty ho to update na ho
     };
+
     onUpdateUser(updatedUser);
+    setEditModal(false);
   };
 
   return (
-    <Modal
-      show={editModal}
-      position={modalPlacement}
-      onClose={() => setEditModal(false)}
-      className="large"
-    >
-      <ModalHeader className="pb-0">Edit User</ModalHeader>
-      <ModalBody className="overflow-auto max-h-[100vh]">
-        <form className="grid grid-cols-6 gap-3" onSubmit={handleEditSubmit}>
-          {/* Name */}
+    <Modal show={editModal} position={modalPlacement} onClose={() => setEditModal(false)}>
+      <ModalHeader>Edit User</ModalHeader>
+
+      <ModalBody>
+        <form className="grid grid-cols-12 gap-4" onSubmit={handleEditSubmit}>
+          {/* Username */}
           <div className="col-span-12">
-            <Label htmlFor="name" value="Username" />
+            <Label value="Username" />
             <TextInput
-              id="name"
               name="username"
-              type="text"
-              rightIcon={() => <IconUser size={20} />}
-              placeholder="Enter name"
               value={formData.username}
               onChange={handleChange}
+              icon={IconUser}
+              placeholder="Enter username"
+              required
             />
           </div>
 
           {/* Password */}
-          {/* <div className="col-span-12">
-            <Label htmlFor="password" value="Password" />
-               <div className="relative">
-                      <TextInput
-                        id="userpwd"
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        value={formData.password}
-                       onChange={handleChange}
-                        sizing="md"
-                        className="form-control "
-                       
-                      />
-                    
-                      <div
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 cursor-pointer"
-                        onClick={() => setShowPassword(!showPassword)}
-                       >
-                        {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
-                      </div>
-                    </div>
-          </div> */}
+          <div className="col-span-12">
+            <Label value="Password" />
+            <div className="relative">
+              <TextInput
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter new password"
+              />
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <IconEyeOff size={18} /> : <IconEye size={18} />}
+              </span>
+            </div>
+          </div>
 
           {/* Role */}
           <div className="col-span-12">
-            <Label htmlFor="role" value="Role" />
+            <Label value="Role" />
             <select
-              id="role_id"
               name="role_id"
-              value={formData.role_id} // should be a number: 1, 2, or 3
+              value={formData.role_id}
               onChange={handleChange}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              required
             >
-              <option value="" disabled>
-                Select Role
-              </option>
-              {roleData?.roles?.map(
-                (items, index) =>
-                  index !== 0 && (
-                    <option key={items?.id} value={items?.id}>
-                      {items?.name}
-                    </option>
-                  ),
-              )}
+              <option value="">Select Role</option>
+              {roleData?.roles?.map((role: any) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* File Upload */}
           {/* Buttons */}
-          <div className="col-span-12 flex justify-end items-center gap-[1rem]">
-            <Button type="reset" color="error" onClick={() => setEditModal(false)}>
+          <div className="col-span-12 flex justify-end gap-3">
+            <Button color="gray" onClick={() => setEditModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" color="primary">
-              Submit
-            </Button>
+            <Button type="submit">Update</Button>
           </div>
         </form>
       </ModalBody>
+
       <ModalFooter />
     </Modal>
   );

@@ -1,16 +1,16 @@
-import { RouterProvider } from "react-router";
+import { RouterProvider } from 'react-router';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
 import customTheme from './utils/theme/custom-theme';
-import router from "./routes/Router";
-import { useEffect } from "react";
+import router from './routes/Router';
+import { useEffect } from 'react';
 
-  import { ToastContainer} from 'react-toastify';
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "./store";
-import { GetAuthenticationmodule } from "./features/authentication/AuthenticationSlice";
-import { GetNotification } from "./features/Notifications/NotificationSlice";
-import { io } from "socket.io-client";
-import { ImageUrl } from "./constants/contant";
+import { ToastContainer } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from './store';
+import { GetAuthenticationmodule } from './features/authentication/AuthenticationSlice';
+import { GetNotification } from './features/Notifications/NotificationSlice';
+import { io } from 'socket.io-client';
+import { ImageUrl } from './constants/contant';
 declare global {
   interface Window {
     google: any;
@@ -20,55 +20,50 @@ declare global {
 }
 const socket = io(ImageUrl);
 function App() {
-     const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
 
-
-     useEffect(() => {
-    if (!document.getElementById("react-portal-wrapper")) {
-      const portalDiv = document.createElement("div");
-      portalDiv.id = "react-portal-wrapper";
-      portalDiv.classList.add("notranslate");
-      portalDiv.setAttribute("translate", "no");
+  useEffect(() => {
+    if (!document.getElementById('react-portal-wrapper')) {
+      const portalDiv = document.createElement('div');
+      portalDiv.id = 'react-portal-wrapper';
+      portalDiv.classList.add('notranslate');
+      portalDiv.setAttribute('translate', 'no');
       document.body.appendChild(portalDiv);
     }
   }, []);
 
-   useEffect(() => {
-      socket.on("new_notification", () => {
-      });
-      return () => {
-        socket.off("new_notification");
-      };
-    }, []); 
+  useEffect(() => {
+    socket.on('new_notification', () => {});
+    return () => {
+      socket.off('new_notification');
+    };
+  }, []);
 
-    useEffect(() => {
-
-     const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
     //  const token = stored?.token;
 
-  //     if (!token) {
-  //   window.location.href = "/admin/login";
-  //   return;
-  // }
+    //     if (!token) {
+    //   window.location.href = "/admin/login";
+    //   return;
+    // }
 
-    if (stored?.admin?.id)
-    {
+    if (stored?.admin?.id) {
       dispatch(GetAuthenticationmodule(stored.admin.id));
-      dispatch(GetNotification(stored?.admin?.id))
+      dispatch(GetNotification(stored?.admin?.id));
     }
-
   }, [dispatch]);
 
-   useEffect(() => {
+  useEffect(() => {
     const initializeGoogleTranslate = () => {
       if (window.google?.translate?.TranslateElement && !window.translateElementInitialized) {
         window.translateElementInitialized = true;
         new window.google.translate.TranslateElement(
           {
-            pageLanguage: "en",
-            layout: window.google.translate.TranslateElement.InlineLayout.LIST
+            pageLanguage: 'en',
+            layout: window.google.translate.TranslateElement.InlineLayout.LIST,
           },
-          "google_translate_element"
+          'google_translate_element',
         );
       }
     };
@@ -76,8 +71,8 @@ function App() {
     const addGoogleTranslateScript = () => {
       const existingScript = document.querySelector("script[src*='translate_a/element.js']");
       if (!existingScript) {
-        const script = document.createElement("script");
-        script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        const script = document.createElement('script');
+        script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
         script.async = true;
         document.body.appendChild(script);
       } else {
@@ -90,18 +85,14 @@ function App() {
     addGoogleTranslateScript();
   }, []); // Empty dependency array means this runs once on mount
 
-
   return (
     <>
       <ThemeModeScript />
-      
+
       <Flowbite theme={{ theme: customTheme }}>
         {/* Hidden Google Translate widget */}
-        <div id="google_translate_element" style={{ display: "none" }}></div>
-  <ToastContainer
-  theme="light"
- hideProgressBar={true}
-  />
+        <div id="google_translate_element" style={{ display: 'none' }}></div>
+        <ToastContainer theme="light" hideProgressBar={true} />
         <RouterProvider router={router} />
       </Flowbite>
     </>

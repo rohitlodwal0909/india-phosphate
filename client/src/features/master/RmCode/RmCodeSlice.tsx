@@ -1,90 +1,92 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant';
 
 const initialState = {
   loading: false,
   error: null,
-  rmcodedata: [],         
-  addResult: null,  
+  rmcodedata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
+  deleteRawmaterial: null,
 };
 
-export const GetRmCode = createAsyncThunk(
-  "GetRmCode /fetch",
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/get-rm-code`);
-      return response.data;
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch user modules.";
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
+export const GetRmCode = createAsyncThunk('GetRmCode /fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axios.get(`${apiUrl}/get-rm-code`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
   }
-);
+});
 
 export const addRmCode = createAsyncThunk(
-  "RmCode/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'RmCode/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-rm-code`,
-        formdata);
+      const response = await axios.post(`${apiUrl}/store-rm-code`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
 export const addrawmaterial = createAsyncThunk(
-  "RmCode/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'RmCode/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-row-material`,
-        formdata);
+      const response = await axios.post(`${apiUrl}/store-row-material`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
-  export const updateRmCode = createAsyncThunk("RmCode/update", async (updatedUser:any) => {
-  const response = await axios.put(
-     `${apiUrl}/update-rm-code/${updatedUser?.id}`,
-    updatedUser
-  );
+export const updateRmCode = createAsyncThunk('RmCode/update', async (updatedUser: any) => {
+  const response = await axios.put(`${apiUrl}/update-rm-code/${updatedUser?.id}`, updatedUser);
   return response.data;
 });
 
-export const deleteRmCode = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deleteRmCode/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${apiUrl}/delete-rm-code/${id}`,{
-      data: { user_id }
+export const deleteRmCode = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('deleteRmCode/delete', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    await axios.delete(`${apiUrl}/delete-rm-code/${id}`, {
+      data: { user_id },
     });
-      return id;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
-    }
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
   }
-);
+});
 
-
+export const rawmaterialdelete = createAsyncThunk<
+  number, // return id
+  number, // argument
+  { rejectValue: string }
+>('rawmaterial/delete', async (id, { rejectWithValue }) => {
+  try {
+    await axios.delete(`${apiUrl}/delete-rm-material/${id}`);
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete raw material');
+  }
+});
 
 const RmCodeSlice = createSlice({
-  name: "rmcodes",
+  name: 'rmcodes',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -125,9 +127,15 @@ const RmCodeSlice = createSlice({
       })
       .addCase(deleteRmCode.rejected, (state, action) => {
         state.error = action.error.message;
+      })
+
+      .addCase(rawmaterialdelete.fulfilled, (state, action) => {
+        state.deleteRawmaterial = action.payload;
+      })
+      .addCase(rawmaterialdelete.rejected, (state, action) => {
+        state.error = action.error.message;
       });
   },
 });
 
 export default RmCodeSlice.reducer;
-

@@ -40,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "rm_id",
       as: "qc_results"
     });
+    RawMaterial.belongsTo(models.RmCode, {
+      foreignKey: "rm_code",
+      as: "rmCode"
+    });
   };
 
   return RawMaterial;

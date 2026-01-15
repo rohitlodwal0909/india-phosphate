@@ -37,6 +37,8 @@ const ViewStoreModel = ({
         ]
       : []),
 
+    ...(selectedRow?.type == 'pm' ? [['PM Name', selectedRow?.pm_code?.packaging_type]] : []),
+
     ['QA/QC Status', selectedRow?.qa_qc_status],
     ['Quantity', selectedRow?.quantity],
     ['Unit', selectedRow?.unit],

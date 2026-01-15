@@ -1,4 +1,5 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
 const { RmCode, RawMaterial, User } = db;
 
@@ -13,15 +14,11 @@ exports.createRmCode = async (req, res, next) => {
       user_id
     });
 
-    // Log entry setup
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
 
     // Fetch user name
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
-
     const logMessage = `Rm Code '${rm_code}' was created by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
@@ -54,7 +51,14 @@ exports.getRmCodeById = async (req, res, next) => {
 exports.getAllRmCode = async (req, res, next) => {
   try {
     const rmcode = await RmCode.findAll({
-      order: [["created_at", "DESC"]]
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: RawMaterial,
+          as: "rawMaterials",
+          required: false
+        }
+      ]
     });
 
     res.status(200).json(rmcode);
@@ -79,9 +83,7 @@ exports.updateRmCode = async (req, res, next) => {
       rm_code
     });
 
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
 
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
@@ -109,9 +111,9 @@ exports.deleteRmCode = async (req, res, next) => {
       return next(error);
     }
     const user_id = req.body?.user_id || rmcodes?.user_id;
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+
+    const { entry_date, entry_time } = getISTDateTime();
+
     const user = await User.findByPk(user_id);
     const username = user ? user?.username : "Unknown User";
     const logMessage = `Rm Code  ${rmcodes?.rm_code}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
@@ -126,6 +128,22 @@ exports.deleteRmCode = async (req, res, next) => {
   }
 };
 
+exports.deleteRmMaterial = async (req, res, next) => {
+  try {
+    const rmcodes = await RawMaterial.findByPk(req.params.id);
+
+    if (!rmcodes) {
+      const error = new Error("RawMaterial entry not found");
+      error.status = 404;
+      return next(error);
+    }
+    await rmcodes.destroy();
+    res.json({ message: "RawMaterial entry deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.createRawMaterial = async (req, res, next) => {
   try {
     const { rm_code, fields } = req.body;
@@ -135,7 +153,6 @@ exports.createRawMaterial = async (req, res, next) => {
       error.status = 400;
       return next(error);
     }
-
     const createdMaterials = [];
 
     for (const field of fields) {

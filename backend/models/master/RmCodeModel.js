@@ -52,6 +52,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "rm_id",
       as: "issuedRawMaterial"
     });
+    RmCode.hasMany(models.RawMaterial, {
+      foreignKey: "rm_code",
+      as: "rawMaterials"
+    });
   };
 
   return RmCode;

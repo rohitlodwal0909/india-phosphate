@@ -115,6 +115,11 @@ const StoreInventoryAddmodal = ({
         newErrors.equipment = 'Equipment is required';
       }
     }
+    if (formData.type === 'pm') {
+      if (!formData.store_pm_code) {
+        newErrors.store_pm_code = 'PM Code is required';
+      }
+    }
     // Material validation
     if (formData.type === 'material') {
       if (!formData.store_rm_code) {
@@ -346,11 +351,13 @@ const StoreInventoryAddmodal = ({
               <option value="">Select Type</option>
               <option value="equipment">Equipment</option>
               <option value="material">Material</option>
+              <option value="pm">PM</option>
             </select>
             {errors.type && <p className="mt-1 text-sm text-red-500">{errors.type}</p>}
           </div>
 
           {/* Store RM Code */}
+
           {formData.type == 'material' && (
             <>
               <div className="sm:col-span-6 col-span-12">
@@ -381,7 +388,11 @@ const StoreInventoryAddmodal = ({
                   <p className="mt-1 text-sm text-red-500">{errors.store_rm_code}</p>
                 )}
               </div>
+            </>
+          )}
 
+          {(formData.type === 'pm' || formData.type === 'material') && (
+            <>
               <div className="sm:col-span-6 col-span-12">
                 <label
                   htmlFor="store_pm_code"
