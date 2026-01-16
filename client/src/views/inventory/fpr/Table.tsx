@@ -12,8 +12,6 @@ import { Icon } from '@iconify/react';
 import { useEffect, useState, useMemo, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
-
 import PaginationComponent from 'src/utils/PaginationComponent';
 import TableComponent from 'src/utils/TableComponent';
 import { AppDispatch } from 'src/store';
@@ -39,13 +37,6 @@ function Table() {
   const [addModal, setAddmodal] = useState(false);
   const [onreload, setOnreload] = useState(false);
   const [viewModal, setViewModal] = useState(false);
-
-  // ✅ Fetch Checkin (if needed)
-  useEffect(() => {
-    if (logindata?.admin?.id) {
-      dispatch(GetCheckinmodule(logindata.admin.id));
-    }
-  }, [dispatch, logindata?.admin?.id]);
 
   // ✅ Fetch QC batches (refetch on reload)
   useEffect(() => {

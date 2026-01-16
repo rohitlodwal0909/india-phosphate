@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const ProductionResult = sequelize.define(
-    'ProductionResult',
+    "ProductionResult",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -10,23 +10,39 @@ module.exports = (sequelize, DataTypes) => {
       batch_id: {
         type: DataTypes.STRING,
         allowNull: false,
-          unique: true 
+        unique: true
       },
       user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER
       },
       rm_code: {
         type: DataTypes.JSON,
         allowNull: false
       },
-      quantity: {
+      rm_quantity: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
       },
-   unit: {
-  type: DataTypes.DECIMAL(10, 2),
-  allowNull: false
-},
+      rm_unit: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+      },
+      pm_code: {
+        type: DataTypes.JSON,
+        allowNull: false
+      },
+      pm_quantity: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+      },
+      pm_unit: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+      },
+      equipments: {
+        type: DataTypes.JSON,
+        allowNull: false
+      },
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -37,24 +53,24 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: 'production_result',
+      tableName: "production_result",
       underscored: true,
       timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at'
+      createdAt: "created_at",
+      updatedAt: "updated_at"
     }
   );
-   ProductionResult.associate = (models) => {
+  ProductionResult.associate = (models) => {
     ProductionResult.hasMany(models.Finishing, {
-    foreignKey: 'batch_number',
-    sourceKey: 'batch_id',  
-    as: 'finishing_entries',
-  });
-   ProductionResult.belongsTo(models.Qcbatch, {
-    foreignKey: 'batch_id',        // The field in ProductionResult
-    targetKey: 'id',               // The field in Qcbatch
-    as: 'qcbatch',                 // Optional alias
-  });
-};
+      foreignKey: "batch_number",
+      sourceKey: "batch_id",
+      as: "finishing_entries"
+    });
+    ProductionResult.belongsTo(models.Qcbatch, {
+      foreignKey: "batch_id", // The field in ProductionResult
+      targetKey: "id", // The field in Qcbatch
+      as: "qcbatch" // Optional alias
+    });
+  };
   return ProductionResult;
 };

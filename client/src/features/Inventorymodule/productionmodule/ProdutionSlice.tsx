@@ -1,19 +1,19 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl }from '../../../constants/contant.tsx'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant.tsx';
 
 const initialState = {
   loading: false,
   error: null,
-  productiondata: [], 
-  qcproduction:[],        
-  addResult: null,  
+  productiondata: [],
+  qcproduction: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
 export const GetFetchProduction = createAsyncThunk(
-  "GetFetchProduction/fetch",
+  'GetFetchProduction/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/all-production`);
@@ -26,10 +26,11 @@ export const GetFetchProduction = createAsyncThunk(
         'Something went wrong while fetching check-ins.';
       return rejectWithValue(message);
     }
-  }
+  },
 );
+
 export const GetFetchQcProduction = createAsyncThunk(
-  "GetFetchQcProduction/fetch",
+  'GetFetchQcProduction/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/qc-allproduction`);
@@ -42,19 +43,18 @@ export const GetFetchQcProduction = createAsyncThunk(
         'Something went wrong while fetching check-ins.';
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
-
-export const addProduction= createAsyncThunk(
-  "addProduction/add",
-  async (newCheckin:any, { rejectWithValue }) => {
+export const addProduction = createAsyncThunk(
+  'addProduction/add',
+  async (newCheckin: any, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/add-Production`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
-      console.error("Add checkin error:", error);
+      console.error('Add checkin error:', error);
 
       // Try to extract a message from the server
       const message =
@@ -65,18 +65,18 @@ export const addProduction= createAsyncThunk(
 
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
-export const addFinishingEntry= createAsyncThunk(
-  "addFinishingEntry/add",
-  async (newCheckin:any, { rejectWithValue }) => {
+export const addFinishingEntry = createAsyncThunk(
+  'addFinishingEntry/add',
+  async (newCheckin: any, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/add-finishing-entry`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
-      console.error("Add checkin error:", error);
+      console.error('Add checkin error:', error);
 
       // Try to extract a message from the server
       const message =
@@ -87,50 +87,43 @@ export const addFinishingEntry= createAsyncThunk(
 
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const updateFinishentry = createAsyncThunk(
-  "updateFinishentry/update",
+  'updateFinishentry/update',
   async (updatedCheckin: any, { rejectWithValue }) => {
-    
     try {
       const response = await axios.put(
         `${apiUrl}/update-finishing-entry/${updatedCheckin.batch_number}`,
-        updatedCheckin
+        updatedCheckin,
       );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to update checkin."
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to update checkin.');
     }
-  }
+  },
 );
 
 export const deleteDispatch = createAsyncThunk(
-  "Dispatch/delete",
+  'Dispatch/delete',
   async (checkinId: any, { rejectWithValue }) => {
     try {
       await axios.delete(`${apiUrl}/delete-dispatch/${checkinId}`);
       return checkinId;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
     }
-  }
+  },
 );
 
-
-
 const ProdutionSlice = createSlice({
-  name: "checkininventory",
+  name: 'checkininventory',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      
+
       .addCase(GetFetchProduction.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -143,7 +136,8 @@ const ProdutionSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-    .addCase(GetFetchQcProduction.pending, (state) => {
+
+      .addCase(GetFetchQcProduction.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -181,4 +175,3 @@ const ProdutionSlice = createSlice({
 });
 
 export default ProdutionSlice.reducer;
-

@@ -16,17 +16,17 @@ import { Icon } from '@iconify/react';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch } from 'src/store';
 import Addproductionmodal from './Addproductionmodal';
-import { toast } from 'react-toastify';
-import {
-  GetAllQcbatch,
-  GetAllrowmaterial,
-} from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+
 import {
   GetFetchProduction,
   GetFetchQcProduction,
 } from 'src/features/Inventorymodule/productionmodule/ProdutionSlice';
+
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
+import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
+import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
+import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 
 export interface PaginationTableType {
   id: number;
@@ -54,9 +54,12 @@ function ProductionInventoryTable() {
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
-  const qcrowmaterial = useSelector((state: any) => state.qcinventory.rowmaterial);
-
   const qcproductiondata = useSelector((state: any) => state.productionData.qcproduction);
+
+  const rm_codes = useSelector((state: any) => state.rmcodes.rmcodedata);
+  const pm_codes = useSelector((state: any) => state.pmcodes.pmcodedata);
+  const equipments = useSelector((state: any) => state.equipment.Equipmentdata);
+
   const [data, setData] = useState<PaginationTableType[]>(qcproductiondata?.data || []);
   const [searchText, setSearchText] = useState('');
 
@@ -64,28 +67,15 @@ function ProductionInventoryTable() {
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 5);
   }, [logindata, selectedIconId]);
+
   useEffect(() => {
     setData(Array.isArray(qcproductiondata?.data) ? qcproductiondata.data : []);
   }, [qcproductiondata]);
 
   useEffect(() => {
-    const fetchrawall = async () => {
-      try {
-        await dispatch(GetAllrowmaterial()).unwrap(); // throws on error
-      } catch (error) {
-        console.error('Error fetching QC batches:', error);
-        toast.error('Failed to fetch QC batches.');
-      }
-    };
-    const fetchQcbatches = async () => {
-      try {
-        await dispatch(GetAllQcbatch()).unwrap(); // throws on error
-      } catch (error) {
-        console.error('Error fetching QC batches:', error);
-        toast.error('Failed to fetch QC batches.');
-      }
-    };
-
+    dispatch(GetRmCode());
+    dispatch(GetPmCode());
+    dispatch(GetEquipment());
     const fetchSqcData = async () => {
       try {
         const result = await dispatch(GetFetchQcProduction());
@@ -96,9 +86,6 @@ function ProductionInventoryTable() {
       }
     };
     fetchSqcData();
-
-    fetchQcbatches();
-    fetchrawall();
   }, [dispatch]);
 
   const handleApprove = (row: PaginationTableType) => {
@@ -152,6 +139,7 @@ function ProductionInventoryTable() {
         );
       },
     }),
+
     columnHelper.accessor('qc_batch_number', {
       cell: (info) => <p>{info.getValue() || 'N0 Code'}</p>,
       header: () => <span>Batch Number</span>,
@@ -160,7 +148,6 @@ function ProductionInventoryTable() {
     columnHelper.accessor('rm_code', {
       cell: (info) => {
         const rowIndata = info.row.original;
-
         let values = [];
         try {
           // Try parsing rm_code safely if it's a stringified JSON
@@ -344,9 +331,10 @@ function ProductionInventoryTable() {
       <Addproductionmodal
         openModal={addmodal}
         setOpenModal={setaddmodal}
-        rmcode={qcrowmaterial?.data}
+        rmcodes={rm_codes}
+        pmcodes={pm_codes}
+        equipments={equipments}
         selectedRow={selectedRow}
-        handleSubmited={''}
         logindata={logindata}
       />
     </>

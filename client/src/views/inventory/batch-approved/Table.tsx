@@ -12,8 +12,6 @@ import { Icon } from '@iconify/react';
 import { useEffect, useState, useMemo, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
-
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { toast } from 'react-toastify';
 
@@ -59,13 +57,6 @@ function Table() {
     }
   };
 
-  // ✅ Fetch Checkin (if needed)
-  useEffect(() => {
-    if (logindata?.admin?.id) {
-      dispatch(GetCheckinmodule(logindata.admin.id));
-    }
-  }, [dispatch, logindata?.admin?.id]);
-
   // ✅ Fetch QC batches (refetch on reload)
   useEffect(() => {
     dispatch(GetAllQcbatch())
@@ -96,8 +87,6 @@ function Table() {
       return searchMatch;
     });
   }, [data, searchText]);
-
-  console.log(logindata);
 
   // ✅ Columns
   const getColumns = (handlers: any) => [

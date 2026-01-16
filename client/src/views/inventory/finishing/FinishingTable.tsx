@@ -31,14 +31,15 @@ import { getPermissions } from 'src/utils/getPermissions';
 export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
-  rm_code: string;
-  quantity: string;
+  rm_code: any;
+  quantity: any;
   finishing: any;
   grn_number: any;
   tested_by: any;
   productionExists: any;
   actions: any;
   qa_qc_status: any;
+  production_results: any;
   finishing_entries: any;
   unfinishing: any;
   unfinish_quantity: any;
@@ -55,9 +56,9 @@ function FinishingTable() {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
-  const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
   const ProductionAlldata = useSelector((state: any) => state.productionData.productiondata);
-  const [data, setData] = useState<PaginationTableType[]>(qcAlldata?.data || []);
+
+  const [data, setData] = useState<PaginationTableType[]>([]);
 
   const [searchText, setSearchText] = useState('');
 
@@ -65,10 +66,12 @@ function FinishingTable() {
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 6);
   }, [logindata, selectedIconId]);
+
   useEffect(
     () => setData(Array.isArray(ProductionAlldata?.data) ? ProductionAlldata.data : []),
     [ProductionAlldata],
   );
+
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
@@ -79,7 +82,6 @@ function FinishingTable() {
         console.error('Unexpected error:', error);
       }
     };
-    dispatch(GetAllQcbatch());
     fetchStoreData();
   }, [dispatch]);
 
@@ -113,21 +115,20 @@ function FinishingTable() {
     const keyword = searchText.toLowerCase();
 
     return data?.filter((item) => {
-      const batchId = item?.batch_id;
-
-      const matchedBatch = qcAlldata?.data?.find((qc: any) => qc.id == batchId);
-
       // ✅ Agar matchedBatch hai tabhi batchNumber lo
-      const batchNumber = matchedBatch ? matchedBatch.qc_batch_number?.toLowerCase() || '' : '';
+      const batchNumber = item.qc_batch_number?.toLowerCase() || '';
 
+      const production = Array.isArray(item?.production_results)
+        ? item.production_results[0]
+        : null;
       let rmCodes: string[] = [];
       try {
-        rmCodes = JSON.parse(item?.rm_code || '[]');
+        rmCodes = JSON.parse(production?.rm_code || '[]');
       } catch {}
 
       const quantities =
-        typeof item?.quantity === 'string'
-          ? item.quantity.split(',').map((q) => q.trim().toLowerCase())
+        typeof production?.quantity === 'string'
+          ? production.quantity.split(',').map((q) => q.trim().toLowerCase())
           : [];
 
       const entry = Array.isArray(item?.finishing_entries) ? item.finishing_entries[0] : null;
@@ -138,14 +139,14 @@ function FinishingTable() {
 
       // ✅ Agar matchedBatch nahi mila, tab bhi baaki fields pe search kaam karega
       return (
-        (matchedBatch && batchNumber.includes(keyword)) ||
+        batchNumber.includes(keyword) ||
         rmCodes.some((code) => code.toLowerCase().includes(keyword)) ||
         quantities.some((qty) => qty.includes(keyword)) ||
         finishQty.includes(keyword) ||
         unfinishQty.includes(keyword)
       );
     });
-  }, [data, searchText, qcAlldata]);
+  }, [data, searchText]);
 
   const columns = [
     columnHelper.accessor('id', {
@@ -159,21 +160,26 @@ function FinishingTable() {
     columnHelper.accessor('qc_batch_number', {
       cell: (info) => {
         const rowData = info.row.original;
-        const batchId = rowData?.batch_id;
 
-        const matchedBatch = qcAlldata?.data?.find((qc: any) => qc.id == batchId);
-
-        return <p>{matchedBatch?.qc_batch_number || 'No Code'}</p>;
+        return <p>{rowData?.qc_batch_number || 'No Code'}</p>;
       },
       header: () => <span>Batch Number</span>,
     }),
 
     columnHelper.accessor('rm_code', {
       cell: (info) => {
-        let values = [];
+        const rowData = info.row.original;
+
+        // safely access rm_code
+        const rmCode = rowData?.production_results?.[0]?.rm_code;
+
+        let values: string[] = [];
         try {
-          values = JSON.parse(info.getValue() || '[]');
-        } catch {}
+          values = typeof rmCode === 'string' ? JSON.parse(rmCode) : [];
+        } catch (e) {
+          values = [];
+        }
+
         return values.length ? (
           <div className="flex flex-wrap gap-1">
             {values.map((v, i) => (
@@ -188,9 +194,12 @@ function FinishingTable() {
       },
       header: () => <span>RM Code</span>,
     }),
+
     columnHelper.accessor('quantity', {
       cell: (info) => {
-        const raw = info.getValue();
+        const rowData = info.row.original;
+        const raw = rowData?.production_results?.[0]?.quantity;
+
         const values = typeof raw === 'string' ? raw.split(',').map((q) => q.trim()) : [];
         return values.length ? (
           <div className="flex flex-wrap gap-1">
@@ -210,9 +219,8 @@ function FinishingTable() {
     columnHelper.accessor('unfinish_quantity', {
       cell: (info) => {
         const rowData = info?.row?.original;
-        const entry = Array.isArray(rowData?.finishing_entries)
-          ? rowData.finishing_entries[0]
-          : null;
+        const data = rowData?.production_results?.[0];
+        const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
             {entry?.unfinish_quantity ?? '-'}
@@ -224,9 +232,8 @@ function FinishingTable() {
     columnHelper.accessor('finish_quantity', {
       cell: (info) => {
         const rowData = info?.row?.original;
-        const entry = Array.isArray(rowData?.finishing_entries)
-          ? rowData.finishing_entries[0]
-          : null;
+        const data = rowData?.production_results?.[0];
+        const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
             {entry?.finish_quantity ?? '-'}
@@ -239,9 +246,8 @@ function FinishingTable() {
     columnHelper.accessor('actions', {
       cell: (info) => {
         const rowData = info?.row?.original;
-        const entry = Array.isArray(rowData?.finishing_entries)
-          ? rowData.finishing_entries[0]
-          : null;
+        const data = rowData?.production_results?.[0];
+        const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <div className="flex gap-2">
             {entry
@@ -249,7 +255,7 @@ function FinishingTable() {
                   <Button
                     color="secondary"
                     onClick={() => {
-                      setEditModal(true), triggerGoogleTranslateRescan(), setSelectedRow(rowData);
+                      setEditModal(true), triggerGoogleTranslateRescan(), setSelectedRow(data);
                     }}
                     outline
                     size="xs"
@@ -261,7 +267,7 @@ function FinishingTable() {
               : permissions?.add && (
                   <Button
                     onClick={() => {
-                      setaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(rowData);
+                      setaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(data);
                     }}
                     color="secondary"
                     outline
