@@ -32,6 +32,8 @@ export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
   rm_code: string;
+  pm_code: string;
+  equipment: string;
   quantity: string;
   status: any;
   grn_number: any;
@@ -60,17 +62,12 @@ function ProductionInventoryTable() {
   const pm_codes = useSelector((state: any) => state.pmcodes.pmcodedata);
   const equipments = useSelector((state: any) => state.equipment.Equipmentdata);
 
-  const [data, setData] = useState<PaginationTableType[]>(qcproductiondata?.data || []);
   const [searchText, setSearchText] = useState('');
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 5);
   }, [logindata, selectedIconId]);
-
-  useEffect(() => {
-    setData(Array.isArray(qcproductiondata?.data) ? qcproductiondata.data : []);
-  }, [qcproductiondata]);
 
   useEffect(() => {
     dispatch(GetRmCode());
@@ -125,7 +122,7 @@ function ProductionInventoryTable() {
         unitList.some((u) => u.toLowerCase().includes(keyword))
       );
     });
-  }, [qcproductiondata, data, searchText]);
+  }, [qcproductiondata, searchText]);
 
   const columns = [
     columnHelper.accessor('id', {
@@ -149,50 +146,99 @@ function ProductionInventoryTable() {
       cell: (info) => {
         const rowIndata = info.row.original;
         let values = [];
+
         try {
-          // Try parsing rm_code safely if it's a stringified JSON
-          const raw = rowIndata?.production_results?.[0]?.rm_code;
+          const raw = rowIndata?.production_results;
           values = Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
         } catch (err) {
-          console.error('Failed to parse rm_code:', err);
+          console.error('Failed to parse production_results:', err);
         }
 
         return values.length ? (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-col gap-1">
             {values.map((v, i) => (
-              <span key={i} className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
-                {v}
-              </span>
+              <div key={i} className="flex items-center gap-2  px-2 py-1 rounded">
+                {/* RM CODE */}
+                <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
+                  {v?.rmcodes?.rm_code || 'N/A'}
+                </span>
+
+                {/* QUANTITY */}
+                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
+                  {v?.rm_quantity} {v?.rm_unit || ''}
+                </span>
+              </div>
             ))}
           </div>
         ) : (
-          <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">No RM Code</span>
+          <span className="text-xs text-gray-400">No RM Code</span>
         );
       },
-      header: () => <span>RM Code</span>,
+      header: () => <span>RM Code / Quantity</span>,
     }),
-    columnHelper.accessor('quantity', {
+
+    columnHelper.accessor('pm_code', {
       cell: (info) => {
         const rowIndata = info.row.original;
-        const rawQty = rowIndata?.production_results?.[0]?.quantity;
-        const rawUnit = rowIndata?.production_results?.[0]?.unit;
+        let values = [];
 
-        const quantities = typeof rawQty === 'string' ? rawQty.split(',').map((q) => q.trim()) : [];
-        const units = typeof rawUnit === 'string' ? rawUnit.split(',').map((u) => u.trim()) : [];
+        try {
+          const raw = rowIndata?.production_results;
+          values = Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
+        } catch (err) {
+          console.error('Failed to parse production_results:', err);
+        }
 
-        return quantities.length ? (
-          <div className="flex flex-wrap gap-1">
-            {quantities.map((q, i) => (
-              <span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-                {q} {units[i] || ''}
-              </span>
+        return values.length ? (
+          <div className="flex flex-col gap-1">
+            {values.map((v, i) => (
+              <div key={i} className="flex items-center gap-2  px-2 py-1 rounded">
+                {/* RM CODE */}
+                <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
+                  {v?.pmcodes?.name || ' '}
+                </span>
+
+                {/* QUANTITY */}
+                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
+                  {v?.pm_quantity} {v?.pm_unit || ''}
+                </span>
+              </div>
             ))}
           </div>
         ) : (
-          <p>-</p>
+          <span className="text-xs text-gray-400">No PM Code</span>
         );
       },
-      header: () => <span>Quantity</span>,
+      header: () => <span>PM Code / Quantity</span>,
+    }),
+    columnHelper.accessor('equipment', {
+      cell: (info) => {
+        const rowIndata = info.row.original;
+        let values = [];
+
+        try {
+          const raw = rowIndata?.production_results;
+          values = Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
+        } catch (err) {
+          console.error('Failed to parse production_results:', err);
+        }
+
+        return values.length ? (
+          <div className="flex flex-col gap-1">
+            {values.map((v, i) => (
+              <div key={i} className="flex items-center gap-2  px-2 py-1 rounded">
+                {/* RM CODE */}
+                <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
+                  {v?.equipment?.name || ' '}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-xs text-gray-400">No Equipment</span>
+        );
+      },
+      header: () => <span>Equipment</span>,
     }),
 
     columnHelper.accessor('status', {

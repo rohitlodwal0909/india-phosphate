@@ -257,7 +257,21 @@ exports.getQcbatchesWithProduction = async (req, res, next) => {
       include: [
         {
           model: ProductionResult,
-          as: "production_results"
+          as: "production_results",
+          include: [
+            {
+              model: RmCode,
+              as: "rmcodes"
+            },
+            {
+              model: PmCode,
+              as: "pmcodes"
+            },
+            {
+              model: Equipment,
+              as: "equipment"
+            }
+          ]
         }
       ],
       order: [["created_at", "DESC"]] // optional: newest first

@@ -3,16 +3,14 @@ import RmCodeTable from './RmCodeComponent.tsx/RmCodeTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const RmCode = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "RmCode ", to: "/" }]}
-        title="RmCode"/>
-         <CardBox>
-        <RmCodeTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'RmCode ', to: '/' }]} title="RmCode" />
+      <CardBox>
+        <RmCodeTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default RmCode
+export default RmCode;

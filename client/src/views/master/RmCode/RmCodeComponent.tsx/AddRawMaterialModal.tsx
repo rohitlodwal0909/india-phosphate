@@ -19,16 +19,14 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
 
   const [formData, setFormData] = useState({
     rm_code: '',
-    fields: [
-      { type: '', test: '', limit: '' },
-    ],
+    fields: [{ type: '', test: '', limit: '' }],
   });
 
   const [errors, setErrors] = useState<any>({});
 
   useEffect(() => {
-    if (selectedRow?.rm_code) {
-      setFormData((prev) => ({ ...prev, rm_code: selectedRow.rm_code }));
+    if (selectedRow?.id) {
+      setFormData((prev) => ({ ...prev, rm_code: selectedRow.id }));
     }
   }, [selectedRow]);
 
@@ -72,18 +70,16 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
     if (!validateForm()) return;
 
     try {
-    
-        const payload = {
-          rm_code: formData.rm_code,
-          fields: formData?.fields
-        };
-        await dispatch(addrawmaterial(payload)).unwrap();
-    
+      const payload = {
+        rm_code: formData.rm_code,
+        fields: formData?.fields,
+      };
+      await dispatch(addrawmaterial(payload)).unwrap();
 
       toast.success('Raw material(s) created successfully');
       dispatch(GetrawMaterial(formData.rm_code));
       setFormData({
-         rm_code: formData.rm_code,
+        rm_code: formData.rm_code,
         fields: [{ type: '', test: '', limit: '' }],
       });
       setShowmodal(false);
@@ -141,9 +137,9 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
                   id={`test-${index}`}
                   type="text"
                   value={field.test}
-                      placeholder='Enter Test Name '
+                  placeholder="Enter Test Name "
                   onChange={(e) => handleFieldChange(index, 'test', e.target.value)}
-                  className='form-rounded-md'
+                  className="form-rounded-md"
                 />
                 {errors[`fields_${index}_test`] && (
                   <p className="text-red-500 text-xs">{errors[`fields_${index}_test`]}</p>
@@ -158,9 +154,9 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
                   id={`limit-${index}`}
                   type="text"
                   value={field.limit}
-                  placeholder='Enter Limit '
+                  placeholder="Enter Limit "
                   onChange={(e) => handleFieldChange(index, 'limit', e.target.value)}
-                   className='form-rounded-md'
+                  className="form-rounded-md"
                 />
                 {errors[`fields_${index}_limit`] && (
                   <p className="text-red-500 text-xs">{errors[`fields_${index}_limit`]}</p>

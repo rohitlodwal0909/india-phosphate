@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER
       },
       rm_code: {
-        type: DataTypes.JSON,
+        type: DataTypes.INTEGER,
         allowNull: false
       },
       rm_quantity: {
@@ -70,6 +70,21 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "batch_id", // The field in ProductionResult
       targetKey: "id", // The field in Qcbatch
       as: "qcbatch" // Optional alias
+    });
+    ProductionResult.belongsTo(models.RmCode, {
+      foreignKey: "rm_code", // The field in ProductionResult
+      targetKey: "id", // The field in Qcbatch
+      as: "rmcodes" // Optional alias
+    });
+    ProductionResult.belongsTo(models.PmCode, {
+      foreignKey: "pm_code", // The field in ProductionResult
+      targetKey: "id", // The field in Qcbatch
+      as: "pmcodes" // Optional alias
+    });
+    ProductionResult.belongsTo(models.Equipment, {
+      foreignKey: "equipments", // The field in ProductionResult
+      targetKey: "id", // The field in Qcbatch
+      as: "equipment" // Optional alias
     });
   };
   return ProductionResult;

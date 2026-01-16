@@ -8,6 +8,7 @@ import ComonDeletemodal from '../../../../utils/deletemodal/ComonDeletemodal';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import EditRmCodeModal from './EditRmCodeModal';
+
 import AddRmCodeModal from './AddRmCodeModal';
 import { deleteRmCode, GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
@@ -33,6 +34,7 @@ const RmCodeTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 15);
   }, [logindata, selectedIconId]);
@@ -125,7 +127,7 @@ const RmCodeTable = () => {
                     </td>
                   </tr>
                 ) : currentItems.length > 0 ? (
-                  currentItems.map((item: any, index: number) => (
+                  currentItems?.map((item: any, index: number) => (
                     <tr key={item.id} className="bg-white dark:bg-gray-900">
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         <h6 className="text-base">#{(currentPage - 1) * pageSize + index + 1}</h6>
