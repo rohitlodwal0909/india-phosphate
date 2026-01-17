@@ -15,11 +15,7 @@ import s1 from '../../../src/assets/images/profile/user-1.jpg';
 import Deleteusermodal from './Deleteusermodal';
 import Editusermodal from './Editusermodal';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  deleteUser,
-  GetUsermodule,
-  updateUser,
-} from 'src/features/usermanagment/UsermanagmentSlice';
+import { deleteUser, GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { toast } from 'react-toastify';
 import PaginationComponent from 'src/utils/PaginationComponent';
@@ -61,16 +57,6 @@ function PaginationTable({ roleData }) {
     dispatch(GetUsermodule());
   }, []);
 
-  const handleupdateuser = async (formPayload) => {
-    try {
-      const res = await dispatch(updateUser(formPayload)).unwrap();
-      toast.success(res.message || 'User updated successfully');
-      dispatch(GetUsermodule());
-      setEditModal(false);
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
   const handleDelete = (row: PaginationTableType) => {
     triggerGoogleTranslateRescan();
     setSelectedRow(row);
@@ -247,7 +233,6 @@ function PaginationTable({ roleData }) {
         editModal={editModal}
         selectedUser={selectedRow}
         modalPlacement={modalPlacement}
-        onUpdateUser={handleupdateuser}
       />
     </>
   );

@@ -106,6 +106,16 @@ exports.index = async (req, res, next) => {
           model: RmCode,
           as: "rmcode",
           required: false
+        },
+        {
+          model: PmCode,
+          as: "pm_code",
+          required: false
+        },
+        {
+          model: User,
+          as: "pmapproveBy",
+          required: false
         }
       ]
     });

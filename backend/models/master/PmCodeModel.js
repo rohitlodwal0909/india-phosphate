@@ -43,5 +43,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  PmCode.associate = (models) => {
+    PmCode.hasMany(models.GrnEntry, {
+      foreignKey: "store_pm_code",
+      as: "pmcodes"
+    });
+
+    PmCode.hasMany(models.PMIssueModel, {
+      foreignKey: "pm_id",
+      as: "issuedPM"
+    });
+  };
+
   return PmCode;
 };

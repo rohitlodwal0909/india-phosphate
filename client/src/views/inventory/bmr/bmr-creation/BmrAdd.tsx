@@ -9,16 +9,17 @@ import { saveBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrC
 interface BmrAddProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-  StoreData: any;
+  StoreData: any[];
   logindata: any;
 }
 
 const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
+
   const [formData, setFormData] = useState<any>({
     user_id: logindata?.admin?.id,
-    bmr_product_id: '',
-    batch_no: '',
+    batch_id: '',
+    product_name: '',
     mfg_date: '',
     exp_date: '',
     mfg_start: '',
@@ -27,25 +28,28 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
 
   const [errors, setErrors] = useState<any>({});
 
-  // 🔁 Common Input Change
+  // ------------------ INPUT CHANGE ------------------
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
   };
 
-  // ✅ Product Dropdown Options
-  const productOptions =
+  // ------------------ BATCH OPTIONS ------------------
+  const batchOptions =
     StoreData?.map((item: any) => ({
-      value: item.id, // ✅ product_id
-      label: item.product_name, // UI label
+      value: item.id, // product / batch id
+      label: item.qc_batch_number, // Batch No
+      product_name: item.product_name,
+      mfg_date: item.mfg_date,
+      exp_date: item.exp_date,
     })) || [];
 
-  // ✅ Submit Handler
+  // ------------------ SUBMIT ------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = ['bmr_product_id', 'batch_no', 'mfg_date', 'exp_date', 'mfg_start'];
+    const requiredFields = ['batch_id', 'mfg_date', 'exp_date', 'mfg_start'];
 
     const newErrors: any = {};
     requiredFields.forEach((field) => {
@@ -66,14 +70,13 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
 
         setFormData({
           user_id: logindata?.admin?.id,
-          bmr_product_id: '',
-          batch_no: '',
+          batch_id: '',
+          product_name: '',
           mfg_date: '',
           exp_date: '',
           mfg_start: '',
           remarks: '',
         });
-
         setOpenModal(false);
       }
     } catch (err: any) {
@@ -87,38 +90,30 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-          {/* PRODUCT */}
-          {/* PRODUCT */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Product Name" />
-            <Select
-              options={productOptions}
-              value={
-                productOptions.find((opt: any) => opt.value === formData.bmr_product_id) || null
-              }
-              onChange={(selected: any) => {
-                setFormData({
-                  ...formData,
-                  bmr_product_id: selected?.value, // ✅ correct key
-                });
-                setErrors({ ...errors, bmr_product_id: '' });
-              }}
-            />
-            {errors.bmr_product_id && (
-              <span className="text-red-500 text-sm">{errors.bmr_product_id}</span>
-            )}
-          </div>
-
           {/* BATCH NO */}
           <div className="sm:col-span-6 col-span-12">
             <Label value="Batch No" />
-            <TextInput
-              name="batch_no"
-              placeholder="Enter Batch No"
-              value={formData.batch_no}
-              onChange={handleChange}
+            <Select
+              options={batchOptions}
+              value={batchOptions.find((opt: any) => opt.value === formData.batch_id) || null}
+              onChange={(selected: any) => {
+                setFormData({
+                  ...formData,
+                  batch_id: selected?.value,
+                  product_name: selected?.product_name,
+                  mfg_date: selected?.mfg_date,
+                  exp_date: selected?.exp_date,
+                });
+                setErrors({ ...errors, batch_id: '' });
+              }}
             />
-            {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
+            {errors.batch_id && <span className="text-red-500 text-sm">{errors.batch_id}</span>}
+          </div>
+
+          {/* PRODUCT NAME */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Product Name" />
+            <TextInput value={formData.product_name} readOnly />
           </div>
 
           {/* MFG DATE */}
@@ -130,6 +125,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
               value={formData.mfg_date}
               onChange={handleChange}
             />
+            {errors.mfg_date && <span className="text-red-500 text-sm">{errors.mfg_date}</span>}
           </div>
 
           {/* EXP DATE */}
@@ -141,6 +137,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
               value={formData.exp_date}
               onChange={handleChange}
             />
+            {errors.exp_date && <span className="text-red-500 text-sm">{errors.exp_date}</span>}
           </div>
 
           {/* MFG START */}
@@ -152,6 +149,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
               value={formData.mfg_start}
               onChange={handleChange}
             />
+            {errors.mfg_start && <span className="text-red-500 text-sm">{errors.mfg_start}</span>}
           </div>
 
           {/* REMARKS */}

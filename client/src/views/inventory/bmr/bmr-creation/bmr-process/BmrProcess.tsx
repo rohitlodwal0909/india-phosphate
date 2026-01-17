@@ -13,13 +13,24 @@ import YieldCalculation from './YieldCalculation';
 import PostProductionReview from './PostProductionReview';
 import ProductRelease from './ProductRelease';
 import ManufacturingProcedure from './ManufacturingProcedure';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
+import { AppDispatch } from 'src/store';
 
-const LineClearance = () => {
+const BmrProcess = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const users = useSelector((state: any) => state.usermanagement.userdata);
+
+  useEffect(() => {
+    dispatch(GetUsermodule());
+  }, [dispatch]);
+
   return (
     <div>
       <BreadcrumbComp items={[{ title: 'BMR Process', to: '/' }]} title="BMR Process" />
       <CardBox>
-        <LineClearanceAccordionDesign />
+        <LineClearanceAccordionDesign users={users} />
         <DispensingRawMaterial />
         <Listofequipement />
         <LineClearanceProcessingArea />
@@ -37,4 +48,4 @@ const LineClearance = () => {
   );
 };
 
-export default LineClearance;
+export default BmrProcess;

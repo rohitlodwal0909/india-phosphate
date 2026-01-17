@@ -12,25 +12,18 @@ import { IconUser, IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetRole } from 'src/features/authentication/PermissionSlice';
 import { AppDispatch } from 'src/store';
+import { GetUsermodule, updateUserPassword } from 'src/features/usermanagment/UsermanagmentSlice';
+import { toast } from 'react-toastify';
 
-const Editusermodal = ({
-  setEditModal,
-  modalPlacement,
-  editModal,
-  selectedUser,
-  onUpdateUser,
-}: any) => {
+const Editusermodal = ({ setEditModal, modalPlacement, editModal, selectedUser }: any) => {
   const dispatch = useDispatch<AppDispatch>();
-
   const roleData = useSelector((state: any) => state.rolepermission.roledata);
-
   const [showPassword, setShowPassword] = useState(false);
-
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     role_id: '',
-    user_id: '',
+    id: '',
   });
 
   // Fetch roles
@@ -43,9 +36,9 @@ const Editusermodal = ({
     if (selectedUser) {
       setFormData({
         username: selectedUser.username || '',
-        password: selectedUser.password || '',
+        password: selectedUser.showpassword || '',
         role_id: selectedUser.role_id || '',
-        user_id: selectedUser.id,
+        id: selectedUser.id,
       });
     }
   }, [selectedUser]);
@@ -58,19 +51,19 @@ const Editusermodal = ({
     }));
   };
 
-  const handleEditSubmit = (e: any) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedUser?.id) return;
 
-    const updatedUser = {
-      id: selectedUser.id,
-      username: formData.username,
-      role_id: formData.role_id,
-      password: formData.password || undefined, // empty ho to update na ho
-    };
+    try {
+      const res = await dispatch(updateUserPassword(formData)).unwrap();
+      toast.success(res.message || 'User updated successfully');
 
-    onUpdateUser(updatedUser);
-    setEditModal(false);
+      dispatch(GetUsermodule());
+      setEditModal(false);
+    } catch (error: any) {
+      // Check if error has a response with message from backend
+      toast.error(error);
+    }
   };
 
   return (

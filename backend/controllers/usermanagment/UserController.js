@@ -21,6 +21,7 @@ exports.register = async (req, res, next) => {
     const user = await User.create({
       username,
       password: hashedPassword,
+      showpassword: password,
       role_id,
       status: "Inactive" // default status
     });
@@ -65,6 +66,38 @@ exports.listAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll({ paranoid: true }); // Includes deleted users
     res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updatePassword = async (req, res, next) => {
+  const { username, password, role_id, id } = req.body;
+
+  try {
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { id } });
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // Create user
+    const user = await existingUser.update({
+      username,
+      password: hashedPassword,
+      showpassword: password,
+      role_id,
+      status: "active"
+    });
+
+    res.status(201).json({
+      message: "User Update successfully",
+      user: {
+        id: user.id,
+        username: user.username,
+        role_id: user.role_id,
+        status: user.status
+      }
+    });
   } catch (error) {
     next(error);
   }

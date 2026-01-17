@@ -1,10 +1,7 @@
 import CardBox from '../../components/shared/CardBox';
-
 import { useEffect, useState } from 'react';
 import { Button } from 'flowbite-react';
-
 import Addusermodal from './Addusermodal';
-
 import PaginationTable from './PaginationTable';
 import BreadcrumbComp from 'src/layouts/full/shared/breadcrumb/BreadcrumbComp';
 
@@ -12,6 +9,7 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { GetRole } from 'src/features/authentication/PermissionSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from 'src/store';
+
 const Usermanagment = () => {
   const [placeModal, setPlaceModal] = useState(false);
   let modalPlacement = 'center';
@@ -45,7 +43,7 @@ const Usermanagment = () => {
           <h5 className="card-title">User Management</h5>
           <Button
             onClick={() => {
-              setPlaceModal(true), triggerGoogleTranslateRescan();
+              (setPlaceModal(true), triggerGoogleTranslateRescan());
             }}
             className="w-fit"
             color="primary"

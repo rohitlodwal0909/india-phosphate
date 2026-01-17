@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Label, TextInput, Textarea } from "flowbite-react";
-import { useDispatch } from "react-redux";
-import Select from "react-select";
-import { toast } from "react-toastify";
+import React, { useEffect, useState } from 'react';
+import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
+import { useDispatch } from 'react-redux';
+import Select from 'react-select';
+import { toast } from 'react-toastify';
 
-import { AppDispatch } from "src/store";
-import { updateBmrRecord } from "src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice";
+import { AppDispatch } from 'src/store';
+import { updateBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 
 interface BmrEditProps {
   openModal: boolean;
@@ -25,15 +25,15 @@ const BmrEdit: React.FC<BmrEditProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
-    id: "",
+    id: '',
     user_id: logindata?.admin?.id,
-    bmr_product_id: "",
-    batch_no: "",
-    mfg_date: "",
-    exp_date: "",
-    mfg_start: "",
-    mfg_complete: "",
-    remarks: "",
+    bmr_product_id: '',
+    batch_no: '',
+    mfg_date: '',
+    exp_date: '',
+    mfg_start: '',
+    mfg_complete: '',
+    remarks: '',
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -52,7 +52,7 @@ const BmrEdit: React.FC<BmrEditProps> = ({
         exp_date: data.exp_date,
         mfg_start: data.mfg_start,
         mfg_complete: data.mfg_complete,
-        remarks: data.remarks || "",
+        remarks: data.remarks || '',
       });
     }
   }, [data, logindata]);
@@ -60,12 +60,10 @@ const BmrEdit: React.FC<BmrEditProps> = ({
   /* =======================
      INPUT HANDLER
   ======================= */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: "" });
+    setErrors({ ...errors, [name]: '' });
   };
 
   /* =======================
@@ -85,10 +83,10 @@ const BmrEdit: React.FC<BmrEditProps> = ({
 
     try {
       await dispatch(updateBmrRecord(formData)).unwrap();
-      toast.success("BMR Updated Successfully");
+      toast.success('BMR Updated Successfully');
       setOpenModal(false);
     } catch (err: any) {
-      toast.error(err?.message || "Update failed");
+      toast.error(err?.message || 'Update failed');
     }
   };
 
@@ -98,15 +96,12 @@ const BmrEdit: React.FC<BmrEditProps> = ({
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-
           {/* PRODUCT */}
           <div className="col-span-6">
             <Label value="Product Name" />
             <Select
               options={productOptions}
-              value={productOptions.find(
-                (opt: any) => opt.value === formData.bmr_product_id
-              )}
+              value={productOptions.find((opt: any) => opt.value === formData.bmr_product_id)}
               onChange={(selected: any) =>
                 setFormData({
                   ...formData,
@@ -119,11 +114,7 @@ const BmrEdit: React.FC<BmrEditProps> = ({
           {/* BATCH NO */}
           <div className="col-span-6">
             <Label value="Batch No" />
-            <TextInput
-              name="batch_no"
-              value={formData.batch_no}
-              onChange={handleChange}
-            />
+            <TextInput name="batch_no" value={formData.batch_no} onChange={handleChange} />
           </div>
 
           {/* MFG DATE */}
@@ -173,11 +164,7 @@ const BmrEdit: React.FC<BmrEditProps> = ({
           {/* REMARKS */}
           <div className="col-span-12">
             <Label value="Remarks" />
-            <Textarea
-              name="remarks"
-              value={formData.remarks}
-              onChange={handleChange}
-            />
+            <Textarea name="remarks" value={formData.remarks} onChange={handleChange} />
           </div>
 
           {/* ACTIONS */}
@@ -189,7 +176,6 @@ const BmrEdit: React.FC<BmrEditProps> = ({
               Update
             </Button>
           </div>
-
         </form>
       </Modal.Body>
     </Modal>

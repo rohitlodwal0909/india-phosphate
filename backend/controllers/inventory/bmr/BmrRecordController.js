@@ -2,7 +2,7 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
-const { BmrRecordsModel, BmrMaster, LineClearance, LineClearanceKeyPoint } = db;
+const { BmrRecordsModel, LineClearance, LineClearanceKeyPoint, Qcbatch } = db;
 const sequelize = db.sequelize; // ✅ THIS WAS MISSING
 
 exports.index = async (req, res, next) => {
@@ -11,7 +11,7 @@ exports.index = async (req, res, next) => {
       order: [["created_at", "DESC"]],
       include: [
         {
-          model: BmrMaster,
+          model: Qcbatch,
           as: "records",
           required: false
         }
@@ -23,6 +23,7 @@ exports.index = async (req, res, next) => {
     next(error);
   }
 };
+
 // Create GRN Entry
 exports.store = async (req, res, next) => {
   try {
@@ -31,7 +32,7 @@ exports.store = async (req, res, next) => {
     });
 
     res.status(201).json({
-      message: "BMR Record  created successfully",
+      message: "BMR Record created successfully",
       data
     });
   } catch (error) {

@@ -11,13 +11,19 @@ const selectStyles = {
   menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
 };
 
-const LineClearanceAccordionDesign = () => {
+const LineClearanceAccordionDesign = ({ users }: any) => {
+  const userOptions =
+    users?.map((user: any) => ({
+      value: user.id,
+      label: user.name || user.full_name || user.username,
+    })) || [];
+
   const KeyPointRow = ({ label }: any) => (
     <div className="grid grid-cols-12 gap-3 py-2">
       <div className="col-span-12 lg:col-span-4 font-medium text-gray-700">{label}</div>
 
       <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-        <Label className="lg:hidden mb-1 block" value="Cleaning Done By" />
+        <Label className="lg:hidden mb-1 block" value="Cleaning Done" />
         <Select
           options={yesNoNaOptions}
           styles={selectStyles}
@@ -27,7 +33,7 @@ const LineClearanceAccordionDesign = () => {
       </div>
 
       <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-        <Label className="lg:hidden mb-1 block" value="Checked By" />
+        <Label className="lg:hidden mb-1 block" value="Checked" />
         <Select
           options={yesNoNaOptions}
           styles={selectStyles}
@@ -73,6 +79,7 @@ const LineClearanceAccordionDesign = () => {
                 <Label value="Cleaning Done By" />
                 <Select
                   placeholder="Select Staff"
+                  options={userOptions}
                   styles={selectStyles}
                   menuPortalTarget={document.body}
                 />
@@ -82,6 +89,7 @@ const LineClearanceAccordionDesign = () => {
                 <Label value="Checked By" />
                 <Select
                   placeholder="Select Staff"
+                  options={userOptions}
                   styles={selectStyles}
                   menuPortalTarget={document.body}
                 />
@@ -101,7 +109,7 @@ const LineClearanceAccordionDesign = () => {
             <KeyPointRow label="Cleanliness of area" />
             <KeyPointRow label="Calibration of weighing balances" />
 
-            {/* ACTION BUTTONS – INSIDE ACCORDION */}
+            {/* ACTION BUTTONS */}
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
               <Button color="gray">Cancel</Button>
               <Button>Submit</Button>

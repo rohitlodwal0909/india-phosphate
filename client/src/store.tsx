@@ -43,6 +43,7 @@ import FprSlice from '../src/features/Inventorymodule/FPR/FprSlice';
 import BmrRecordSlice from '../src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 import IssueEquipmentSlice from '../src/features/Inventorymodule/InventoryIssued/IssueEquipmentSlice';
 import RMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/RMIssueSlice';
+import PMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
 
 export const store = configureStore({
   reducer: {
@@ -53,6 +54,7 @@ export const store = configureStore({
     storeinventory: StoreInventorySlice,
     issueEquipment: IssueEquipmentSlice,
     rmissue: RMIssueSlice,
+    pmissue: PMIssueSlice,
     rolepermission: PermissionSlice,
     dispatchData: DispatchSlice,
     productionData: ProdutionSlice,

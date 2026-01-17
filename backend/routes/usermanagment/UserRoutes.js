@@ -8,4 +8,6 @@ router.get("/user/all", UserController.listAllUsers);
 
 router.delete("/user/delete/:id", UserController.delete);
 
+router.put("/update-password", UserController.updatePassword);
+
 module.exports = router;

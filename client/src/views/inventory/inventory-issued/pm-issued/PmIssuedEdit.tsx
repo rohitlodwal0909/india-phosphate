@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
+import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 
 import { AppDispatch } from 'src/store';
-import { updateBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import {
+  getIssuedPM,
+  getStorePM,
+  updateIssuedPM, // 👈 agar separate update action ho to use replace karein
+} from 'src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
 
-interface BmrEditProps {
+interface PmIssuedEditProps {
   openModal: boolean;
   data: any; // selected row
   setOpenModal: (val: boolean) => void;
-  StoreData: any;
+  storeRawMaterial: any[];
   logindata: any;
 }
 
-const PmIssuedEdit: React.FC<BmrEditProps> = ({
+const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
   openModal,
   data,
   setOpenModal,
-  StoreData,
+  storeRawMaterial,
   logindata,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,52 +31,52 @@ const PmIssuedEdit: React.FC<BmrEditProps> = ({
   const [formData, setFormData] = useState<any>({
     id: '',
     user_id: logindata?.admin?.id,
-    bmr_product_id: '',
+    pm_id: '',
+    quantity: '',
+    person_name: '',
     batch_no: '',
-    mfg_date: '',
-    exp_date: '',
-    mfg_start: '',
-    mfg_complete: '',
-    remarks: '',
   });
 
   const [errors, setErrors] = useState<any>({});
+  const [maxQuantity, setMaxQuantity] = useState<number>(0);
 
   /* =======================
-     PREFILL FORM (🔥 KEY FIX)
+     PREFILL FORM
   ======================= */
   useEffect(() => {
     if (data) {
       setFormData({
         id: data.id,
         user_id: logindata?.admin?.id,
-        bmr_product_id: data.bmr_product_id,
+        pm_id: data.pm_id,
+        quantity: data.quantity,
+        person_name: data.person_name,
         batch_no: data.batch_no,
-        mfg_date: data.mfg_date,
-        exp_date: data.exp_date,
-        mfg_start: data.mfg_start,
-        mfg_complete: data.mfg_complete,
-        remarks: data.remarks || '',
       });
+
+      const storeItem = storeRawMaterial?.find((i: any) => i.id === data.issuePM?.id);
+
+      setMaxQuantity((storeItem?.total_quantity || 0) + Number(data.quantity));
     }
-  }, [data, logindata]);
+  }, [data, storeRawMaterial, logindata]);
 
   /* =======================
-     INPUT HANDLER
+     INPUT CHANGE
   ======================= */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
   };
 
   /* =======================
-     PRODUCT OPTIONS
+     RM OPTIONS
   ======================= */
-  const productOptions =
-    StoreData?.map((item: any) => ({
+  const rmOptions =
+    storeRawMaterial?.map((item) => ({
       value: item.id,
-      label: item.product_name,
+      label: item.name,
+      total_quantity: item.total_quantity,
     })) || [];
 
   /* =======================
@@ -81,90 +85,88 @@ const PmIssuedEdit: React.FC<BmrEditProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const requiredFields = ['pm_id', 'quantity', 'person_name', 'batch_no'];
+    const newErrors: any = {};
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        newErrors[field] = 'This field is required';
+      }
+    });
+
+    if (Number(formData.quantity) > maxQuantity) {
+      newErrors.quantity = `Maximum allowed quantity is ${maxQuantity}`;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
-      await dispatch(updateBmrRecord(formData)).unwrap();
-      toast.success('BMR Updated Successfully');
+      await dispatch(
+        updateIssuedPM({
+          ...formData,
+        }),
+      ).unwrap();
+
+      toast.success('PM updated successfully');
+
       setOpenModal(false);
+      dispatch(getIssuedPM());
+      dispatch(getStorePM());
     } catch (err: any) {
       toast.error(err?.message || 'Update failed');
     }
   };
 
   return (
-    <Modal show={openModal} onClose={() => setOpenModal(false)} size="2xl">
-      <Modal.Header>Edit BMR</Modal.Header>
+    <Modal show={openModal} onClose={() => setOpenModal(false)}>
+      <Modal.Header>Edit RM Issued</Modal.Header>
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-          {/* PRODUCT */}
-          <div className="col-span-6">
+          {/* RM */}
+          <div className="sm:col-span-6 col-span-12">
             <Label value="Product Name" />
             <Select
-              options={productOptions}
-              value={productOptions.find((opt: any) => opt.value === formData.bmr_product_id)}
-              onChange={(selected: any) =>
-                setFormData({
-                  ...formData,
-                  bmr_product_id: selected?.value,
-                })
-              }
+              options={rmOptions}
+              value={rmOptions.find((opt) => opt.value === formData.pm_id) || null}
+              onChange={(selected: any) => {
+                setFormData({ ...formData, pm_id: selected?.value });
+                setMaxQuantity(selected?.total_quantity || 0);
+                setErrors({ ...errors, pm_id: '' });
+              }}
             />
+            {errors.pm_id && <span className="text-red-500 text-sm">{errors.pm_id}</span>}
           </div>
 
-          {/* BATCH NO */}
-          <div className="col-span-6">
-            <Label value="Batch No" />
+          {/* QUANTITY */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value={`Quantity (Max ${maxQuantity})`} />
+            <TextInput
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+            />
+            {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
+          </div>
+
+          {/* PERSON */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Person Name" />
+            <TextInput name="person_name" value={formData.person_name} onChange={handleChange} />
+            {errors.person_name && (
+              <span className="text-red-500 text-sm">{errors.person_name}</span>
+            )}
+          </div>
+
+          {/* BATCH */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Batch No." />
             <TextInput name="batch_no" value={formData.batch_no} onChange={handleChange} />
-          </div>
-
-          {/* MFG DATE */}
-          <div className="col-span-6">
-            <Label value="Mfg Date" />
-            <TextInput
-              type="date"
-              name="mfg_date"
-              value={formData.mfg_date}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* EXP DATE */}
-          <div className="col-span-6">
-            <Label value="Exp Date" />
-            <TextInput
-              type="date"
-              name="exp_date"
-              value={formData.exp_date}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* MFG START */}
-          <div className="col-span-6">
-            <Label value="Mfg Start" />
-            <TextInput
-              type="datetime-local"
-              name="mfg_start"
-              value={formData.mfg_start}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* MFG COMPLETE */}
-          <div className="col-span-6">
-            <Label value="Mfg Complete" />
-            <TextInput
-              type="datetime-local"
-              name="mfg_complete"
-              value={formData.mfg_complete}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* REMARKS */}
-          <div className="col-span-12">
-            <Label value="Remarks" />
-            <Textarea name="remarks" value={formData.remarks} onChange={handleChange} />
+            {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
           </div>
 
           {/* ACTIONS */}

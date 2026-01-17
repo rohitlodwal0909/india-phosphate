@@ -1,53 +1,73 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../constants/contant';
 
 const initialState = {
   loading: false,
   error: null,
-  userdata: [],         
-  addResult: null,  
+  userdata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  updatePassword: null,
+  deleteResult: null,
 };
 
-export const GetUsermodule = createAsyncThunk("users/fetch", async () => {
-  const response = await axios.get( `${apiUrl}/user/all`);
-  return response.data;
+export const GetUsermodule = createAsyncThunk('users/fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axios.get(`${apiUrl}/user/all`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
 });
 
-
-export const addUser = createAsyncThunk(
-  "users/add",
-  async (formdata:any, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${apiUrl}/register`,
-        formdata);
-      return response.data;
-    } catch (error) {
-      // Return a rejected action containing the error message
-      return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
-      );
-    }
+export const addUser = createAsyncThunk('users/add', async (formdata: any, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(`${apiUrl}/register`, formdata);
+    return response.data;
+  } catch (error) {
+    // Return a rejected action containing the error message
+    return rejectWithValue(
+      error.response?.data?.message || error.message || 'Something went wrong',
+    );
   }
+});
+
+export const updateUserPassword = createAsyncThunk(
+  'users/update-password',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${apiUrl}/update-password`, formdata);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || { message: 'Update failed' });
+    }
+  },
 );
 
-export const updateUser = createAsyncThunk("users/update", async (updatedUser:any, { rejectWithValue }) => {
-  try {
-    const response = await axios.put(`${apiUrl}/update-profile/${updatedUser?.user_id}`, updatedUser, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data || { message: "Update failed" });
-  }
-});
+export const updateUser = createAsyncThunk(
+  'users/update',
+  async (updatedUser: any, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/update-profile/${updatedUser?.user_id}`,
+        updatedUser,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || { message: 'Update failed' });
+    }
+  },
+);
 
 export const deleteUser = createAsyncThunk(
-  "users/delete",
+  'users/delete',
   async (userId: string | number, { rejectWithValue }) => {
     try {
       await axios.delete(`${apiUrl}/user/delete/${userId}`);
@@ -56,19 +76,17 @@ export const deleteUser = createAsyncThunk(
       // If the error has a response from server
       if (error.response && error.response.data) {
         // return the error message from server response
-        return rejectWithValue(error.response.data.message || "Failed to delete user");
+        return rejectWithValue(error.response.data.message || 'Failed to delete user');
       } else {
         // generic error message
-        return rejectWithValue(error.message || "Failed to delete user");
+        return rejectWithValue(error.message || 'Failed to delete user');
       }
     }
-  }
+  },
 );
 
-
-
 const UsermanagmentSlice = createSlice({
-  name: "usermanagement",
+  name: 'usermanagement',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -103,6 +121,13 @@ const UsermanagmentSlice = createSlice({
         state.error = action.error.message;
       })
 
+      .addCase(updateUserPassword.fulfilled, (state, action) => {
+        state.updatePassword = action.payload;
+      })
+      .addCase(updateUserPassword.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
       // DELETE user
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.deleteResult = action.payload;
@@ -114,4 +139,3 @@ const UsermanagmentSlice = createSlice({
 });
 
 export default UsermanagmentSlice.reducer;
-

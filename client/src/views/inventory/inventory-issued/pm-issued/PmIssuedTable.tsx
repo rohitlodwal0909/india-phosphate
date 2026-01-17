@@ -18,48 +18,49 @@ import PaginationComponent from 'src/utils/PaginationComponent';
 import ComonDeletemodal from 'src/utils/deletemodal/ComonDeletemodal';
 import Portal from 'src/utils/Portal';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
-
 import { AppDispatch, RootState } from 'src/store';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
+import RmIssuedAdd from './PmIssuedAdd';
+import RmIssuedEdit from './PmIssuedEdit';
 import {
-  deleteBmrRecord,
-  GetBmrRecords,
-} from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
-import PmIssuedAdd from './PmIssuedAdd';
-import { GetBmrMaster } from 'src/features/master/BmrMaster/BmrMasterSlice';
-import PmIssuedEdit from './PmIssuedEdit';
-import PmIssuedView from './PmIssuedView';
+  deleteIssuedPM,
+  getIssuedPM,
+  getStorePM,
+} from 'src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
+import CurrentStocks from './CurrentStocks';
 
 /* =======================
    BMR DATA TYPE
 ======================= */
 interface BmrDataType {
   id: number;
+  quantity: string;
+  person_name: string;
   batch_no: string;
-  mfg_date: string;
-  exp_date: string;
-  status: string;
-  records?: {
+  date: string;
+  issuePM?: {
     id: number;
-    product_name: string;
+    name: string;
   };
 }
 
 const columnHelper = createColumnHelper<BmrDataType>();
 
-const PmIssuedTable = () => {
+const RmIssuedTable = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const storeRawMaterial = useSelector(
+    (state: RootState) => state.pmissue.storepm,
+  ) as BmrDataType[];
+
+  const issueRawMaterial = useSelector(
+    (state: RootState) => state.pmissue.issuePM,
+  ) as BmrDataType[];
+
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
-
   /* ✅ Redux se direct array aa raha hai */
-  const bmrRecords = useSelector((state: RootState) => state.bmrRecords.data) as BmrDataType[];
 
-  const bmrProductName = useSelector((state: RootState) => state.bmrmaster.BmrMasterdata);
-
-  const [data, setData] = useState<BmrDataType[]>([]);
   const [searchText, setSearchText] = useState('');
 
   const [modals, setModals] = useState({
@@ -74,29 +75,21 @@ const PmIssuedTable = () => {
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 10);
+    return getPermissions(logindata, selectedIconId, 11);
   }, [logindata, selectedIconId]);
 
   /* =======================
      FETCH BMR RECORDS
   ======================= */
   useEffect(() => {
-    dispatch(GetBmrRecords());
-    dispatch(GetBmrMaster());
+    dispatch(getIssuedPM());
+    dispatch(getStorePM());
   }, [dispatch]);
 
   /* =======================
      SET DATA (FIXED)
   ======================= */
-  useEffect(() => {
-    if (Array.isArray(bmrRecords)) {
-      setData(bmrRecords);
-    }
-  }, [bmrRecords]);
 
-  /* =======================
-     MODAL HANDLER
-  ======================= */
   const handleModal = (type: keyof typeof modals, value: boolean, row?: BmrDataType) => {
     setSelectedRow(row || null);
     setModals((prev) => ({ ...prev, [type]: value }));
@@ -110,10 +103,10 @@ const PmIssuedTable = () => {
     if (!selectedRow?.id) return toast.error('No entry selected');
 
     try {
-      await dispatch(deleteBmrRecord(selectedRow.id)).unwrap();
-      toast.success('BMR entry deleted successfully');
-      dispatch(GetStoremodule());
-      setData((prev) => prev.filter((i) => i.id !== selectedRow.id));
+      await dispatch(deleteIssuedPM(selectedRow.id)).unwrap();
+      toast.success('Issued pm deleted successfully');
+      dispatch(getIssuedPM());
+      dispatch(getStorePM());
     } catch (err: any) {
       toast.error(err.message || 'Delete failed');
     } finally {
@@ -125,10 +118,10 @@ const PmIssuedTable = () => {
      SEARCH FILTER
   ======================= */
   const filteredData = useMemo(() => {
-    return data.filter((item) =>
+    return issueRawMaterial.filter((item) =>
       JSON.stringify(item).toLowerCase().includes(searchText.toLowerCase()),
     );
-  }, [data, searchText]);
+  }, [issueRawMaterial, searchText]);
 
   /* =======================
      TABLE COLUMNS
@@ -140,23 +133,23 @@ const PmIssuedTable = () => {
         cell: (info) => <span>#{info.row.index + 1}</span>,
       }),
 
-      columnHelper.accessor((row) => row.records?.product_name, {
+      columnHelper.accessor((row) => row.issuePM?.name, {
         id: 'product_name',
-        header: 'Name of bag',
+        header: 'Product Name',
         cell: (info) => info.getValue() || '-',
       }),
 
-      columnHelper.accessor('batch_no', {
+      columnHelper.accessor('quantity', {
         header: 'Quantity',
       }),
 
-      columnHelper.accessor('mfg_date', {
+      columnHelper.accessor('person_name', {
         header: 'Name of person',
       }),
-      columnHelper.accessor('mfg_date', {
+      columnHelper.accessor('batch_no', {
         header: 'Batch',
       }),
-      columnHelper.accessor('mfg_date', {
+      columnHelper.accessor('date', {
         header: 'Date',
       }),
 
@@ -167,19 +160,6 @@ const PmIssuedTable = () => {
           const row = info.row.original;
           return (
             <div className="flex gap-2 notranslate" translate="no">
-              {permissions.view && (
-                <Tooltip content="View">
-                  <Button
-                    size="xs"
-                    color="primary"
-                    outline
-                    onClick={() => handleModal('view', true, row)}
-                  >
-                    <Icon icon="solar:eye-outline" height={18} />
-                  </Button>
-                </Tooltip>
-              )}
-
               {permissions.edit && (
                 <Tooltip content="Edit">
                   <Button
@@ -239,6 +219,12 @@ const PmIssuedTable = () => {
           />
         )}
 
+        {permissions.view && (
+          <Button size="sm" color="success" onClick={() => handleModal('view', true)}>
+            Current Stocks
+          </Button>
+        )}
+
         {permissions.add && (
           <Button size="sm" color="primary" onClick={() => handleModal('add', true)}>
             PM Issued
@@ -265,7 +251,7 @@ const PmIssuedTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to delete this BMR Entry?"
+            title="Are you sure you want to delete this Issued PM Entry?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
@@ -273,21 +259,21 @@ const PmIssuedTable = () => {
 
       {modals.add && (
         <Portal>
-          <PmIssuedAdd
+          <RmIssuedAdd
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
-            StoreData={bmrProductName}
+            storeRawMaterial={storeRawMaterial}
             logindata={logindata}
           />
         </Portal>
       )}
       {modals.edit && selectedRow && (
         <Portal>
-          <PmIssuedEdit
+          <RmIssuedEdit
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
-            StoreData={bmrProductName}
+            storeRawMaterial={storeRawMaterial}
             logindata={logindata}
           />
         </Portal>
@@ -295,10 +281,10 @@ const PmIssuedTable = () => {
 
       {modals.view && (
         <Portal>
-          <PmIssuedView
+          <CurrentStocks
             openModal={modals.view}
-            setPlaceModal={() => handleModal('view', false)}
-            selectedRow={selectedRow}
+            setOpenModal={() => handleModal('view', false)}
+            storeRawMaterial={storeRawMaterial}
           />
         </Portal>
       )}
@@ -306,4 +292,4 @@ const PmIssuedTable = () => {
   );
 };
 
-export default PmIssuedTable;
+export default RmIssuedTable;

@@ -57,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
       sourceKey: "id",
       as: "finishing" // Optional alias
     });
+
+    Qcbatch.hasOne(models.BmrRecordsModel, {
+      foreignKey: "batch_id", // Points to Qcbatch.id
+      sourceKey: "id",
+      as: "QCBatch" // Optional alias
+    });
   };
 
   return Qcbatch;

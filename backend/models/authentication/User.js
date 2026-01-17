@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      showpassword: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       role_id: {
         type: DataTypes.BIGINT,
         allowNull: false

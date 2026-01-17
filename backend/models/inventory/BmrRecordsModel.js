@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       user_id: {
         type: DataTypes.INTEGER
       },
-      bmr_product_id: {
-        type: DataTypes.INTEGER
+      product_name: {
+        type: DataTypes.STRING
       },
-      batch_no: DataTypes.STRING,
+      batch_id: DataTypes.INTEGER,
       mfg_date: DataTypes.DATEONLY,
       exp_date: DataTypes.DATEONLY,
       mfg_start: DataTypes.STRING,
@@ -41,8 +41,8 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   BmrRecordsModel.associate = (models) => {
-    BmrRecordsModel.belongsTo(models.BmrMaster, {
-      foreignKey: "bmr_product_id",
+    BmrRecordsModel.belongsTo(models.Qcbatch, {
+      foreignKey: "batch_id",
       as: "records"
     });
   };

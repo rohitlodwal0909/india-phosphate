@@ -19,7 +19,6 @@ import {
   Rejectmodule,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
-import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 import { toast } from 'react-toastify';
 import PaginationComponent from 'src/utils/PaginationComponent';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -30,6 +29,7 @@ import { AppDispatch } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import { formatDate, formatTime } from 'src/utils/Datetimeformate';
+import Remarkmodal from './Remarkmodal';
 
 export interface PaginationTableType {
   id: number;
@@ -46,6 +46,7 @@ export interface PaginationTableType {
   quantity: string;
   unit: string;
   qa_qc_status: string;
+  type: string;
   remarks: string | null;
   store_location: string | null;
   mfg_date: string | null;
@@ -53,6 +54,7 @@ export interface PaginationTableType {
   createdAt: string;
   status: any;
   tested_by: any;
+  pmapproveBy: any;
   actions: any;
 }
 
@@ -70,8 +72,7 @@ function QcInventoryTable() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const StoreData = useSelector((state: any) => state.storeinventory.storedata);
-  // const guardData = useSelector((state: any) => state.checkininventory.checkindata);
-  // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
+
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
   const [data, setData] = useState<PaginationTableType[]>(StoreData?.data || []);
@@ -84,7 +85,9 @@ function QcInventoryTable() {
 
   useEffect(() => {
     if (StoreData?.data) {
-      const materialData = StoreData.data.filter((item) => item.type == 'material');
+      const materialData = StoreData.data.filter(
+        (item) => item.type == 'material' || item.type == 'pm',
+      );
       setData(materialData);
     }
   }, [StoreData]);
@@ -100,17 +103,6 @@ function QcInventoryTable() {
       }
     };
 
-    const fetchData = async () => {
-      try {
-        const checkinResult = await dispatch(GetCheckinmodule(logindata?.admin?.id));
-        if (GetCheckinmodule.rejected.match(checkinResult))
-          console.error('Checkin Error', checkinResult);
-      } catch (error) {
-        console.error('Unexpected Error:', error);
-      }
-    };
-
-    fetchData();
     fetchStoreData();
   }, [dispatch]);
 
@@ -173,6 +165,13 @@ function QcInventoryTable() {
     navigate(`/inventory/report/${data?.store_rm_code}`, { state: data });
   };
 
+  const [remarkModal, setremarkModal] = useState(null);
+
+  const handleAddremark = (row) => {
+    setremarkModal(true);
+    setSelectedRow(row);
+  };
+
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       const status = item.qa_qc_status || 'New';
@@ -204,16 +203,18 @@ function QcInventoryTable() {
         // const storeItem = guardData?.data?.find(item => item.id === rowData.guard_entry_id);
         return (
           <div className="truncate max-w-56">
-            <p>{rowData?.rmcode?.rm_code}</p>
+            <p>
+              {rowData?.type === 'material' ? rowData?.rmcode?.rm_code : rowData?.pm_code?.name}
+            </p>
           </div>
         );
       },
-      header: () => <span className="text-base">RM Code</span>,
+      header: () => <span className="text-base">RM / PM Code</span>,
     }),
 
     columnHelper.accessor('grn_number', {
       cell: (info) => <p>{info.getValue() || 'N0 Nmber'}</p>,
-      header: () => <span>GRN_Number</span>,
+      header: () => <span>GRN Number</span>,
     }),
 
     columnHelper.display({
@@ -239,10 +240,10 @@ function QcInventoryTable() {
           status === 'PENDING'
             ? 'warning'
             : status === 'APPROVED'
-            ? 'primary'
-            : status === 'HOLD'
-            ? 'secondary'
-            : 'error';
+              ? 'primary'
+              : status === 'HOLD'
+                ? 'secondary'
+                : 'error';
         return (
           <Badge color={color} className="capitalize">
             {status}
@@ -252,12 +253,19 @@ function QcInventoryTable() {
       header: () => <span>Status</span>,
     }),
     columnHelper.accessor('tested_by', {
+      header: () => <span>Tested By</span>,
       cell: (info) => {
-        const row = info.row.original as { qc_result?: { testedBy?: { username?: string } }[] };
+        const row = info.row.original as {
+          type?: string;
+          qc_result?: { testedBy?: { username?: string } }[];
+          pmapproveBy?: { username?: string };
+        };
 
+        if (row.type === 'pm') {
+          return <p>{row.pmapproveBy?.username || 'Unknown'}</p>;
+        }
         return <p>{row.qc_result?.[0]?.testedBy?.username || 'Unknown'}</p>;
       },
-      header: () => <span>Tested By</span>,
     }),
     columnHelper.accessor('actions', {
       cell: (info) => {
@@ -289,7 +297,7 @@ function QcInventoryTable() {
                 <Icon icon="mdi:gesture-tap-hold" height={20} />
               </Button>
             )}
-            {rowData.qa_qc_status === 'APPROVED' && (
+            {rowData.type === 'material' && rowData.qa_qc_status === 'APPROVED' && (
               <Link to={`/view-report/${idStr}`}>
                 <Button
                   color="secondary"
@@ -340,21 +348,32 @@ function QcInventoryTable() {
                   </Button>
                 </>
               )}
-            {rowData.qa_qc_status === 'PENDING' && !row?.qc_result?.[0]?.testedBy?.username && (
-              <>
-                <Button
-                  color="secondary"
-                  onClick={() => handlereportsubmit(rowData)}
-                  outline
-                  size="xs"
-                  className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                >
-                  <Icon icon="tabler:report" height={18} />
-                </Button>
-                {/* <Button onClick={() => handleApprove(rowData)} color="secondary" outline size="xs" className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md">APPROVE</Button>
-              <Button onClick={() => {    triggerGoogleTranslateRescan(); setholdOpen(true); setSelectedRow(rowData); }} color="secondary" outline size="xs" className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md">HOLD</Button>
-              <Button onClick={() =>{    triggerGoogleTranslateRescan(); handleReject(rowData)}} color="error" outline size="xs" className="border border-error text-error hover:bg-error hover:text-white rounded-md">REJECT</Button> */}
-              </>
+
+            {rowData.type === 'material' &&
+              rowData.qa_qc_status === 'PENDING' &&
+              !row?.qc_result?.[0]?.testedBy?.username && (
+                <>
+                  <Button
+                    color="secondary"
+                    onClick={() => handlereportsubmit(rowData)}
+                    outline
+                    size="xs"
+                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+                  >
+                    <Icon icon="tabler:report" height={18} />
+                  </Button>
+                </>
+              )}
+            {rowData.type === 'pm' && (
+              <Button
+                outline
+                size="xs"
+                onClick={() => handleAddremark(rowData)}
+                className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+                title="Add Remark"
+              >
+                <Icon icon="mdi:comment-text-outline" height={18} />
+              </Button>
             )}
           </div>
         );
@@ -438,6 +457,13 @@ function QcInventoryTable() {
         isOpen={holdOpen}
         setIsOpen={setholdOpen}
         selectedUser={selectedRow}
+      />
+
+      <Remarkmodal
+        isOpen={remarkModal}
+        onSubmit={handleConfirmReject}
+        setIsOpen={setremarkModal}
+        selectedRow={selectedRow}
       />
     </>
   );

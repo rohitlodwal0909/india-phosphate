@@ -48,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       store_location: DataTypes.STRING,
       store_rm_code: DataTypes.STRING,
       store_pm_code: DataTypes.INTEGER,
+      pm_approve_by: DataTypes.INTEGER,
       equipment: DataTypes.INTEGER,
       qa_qc_status: {
         type: DataTypes.ENUM("APPROVED", "REJECTED", "PENDING"),
@@ -92,6 +93,10 @@ module.exports = (sequelize, DataTypes) => {
     GrnEntry.belongsTo(models.RmCode, {
       foreignKey: "store_rm_code",
       as: "rmcode"
+    });
+    GrnEntry.belongsTo(models.User, {
+      foreignKey: "pm_approve_by",
+      as: "pmapproveBy"
     });
   };
 

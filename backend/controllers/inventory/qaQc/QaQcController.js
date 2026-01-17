@@ -1,4 +1,5 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
@@ -17,55 +18,58 @@ const {
 
 exports.approveOrRejectGrnEntry = async (req, res, next) => {
   const { id } = req.params;
-  const { status, remark, user_id } = req.body;
+  const { status, remark = "", user_id } = req.body;
 
   try {
     const entry = await GrnEntry.findByPk(id);
-
     if (!entry) {
-      const error = new Error("Grn Entry not found");
+      const error = new Error("GRN Entry not found");
       error.status = 404;
       return next(error);
     }
+
     const user = await User.findByPk(user_id);
-    const username = user ? user.username : "Unknown User";
+    const username = user?.username || "Unknown User";
+
+    // ✅ Final status (PM auto-approve)
+    const finalStatus = entry.type === "pm" ? "APPROVED" : status;
 
     await entry.update({
-      qa_qc_status: status,
-      remarks: remark
+      qa_qc_status: finalStatus,
+      remarks: remark || null,
+      pm_approve_by: entry.type === "pm" ? user_id : null
     });
 
-    let message = "";
-
-    let notificationTitle = "";
-    let notificationMessage = "";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0];
-    const logMessage = `QA/QC status was set to "${status}" by ${username} on ${entry_date} at ${entry_time}.`;
+    /* ---------------- LOG ---------------- */
+    const { entry_date, entry_time } = getISTDateTime();
     await createLogEntry({
       user_id,
-      message: logMessage
+      message: `QA/QC status set to "${finalStatus}" by ${username} on ${entry_date} at ${entry_time}.`
     });
 
-    if (status === "APPROVED") {
+    /* ---------------- NOTIFICATION ---------------- */
+    let notificationTitle = "Store Entry Updated";
+    let notificationMessage = `Store Entry has been updated.`;
+    let responseMessage = "Store Entry updated successfully.";
+
+    if (finalStatus === "APPROVED") {
       notificationTitle = "Store Entry Approved";
-      notificationMessage = `Store Entry  has been approved.`;
-      message = "Store Entry approved successfully.";
-    } else if (status === "REJECTED") {
+      notificationMessage = "Store Entry has been approved.";
+      responseMessage = "Store Entry approved successfully.";
+    }
+
+    if (finalStatus === "REJECTED") {
       notificationTitle = "Store Entry Rejected";
-      notificationMessage = `Store Entry  has been rejected. Reason: ${
-        remark || "No reason provided."
-      }`;
-      message = "Store Entry rejected successfully.";
-    } else if (status === "HOLD") {
+      notificationMessage = `Store Entry has been rejected. Reason: ${
+        remark || "No reason provided"
+      }.`;
+      responseMessage = "Store Entry rejected successfully.";
+    }
+
+    if (finalStatus === "HOLD") {
       notificationTitle = "Store Entry On Hold";
-      notificationMessage = `Store Entry  has been put on hold.`;
-      message = "Store Entry put on hold successfully.";
-    } else {
-      notificationTitle = "Store Entry Updated";
-      notificationMessage = `Store Entry  has been updated.`;
-      message = "Store Entry updated.";
+      notificationMessage = "Store Entry has been put on hold.";
+      responseMessage = "Store Entry put on hold successfully.";
     }
 
     await createNotificationByRoleId({
@@ -74,8 +78,8 @@ exports.approveOrRejectGrnEntry = async (req, res, next) => {
       role_id: 2
     });
 
-    res.status(200).json({
-      message,
+    return res.status(200).json({
+      message: responseMessage,
       data: entry
     });
   } catch (error) {
@@ -115,8 +119,8 @@ exports.saveReportresult = async (req, res, next) => {
   const { data, qc_id, tested_by, rm_code, qcRef } = req.body;
 
   try {
-    const now = new Date();
-    const date = now.toISOString().split("T")[0]; // yyyy-mm-dd
+    const { entry_date } = getISTDateTime();
+
     // const tested_by = tested_by;
 
     const entry = await GrnEntry.findByPk(qc_id);
@@ -147,7 +151,7 @@ exports.saveReportresult = async (req, res, next) => {
       await RawMaterialQcResult.create({
         rm_id: rawMaterialId,
         qc_id: qc_id,
-        test_date: date,
+        test_date: entry_date,
         result_value: item.result,
         tested_by: tested_by,
         type: item.type
@@ -265,9 +269,8 @@ exports.addQcBatch = async (req, res, next) => {
     });
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
+
     const logMessage = `QA Batch  entry for Batch Number  ${qc_batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
     await createLogEntry({
       user_id,
@@ -327,9 +330,8 @@ exports.deleteQcBatch = async (req, res, next) => {
 
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
+
     const logMessage = `QA Batch entry for Batch Number  ${batch?.qc_batch_number} was deleted by ${username} on ${entry_date} at ${entry_time}.`;
     await createLogEntry({
       user_id,

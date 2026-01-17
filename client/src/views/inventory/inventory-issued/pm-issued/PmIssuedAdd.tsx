@@ -1,58 +1,72 @@
 import React, { useState } from 'react';
-import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
+import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
-import { saveBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import {
+  getIssuedPM,
+  getStorePM,
+  issuedPM,
+} from 'src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
 
-interface BmrAddProps {
+interface PmIssuedAddProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-  StoreData: any;
+  storeRawMaterial: any[];
   logindata: any;
 }
 
-const PmIssuedAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, logindata }) => {
+const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
+  openModal,
+  setOpenModal,
+  storeRawMaterial,
+  logindata,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState<any>({
     user_id: logindata?.admin?.id,
-    bmr_product_id: '',
+    pm_id: '',
+    quantity: '',
+    person_name: '',
     batch_no: '',
-    mfg_date: '',
-    exp_date: '',
-    mfg_start: '',
-    remarks: '',
+    date: '',
   });
 
   const [errors, setErrors] = useState<any>({});
+  const [maxQuantity, setMaxQuantity] = useState<number>(0);
 
-  // 🔁 Common Input Change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // 🔁 Input Change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
   };
 
-  // ✅ Product Dropdown Options
-  const productOptions =
-    StoreData?.map((item: any) => ({
-      value: item.id, // ✅ product_id
-      label: item.product_name, // UI label
+  // ✅ Raw Material Options
+  const rmOptions =
+    storeRawMaterial?.map((item) => ({
+      value: item.id,
+      label: item.name,
+      total_quantity: item.total_quantity,
     })) || [];
 
-  // ✅ Submit Handler
+  // ✅ Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = ['bmr_product_id', 'batch_no', 'mfg_date', 'exp_date', 'mfg_start'];
-
+    const requiredFields = ['pm_id', 'quantity', 'person_name', 'batch_no'];
     const newErrors: any = {};
+
     requiredFields.forEach((field) => {
       if (!formData[field]) {
         newErrors[field] = 'This field is required';
       }
     });
+
+    if (Number(formData.quantity) > maxQuantity) {
+      newErrors.quantity = `Maximum allowed quantity is ${maxQuantity}`;
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -60,22 +74,27 @@ const PmIssuedAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData
     }
 
     try {
-      const res = await dispatch(saveBmrRecord(formData)).unwrap();
-      if (res) {
-        toast.success('BMR Added Successfully');
+      await dispatch(
+        issuedPM({
+          ...formData,
+        }),
+      ).unwrap();
 
-        setFormData({
-          user_id: logindata?.admin?.id,
-          bmr_product_id: '',
-          batch_no: '',
-          mfg_date: '',
-          exp_date: '',
-          mfg_start: '',
-          remarks: '',
-        });
+      toast.success('PM issued successfully');
 
-        setOpenModal(false);
-      }
+      setFormData({
+        user_id: logindata?.admin?.id,
+        pm_id: '',
+        quantity: '',
+        person_name: '',
+        batch_no: '',
+        date: '',
+      });
+
+      setMaxQuantity(0);
+      setOpenModal(false);
+      dispatch(getIssuedPM());
+      dispatch(getStorePM());
     } catch (err: any) {
       toast.error(err?.message || 'Failed to add BMR');
     }
@@ -83,86 +102,62 @@ const PmIssuedAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData
 
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
-      <Modal.Header>BMR Details</Modal.Header>
+      <Modal.Header>PM Issued</Modal.Header>
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* PRODUCT */}
-          {/* PRODUCT */}
           <div className="sm:col-span-6 col-span-12">
             <Label value="Product Name" />
             <Select
-              options={productOptions}
-              value={
-                productOptions.find((opt: any) => opt.value === formData.bmr_product_id) || null
-              }
+              options={rmOptions}
+              value={rmOptions.find((opt) => opt.value === formData.pm_id) || null}
               onChange={(selected: any) => {
-                setFormData({
-                  ...formData,
-                  bmr_product_id: selected?.value, // ✅ correct key
-                });
-                setErrors({ ...errors, bmr_product_id: '' });
+                setFormData({ ...formData, pm_id: selected?.value });
+                setMaxQuantity(selected?.total_quantity || 0);
+                setErrors({ ...errors, pm_id: '' });
               }}
             />
-            {errors.bmr_product_id && (
-              <span className="text-red-500 text-sm">{errors.bmr_product_id}</span>
+            {errors.pm_id && <span className="text-red-500 text-sm">{errors.pm_id}</span>}
+          </div>
+
+          {/* QUANTITY */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value={`Quantity (Max ${maxQuantity})`} />
+            <TextInput
+              type="number"
+              name="quantity"
+              placeholder="Enter Quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+            />
+            {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
+          </div>
+
+          {/* PERSON */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Person Name" />
+            <TextInput
+              name="person_name"
+              placeholder="Enter name"
+              value={formData.person_name}
+              onChange={handleChange}
+            />
+            {errors.person_name && (
+              <span className="text-red-500 text-sm">{errors.person_name}</span>
             )}
           </div>
 
-          {/* BATCH NO */}
+          {/* BATCH */}
           <div className="sm:col-span-6 col-span-12">
-            <Label value="Batch No" />
+            <Label value="Batch No." />
             <TextInput
               name="batch_no"
-              placeholder="Enter Batch No"
+              placeholder="Enter Batch No."
               value={formData.batch_no}
               onChange={handleChange}
             />
             {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
-          </div>
-
-          {/* MFG DATE */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Mfg Date" />
-            <TextInput
-              type="date"
-              name="mfg_date"
-              value={formData.mfg_date}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* EXP DATE */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Exp Date" />
-            <TextInput
-              type="date"
-              name="exp_date"
-              value={formData.exp_date}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* MFG START */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Mfg Start" />
-            <TextInput
-              type="datetime-local"
-              name="mfg_start"
-              value={formData.mfg_start}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* REMARKS */}
-          <div className="col-span-12">
-            <Label value="Remarks" />
-            <Textarea
-              name="remarks"
-              placeholder="Enter remarks"
-              value={formData.remarks}
-              onChange={handleChange}
-            />
           </div>
 
           {/* ACTIONS */}

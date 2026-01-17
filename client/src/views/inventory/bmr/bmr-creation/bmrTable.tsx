@@ -28,23 +28,23 @@ import {
   GetBmrRecords,
 } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 import BmrAdd from './BmrAdd';
-import { GetBmrMaster } from 'src/features/master/BmrMaster/BmrMasterSlice';
 import BmrEdit from './BmrEdit';
 import BmrView from './BmrView';
 import { useNavigate } from 'react-router';
+import { GetAllQcbatch } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 /* =======================
    BMR DATA TYPE
 ======================= */
 interface BmrDataType {
   id: number;
-  batch_no: string;
   mfg_date: string;
   exp_date: string;
   status: string;
   records?: {
     id: number;
     product_name: string;
+    qc_batch_number: string;
   };
 }
 
@@ -59,7 +59,7 @@ const BmrCreateTable = () => {
   /* ✅ Redux se direct array aa raha hai */
   const bmrRecords = useSelector((state: RootState) => state.bmrRecords.data) as BmrDataType[];
 
-  const bmrProductName = useSelector((state: RootState) => state.bmrmaster.BmrMasterdata);
+  const allBatch = useSelector((state: any) => state.qcinventory.qcbatchdata.data);
 
   const [data, setData] = useState<BmrDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -88,7 +88,7 @@ const BmrCreateTable = () => {
   ======================= */
   useEffect(() => {
     dispatch(GetBmrRecords());
-    dispatch(GetBmrMaster());
+    dispatch(GetAllQcbatch());
   }, [dispatch]);
 
   /* =======================
@@ -152,8 +152,10 @@ const BmrCreateTable = () => {
         cell: (info) => info.getValue() || '-',
       }),
 
-      columnHelper.accessor('batch_no', {
+      columnHelper.accessor((row) => row.records?.qc_batch_number, {
+        id: 'batch_no',
         header: 'Batch No',
+        cell: (info) => info.getValue() || '-',
       }),
 
       columnHelper.accessor('mfg_date', {
@@ -293,7 +295,7 @@ const BmrCreateTable = () => {
           <BmrAdd
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
-            StoreData={bmrProductName}
+            StoreData={allBatch}
             logindata={logindata}
           />
         </Portal>
@@ -304,7 +306,7 @@ const BmrCreateTable = () => {
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
-            StoreData={bmrProductName}
+            StoreData={allBatch}
             logindata={logindata}
           />
         </Portal>
