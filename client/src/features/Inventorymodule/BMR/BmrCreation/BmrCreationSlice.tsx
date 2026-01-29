@@ -126,6 +126,20 @@ const BmrRecordSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      .addCase(getLineClearance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getLineClearance.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload.data;
+      })
+      .addCase(getLineClearance.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
       // ADD checkin
       .addCase(saveBmrRecord.fulfilled, (state, action) => {
         state.addResult = action.payload;

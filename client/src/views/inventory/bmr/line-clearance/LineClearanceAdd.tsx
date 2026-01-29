@@ -6,7 +6,6 @@ import Select from 'react-select';
 import { toast } from 'react-toastify';
 import {
   getLineClearance,
-  saveLineClearance,
   updateLineClearance,
 } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 
@@ -140,8 +139,6 @@ const LineClearanceAdd: React.FC<LineClearanceAddProps> = ({
         await dispatch(updateLineClearance({ id: editId, payload })).unwrap();
         toast.success('Line Clearance Updated');
       } else {
-        await dispatch(saveLineClearance(payload)).unwrap();
-        toast.success('Line Clearance Saved');
       }
       setOpenModal(false);
     } catch {

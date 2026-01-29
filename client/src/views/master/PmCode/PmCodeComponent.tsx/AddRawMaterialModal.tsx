@@ -12,20 +12,16 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { addpmrawmaterial } from 'src/features/master/PmCode/PmCodeSlice';
-import { GetrawMaterial } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     pm_id: '',
-    fields: [
-      { type: '', test: '', limit: '' },
-    ],
+    fields: [{ type: '', test: '', limit: '' }],
   });
 
   const [errors, setErrors] = useState<any>({});
-
 
   useEffect(() => {
     if (selectedRow?.id) {
@@ -74,18 +70,15 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
     if (!validateForm()) return;
 
     try {
-    
-        const payload = {
-          pm_id: formData.pm_id,
-          fields: formData?.fields
-        };
-        await dispatch(addpmrawmaterial(payload)).unwrap();
-    
+      const payload = {
+        pm_id: formData.pm_id,
+        fields: formData?.fields,
+      };
+      await dispatch(addpmrawmaterial(payload)).unwrap();
 
       toast.success('Raw material(s) created successfully');
-      dispatch(GetrawMaterial(formData.pm_id));
       setFormData({
-         pm_id: formData.pm_id,
+        pm_id: formData.pm_id,
         fields: [{ type: '', test: '', limit: '' }],
       });
       setShowmodal(false);
@@ -100,7 +93,7 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {/* RM Code - ReadOnly */}
-          
+
           {formData.fields.map((field, index) => (
             <div key={index} className="col-span-12 grid grid-cols-12 gap-4 items-end">
               {/* Type */}
@@ -130,9 +123,9 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
                   id={`test-${index}`}
                   type="text"
                   value={field.test}
-                      placeholder='Enter Test Name '
+                  placeholder="Enter Test Name "
                   onChange={(e) => handleFieldChange(index, 'test', e.target.value)}
-                  className='form-rounded-md'
+                  className="form-rounded-md"
                 />
                 {errors[`fields_${index}_test`] && (
                   <p className="text-red-500 text-xs">{errors[`fields_${index}_test`]}</p>
@@ -147,9 +140,9 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
                   id={`limit-${index}`}
                   type="text"
                   value={field.limit}
-                  placeholder='Enter Limit '
+                  placeholder="Enter Limit "
                   onChange={(e) => handleFieldChange(index, 'limit', e.target.value)}
-                   className='form-rounded-md'
+                  className="form-rounded-md"
                 />
                 {errors[`fields_${index}_limit`] && (
                   <p className="text-red-500 text-xs">{errors[`fields_${index}_limit`]}</p>

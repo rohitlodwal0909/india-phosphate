@@ -45,7 +45,7 @@ const BmrProcess = () => {
         <DispensingRawMaterial bmr={bmr} users={users} data={bmrreport?.dispensingRm} />
         <Listofequipement bmr={bmr} data={bmrreport?.equipmentno} />
         <LineClearanceProcessingArea users={users} />
-        <ManufacturingProcedure bmr={bmr} users={users} />
+        <ManufacturingProcedure />
         <SieveIntegrityRecord bmr={bmr} users={users} data={bmrreport?.sieveIntegiry} />
         <InprocessCheck users={users} data={bmrreport?.inprocesscheck} />
         <QualityControlIntimation users={users} data={bmrreport?.qcintimation} />

@@ -1,6 +1,6 @@
 import { Accordion, Button, TextInput } from 'flowbite-react';
 
-const ManufacturingProcedure = ({ bmr, users }) => {
+const ManufacturingProcedure = () => {
   return (
     <Accordion alwaysOpen>
       <Accordion.Panel>

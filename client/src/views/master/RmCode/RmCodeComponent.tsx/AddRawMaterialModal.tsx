@@ -12,7 +12,6 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { addrawmaterial } from 'src/features/master/RmCode/RmCodeSlice';
-import { GetrawMaterial } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -77,7 +76,6 @@ const AddRawMaterialModal = ({ show, setShowmodal, selectedRow }) => {
       await dispatch(addrawmaterial(payload)).unwrap();
 
       toast.success('Raw material(s) created successfully');
-      dispatch(GetrawMaterial(formData.rm_code));
       setFormData({
         rm_code: formData.rm_code,
         fields: [{ type: '', test: '', limit: '' }],
