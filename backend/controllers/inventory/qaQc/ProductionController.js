@@ -230,12 +230,25 @@ exports.ProductionaddResult = async (req, res, next) => {
     /* ================= LOG ================= */
 
     const data = await Qcbatch.findByPk(batch_id);
+    const { entry_date, entry_time } = getISTDateTime();
+
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
 
-    const { entry_date, entry_time } = getISTDateTime();
+    await data.update({
+      production_date: `${entry_date}`
+    });
 
     const logMessage = `Production entry for Batch Number ${data?.qc_batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
+
+    const title = `Material Issue Request - Batch ${data?.qc_batch_number}`;
+    const message = `Please issue the required Raw Materials (RM), Packing Materials (PM), and Equipment for production of Batch ${data?.qc_batch_number}.`;
+
+    await createNotificationByRoleId({
+      title: title,
+      message: message,
+      role_id: 2
+    });
 
     await createLogEntry({
       user_id,
@@ -274,7 +287,7 @@ exports.getQcbatchesWithProduction = async (req, res, next) => {
           ]
         }
       ],
-      order: [["created_at", "DESC"]] // optional: newest first
+      order: [["created_at", "DESC"]]
     });
 
     res.status(200).json(data);

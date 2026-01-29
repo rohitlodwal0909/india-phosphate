@@ -82,6 +82,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "qc_id",
       as: "qc_result"
     });
+    GrnEntry.hasMany(models.PmQcResult, {
+      foreignKey: "qc_id",
+      as: "pmresult"
+    });
     GrnEntry.belongsTo(models.PmCode, {
       foreignKey: "store_pm_code",
       as: "pm_code"

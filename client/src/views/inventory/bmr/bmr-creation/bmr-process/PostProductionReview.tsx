@@ -1,10 +1,23 @@
 import { Accordion, Button, TextInput } from 'flowbite-react';
+import Select from 'react-select';
 
-const PostProductionReview = () => {
+const selectStyles = {
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+};
+
+const PostProductionReview = ({ users }) => {
+  // Users → Select options
+  const userOptions =
+    users?.map((u) => ({
+      value: u.id,
+      label: u.name || u.username,
+    })) || [];
+
   return (
     <Accordion alwaysOpen>
       <Accordion.Panel>
         <Accordion.Title>12. Post-Production Review</Accordion.Title>
+
         <Accordion.Content>
           <div className="border rounded-md p-4 space-y-4 text-dark">
             <p className="text-sm">
@@ -25,34 +38,54 @@ const PostProductionReview = () => {
                 </thead>
 
                 <tbody>
+                  {/* PRODUCTION */}
                   <tr>
                     <td className="border p-2 font-medium">PRODUCTION</td>
-                    <td className="border p-2">
-                      <TextInput />
+
+                    <td className="border p-2 min-w-[200px]">
+                      <Select
+                        placeholder="Select User"
+                        options={userOptions}
+                        styles={selectStyles}
+                        menuPortalTarget={document.body}
+                      />
                     </td>
+
                     <td className="border p-2">
-                      <TextInput />
+                      <TextInput placeholder="Signature" />
                     </td>
+
                     <td className="border p-2">
-                      <TextInput />
+                      <TextInput type="date" />
                     </td>
                   </tr>
 
+                  {/* QUALITY ASSURANCE */}
                   <tr>
                     <td className="border p-2 font-medium">QUALITY ASSURANCE</td>
-                    <td className="border p-2">
-                      <TextInput />
+
+                    <td className="border p-2 min-w-[200px]">
+                      <Select
+                        placeholder="Select User"
+                        options={userOptions}
+                        styles={selectStyles}
+                        menuPortalTarget={document.body}
+                      />
                     </td>
+
                     <td className="border p-2">
-                      <TextInput />
+                      <TextInput placeholder="Signature" />
                     </td>
+
                     <td className="border p-2">
-                      <TextInput />
+                      <TextInput type="date" />
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
+            {/* ACTION */}
             <div className="flex justify-end gap-3 pt-4">
               <Button color="gray">Cancel</Button>
               <Button>Submit</Button>

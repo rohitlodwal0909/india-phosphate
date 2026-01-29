@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER
       },
       qc_batch_number: DataTypes.STRING,
+      production_date: DataTypes.STRING,
       product_name: DataTypes.STRING,
       mfg_date: DataTypes.STRING,
       exp_date: DataTypes.STRING,

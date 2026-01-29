@@ -1,4 +1,4 @@
-import { RouterProvider } from 'react-router';
+import { RouterProvider, useNavigate } from 'react-router';
 import { Flowbite, ThemeModeScript } from 'flowbite-react';
 import customTheme from './utils/theme/custom-theme';
 import router from './routes/Router';
@@ -22,6 +22,16 @@ const socket = io(ImageUrl);
 function App() {
   const dispatch = useDispatch<AppDispatch>();
 
+  const isTokenExpired = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000; // seconds
+      return payload.exp < currentTime;
+    } catch (e) {
+      return true;
+    }
+  };
+
   useEffect(() => {
     if (!document.getElementById('react-portal-wrapper')) {
       const portalDiv = document.createElement('div');
@@ -41,12 +51,12 @@ function App() {
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('logincheck') || '{}');
-    //  const token = stored?.token;
+    const token = localStorage.getItem('token');
 
-    //     if (!token) {
-    //   window.location.href = "/admin/login";
-    //   return;
-    // }
+    if (!token || isTokenExpired(token)) {
+      localStorage.removeItem('logincheck');
+      localStorage.removeItem('token');
+    }
 
     if (stored?.admin?.id) {
       dispatch(GetAuthenticationmodule(stored.admin.id));

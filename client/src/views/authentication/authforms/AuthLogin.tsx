@@ -54,6 +54,7 @@ const AuthLogin = () => {
         const result = await dispatch(Authenticationmodule(formData)).unwrap();
         toast.success(result?.message || 'Login successful');
 
+        localStorage.setItem('token', result?.token);
         localStorage.setItem('logincheck', JSON.stringify(result));
         const localdata = JSON.parse(localStorage.getItem('logincheck') || '{}');
 

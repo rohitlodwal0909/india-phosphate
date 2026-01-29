@@ -26,6 +26,7 @@ import {
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
+import EditQcbatchModal from './EditQcbatchModal';
 
 const columnHelper = createColumnHelper<any>();
 
@@ -40,7 +41,7 @@ function QcbatchTable() {
   const [searchText, setSearchText] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [addModal, setAddmodal] = useState(false);
-  // const [editModal, setEditModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(
@@ -133,7 +134,7 @@ function QcbatchTable() {
         const row = info.row.original;
         return (
           <div className="flex gap-2 notranslate" translate="no">
-            {/* {permissions?.edit && (
+            {permissions?.edit && (
               <Tooltip content="Edit">
                 <Button
                   size="sm"
@@ -146,7 +147,7 @@ function QcbatchTable() {
                   <Icon icon="solar:pen-outline" height={18} />
                 </Button>
               </Tooltip>
-            )} */}
+            )}
             {permissions?.del && (
               <Tooltip content="Delete">
                 <Button
@@ -176,7 +177,9 @@ function QcbatchTable() {
     columns: useMemo(
       () =>
         getColumns({
-          onEdit: (row: any) => setSelectedRow(row),
+          onEdit: (row: any) => {
+            (setSelectedRow(row), setEditModal(true));
+          },
           onDelete: (row: any) => {
             setSelectedRow(row);
             setIsOpen(true);
@@ -257,6 +260,17 @@ function QcbatchTable() {
             setPlaceModal={setAddmodal}
             placeModal={addModal}
             logindata={logindata}
+          />
+        </Portal>
+      )}
+
+      {editModal && (
+        <Portal>
+          <EditQcbatchModal
+            setPlaceModal={setEditModal}
+            placeModal={editModal}
+            logindata={logindata}
+            row={selectedRow}
           />
         </Portal>
       )}

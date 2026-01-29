@@ -113,7 +113,7 @@ function GuardTable() {
     }),
     columnHelper.accessor('name', { header: 'Name', cell: (info) => info.getValue() || '-' }),
     columnHelper.accessor('guard_type', {
-      header: 'Guard Type',
+      header: 'Vehical Type',
       cell: (info) => info.getValue() || '-',
     }),
     columnHelper.accessor('vehicle_number', {
@@ -243,7 +243,7 @@ function GuardTable() {
             onChange={(e) => setFilters((f) => ({ ...f, guard_type: e.target.value }))}
             className="p-2 border rounded-md border-gray-300 me-2"
           >
-            <option value="">Select Guard Type</option>
+            <option value="">Select Vehical Type</option>
             <option value="Vehicle">Vehicle</option>
             <option value="Courier">Courier</option>
             <option value="Other">Other</option>

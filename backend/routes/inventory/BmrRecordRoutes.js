@@ -16,6 +16,5 @@ router.put(
   BmrRecordsController.updateLineClearance
 );
 //  Line CLearance
-router.post("/save-bmr-line-clearance", BmrRecordsController.saveLineClearance);
 
 module.exports = router;

@@ -19,6 +19,8 @@ const Profile = () => {
   const [isOpen, setIsOpen] = useState(false);
   const handlelogout = () => {
     localStorage.removeItem('logincheck');
+    localStorage.removeItem('token');
+
     toast.success('Logout ');
     navigate('/admin/login');
   };

@@ -168,7 +168,7 @@ const StoreInventoryAddmodal = ({
       <ModalBody>
         <form className="grid grid-cols-12 gap-5" onSubmit={handleSubmit}>
           <div className="sm:col-span-6 col-span-12">
-            <Label htmlFor="guard_type" value="Select Guard Type" />
+            <Label htmlFor="guard_type" value="Select Vehical Type" />
             <select
               id="guard_type"
               value={selectedRow?.guard_type}

@@ -1,41 +1,47 @@
 import CardBox from '../../components/shared/CardBox';
 import logoimg from '../../assets/logoimg.png';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  GetrawMaterial,
-  Getresult,
-} from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+import { GetrawMaterial } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import html2pdf from 'html2pdf.js';
-import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
 import { Icon } from '@iconify/react';
 import { AppDispatch } from 'src/store';
 const ViewReport = () => {
   const { id } = useParams();
+  const location = useLocation();
+
+  const qcentry = location.state || [];
+  const isPM = qcentry?.type === 'pm';
+
   const dispatch = useDispatch<AppDispatch>();
   const reportRef = useRef(null);
-  const StoreData = useSelector((state: any) => state.storeinventory.storedata);
-  const Rawmaterial = useSelector((state: any) => state.qcinventory.finalresult);
   const Rawmaterialrmcode = useSelector((state: any) => state.qcinventory.qcdata);
 
-  const type1Tests =
-    Rawmaterial?.raw_material?.filter((item) => item.type == 1) ||
-    Rawmaterialrmcode?.filter((item) => item.type == 1);
+  const type1Tests = Rawmaterialrmcode?.filter((item) => item.type == 1);
 
-  const type2Tests =
-    Rawmaterial?.raw_material?.filter((item) => item.type == 2) ||
-    Rawmaterialrmcode?.filter((item) => item.type == 2);
+  const type2Tests = Rawmaterialrmcode?.filter((item) => item.type == 2);
 
-  const testedBy = StoreData?.data?.find((item) => item.id == id);
+  const getResultValue = (item: any) => {
+    const results = isPM ? item?.pmresult : item?.qc_results;
+    if (!Array.isArray(results) || !results.length) return 'fail';
+
+    return qcentry?.qa_qc_status === 'APPROVED' ? results[0]?.result_value : 'fail';
+  };
+
+  const testedByUser = isPM
+    ? type1Tests?.[0]?.pmresult?.[0]?.testedBy
+    : type1Tests?.[0]?.qc_results?.[0]?.testedBy;
+
+  const testedDate = isPM
+    ? type1Tests?.[0]?.pmresult?.[0]?.created_at
+    : type1Tests?.[0]?.qc_results?.[0]?.created_at;
 
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const result = await dispatch(Getresult(id));
-        if (Getresult.rejected.match(result)) {
-        }
+        dispatch(GetrawMaterial({ id, qc_id: qcentry.id, status: qcentry.type }));
       } catch (error) {
         console.error('Unexpected error:', error);
       }
@@ -44,28 +50,13 @@ const ViewReport = () => {
     const fetchData = async () => {
       try {
         dispatch(GetStoremodule());
-        const checkinResult = await dispatch(GetCheckinmodule());
-        if (GetCheckinmodule.rejected.match(checkinResult)) {
-          console.error('Checkin Error:', checkinResult.payload || checkinResult.error.message);
-        }
       } catch (error) {
         console.error('Unexpected Error:', error);
       }
     };
-    const fetchRawData = async () => {
-      try {
-        const result = await dispatch(GetrawMaterial(testedBy?.store_rm_code));
-        if (GetStoremodule.rejected.match(result)) {
-          // console.error("Store Module Error:", result.payload || result.error.message);
-        }
-      } catch (error) {
-        console.error('Unexpected error:', error);
-      }
-    };
 
-    fetchRawData();
     fetchData();
-  }, [dispatch, id, testedBy?.store_rm_code]);
+  }, [dispatch, id]);
 
   return (
     <>
@@ -150,7 +141,10 @@ const ViewReport = () => {
             <div className="text-center text-black">
               <img src={logoimg} alt="India Phosphate Logo" className="h-17 mx-auto" />
 
-              <h2 className="font-bold text-base mt-4 underline">RAW MATERIAL TEST REPORT</h2>
+              <h2 className="font-bold text-base mt-4 underline">
+                {' '}
+                {isPM ? 'PACKING' : 'RAW'} MATERIAL TEST REPORT MATERIAL TEST REPORT
+              </h2>
             </div>
             <div className="text-right text-xs text-black">
               <p>+91-9993622522</p>
@@ -161,41 +155,38 @@ const ViewReport = () => {
           <div className="text-sm text-black my-3">
             <div className="grid grid-cols-12 border border-black">
               {/* Row 1 */}
-              <div className="col-span-2 font-semibold border-r border-black p-1">RM CODE</div>
+              <div className="col-span-2 font-semibold border-r border-black p-1">
+                {' '}
+                {isPM ? 'PM' : 'RM'} CODE CODE
+              </div>
               <div className="col-span-2 border-r border-black p-1">
-                {testedBy?.rmcode?.rm_code}
+                {isPM ? qcentry?.pm_code?.name : qcentry?.rmcode?.rm_code}
               </div>
               <div className="col-span-2 font-semibold border-r border-black p-1">
                 Date of Receipt
               </div>
-              <div className="col-span-2 border-r border-black p-1">
-                {' '}
-                {Rawmaterial?.grn_entry?.grn_date || testedBy?.grn_date}
-              </div>
+              <div className="col-span-2 border-r border-black p-1">{qcentry?.grn_date}</div>
               <div className="col-span-2 font-semibold border-r border-black p-1">G.R.N. No.</div>
-              <div className="col-span-2 p-1">
-                {Rawmaterial?.grn_entry?.grn_number || testedBy?.grn_number}
-              </div>{' '}
+              <div className="col-span-2 p-1">{qcentry?.grn_number}</div>
               {/* No right border for the last cell in the grid row */}
               {/* Row 2 */}
               <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
                 Quantity
               </div>
               <div className="col-span-2 border-r border-black border-t border-black p-1">
-                {Rawmaterial?.grn_entry?.quantity || testedBy?.quantity}{' '}
-                <span className="ms-2">{Rawmaterial?.grn_entry?.unit || testedBy?.unit} </span>
+                {qcentry?.quantity} <span className="ms-2">{qcentry?.unit} </span>
               </div>
               <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
                 QC Reference No.
               </div>
               <div className="col-span-2 border-r border-black border-t border-black p-1">
-                {Rawmaterial?.grn_entry?.qc_ref || '---'}
+                {qcentry?.qc_ref || '---'}
               </div>
               <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
                 Truck No.
               </div>
               <div className="col-span-2 border-t border-black p-1">
-                {testedBy?.guard_entry?.vehicle_number || ''}
+                {qcentry?.guard_entry?.vehicle_number || ''}
               </div>{' '}
               {/* No right border for the last cell in the grid row */}
             </div>
@@ -212,22 +203,12 @@ const ViewReport = () => {
             </thead>
             <tbody>
               {type1Tests?.map((item, index) => {
-                const hasQcResults = Array.isArray(item.qc_results) && item.qc_results.length > 0;
-                const hasTester =
-                  Array.isArray(testedBy?.qc_result) &&
-                  testedBy.qc_result.length > 0 &&
-                  testedBy.qc_result[0]?.testedBy?.username;
-                const resultValue =
-                  hasQcResults && hasTester && testedBy?.qa_qc_status === 'APPROVED'
-                    ? item.qc_results[0]?.result_value
-                    : 'fail';
-
                 return (
                   <tr key={index}>
                     <td className="border border-black px-2 py-2 text-center">{index + 1}</td>
                     <td className="border border-black px-2 py-2">{item.test}</td>
                     <td className="border border-black px-2 py-2">{item.limit}</td>
-                    <td className="border border-black px-2 py-2">{resultValue}</td>
+                    <td className="border border-black px-2 py-2">{getResultValue(item)}</td>
                   </tr>
                 );
               })}
@@ -245,23 +226,25 @@ const ViewReport = () => {
               </thead>
               <tbody>
                 {type2Tests.map((item, index) => {
-                  const hasResults = Array.isArray(item.qc_results) && item.qc_results.length > 0;
-                  const resultValue = hasResults ? item.qc_results[0]?.result_value : 'fail';
+                  const hasQcResults =
+                    qcentry.type == 'pm'
+                      ? Array.isArray(item.pmresult) && item.pmresult.length > 0
+                      : Array.isArray(item.qc_results) && item.qc_results.length > 0;
 
-                  const testedByUser =
-                    item.qc_results?.[0]?.testedBy?.username ||
-                    testedBy?.qc_result?.[0]?.testedBy?.username;
+                  const result =
+                    qcentry.type == 'pm'
+                      ? item.pmresult[0]?.result_value
+                      : item.qc_results[0]?.result_value;
+
+                  const resultValue =
+                    hasQcResults && qcentry?.qa_qc_status === 'APPROVED' ? result : 'fail';
 
                   return (
                     <tr key={index}>
                       <td className="border border-black px-2 py-2 text-center">{index + 1}</td>
                       <td className="border border-black px-2 py-2">{item.test}</td>
                       <td className="border border-black px-2 py-2">{item.limit}</td>
-                      <td className="border border-black px-2 py-2">
-                        {testedBy?.qa_qc_status === 'APPROVED' && testedByUser
-                          ? resultValue
-                          : 'fail'}
-                      </td>
+                      <td className="border border-black px-2 py-2">{resultValue}</td>
                     </tr>
                   );
                 })}
@@ -271,9 +254,7 @@ const ViewReport = () => {
           <p className="mt-8 text-sm text-black ">
             Conclusion (Complies/Does not Complies):
             <strong className="inline-block border-b border-black w-64 ps-3">
-              {testedBy?.qa_qc_status === 'APPROVED' && testedBy?.qc_result?.[0]?.testedBy?.username
-                ? 'Complies'
-                : 'Not Complies'}
+              {qcentry?.qa_qc_status === 'APPROVED' ? 'Complies' : 'Not Complies'}
             </strong>
           </p>
 
@@ -282,12 +263,10 @@ const ViewReport = () => {
               Tested By (Sign. /Date)
               <span className="inline-block border-b w-60 text-dark border-black ml-2">
                 <strong>
-                  {testedBy?.qc_result?.[0]?.testedBy?.username || ''}
-                  {testedBy?.qc_result?.[0]?.testedBy?.username ? ' / ' : ''}
-                  {Array.isArray(type1Tests?.[0]?.qc_results) &&
-                  type1Tests[0]?.qc_results?.[0]?.created_at &&
-                  testedBy?.qc_result?.[0]?.testedBy?.username
-                    ? new Date(type1Tests[0].qc_results[0].created_at)
+                  {testedByUser?.username || ''}
+                  {testedByUser && testedDate ? ' / ' : ''}
+                  {testedDate
+                    ? new Date(testedDate)
                         .toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',

@@ -27,16 +27,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER
       },
 
-      batch_no: {
-        type: DataTypes.STRING
-      },
-
       cleaning_by: {
-        type: DataTypes.INTEGER // staff id
+        type: DataTypes.STRING // staff id
       },
 
       checked_by: {
-        type: DataTypes.INTEGER // QA staff id
+        type: DataTypes.STRING // QA staff id
       },
 
       status: {

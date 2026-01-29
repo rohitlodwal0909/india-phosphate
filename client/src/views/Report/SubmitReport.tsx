@@ -3,31 +3,29 @@ import logoimg from '../../assets/logoimg.png';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
 import { Button } from 'flowbite-react';
 import {
   GetrawMaterial,
   RawMaterialResult,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+
 import { toast } from 'react-toastify';
-import { GetCheckinmodule } from 'src/features/Inventorymodule/guardmodule/GuardSlice';
 import { AppDispatch } from 'src/store';
 
 const SubmitReport = () => {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  const qcentry = location.state;
-  const [data, setData] = useState([]);
+  const qcentry = location.state || [];
   const [qcRef, setQcRef] = useState('');
 
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
   const navigate = useNavigate();
-  const guardData = useSelector((state: any) => state.checkininventory.checkindata);
-  const StoreData = useSelector((state: any) => state.storeinventory.storedata);
+
   const Rawmaterial = useSelector((state: any) => state.qcinventory.qcdata);
+
   const [type1Rows, setType1Rows] = useState([]);
   const [type2Rows, setType2Rows] = useState([]);
   const [addedType1Rows, setAddedType1Rows] = useState([]);
@@ -61,45 +59,9 @@ const SubmitReport = () => {
   };
 
   useEffect(() => {
-    const fetchStoreData = async () => {
-      try {
-        const result = await dispatch(GetStoremodule());
-        if (GetStoremodule.rejected.match(result)) {
-          // console.error("Store Module Error:", result.payload || result.error.message);
-        }
-      } catch (error) {
-        console.error('Unexpected error:', error);
-      }
-    };
-
-    fetchStoreData();
-    const fetchRawData = async () => {
-      try {
-        const result = await dispatch(GetrawMaterial(id));
-        if (GetStoremodule.rejected.match(result)) {
-          // console.error("Store Module Error:", result.payload || result.error.message);
-        }
-      } catch (error) {
-        console.error('Unexpected error:', error);
-      }
-    };
-    const fetchData = async () => {
-      try {
-        const checkinResult = await dispatch(GetCheckinmodule());
-        if (GetCheckinmodule.rejected.match(checkinResult)) {
-          console.error('Checkin Error:', checkinResult.payload || checkinResult.error.message);
-        }
-      } catch (error) {
-        console.error('Unexpected Error:', error);
-      }
-    };
-    fetchRawData();
-    fetchData();
-  }, [dispatch, id]);
-
-  const matchedGuardItems = guardData?.data?.find((guard) =>
-    StoreData?.data?.some((store) => store.guard_entry_id == guard.id),
-  );
+    if (!id || !qcentry?.id) return;
+    dispatch(GetrawMaterial({ id, qc_id: qcentry.id, status: qcentry.type }));
+  }, [dispatch, id, qcentry?.id]);
 
   useEffect(() => {
     if (Rawmaterial?.length > 0) {
@@ -114,16 +76,10 @@ const SubmitReport = () => {
       setType1Rows(type1);
       setType2Rows(type2);
     }
-    if (StoreData && StoreData?.data?.length > 0 && id) {
-      const matched = StoreData?.data?.filter(
-        (item) => String(item.store_rm_code) === String(id) && item?.id == qcentry?.id,
-      );
-      setData(matched); // Set only unmatched/missing entries
-    }
-  }, [StoreData, id, Rawmaterial, qcentry]);
+  }, [id, Rawmaterial, qcentry]);
 
   const handleSubmit = async () => {
-    if (!data[0]?.id) return;
+    if (!qcentry?.id) return;
     const allRows = [...type1Rows, ...addedType1Rows, ...type2Rows, ...addedType2Rows];
     const isValid = allRows.every((row) => row.result && row.result.trim() !== '');
     if (!isValid) {
@@ -141,9 +97,10 @@ const SubmitReport = () => {
 
     const submissionPayload = {
       tested_by: logindata?.admin?.id,
-      qc_id: data[0]?.id,
+      qc_id: qcentry?.id,
       data: formattedData,
-      rm_code: data[0]?.store_rm_code,
+      code: qcentry?.type == 'pm' ? qcentry?.store_pm_code : qcentry?.store_rm_code,
+      type: qcentry?.type,
       qcRef: qcRef,
     };
 
@@ -178,7 +135,10 @@ const SubmitReport = () => {
           <div className="text-center text-black">
             <img src={logoimg} alt="India Phosphate Logo" className="h-17 mx-auto" />
 
-            <h2 className="font-bold text-base mt-4 underline">RAW MATERIAL TEST REPORT</h2>
+            <h2 className="font-bold text-base mt-4 underline">
+              {' '}
+              {qcentry?.type == 'pm' ? 'PACKING' : 'RAW'} MATERIAL TEST REPORT
+            </h2>
           </div>
           <div className="text-right text-xs text-black">
             <p>+91-9993622522</p>
@@ -189,23 +149,25 @@ const SubmitReport = () => {
         <div className="text-sm text-black my-3">
           <div className="grid grid-cols-12 border border-black">
             {/* Row 1 */}
-            <div className="col-span-2 font-semibold border-r border-black p-1">RM CODE</div>
+            <div className="col-span-2 font-semibold border-r border-black p-1">
+              {qcentry?.type == 'pm' ? 'PM' : 'RM'} CODE
+            </div>
             <div className="col-span-2 border-r border-black p-1">
-              {data[0]?.rmcode?.rm_code || ''}
+              {qcentry?.type == 'pm' ? qcentry?.pm_code?.name : qcentry?.rmcode?.rm_code}
             </div>
             <div className="col-span-2 font-semibold border-r border-black p-1">
               Date of Receipt
             </div>
-            <div className="col-span-2 border-r border-black p-1">{data[0]?.grn_date}</div>
+            <div className="col-span-2 border-r border-black p-1">{qcentry?.grn_date}</div>
             <div className="col-span-2 font-semibold border-r border-black p-1">G.R.N. No.</div>
-            <div className="col-span-2 p-1">{data[0]?.grn_number}</div>
+            <div className="col-span-2 p-1">{qcentry?.grn_number}</div>
             {/* Row 2 */}
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
               Quantity
             </div>
             <div className="col-span-2 border-r border-black border-t border-black p-1">
               {' '}
-              {data[0]?.quantity} <span className="ms-2">{data[0]?.unit} </span>
+              {qcentry?.quantity} <span className="ms-2">{qcentry?.unit} </span>
             </div>
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
               QC Reference No.
@@ -223,7 +185,7 @@ const SubmitReport = () => {
               Truck No.
             </div>
             <div className="col-span-2 border-t border-black p-1">
-              {matchedGuardItems?.vehicle_number || ''}
+              {qcentry?.guard_entry?.vehicle_number || ''}
             </div>{' '}
             {/* No right border for the last cell in the grid row */}
           </div>

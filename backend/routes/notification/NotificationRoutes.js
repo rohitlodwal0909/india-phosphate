@@ -7,9 +7,6 @@ router.get(
   "/get-all-notification/:user_id",
   NotificationController.getAllNotification
 );
-router.get(
-  "/read-notification/:id",
-  NotificationController.readNotification
-);
+router.get("/read-notification/:id", NotificationController.readNotification);
 
 module.exports = router;

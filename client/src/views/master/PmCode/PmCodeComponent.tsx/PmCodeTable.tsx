@@ -147,9 +147,9 @@ const PmCodeTable = () => {
                           <>
                             <Button
                               onClick={() => {
-                                setMaterialaddmodal(true),
+                                (setMaterialaddmodal(true),
                                   triggerGoogleTranslateRescan(),
-                                  setSelectedRow(item);
+                                  setSelectedRow(item));
                               }}
                               color="secondary"
                               outline
@@ -163,9 +163,9 @@ const PmCodeTable = () => {
                               outline
                               size="sm"
                               onClick={() => {
-                                setviewmodal(true),
+                                (setviewmodal(true),
                                   triggerGoogleTranslateRescan(),
-                                  setSelectedRow(item);
+                                  setSelectedRow(item));
                               }}
                               className="p-0 bg-lightsecondary text-secondary hover:bg-secondary hover:text-white"
                             >
@@ -241,12 +241,14 @@ const PmCodeTable = () => {
         show={materialaddmodal}
         selectedRow={selectedrow}
       />
-      <RawMaterialViewModal
-        setPlaceModal={setviewmodal}
-        placeModal={viewmodal}
-        modalPlacement={'center'}
-        selectedRow={selectedrow}
-      />
+      {viewmodal && (
+        <RawMaterialViewModal
+          setPlaceModal={setviewmodal}
+          placeModal={viewmodal}
+          modalPlacement={'center'}
+          selectedRow={selectedrow}
+        />
+      )}
       <EditPmCodeModal
         show={editmodal}
         setShowmodal={setEditmodal}

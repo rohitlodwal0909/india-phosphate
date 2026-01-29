@@ -8,6 +8,7 @@ const {
   GrnEntry,
   RawMaterialQcResult,
   User,
+  PmQcResult,
   PmCode,
   RmCode,
   Equipment,
@@ -96,6 +97,12 @@ exports.index = async (req, res, next) => {
               required: false
             }
           ]
+        },
+        {
+          model: PmQcResult,
+          as: "pmresult",
+          required: false,
+          attributes: ["tested_by"]
         },
         {
           model: GuardEntry,

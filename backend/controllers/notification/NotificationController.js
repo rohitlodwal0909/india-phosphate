@@ -22,6 +22,7 @@ exports.getAllNotification = async (req, res, next) => {
     let notifications = [];
 
     // ✅ If super admin, return all notifications
+
     if (user.role_id === 1) {
       notifications = await Notification.findAll({
         order: [["date_time", "DESC"]]

@@ -27,10 +27,12 @@ import { getPermissions } from 'src/utils/getPermissions';
 import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
+import { formatDate } from 'src/utils/Datetimeformate';
 
 export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
+  production_date: string;
   rm_code: string;
   pm_code: string;
   equipment: string;
@@ -240,11 +242,28 @@ function ProductionInventoryTable() {
       },
       header: () => <span>Equipment</span>,
     }),
+    columnHelper.accessor('production_date', {
+      cell: (info) => {
+        const value = info.getValue();
+
+        if (!value) return <p>---</p>;
+
+        const date = formatDate(value);
+
+        return (
+          <p>
+            {date} <br />
+            <span className="text-xs text-gray-500"></span>
+          </p>
+        );
+      },
+      header: () => <span>Date</span>,
+    }),
 
     columnHelper.accessor('status', {
       cell: (info) => {
         const rowIndata = info.row.original;
-        const raw = rowIndata?.production_results?.[0]?.rm_code ? 'COMPLETE' : 'PENDING';
+        const raw = rowIndata?.status ? 'COMPLETE' : 'PENDING';
 
         const color = raw === 'PENDING' ? 'warning' : 'secondary';
         return (
@@ -277,7 +296,7 @@ function ProductionInventoryTable() {
               permissions?.add && (
                 <Button
                   onClick={() => {
-                    setaddmodal(true), setSelectedRow(rowData);
+                    (setaddmodal(true), setSelectedRow(rowData));
                   }}
                   color="secondary"
                   outline

@@ -5,20 +5,21 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import {
   GetAllQcbatch,
-  qcBatchadd,
+  qcBatchUpdate,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { AppDispatch } from 'src/store';
 
-const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
+const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [form, setForm] = useState({
-    batch_no: '',
-    product_name: '',
-    mfg_date: '',
-    exp_date: '',
-    grade: '',
-    size: '',
+    id: row?.id,
+    batch_no: row?.qc_batch_number,
+    product_name: row?.product_name,
+    mfg_date: row?.mfg_date,
+    exp_date: row?.exp_date,
+    grade: row?.grade,
+    size: row?.size,
   });
 
   const handleChange = (e) => {
@@ -32,7 +33,8 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
   const handleSubmit = async () => {
     try {
       const result = await dispatch(
-        qcBatchadd({
+        qcBatchUpdate({
+          id: form.id,
           qc_batch_number: form.batch_no,
           product_name: form.product_name,
           mfg_date: form.mfg_date,
@@ -47,6 +49,7 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
         if (result.payload.message) {
           dispatch(GetAllQcbatch());
           setForm({
+            id: '',
             batch_no: '',
             product_name: '',
             mfg_date: '',
@@ -54,7 +57,7 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
             grade: '',
             size: '',
           });
-          toast.success('QC Batch created successfully.');
+          toast.success('QC Batch updated successfully.');
           setPlaceModal(false);
         } else {
           toast.error(result.payload);
@@ -78,10 +81,7 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
       <ModalHeader />
       <ModalBody>
         <div className="text-center">
-          <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-            Add Batch Number
-          </h3>
-
+          <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Edit Batch</h3>
           <div className="grid grid-cols-2 gap-4 text-left">
             <Field>
               <Label className="mb-2 block font-medium">Batch Number</Label>
@@ -150,7 +150,7 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
 
           <div className="flex justify-center gap-4 mt-6">
             <Button color="success" onClick={handleSubmit}>
-              Submit
+              Update
             </Button>
           </div>
         </div>
@@ -159,4 +159,4 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
   );
 };
 
-export default AddQcbatchModal;
+export default EditQcbatchModal;

@@ -131,7 +131,7 @@ const GRNEntryTable: React.FC = () => {
         ),
       }),
       columnHelper.accessor('guard_type', {
-        header: 'Guard Type',
+        header: 'Vehical Type',
         cell: (info) => info.getValue() || '-',
       }),
       columnHelper.accessor('rmcode', {
@@ -293,7 +293,7 @@ const GRNEntryTable: React.FC = () => {
           onChange={(e) => setFilters({ ...filters, guard_type: e.target.value })}
           className="p-2 border rounded-md border-gray-300"
         >
-          <option value="">Select Guard Type</option>
+          <option value="">Select Vehical Type</option>
           <option value="Vehicle">Vehicle</option>
           <option value="Courier">Courier</option>
           <option value="Other">Other</option>

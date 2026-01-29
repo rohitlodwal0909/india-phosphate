@@ -31,5 +31,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  PmRawMaterial.associate = (models) => {
+    PmRawMaterial.hasMany(models.PmQcResult, {
+      foreignKey: "pm_id",
+      as: "pmresult"
+    });
+  };
+
   return PmRawMaterial;
 };

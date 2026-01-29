@@ -64,8 +64,13 @@ exports.getAllPmCode = async (req, res, next) => {
 
 exports.getPmRawMaterial = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const pmRawMaterial = await PmRawMaterial.findAll({ id });
+    const { id } = req.params;
+
+    const pmRawMaterial = await PmRawMaterial.findAll({
+      where: {
+        pm_id: id
+      }
+    });
 
     res.status(200).json(pmRawMaterial);
   } catch (error) {

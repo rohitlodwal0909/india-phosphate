@@ -1,80 +1,70 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl }from '../../../constants/contant.tsx'
-
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant.tsx';
 
 const initialState = {
   loading: false,
   error: null,
-  storedata: [],         
-  addResult: null,  
+  storedata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
-export const GetStoremodule = createAsyncThunk(
-  "stores/fetch",
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/grn-entries`);
-      return response.data;
-    } catch (error) {
-      // error.response?.data ya error.message ko rejectWithValue karo
-      return thunkAPI.rejectWithValue(
-        error.response?.data || error.message || "Something went wrong"
-      );
-    }
+export const GetStoremodule = createAsyncThunk('stores/fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axios.get(`${apiUrl}/grn-entries`);
+    return response.data;
+  } catch (error) {
+    // error.response?.data ya error.message ko rejectWithValue karo
+    return thunkAPI.rejectWithValue(
+      error.response?.data || error.message || 'Something went wrong',
+    );
   }
-);
-
-export const addStore = createAsyncThunk(
-  "stores/add",
-  async (newStore:any, thunkAPI) => {
-    try {
-      console.log(newStore);
-      const response = await axios.post(`${apiUrl}/grn-entries`, newStore);
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || error.message || "Something went wrong"
-      );
-    }
-  }
-);
-
-
-export const ShowStore = createAsyncThunk(
-  "stores/update",
-  async (ShowStore, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/grn-entries/${ShowStore}`);
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || error.message || "Something went wrong"
-      );
-    }
-  }
-);
-
-export const deleteStore = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "stores/delete",
-  async ({id , user_id}, thunkAPI) => {
-    try {
-      await axios.delete(`${apiUrl}/grn-entries/${id}`, {
-  data: { user_id }
 });
-      return id;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || error.message || "Something went wrong"
-      );
-    }
+
+export const addStore = createAsyncThunk('stores/add', async (newStore: any, thunkAPI) => {
+  try {
+    console.log(newStore);
+    const response = await axios.post(`${apiUrl}/grn-entries`, newStore);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(
+      error.response?.data || error.message || 'Something went wrong',
+    );
   }
-);
+});
+
+export const ShowStore = createAsyncThunk('stores/update', async (ShowStore, thunkAPI) => {
+  try {
+    const response = await axios.get(`${apiUrl}/grn-entries/${ShowStore}`);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(
+      error.response?.data || error.message || 'Something went wrong',
+    );
+  }
+});
+
+export const deleteStore = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('stores/delete', async ({ id, user_id }, thunkAPI) => {
+  try {
+    await axios.delete(`${apiUrl}/grn-entries/${id}`, {
+      data: { user_id },
+    });
+    return id;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(
+      error.response?.data || error.message || 'Something went wrong',
+    );
+  }
+});
 
 const StoreInventorySlice = createSlice({
-  name: "storeinventory",
+  name: 'storeinventory',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -120,4 +110,3 @@ const StoreInventorySlice = createSlice({
 });
 
 export default StoreInventorySlice.reducer;
-

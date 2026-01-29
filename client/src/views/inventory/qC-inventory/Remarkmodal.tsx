@@ -1,5 +1,5 @@
 import { Button, Modal, ModalBody, ModalHeader } from 'flowbite-react';
-import { Field, Label, Textarea } from '@headlessui/react';
+import { Field, Textarea } from '@headlessui/react';
 import { useState, useEffect } from 'react';
 
 const Remarkmodal = ({ isOpen, setIsOpen, selectedRow, onSubmit, title = 'Add Remark' }) => {
@@ -17,7 +17,6 @@ const Remarkmodal = ({ isOpen, setIsOpen, selectedRow, onSubmit, title = 'Add Re
           <h3 className="mb-4 text-lg font-medium text-gray-600">{title}</h3>
 
           <Field className="my-3">
-            <Label className="mb-2 block font-medium">Remark</Label>
             <Textarea
               rows={4}
               className="ui-form-control rounded-md"
@@ -30,7 +29,7 @@ const Remarkmodal = ({ isOpen, setIsOpen, selectedRow, onSubmit, title = 'Add Re
           <div className="flex justify-center gap-4">
             <Button
               color="primary"
-              disabled={!remark.trim()}
+              disabled={!remark?.trim()}
               onClick={() => {
                 onSubmit(selectedRow?.id, remark);
                 setIsOpen(false);

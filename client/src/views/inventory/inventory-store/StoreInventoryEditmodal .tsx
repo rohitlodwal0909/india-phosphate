@@ -161,7 +161,7 @@ const StoreInventoryEditmodal = ({
                 onChange={(e) => handleChange('container_unit', e.target.value)}
               >
                 <option value="">Unit</option>
-                {allUnits.map((unit) => (
+                {allUnits?.map((unit) => (
                   <option key={unit.value} value={unit.value}>
                     {unit.value}
                   </option>

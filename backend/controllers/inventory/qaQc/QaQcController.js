@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const {
@@ -7,8 +8,10 @@ const db = require("../../../models");
 
 const {
   RawMaterial,
+  PmRawMaterial,
   RawMaterialQcResult,
   GrnEntry,
+  PmQcResult,
   Qcbatch,
   Notification,
   Finishing,
@@ -88,14 +91,57 @@ exports.approveOrRejectGrnEntry = async (req, res, next) => {
 };
 
 exports.getRawmaterial = async (req, res, next) => {
-  const { id } = req.params;
+  const { id, qcId, status } = req.params;
   try {
-    const rawMaterial = await RawMaterial.findAll({
-      where: {
-        rm_code: id
-      }
-    });
-    res.status(200).json(rawMaterial);
+    if (status == "pm") {
+      const rawMaterial = await PmRawMaterial.findAll({
+        where: {
+          pm_id: id
+        },
+        include: [
+          {
+            model: PmQcResult,
+            where: {
+              qc_id: qcId
+            },
+            as: "pmresult",
+            required: false,
+            include: [
+              {
+                model: User,
+                as: "testedBy",
+                required: false
+              }
+            ]
+          }
+        ]
+      });
+      res.status(200).json(rawMaterial);
+    } else {
+      const rawMaterial = await RawMaterial.findAll({
+        where: {
+          rm_code: id
+        },
+        include: [
+          {
+            model: RawMaterialQcResult,
+            where: {
+              qc_id: qcId
+            },
+            as: "qc_results",
+            required: false,
+            include: [
+              {
+                model: User,
+                as: "testedBy",
+                required: false
+              }
+            ]
+          }
+        ]
+      });
+      res.status(200).json(rawMaterial);
+    }
   } catch (error) {
     next(error);
   }
@@ -116,12 +162,14 @@ exports.getAllRawMaterials = async (req, res, next) => {
 };
 
 exports.saveReportresult = async (req, res, next) => {
-  const { data, qc_id, tested_by, rm_code, qcRef } = req.body;
+  const { data, qc_id, tested_by, code, qcRef, type } = req.body;
 
   try {
     const { entry_date } = getISTDateTime();
 
-    // const tested_by = tested_by;
+    if (!qc_id || !Array.isArray(data)) {
+      return res.status(400).json({ message: "Invalid payload" });
+    }
 
     const entry = await GrnEntry.findByPk(qc_id);
 
@@ -131,31 +179,50 @@ exports.saveReportresult = async (req, res, next) => {
       return next(error);
     }
 
+    // update qc reference
     await entry.update({ qc_ref: qcRef });
 
     for (const item of data) {
       let rawMaterialId = item.raw_material_id;
 
-      // Check if raw_material_id is blank → then insert new RawMaterial
-      if (rawMaterialId == "") {
-        const newRawMaterial = await RawMaterial.create({
-          rm_code: rm_code,
+      /** =========================
+       * CREATE RAW MATERIAL IF EMPTY
+       ========================== */
+      if (!rawMaterialId) {
+        const rawMaterialPayload = {
           test: item.test,
           limit: item.limit,
           type: item.type
-        });
-        rawMaterialId = newRawMaterial.id; // assign newly created ID back
+        };
+
+        if (type === "pm") {
+          rawMaterialPayload.pm_code = code;
+        } else {
+          rawMaterialPayload.rm_code = code;
+        }
+
+        const newRawMaterial = await RawMaterial.create(rawMaterialPayload);
+        rawMaterialId = newRawMaterial.id;
       }
 
-      // Insert QC result
-      await RawMaterialQcResult.create({
-        rm_id: rawMaterialId,
-        qc_id: qc_id,
+      /** =========================
+       * INSERT QC RESULT
+       ========================== */
+      const qcPayload = {
+        qc_id,
         test_date: entry_date,
         result_value: item.result,
-        tested_by: tested_by,
+        tested_by,
         type: item.type
-      });
+      };
+
+      if (type === "pm") {
+        qcPayload.pm_id = rawMaterialId;
+        await PmQcResult.create(qcPayload);
+      } else {
+        qcPayload.rm_id = rawMaterialId;
+        await RawMaterialQcResult.create(qcPayload);
+      }
     }
 
     res.status(200).json({
@@ -179,6 +246,71 @@ exports.report = async (req, res, next) => {
     }
 
     const rawmaterial = await RawMaterialQcResult.findOne({ where: { qc_id } });
+
+    if (!rawmaterial) {
+      console.log("No RawMaterialQcResult found for this qc_id");
+      return;
+    }
+
+    // 2. Get rm_id from that result
+    const rmId = rawmaterial.rm_id;
+
+    // 3. First get the rm_code using rmId
+    const rawMaterialEntry = await RawMaterial.findOne({
+      where: { id: rmId }
+    });
+
+    if (!rawMaterialEntry) {
+      console.log("No RawMaterial found for this rm_id");
+      return;
+    }
+    const rmCode = rawMaterialEntry?.rm_code;
+
+    let rawMaterialData = null;
+    if (rmCode) {
+      rawMaterialData = await RawMaterial.findAll({
+        where: { rm_code: rmCode },
+        include: [
+          {
+            model: RawMaterialQcResult,
+            as: "qc_results",
+            where: { qc_id }, // Only include QC results with matching qc_id
+            required: true
+          }
+        ],
+        logging: console.log
+      });
+
+      if (!rawMaterialData) {
+        console.warn(`No raw_material found for rm_code = '${rm_code}'`);
+      }
+    }
+
+    res.status(200).json({
+      message: "QC Result fetched successfully",
+      grn_entry: grnEntry,
+      raw_material: rawMaterialData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getQcReport = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    console.log(id);
+    return;
+
+    const grnEntry = await GrnEntry.findByPk(id);
+
+    if (!grnEntry) {
+      const error = new Error("Grn Entry not found");
+      error.status = 404;
+      return next(error);
+    }
+
+    const rawmaterial = await RawMaterialQcResult.findOne({ where: { id } });
 
     if (!rawmaterial) {
       console.log("No RawMaterialQcResult found for this qc_id");
@@ -290,6 +422,65 @@ exports.addQcBatch = async (req, res, next) => {
     res.status(201).json({
       message: "QC Batch created successfully.",
       data: newBatch
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateQcBatch = async (req, res, next) => {
+  const {
+    id,
+    qc_batch_number,
+    product_name,
+    mfg_date,
+    exp_date,
+    grade,
+    size,
+    user_id
+  } = req.body;
+
+  try {
+    // Check if batch exists
+    const batch = await Qcbatch.findByPk(id);
+    if (!batch) {
+      const error = new Error("QC Batch not found.");
+      error.status = 404;
+      return next(error);
+    }
+
+    // Update batch
+    await batch.update({
+      qc_batch_number,
+      product_name,
+      mfg_date,
+      exp_date,
+      grade,
+      size,
+      user_id
+    });
+
+    // Logging
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
+    const { entry_date, entry_time } = getISTDateTime();
+
+    const logMessage = `QC Batch ${qc_batch_number} was updated by ${username} on ${entry_date} at ${entry_time}.`;
+    await createLogEntry({
+      user_id,
+      message: logMessage
+    });
+
+    // Notifications (optional for update)
+    await createNotificationByRoleId({
+      title: "QC Batch Updated",
+      message: `QC Batch ${qc_batch_number} has been updated successfully.`,
+      role_id: 5
+    });
+
+    res.status(200).json({
+      message: "QC Batch updated successfully.",
+      data: batch
     });
   } catch (error) {
     next(error);

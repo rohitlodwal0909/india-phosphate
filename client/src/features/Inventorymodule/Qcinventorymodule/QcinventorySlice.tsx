@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import { apiUrl } from "../../../constants/contant";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant';
 
 // --------------------
 // State Types
@@ -16,6 +16,7 @@ type QCState = {
   deleteResult: any;
   finalresult: any;
   rowmaterial: any;
+  qcReport: any;
 };
 
 const initialState: QCState = {
@@ -29,216 +30,252 @@ const initialState: QCState = {
   deleteResult: null,
   finalresult: null,
   rowmaterial: [],
+  qcReport: [],
 };
 
+interface GetRawMaterialPayload {
+  id: string;
+  status: string;
+  qc_id: number | string;
+}
 // --------------------
 // Thunks
 // --------------------
 
-export const GetrawMaterial = createAsyncThunk<any, string, { rejectValue: any }>(
-  "qcs/fetch",
-  async (rm_code, { rejectWithValue }) => {
+export const GetrawMaterial = createAsyncThunk<any, GetRawMaterialPayload, { rejectValue: any }>(
+  'qcs/fetch',
+  async ({ id, qc_id, status }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/raw-material/${rm_code}`);
+      const response = await axios.get(`${apiUrl}/raw-material/${id}/${qc_id}/${status}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
-      if (error.request) return rejectWithValue("No response from server");
+      if (error.request) return rejectWithValue('No response from server');
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const GetAllrowmaterial = createAsyncThunk<any, void, { rejectValue: any }>(
-  "GetAllrowmaterial/fetch",
+  'GetAllrowmaterial/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/all-raw-material`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
-      if (error.request) return rejectWithValue("No response from server");
+      if (error.request) return rejectWithValue('No response from server');
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const GetAllQcbatch = createAsyncThunk<any, void, { rejectValue: any }>(
-  "GetAllQcbatch/fetch",
+  'GetAllQcbatch/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/all-qc-batch`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
-      if (error.request) return rejectWithValue("No response from server");
+      if (error.request) return rejectWithValue('No response from server');
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
-export const Approvemodule = createAsyncThunk<any, { id: string; remark: string; user_id: any }, { rejectValue: any }>(
-  "qcs/approve",
-  async ({ id, remark, user_id }, { rejectWithValue }) => {
-    try {
-      const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
-        status: "APPROVED",
-        remark,
-        user_id,
-      });
-      return response.data;
-    } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
-    }
+export const Approvemodule = createAsyncThunk<
+  any,
+  { id: string; remark: string; user_id: any },
+  { rejectValue: any }
+>('qcs/approve', async ({ id, remark, user_id }, { rejectWithValue }) => {
+  try {
+    const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
+      status: 'APPROVED',
+      remark,
+      user_id,
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+    if (error.request) return rejectWithValue('No response from server');
+    return rejectWithValue('An unexpected error occurred');
   }
-);
+});
 
-export const Rejectmodule = createAsyncThunk<any, { id: string; remark: string; user_id: any }, { rejectValue: any }>(
-  "qcs/reject",
-  async ({ id, remark, user_id }, { rejectWithValue }) => {
-    try {
-      const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
-        status: "REJECTED",
-        remark,
-        user_id,
-      });
-      return response.data;
-    } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
-    }
+export const Rejectmodule = createAsyncThunk<
+  any,
+  { id: string; remark: string; user_id: any },
+  { rejectValue: any }
+>('qcs/reject', async ({ id, remark, user_id }, { rejectWithValue }) => {
+  try {
+    const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
+      status: 'REJECTED',
+      remark,
+      user_id,
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+    if (error.request) return rejectWithValue('No response from server');
+    return rejectWithValue('An unexpected error occurred');
   }
-);
+});
 
-export const Holdmodule = createAsyncThunk<any, { id: string; remark: string; user_id: any }, { rejectValue: any }>(
-  "qcs/hold",
-  async ({ id, remark, user_id }, { rejectWithValue }) => {
-    try {
-      const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
-        status: "HOLD",
-        remark,
-        user_id,
-      });
-      return response.data;
-    } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
-    }
+export const Holdmodule = createAsyncThunk<
+  any,
+  { id: string; remark: string; user_id: any },
+  { rejectValue: any }
+>('qcs/hold', async ({ id, remark, user_id }, { rejectWithValue }) => {
+  try {
+    const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
+      status: 'HOLD',
+      remark,
+      user_id,
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+    if (error.request) return rejectWithValue('No response from server');
+    return rejectWithValue('An unexpected error occurred');
   }
-);
+});
 
 export const deleteQc = createAsyncThunk<string, string, { rejectValue: any }>(
-  "qcs/delete",
+  'qcs/delete',
   async (QcId, { rejectWithValue }) => {
     try {
       await axios.delete(`${apiUrl}/qc/${QcId}`);
       return QcId;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
-      if (error.request) return rejectWithValue("No response from server");
+      if (error.request) return rejectWithValue('No response from server');
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const RawMaterialResult = createAsyncThunk<any, any, { rejectValue: any }>(
-  "RawMaterialResult/add",
+  'RawMaterialResult/add',
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/save-report-result`, data);
       return response.data;
     } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue('An unexpected error occurred');
     }
-  }
+  },
 );
 
 export const qcBatchadd = createAsyncThunk<any, any, { rejectValue: any }>(
-  "qcBatchadd/add",
+  'qcBatchadd/add',
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/qc-batch-number`, data);
       return response.data;
     } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue('An unexpected error occurred');
     }
-  }
+  },
+);
+
+export const qcBatchUpdate = createAsyncThunk<any, any, { rejectValue: any }>(
+  'qcBatchupdate/update',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${apiUrl}/qc-batch-update`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
 );
 
 export const batchStatusChange = createAsyncThunk<any, string, { rejectValue: any }>(
-  "batchStatus/change",
+  'batchStatus/change',
   async (id, { rejectWithValue }) => {
     try {
       // If backend expects PUT/PATCH, replace axios.get with axios.put
       const response = await axios.get(`${apiUrl}/qc-batch-status/${id}`);
       return response.data;
     } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue('An unexpected error occurred');
     }
-  }
+  },
 );
 
-
-
 export const addRefrenceNumber = createAsyncThunk<any, any, { rejectValue: any }>(
-  "refrensenumber/add",
+  'refrensenumber/add',
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/qc-add-refrensenumber`, data);
       return response.data;
     } catch (error: any) {
-      if (error.response) return rejectWithValue(error.response.data?.message || "Server Error");
-      if (error.request) return rejectWithValue("No response from server");
-      return rejectWithValue("An unexpected error occurred");
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue('An unexpected error occurred');
     }
-  }
+  },
 );
 
 export const Getresult = createAsyncThunk<any, string, { rejectValue: any }>(
-  "get/fetch",
+  'get/fetch',
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/report/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
-      if (error.request) return rejectWithValue("No response from server");
+      if (error.request) return rejectWithValue('No response from server');
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
-export const Deleteqcbatch = createAsyncThunk<any, { id: string; user_id: any }, { rejectValue: any }>(
-  "Deleteqcbatch/fetch",
-  async ({ id, user_id }, { rejectWithValue }) => {
+export const getQcreport = createAsyncThunk<any, string, { rejectValue: any }>(
+  'get/qcreport',
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${apiUrl}/qc-batch/${id}`, {
-        data: { user_id },
-      });
+      const response = await axios.get(`${apiUrl}/get-qc-report/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
-      if (error.request) return rejectWithValue("No response from server");
+      if (error.request) return rejectWithValue('No response from server');
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
+
+export const Deleteqcbatch = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('Deleteqcbatch/fetch', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    const response = await axios.delete(`${apiUrl}/qc-batch/${id}`, {
+      data: { user_id },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response) return rejectWithValue(error.response.data);
+    if (error.request) return rejectWithValue('No response from server');
+    return rejectWithValue(error.message);
+  }
+});
 
 // --------------------
 // Slice
 // --------------------
 const QcinventorySlice = createSlice({
-  name: "qcinventory",
+  name: 'qcinventory',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -266,6 +303,19 @@ const QcinventorySlice = createSlice({
         state.rowmaterial = action.payload;
       })
       .addCase(GetAllrowmaterial.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || null;
+      })
+
+      .addCase(getQcreport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getQcreport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.qcReport = action.payload;
+      })
+      .addCase(getQcreport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message || null;
       })

@@ -26,7 +26,7 @@ const ViewGuardModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
                 ['Inward Number', selectedRow?.inward_number],
-                ['Guard Type', selectedRow?.guard_type],
+                ['Vehical Type', selectedRow?.guard_type],
                 ['Vehicle Number', selectedRow?.vehicle_number],
                 ['Entry Date', formatDate(selectedRow?.entry_date)],
                 ['Entry Time', formatTime(selectedRow?.entry_time)],

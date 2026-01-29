@@ -6,12 +6,12 @@ import {
   ModalHeader,
   Label,
   TextInput,
-} from "flowbite-react";
+} from 'flowbite-react';
 
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
-import { addFpr } from "src/features/Inventorymodule/FPR/FprSlice";
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+import { addFpr } from 'src/features/Inventorymodule/FPR/FprSlice';
 
 interface AddModalProps {
   placeModal: boolean;
@@ -34,36 +34,36 @@ const Addmodal: React.FC<AddModalProps> = ({
 
   const data = rowData?.batch_releases;
 
-  const [releaseNo, setReleaseNo] = useState(data?.release_no || "");
-  const [releaseDate, setReleaseDate] = useState(data?.release_date || "");
+  const [releaseNo, setReleaseNo] = useState(data?.release_no || '');
+  const [releaseDate, setReleaseDate] = useState(data?.release_date || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!releaseNo) {
-      toast.error("Release No is required");
+      toast.error('Release No is required');
       return;
     }
     if (!releaseDate) {
-      toast.error("Release Date is required");
+      toast.error('Release Date is required');
       return;
     }
 
     try {
       const payload = {
-        user_id: logindata?.admin?.id || "",
-        batch_id: rowData?.id || "",
+        user_id: logindata?.admin?.id || '',
+        batch_id: rowData?.id || '',
         release_no: releaseNo,
         release_date: releaseDate,
       };
 
       const result = await dispatch(addFpr(payload)).unwrap();
 
-      toast.success(result?.message || "Release data submitted!");
+      toast.success(result?.message || 'Release data submitted!');
       setPlaceModal(false);
       setOnreload(true);
-      setReleaseNo("");
-      setReleaseDate("");
+      setReleaseNo('');
+      setReleaseDate('');
     } catch (err) {
       toast.error(`${err}`);
     }
@@ -108,11 +108,7 @@ const Addmodal: React.FC<AddModalProps> = ({
 
           {/* Buttons */}
           <div className="col-span-12 flex justify-end items-center gap-4">
-            <Button
-              type="button"
-              color="error"
-              onClick={() => setPlaceModal(false)}
-            >
+            <Button type="button" color="error" onClick={() => setPlaceModal(false)}>
               Cancel
             </Button>
             <Button type="submit" color="primary">

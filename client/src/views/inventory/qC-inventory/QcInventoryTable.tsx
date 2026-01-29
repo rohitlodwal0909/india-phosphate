@@ -55,6 +55,8 @@ export interface PaginationTableType {
   status: any;
   tested_by: any;
   pmapproveBy: any;
+  qc_result: any;
+  pmresult: any;
   actions: any;
 }
 
@@ -161,16 +163,15 @@ function QcInventoryTable() {
     setRejectmodal(true);
   };
 
-  const handlereportsubmit = (data) => {
-    navigate(`/inventory/report/${data?.store_rm_code}`, { state: data });
+  const handlereportsubmit = (data, status) => {
+    const id = data?.type === 'pm' ? data?.store_pm_code : data?.store_rm_code;
+
+    status == 'pending'
+      ? navigate(`/inventory/report/${id}`, { state: data })
+      : navigate(`/view-report/${id}`, { state: data });
   };
 
   const [remarkModal, setremarkModal] = useState(null);
-
-  const handleAddremark = (row) => {
-    setremarkModal(true);
-    setSelectedRow(row);
-  };
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
@@ -270,12 +271,20 @@ function QcInventoryTable() {
     columnHelper.accessor('actions', {
       cell: (info) => {
         const rowData = info.row.original;
-        const row = info.row.original as { qc_result?: { testedBy?: { username?: string } }[] };
+
+        const isPm = rowData.type === 'pm';
+
+        const hasResult = isPm ? !!rowData?.pmresult?.length : !!rowData?.qc_result?.length;
+
+        const status = rowData.qa_qc_status;
         const idStr = String(rowData.id);
+
+        const isFinalStatus = ['APPROVED', 'HOLD', 'REJECTED'].includes(status);
 
         return (
           <div className="flex gap-2">
-            {rowData.qa_qc_status === 'REJECTED' && (
+            {/* REJECTED → VIEW */}
+            {status === 'REJECTED' && (
               <Link to={`/view-report/${idStr}`}>
                 <Button
                   color="error"
@@ -287,9 +296,11 @@ function QcInventoryTable() {
                 </Button>
               </Link>
             )}
-            {rowData.qa_qc_status === 'HOLD' && (
+
+            {/* HOLD */}
+            {status === 'HOLD' && (
               <Button
-                color="error"
+                color="secondary"
                 outline
                 size="xs"
                 className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md"
@@ -297,82 +308,72 @@ function QcInventoryTable() {
                 <Icon icon="mdi:gesture-tap-hold" height={20} />
               </Button>
             )}
-            {rowData.type === 'material' && rowData.qa_qc_status === 'APPROVED' && (
-              <Link to={`/view-report/${idStr}`}>
+
+            {/* APPROVED → VIEW */}
+            {status === 'APPROVED' && (
+              <Button
+                onClick={() => handlereportsubmit(rowData, 'view')}
+                color="secondary"
+                outline
+                size="xs"
+                className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+              >
+                <Icon icon="solar:eye-outline" height={18} />
+              </Button>
+            )}
+
+            {/* RESULT AVAILABLE → ACTIONS */}
+            {hasResult && !isFinalStatus && (
+              <>
                 <Button
+                  onClick={() => handleApprove(rowData)}
                   color="secondary"
                   outline
                   size="xs"
                   className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
                 >
-                  <Icon icon="solar:eye-outline" height={18} />
+                  APPROVE
                 </Button>
-              </Link>
-            )}
-            {row?.qc_result?.[0]?.testedBy?.username &&
-              !['APPROVED', 'HOLD', 'REJECTED'].includes(rowData.qa_qc_status) && (
-                <>
-                  <Button
-                    onClick={() => handleApprove(rowData)}
-                    color="secondary"
-                    outline
-                    size="xs"
-                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                  >
-                    APPROVE
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      triggerGoogleTranslateRescan();
-                      setholdOpen(true);
-                      setSelectedRow(rowData);
-                    }}
-                    color="secondary"
-                    outline
-                    size="xs"
-                    className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md"
-                  >
-                    HOLD
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      triggerGoogleTranslateRescan();
-                      handleReject(rowData);
-                    }}
-                    color="error"
-                    outline
-                    size="xs"
-                    className="border border-error text-error hover:bg-error hover:text-white rounded-md"
-                  >
-                    REJECT
-                  </Button>
-                </>
-              )}
 
-            {rowData.type === 'material' &&
-              rowData.qa_qc_status === 'PENDING' &&
-              !row?.qc_result?.[0]?.testedBy?.username && (
-                <>
-                  <Button
-                    color="secondary"
-                    onClick={() => handlereportsubmit(rowData)}
-                    outline
-                    size="xs"
-                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                  >
-                    <Icon icon="tabler:report" height={18} />
-                  </Button>
-                </>
-              )}
-            {rowData.type === 'pm' && (
+                <Button
+                  onClick={() => {
+                    triggerGoogleTranslateRescan();
+                    setholdOpen(true);
+                    setSelectedRow(rowData);
+                  }}
+                  color="secondary"
+                  outline
+                  size="xs"
+                  className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md"
+                >
+                  HOLD
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    triggerGoogleTranslateRescan();
+                    handleReject(rowData);
+                  }}
+                  color="error"
+                  outline
+                  size="xs"
+                  className="border border-error text-error hover:bg-error hover:text-white rounded-md"
+                >
+                  REJECT
+                </Button>
+              </>
+            )}
+
+            {/* PENDING & NO RESULT */}
+            {status === 'PENDING' && !hasResult && (
               <Button
+                color="secondary"
+                onClick={() => handlereportsubmit(rowData, 'pending')}
                 outline
                 size="xs"
-                onClick={() => handleAddremark(rowData)}
                 className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                title="Add Remark"
               >
-                <Icon icon="mdi:comment-text-outline" height={18} />
+                <Icon icon="tabler:report" height={18} />
               </Button>
             )}
           </div>

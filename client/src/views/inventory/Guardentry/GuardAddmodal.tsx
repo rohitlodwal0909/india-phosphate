@@ -95,7 +95,7 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({
     const newErrors: Errors = {};
 
     if (!formData.guard_type) {
-      newErrors.guard_type = 'Guard Type is required';
+      newErrors.guard_type = 'Vehical Type is required';
     }
 
     if (!formData.name) {
@@ -236,7 +236,7 @@ const GuardAddmodal: React.FC<GuardAddModalProps> = ({
           </div>
 
           <div className="sm:col-span-6 col-span-12">
-            <Label htmlFor="guard_type" value="Select Guard Type" />
+            <Label htmlFor="guard_type" value="Select Vehical Type" />
             <span className="text-red-700 ps-1">*</span>
             <select
               id="guard_type"

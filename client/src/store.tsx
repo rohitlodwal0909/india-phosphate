@@ -44,6 +44,7 @@ import BmrRecordSlice from '../src/features/Inventorymodule/BMR/BmrCreation/BmrC
 import IssueEquipmentSlice from '../src/features/Inventorymodule/InventoryIssued/IssueEquipmentSlice';
 import RMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/RMIssueSlice';
 import PMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
+import BmrReportSlices from '../src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 
 export const store = configureStore({
   reducer: {
@@ -92,6 +93,7 @@ export const store = configureStore({
     formula: FormulaSlice,
     document: DocumentSlice,
     fpr: FprSlice,
+    bmrReport: BmrReportSlices,
   },
 });
 

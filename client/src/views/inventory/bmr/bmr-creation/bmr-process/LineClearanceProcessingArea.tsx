@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Accordion, Button, Label, TextInput, Table } from 'flowbite-react';
 import Select from 'react-select';
 
 const selectStyles = {
-  menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
 const equipmentList = [
@@ -15,7 +16,39 @@ const equipmentList = [
   'Packaging Area',
 ];
 
-const LineClearanceProcessingArea = () => {
+const LineClearanceProcessingArea = ({ users }) => {
+  /* ================= KEY POINTS STATE ================= */
+  const [keyPoints, setKeyPoints] = useState([
+    {
+      point: 'Absence of previous batch material',
+      status: '', // yes | no
+    },
+  ]);
+
+  /* ================= USERS OPTIONS ================= */
+  const userOptions =
+    users?.map((u) => ({
+      value: u.id,
+      label: u.name || u.username,
+    })) || [];
+
+  /* ================= KEY POINT HANDLERS ================= */
+  const addKeyPoint = () => {
+    setKeyPoints([...keyPoints, { point: '', status: '' }]);
+  };
+
+  const updateKeyPoint = (index, field, value) => {
+    const updated = [...keyPoints];
+    updated[index][field] = value;
+    setKeyPoints(updated);
+  };
+
+  const removeKeyPoint = (index) => {
+    const updated = [...keyPoints];
+    updated.splice(index, 1);
+    setKeyPoints(updated);
+  };
+
   return (
     <div className="space-y-6">
       <Accordion alwaysOpen>
@@ -25,7 +58,7 @@ const LineClearanceProcessingArea = () => {
           </Accordion.Title>
 
           <Accordion.Content>
-            {/* TOP INFO */}
+            {/* ================= TOP INFO ================= */}
             <div className="grid grid-cols-12 gap-4 mb-6">
               <div className="col-span-12 sm:col-span-6">
                 <Label value="Previous Product" />
@@ -38,18 +71,65 @@ const LineClearanceProcessingArea = () => {
               </div>
             </div>
 
-            {/* KEY POINTS */}
+            {/* ================= KEY POINTS ================= */}
             <div className="border p-4 rounded-md mb-6 bg-gray-50">
-              <h4 className="font-semibold mb-2">Key Points:</h4>
-              <ul className="list-decimal ml-5 space-y-1 text-sm text-gray-700">
-                <li>Absence of previous batch material</li>
-                <li>Ensure availability of Raw & Packing Materials with proper label</li>
-                <li>Cleanliness of area and Equipment’s</li>
-                <li>Sifter (Sieve status) – Broken / Not Broken</li>
-              </ul>
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-semibold">Key Points</h4>
+                <Button size="xs" color="primary" onClick={addKeyPoint}>
+                  + Add
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {keyPoints.map((kp, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-3 items-center">
+                    {/* KEY POINT TEXT */}
+                    <div className="col-span-12 md:col-span-7">
+                      <TextInput
+                        placeholder="Enter key point"
+                        value={kp.point}
+                        onChange={(e) => updateKeyPoint(index, 'point', e.target.value)}
+                      />
+                    </div>
+
+                    {/* YES / NO */}
+                    <div className="col-span-8 md:col-span-4 flex gap-4">
+                      <label className="flex items-center gap-1 text-sm">
+                        <input
+                          type="radio"
+                          color="success"
+                          name={`status-${index}`}
+                          checked={kp.status === 'yes'}
+                          onChange={() => updateKeyPoint(index, 'status', 'yes')}
+                        />
+                        Yes
+                      </label>
+
+                      <label className="flex items-center gap-1 text-sm">
+                        <input
+                          type="radio"
+                          name={`status-${index}`}
+                          checked={kp.status === 'no'}
+                          onChange={() => updateKeyPoint(index, 'status', 'no')}
+                        />
+                        No
+                      </label>
+                    </div>
+
+                    {/* CLOSE BUTTON */}
+                    <div className="col-span-4 md:col-span-1 text-right">
+                      {keyPoints.length > 1 && (
+                        <Button size="xs" color="failure" onClick={() => removeKeyPoint(index)}>
+                          ✕
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* TABLE */}
+            {/* ================= TABLE ================= */}
             <div className="overflow-x-auto">
               <Table striped className="border">
                 <Table.Head>
@@ -78,25 +158,31 @@ const LineClearanceProcessingArea = () => {
                         <TextInput type="date" />
                       </Table.Cell>
 
-                      <Table.Cell className="min-w-[160px]">
+                      {/* DONE BY */}
+                      <Table.Cell className="min-w-[180px]">
                         <Select
-                          placeholder="Select"
+                          placeholder="Done By"
+                          options={userOptions}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
                       </Table.Cell>
 
-                      <Table.Cell className="min-w-[160px]">
+                      {/* PRODUCTION */}
+                      <Table.Cell className="min-w-[180px]">
                         <Select
                           placeholder="Production"
+                          options={userOptions}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
                       </Table.Cell>
 
-                      <Table.Cell className="min-w-[160px]">
+                      {/* QA */}
+                      <Table.Cell className="min-w-[180px]">
                         <Select
                           placeholder="QA"
+                          options={userOptions}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
@@ -107,7 +193,7 @@ const LineClearanceProcessingArea = () => {
               </Table>
             </div>
 
-            {/* ACTION BUTTONS */}
+            {/* ================= ACTIONS ================= */}
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
               <Button color="gray">Cancel</Button>
               <Button>Submit</Button>

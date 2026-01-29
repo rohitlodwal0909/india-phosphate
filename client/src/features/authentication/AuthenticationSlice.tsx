@@ -122,7 +122,7 @@ const AuthenticationSlice = createSlice({
       })
       .addCase(Authenticationmodule.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload);
+        state.logindata = action.payload;
       })
       .addCase(Authenticationmodule.rejected, (state, action) => {
         state.loading = false;

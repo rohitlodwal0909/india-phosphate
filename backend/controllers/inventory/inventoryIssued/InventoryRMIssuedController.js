@@ -63,6 +63,7 @@ exports.saveIssuedRM = async (req, res, next) => {
       ...req.body,
       date: entry_date + entry_time
     });
+
     res.status(201).json({
       message: "Raw material issue successfully",
       data

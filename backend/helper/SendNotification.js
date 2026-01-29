@@ -2,6 +2,7 @@ const db = require("../models");
 const { Notification, User } = db;
 
 const createNotificationByRoleId = async ({ title, message, role_id }) => {
+  console.log(role_id, "zxvsb");
   try {
     if (!role_id) {
       console.warn("❌ role_id is required");
@@ -9,7 +10,7 @@ const createNotificationByRoleId = async ({ title, message, role_id }) => {
     }
 
     const users = await User.findAll({
-      where: { role_id },
+      where: { role_id }
     });
 
     if (!users || users.length === 0) {
@@ -25,7 +26,7 @@ const createNotificationByRoleId = async ({ title, message, role_id }) => {
         title,
         message,
         is_read: 0,
-        date_time: new Date(),
+        date_time: new Date()
       });
 
       if (global.io) {

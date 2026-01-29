@@ -41,7 +41,7 @@ const RawMaterialViewModal = ({
       }
     };
     fetchrawmaterial();
-  }, [selectedRow]);
+  }, [selectedRow?.id]);
 
   return (
     <Modal
@@ -52,12 +52,12 @@ const RawMaterialViewModal = ({
       className="overflow-x-hidden"
     >
       <ModalHeader className="pb-0 text-center text-2xl font-bold text-gray-800">
-        Raw Material Details
+        Packing Material Details
       </ModalHeader>
       <ModalBody>
         <Tabs aria-label="Tabs with underline" variant="underline">
           <TabItem
-            title="Raw Material "
+            title="Packing Material "
             icon={() => <Icon icon="solar:graph-linear" height={20} />}
           >
             <div className="space-y-4">
@@ -79,7 +79,7 @@ const RawMaterialViewModal = ({
                       {showFollowup?.map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="px-4 py-2 border">{index + 1}</td>
-                          <td className="px-4 py-2 border break-words">{selectedRow?.pm_code}</td>
+                          <td className="px-4 py-2 border break-words">{selectedRow?.name}</td>
                           <td className="px-4 py-2 border capitalize">
                             {item.type == 1 ? 'Raw Material' : 'Physical Properties'}
                           </td>
