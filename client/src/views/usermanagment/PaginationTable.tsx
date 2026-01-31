@@ -21,6 +21,7 @@ import { toast } from 'react-toastify';
 import PaginationComponent from 'src/utils/PaginationComponent';
 import noData from '../../../src/assets/images/svgs/no-data.webp';
 import { AppDispatch } from 'src/store';
+import { ImageUrl } from 'src/constants/contant';
 export interface PaginationTableType {
   id?: string;
   avatar?: string | any;
@@ -28,6 +29,7 @@ export interface PaginationTableType {
   email?: string;
   status?: any;
   password?: string;
+  signature?: any;
   role_id?: any;
 }
 
@@ -123,6 +125,23 @@ function PaginationTable({ roleData }) {
       },
       header: () => <span>Role</span>,
     }),
+    columnHelper.accessor('signature', {
+      header: () => <span>Digital Signature</span>,
+      cell: (info) => {
+        const signature = info.getValue();
+
+        return signature ? (
+          <img
+            src={`${ImageUrl}/uploads/signatures/${signature}`}
+            alt="User Signature"
+            className="h-16 w-auto border rounded"
+          />
+        ) : (
+          <span className="text-sm text-gray-400">No Signature</span>
+        );
+      },
+    }),
+
     columnHelper.accessor('actions', {
       cell: (info) => {
         const rowData = info.row.original;

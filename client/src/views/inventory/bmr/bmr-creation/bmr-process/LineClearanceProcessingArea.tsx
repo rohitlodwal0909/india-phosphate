@@ -1,41 +1,199 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Accordion, Button, Label, TextInput, Table } from 'flowbite-react';
 import Select from 'react-select';
+import { useDispatch, useSelector } from 'react-redux';
+import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
+import { useParams } from 'react-router';
+import { saveLineClearanceProcessing } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
+import { toast } from 'react-toastify';
 
 const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const equipmentList = [
-  'Processing Area',
-  'Reaction Tank',
-  'Pusher Centrifuge',
-  'Dryer',
-  'Conc Mill',
-  'Sifter',
-  'Packaging Area',
-];
+const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
+  const { id } = useParams();
+  const dispatch = useDispatch<any>();
+  const { Equipmentdata } = useSelector((state: any) => state.equipment);
 
-const LineClearanceProcessingArea = ({ users }) => {
-  /* ================= KEY POINTS STATE ================= */
-  const [keyPoints, setKeyPoints] = useState([
-    {
-      point: 'Absence of previous batch material',
-      status: '', // yes | no
-    },
-  ]);
+  const [previousProduct, setPreviousProduct] = useState('');
 
   /* ================= USERS OPTIONS ================= */
-  const userOptions =
-    users?.map((u) => ({
-      value: u.id,
-      label: u.name || u.username,
-    })) || [];
+  const userOptions = useMemo(
+    () =>
+      users.map((u) => ({
+        value: u.id,
+        label: u.name || u.username,
+      })),
+    [users],
+  );
+
+  /* ================= EQUIPMENT DROPDOWN ================= */
+  const equipmentList = useMemo(() => {
+    return [
+      { value: 'processing', label: 'Processing Area' },
+      ...(Equipmentdata || []).map((e) => ({
+        value: e.id,
+        label: e.name,
+      })),
+      { value: 'packaging', label: 'Packaging Area' },
+    ];
+  }, [Equipmentdata]);
+
+  /* ================= EQUIPMENTS FROM BMR ================= */
+  const equipmentsFromBmr = useMemo(() => {
+    return (
+      bmr?.records?.production_results
+        ?.filter(
+          (item) =>
+            item?.equipment && item.equipment !== 'processing' && item.equipment !== 'packaging',
+        )
+        ?.map((item) => item.equipment) || []
+    );
+  }, [bmr]);
+
+  /* ================= INITIAL ROWS ================= */
+  const initialEquipmentRows = useMemo(() => {
+    const middleRows = equipmentsFromBmr.map((eq) => ({
+      equipmentId: eq.id || eq,
+      equipmentName: eq.name || eq,
+      date: '',
+      doneBy: null,
+      production: null,
+      qa: null,
+    }));
+
+    return [
+      {
+        equipmentId: 'processing',
+        equipmentName: 'Processing Area',
+        date: '',
+        doneBy: null,
+        production: null,
+        qa: null,
+      },
+      ...middleRows,
+      {
+        equipmentId: 'packaging',
+        equipmentName: 'Packaging Area',
+        date: '',
+        doneBy: null,
+        production: null,
+        qa: null,
+      },
+    ];
+  }, [equipmentsFromBmr]);
+
+  const [equipmentRows, setEquipmentRows] = useState(initialEquipmentRows);
+
+  /* ================= KEY POINTS ================= */
+  const [keyPoints, setKeyPoints] = useState([
+    { point: 'Absence of previous batch material', status: '' },
+  ]);
+
+  /* ================= LOAD MASTER EQUIPMENT ================= */
+  useEffect(() => {
+    dispatch(GetEquipment());
+  }, []);
+
+  /* ================= EDIT MODE DATA ================= */
+  useEffect(() => {
+    if (!data) return;
+
+    setPreviousProduct(data.previous_product || '');
+
+    /* ---- Key Points ---- */
+    if (data.key_points) {
+      try {
+        const parsed =
+          typeof data.key_points === 'string' ? JSON.parse(data.key_points) : data.key_points;
+
+        setKeyPoints(parsed);
+      } catch (e) {
+        console.error('KeyPoints parse error');
+      }
+    }
+
+    /* ---- Equipments ---- */
+    if (data.equipments) {
+      try {
+        const parsed =
+          typeof data.equipments === 'string' ? JSON.parse(data.equipments) : data.equipments;
+
+        const filtered = parsed.filter(
+          (eq) => eq.equipment_id !== 'processing' && eq.equipment_id !== 'packaging',
+        );
+
+        const processing = parsed.find((eq) => eq.equipment_id == 'processing') || [];
+        const packaging = parsed.find((eq) => eq.equipment_id == 'packaging') || [];
+
+        const rows = [
+          {
+            equipmentId: 'processing',
+            equipmentName: 'Processing Area',
+            date: processing?.date,
+            doneBy: userOptions.find((u) => u.value === processing.done_by) || null,
+            production: userOptions.find((u) => u.value === processing.production) || null,
+            qa: userOptions.find((u) => u.value === processing.qa) || null,
+          },
+
+          ...filtered.map((eq) => ({
+            equipmentId: eq.equipment_id,
+            equipmentName: eq.equipment_name,
+            date: eq.date || '',
+            doneBy: userOptions.find((u) => u.value === eq.done_by) || null,
+            production: userOptions.find((u) => u.value === eq.production) || null,
+            qa: userOptions.find((u) => u.value === eq.qa) || null,
+          })),
+
+          {
+            equipmentId: 'packaging',
+            equipmentName: 'Packaging Area',
+            date: packaging?.date,
+            doneBy: userOptions.find((u) => u.value === packaging.done_by) || null,
+            production: userOptions.find((u) => u.value === packaging.production) || null,
+            qa: userOptions.find((u) => u.value === packaging.qa) || null,
+          },
+        ];
+
+        setEquipmentRows(rows);
+      } catch (e) {
+        console.error('Equipments parse error');
+      }
+    }
+  }, [data, userOptions]);
+
+  /* ================= ROW HANDLERS ================= */
+  const updateRow = (index, field, value) => {
+    const updated = [...equipmentRows];
+    updated[index][field] = value;
+    setEquipmentRows(updated);
+  };
+
+  const addEquipmentRow = () => {
+    const updated = [...equipmentRows];
+    updated.splice(updated.length - 1, 0, {
+      equipmentId: '',
+      equipmentName: '',
+      date: '',
+      doneBy: null,
+      production: null,
+      qa: null,
+    });
+    setEquipmentRows(updated);
+  };
+
+  const removeEquipmentRow = (index) => {
+    const row = equipmentRows[index];
+    if (row.equipmentId === 'processing' || row.equipmentId === 'packaging') return;
+
+    const updated = [...equipmentRows];
+    updated.splice(index, 1);
+    setEquipmentRows(updated);
+  };
 
   /* ================= KEY POINT HANDLERS ================= */
-  const addKeyPoint = () => {
-    setKeyPoints([...keyPoints, { point: '', status: '' }]);
-  };
+  const addKeyPoint = () => setKeyPoints([...keyPoints, { point: '', status: '' }]);
 
   const updateKeyPoint = (index, field, value) => {
     const updated = [...keyPoints];
@@ -49,159 +207,191 @@ const LineClearanceProcessingArea = ({ users }) => {
     setKeyPoints(updated);
   };
 
+  /* ================= SUBMIT ================= */
+  const handleSubmit = () => {
+    const payload = {
+      id: data?.id || null,
+      bmr_id: id,
+      previousProduct,
+      keyPoints,
+      equipments: equipmentRows.map((row) => ({
+        equipment_id: row.equipmentId,
+        equipment_name: row.equipmentName,
+        date: row.date,
+        done_by: row.doneBy?.value || null,
+        production: row.production?.value || null,
+        qa: row.qa?.value || null,
+      })),
+    };
+
+    dispatch(saveLineClearanceProcessing(payload));
+    toast.success('Line Clearance Saved');
+  };
+
+  /* ================= UI ================= */
   return (
-    <div className="space-y-6">
-      <Accordion alwaysOpen>
-        <Accordion.Panel>
-          <Accordion.Title>
-            4. Line Clearance of Processing Area, Equipments & Packing Area
-          </Accordion.Title>
-
+    <Accordion alwaysOpen>
+      <Accordion.Panel>
+        <Accordion.Title>
+          4. Line Clearance of Processing Area, Equipments & Packing Area
+        </Accordion.Title>
+        {isReadOnly && (
           <Accordion.Content>
-            {/* ================= TOP INFO ================= */}
+            {/* Previous Product */}
             <div className="grid grid-cols-12 gap-4 mb-6">
-              <div className="col-span-12 sm:col-span-6">
+              <div className="col-span-6">
                 <Label value="Previous Product" />
-                <TextInput placeholder="Enter previous product" />
+                <TextInput
+                  value={previousProduct}
+                  onChange={(e) => setPreviousProduct(e.target.value)}
+                />
               </div>
-
-              <div className="col-span-12 sm:col-span-6">
+              <div className="col-span-6">
                 <Label value="Batch No" />
-                <TextInput placeholder="Enter batch no" />
+                <TextInput value={bmr?.records?.qc_batch_number} readOnly />
               </div>
             </div>
 
-            {/* ================= KEY POINTS ================= */}
-            <div className="border p-4 rounded-md mb-6 bg-gray-50">
-              <div className="flex justify-between items-center mb-3">
+            {/* Key Points */}
+            <div className="border p-4 rounded mb-6 bg-gray-50">
+              <div className="flex justify-between mb-3">
                 <h4 className="font-semibold">Key Points</h4>
-                <Button size="xs" color="primary" onClick={addKeyPoint}>
+                <Button size="xs" onClick={addKeyPoint}>
                   + Add
                 </Button>
               </div>
 
-              <div className="space-y-3">
-                {keyPoints.map((kp, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-3 items-center">
-                    {/* KEY POINT TEXT */}
-                    <div className="col-span-12 md:col-span-7">
-                      <TextInput
-                        placeholder="Enter key point"
-                        value={kp.point}
-                        onChange={(e) => updateKeyPoint(index, 'point', e.target.value)}
-                      />
-                    </div>
-
-                    {/* YES / NO */}
-                    <div className="col-span-8 md:col-span-4 flex gap-4">
-                      <label className="flex items-center gap-1 text-sm">
-                        <input
-                          type="radio"
-                          color="success"
-                          name={`status-${index}`}
-                          checked={kp.status === 'yes'}
-                          onChange={() => updateKeyPoint(index, 'status', 'yes')}
-                        />
-                        Yes
-                      </label>
-
-                      <label className="flex items-center gap-1 text-sm">
-                        <input
-                          type="radio"
-                          name={`status-${index}`}
-                          checked={kp.status === 'no'}
-                          onChange={() => updateKeyPoint(index, 'status', 'no')}
-                        />
-                        No
-                      </label>
-                    </div>
-
-                    {/* CLOSE BUTTON */}
-                    <div className="col-span-4 md:col-span-1 text-right">
-                      {keyPoints.length > 1 && (
-                        <Button size="xs" color="failure" onClick={() => removeKeyPoint(index)}>
-                          ✕
-                        </Button>
-                      )}
-                    </div>
+              {keyPoints.map((kp, i) => (
+                <div key={i} className="grid grid-cols-12 gap-3 mb-2">
+                  <div className="col-span-7">
+                    <TextInput
+                      value={kp.point}
+                      onChange={(e) => updateKeyPoint(i, 'point', e.target.value)}
+                    />
                   </div>
-                ))}
-              </div>
+                  <div className="col-span-4 flex gap-4">
+                    <label>
+                      <input
+                        type="radio"
+                        checked={kp.status === 'yes'}
+                        onChange={() => updateKeyPoint(i, 'status', 'yes')}
+                      />{' '}
+                      Yes
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        checked={kp.status === 'no'}
+                        onChange={() => updateKeyPoint(i, 'status', 'no')}
+                      />{' '}
+                      No
+                    </label>
+                  </div>
+                  <div className="col-span-1">
+                    {keyPoints.length > 1 && (
+                      <Button size="xs" color="failure" onClick={() => removeKeyPoint(i)}>
+                        ✕
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* ================= TABLE ================= */}
-            <div className="overflow-x-auto">
-              <Table striped className="border">
-                <Table.Head>
-                  <Table.HeadCell rowSpan={2}>S. No</Table.HeadCell>
-                  <Table.HeadCell rowSpan={2}>Equipment Name & Area</Table.HeadCell>
-                  <Table.HeadCell rowSpan={2}>Date</Table.HeadCell>
-                  <Table.HeadCell rowSpan={2}>Done By</Table.HeadCell>
-                  <Table.HeadCell colSpan={2} className="text-center">
-                    Checked By (Sign / Date)
-                  </Table.HeadCell>
-                </Table.Head>
+            {/* Equipment Table */}
+            <Table striped>
+              <Table.Head>
+                <Table.HeadCell>#</Table.HeadCell>
+                <Table.HeadCell>Equipment</Table.HeadCell>
+                <Table.HeadCell>Date</Table.HeadCell>
+                <Table.HeadCell>Done By</Table.HeadCell>
+                <Table.HeadCell>Production</Table.HeadCell>
+                <Table.HeadCell>QA</Table.HeadCell>
+                <Table.HeadCell />
+              </Table.Head>
 
-                <Table.Head>
-                  <Table.HeadCell colSpan={5}>Production</Table.HeadCell>
-                  <Table.HeadCell>QA</Table.HeadCell>
-                </Table.Head>
+              <Table.Body>
+                {equipmentRows.map((row, i) => {
+                  const fixed = row.equipmentId === 'processing' || row.equipmentId === 'packaging';
 
-                <Table.Body className="divide-y">
-                  {equipmentList.map((item, index) => (
-                    <Table.Row key={index}>
-                      <Table.Cell>{index + 1}</Table.Cell>
-
-                      <Table.Cell className="font-medium">{item}</Table.Cell>
-
+                  return (
+                    <Table.Row key={i}>
+                      <Table.Cell>{i + 1}</Table.Cell>
                       <Table.Cell>
-                        <TextInput type="date" />
-                      </Table.Cell>
-
-                      {/* DONE BY */}
-                      <Table.Cell className="min-w-[180px]">
                         <Select
-                          placeholder="Done By"
-                          options={userOptions}
+                          isDisabled={fixed}
+                          options={equipmentList}
+                          value={equipmentList.find((e) => e.value === row.equipmentId) || null}
+                          onChange={(opt) => {
+                            updateRow(i, 'equipmentId', opt.value);
+                            updateRow(i, 'equipmentName', opt.label);
+                          }}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
                       </Table.Cell>
-
-                      {/* PRODUCTION */}
-                      <Table.Cell className="min-w-[180px]">
+                      <Table.Cell>
+                        <TextInput
+                          type="date"
+                          value={row.date}
+                          onChange={(e) => updateRow(i, 'date', e.target.value)}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>
                         <Select
-                          placeholder="Production"
                           options={userOptions}
+                          value={row.doneBy}
+                          onChange={(opt) => updateRow(i, 'doneBy', opt)}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
                       </Table.Cell>
-
-                      {/* QA */}
-                      <Table.Cell className="min-w-[180px]">
+                      <Table.Cell>
                         <Select
-                          placeholder="QA"
                           options={userOptions}
+                          value={row.production}
+                          onChange={(opt) => updateRow(i, 'production', opt)}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Select
+                          options={userOptions}
+                          value={row.qa}
+                          onChange={(opt) => updateRow(i, 'qa', opt)}
+                          styles={selectStyles}
+                          menuPortalTarget={document.body}
+                        />
+                      </Table.Cell>
+                      <Table.Cell>
+                        {!fixed && (
+                          <Button size="xs" color="failure" onClick={() => removeEquipmentRow(i)}>
+                            ✕
+                          </Button>
+                        )}
                       </Table.Cell>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
+                  );
+                })}
+              </Table.Body>
+            </Table>
+
+            <div className="flex justify-end mt-4">
+              <Button size="sm" onClick={addEquipmentRow}>
+                + Add More Equipment
+              </Button>
             </div>
 
-            {/* ================= ACTIONS ================= */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-              <Button color="gray">Cancel</Button>
-              <Button>Submit</Button>
+            <div className="flex justify-end gap-3 mt-6">
+              <Button color="success" onClick={handleSubmit}>
+                Submit
+              </Button>
             </div>
           </Accordion.Content>
-        </Accordion.Panel>
-      </Accordion>
-    </div>
+        )}
+      </Accordion.Panel>
+    </Accordion>
   );
 };
 

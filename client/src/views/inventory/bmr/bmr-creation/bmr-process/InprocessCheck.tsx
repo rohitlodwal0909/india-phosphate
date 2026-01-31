@@ -10,7 +10,7 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const InprocessCheck = ({ users, data }) => {
+const InprocessCheck = ({ users, data, isReadOnly }) => {
   const dispatch = useDispatch<any>();
   const { id } = useParams();
   const [date, setDate] = useState('');
@@ -133,151 +133,152 @@ const InprocessCheck = ({ users, data }) => {
       <Accordion alwaysOpen>
         <Accordion.Panel>
           <Accordion.Title>7. Inprocess Check</Accordion.Title>
-
-          <Accordion.Content>
-            {/* ================= DATE ================= */}
-            <div className="grid grid-cols-12 gap-4 mb-6">
-              <div className="col-span-12 sm:col-span-6">
-                <Label value="Date" />
-                <TextInput type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-              </div>
-            </div>
-
-            {/* ================= KEY POINTS ================= */}
-            <div className="border p-4 rounded-md mb-6 bg-gray-50">
-              <div className="flex justify-between items-center mb-3">
-                <h4 className="font-semibold">Key Points</h4>
-                <Button color="success" size="xs" onClick={addKeyPoint}>
-                  + Add
-                </Button>
+          {isReadOnly && (
+            <Accordion.Content>
+              {/* ================= DATE ================= */}
+              <div className="grid grid-cols-12 gap-4 mb-6">
+                <div className="col-span-12 sm:col-span-6">
+                  <Label value="Date" />
+                  <TextInput type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                </div>
               </div>
 
-              <div className="space-y-3">
-                {keyPoints.map((kp, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-3 items-center">
-                    <div className="col-span-12 md:col-span-6">
-                      <TextInput
-                        placeholder="Enter key point"
-                        value={kp.point}
-                        onChange={(e) => updateKeyPoint(index, 'point', e.target.value)}
-                      />
-                    </div>
+              {/* ================= KEY POINTS ================= */}
+              <div className="border p-4 rounded-md mb-6 bg-gray-50">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-semibold">Key Points</h4>
+                  <Button color="success" size="xs" onClick={addKeyPoint}>
+                    + Add
+                  </Button>
+                </div>
 
-                    <div className="col-span-8 md:col-span-4 flex gap-4">
-                      <label className="flex items-center gap-1 text-sm">
-                        <input
-                          type="radio"
-                          name={`kp-${index}`}
-                          checked={kp.status === 'yes'}
-                          onChange={() => updateKeyPoint(index, 'status', 'yes')}
-                        />
-                        Yes
-                      </label>
-
-                      <label className="flex items-center gap-1 text-sm">
-                        <input
-                          type="radio"
-                          name={`kp-${index}`}
-                          checked={kp.status === 'no'}
-                          onChange={() => updateKeyPoint(index, 'status', 'no')}
-                        />
-                        No
-                      </label>
-                    </div>
-
-                    <div className="col-span-4 md:col-span-2 text-right">
-                      {keyPoints.length > 1 && (
-                        <Button size="xs" color="failure" onClick={() => removeKeyPoint(index)}>
-                          ✕
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ================= TABLE ================= */}
-            <div className="overflow-x-auto">
-              <Table striped className="border">
-                <Table.Head>
-                  <Table.HeadCell>S. No</Table.HeadCell>
-                  <Table.HeadCell>Parameter</Table.HeadCell>
-                  <Table.HeadCell>Result</Table.HeadCell>
-                  <Table.HeadCell>Time</Table.HeadCell>
-                  <Table.HeadCell>Checked By</Table.HeadCell>
-                  <Table.HeadCell>Action</Table.HeadCell>
-                </Table.Head>
-
-                <Table.Body className="divide-y">
-                  {rows.map((row, index) => (
-                    <Table.Row key={index}>
-                      <Table.Cell>{index + 1}</Table.Cell>
-
-                      <Table.Cell>
+                <div className="space-y-3">
+                  {keyPoints.map((kp, index) => (
+                    <div key={index} className="grid grid-cols-12 gap-3 items-center">
+                      <div className="col-span-12 md:col-span-6">
                         <TextInput
-                          placeholder="Enter parameter"
-                          value={row.parameter}
-                          onChange={(e) => handleRowChange(index, 'parameter', e.target.value)}
+                          placeholder="Enter key point"
+                          value={kp.point}
+                          onChange={(e) => updateKeyPoint(index, 'point', e.target.value)}
                         />
-                      </Table.Cell>
+                      </div>
 
-                      <Table.Cell>
-                        <TextInput
-                          placeholder="Result"
-                          value={row.result}
-                          onChange={(e) => handleRowChange(index, 'result', e.target.value)}
-                        />
-                      </Table.Cell>
+                      <div className="col-span-8 md:col-span-4 flex gap-4">
+                        <label className="flex items-center gap-1 text-sm">
+                          <input
+                            type="radio"
+                            name={`kp-${index}`}
+                            checked={kp.status === 'yes'}
+                            onChange={() => updateKeyPoint(index, 'status', 'yes')}
+                          />
+                          Yes
+                        </label>
 
-                      <Table.Cell>
-                        <TextInput
-                          type="time"
-                          value={row.time}
-                          onChange={(e) => handleRowChange(index, 'time', e.target.value)}
-                        />
-                      </Table.Cell>
+                        <label className="flex items-center gap-1 text-sm">
+                          <input
+                            type="radio"
+                            name={`kp-${index}`}
+                            checked={kp.status === 'no'}
+                            onChange={() => updateKeyPoint(index, 'status', 'no')}
+                          />
+                          No
+                        </label>
+                      </div>
 
-                      <Table.Cell className="min-w-[180px]">
-                        <Select
-                          placeholder="Checked By"
-                          options={userOptions}
-                          value={row.checkedBy}
-                          onChange={(opt) => handleRowChange(index, 'checkedBy', opt)}
-                          styles={selectStyles}
-                          menuPortalTarget={document.body}
-                        />
-                      </Table.Cell>
-
-                      <Table.Cell>
-                        {rows.length > 1 && (
-                          <Tooltip content="Remove Row">
-                            <Button size="xs" color="failure" onClick={() => removeRow(index)}>
-                              ✕
-                            </Button>
-                          </Tooltip>
+                      <div className="col-span-4 md:col-span-2 text-right">
+                        {keyPoints.length > 1 && (
+                          <Button size="xs" color="failure" onClick={() => removeKeyPoint(index)}>
+                            ✕
+                          </Button>
                         )}
-                      </Table.Cell>
-                    </Table.Row>
+                      </div>
+                    </div>
                   ))}
-                </Table.Body>
-              </Table>
-            </div>
-
-            {/* ================= ACTIONS ================= */}
-            <div className="flex justify-between items-center mt-6 pt-4 border-t">
-              <Button color="success" onClick={addRow}>
-                + Add Row
-              </Button>
-
-              <div className="flex gap-3">
-                <Button color="gray">Cancel</Button>
-                <Button color="primary" onClick={handleSubmit}>
-                  Submit
-                </Button>
+                </div>
               </div>
-            </div>
-          </Accordion.Content>
+
+              {/* ================= TABLE ================= */}
+              <div className="overflow-x-auto">
+                <Table striped className="border">
+                  <Table.Head>
+                    <Table.HeadCell>S. No</Table.HeadCell>
+                    <Table.HeadCell>Parameter</Table.HeadCell>
+                    <Table.HeadCell>Result</Table.HeadCell>
+                    <Table.HeadCell>Time</Table.HeadCell>
+                    <Table.HeadCell>Checked By</Table.HeadCell>
+                    <Table.HeadCell>Action</Table.HeadCell>
+                  </Table.Head>
+
+                  <Table.Body className="divide-y">
+                    {rows.map((row, index) => (
+                      <Table.Row key={index}>
+                        <Table.Cell>{index + 1}</Table.Cell>
+
+                        <Table.Cell>
+                          <TextInput
+                            placeholder="Enter parameter"
+                            value={row.parameter}
+                            onChange={(e) => handleRowChange(index, 'parameter', e.target.value)}
+                          />
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          <TextInput
+                            placeholder="Result"
+                            value={row.result}
+                            onChange={(e) => handleRowChange(index, 'result', e.target.value)}
+                          />
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          <TextInput
+                            type="time"
+                            value={row.time}
+                            onChange={(e) => handleRowChange(index, 'time', e.target.value)}
+                          />
+                        </Table.Cell>
+
+                        <Table.Cell className="min-w-[180px]">
+                          <Select
+                            placeholder="Checked By"
+                            options={userOptions}
+                            value={row.checkedBy}
+                            onChange={(opt) => handleRowChange(index, 'checkedBy', opt)}
+                            styles={selectStyles}
+                            menuPortalTarget={document.body}
+                          />
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          {rows.length > 1 && (
+                            <Tooltip content="Remove Row">
+                              <Button size="xs" color="failure" onClick={() => removeRow(index)}>
+                                ✕
+                              </Button>
+                            </Tooltip>
+                          )}
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
+
+              {/* ================= ACTIONS ================= */}
+              <div className="flex justify-between items-center mt-6 pt-4 border-t">
+                <Button color="success" onClick={addRow}>
+                  + Add Row
+                </Button>
+
+                <div className="flex gap-3">
+                  <Button color="gray">Cancel</Button>
+                  <Button color="primary" onClick={handleSubmit}>
+                    Submit
+                  </Button>
+                </div>
+              </div>
+            </Accordion.Content>
+          )}
         </Accordion.Panel>
       </Accordion>
     </div>

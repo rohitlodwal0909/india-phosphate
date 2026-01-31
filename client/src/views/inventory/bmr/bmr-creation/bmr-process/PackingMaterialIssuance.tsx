@@ -10,7 +10,7 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const PackingMaterialIssuance = ({ bmr, users, data }) => {
+const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
   const dispatch = useDispatch<any>();
 
   const { id } = useParams();
@@ -107,126 +107,128 @@ const PackingMaterialIssuance = ({ bmr, users, data }) => {
       <Accordion.Panel>
         <Accordion.Title>9. Packing Material Issuance & Dispensing Record</Accordion.Title>
 
-        <Accordion.Content>
-          <div className="border rounded-md p-4 space-y-6">
-            <Table striped className="border">
-              <Table.Head>
-                <Table.HeadCell>S.No</Table.HeadCell>
-                <Table.HeadCell>Material</Table.HeadCell>
-                <Table.HeadCell>Standard Qty</Table.HeadCell>
-                <Table.HeadCell>Actual Qty</Table.HeadCell>
-                <Table.HeadCell>QC Reference No.</Table.HeadCell>
-                <Table.HeadCell>Issued By</Table.HeadCell>
-                <Table.HeadCell>Received By</Table.HeadCell>
-              </Table.Head>
+        {isReadOnly && (
+          <Accordion.Content>
+            <div className="border rounded-md p-4 space-y-6">
+              <Table striped className="border">
+                <Table.Head>
+                  <Table.HeadCell>S.No</Table.HeadCell>
+                  <Table.HeadCell>Material</Table.HeadCell>
+                  <Table.HeadCell>Standard Qty</Table.HeadCell>
+                  <Table.HeadCell>Actual Qty</Table.HeadCell>
+                  <Table.HeadCell>QC Reference No.</Table.HeadCell>
+                  <Table.HeadCell>Issued By</Table.HeadCell>
+                  <Table.HeadCell>Received By</Table.HeadCell>
+                </Table.Head>
 
-              <Table.Body>
-                {packingMaterials?.map((item, i) => (
-                  <Table.Row key={i}>
-                    <Table.Cell>{i + 1}</Table.Cell>
+                <Table.Body>
+                  {packingMaterials?.map((item, i) => (
+                    <Table.Row key={i}>
+                      <Table.Cell>{i + 1}</Table.Cell>
 
-                    <Table.Cell className="font-medium">{item?.pmcodes?.name}</Table.Cell>
+                      <Table.Cell className="font-medium">{item?.pmcodes?.name}</Table.Cell>
 
-                    <Table.Cell>
-                      {item?.pm_quantity} {item?.pm_unit}
-                    </Table.Cell>
+                      <Table.Cell>
+                        {item?.pm_quantity} {item?.pm_unit}
+                      </Table.Cell>
 
-                    {/* ACTUAL QTY */}
-                    <Table.Cell className="space-y-2 min-w-[180px]">
-                      {rows[i]?.actualQtyList.map((val, idx) => (
-                        <div key={idx} className="flex gap-2">
-                          <TextInput
-                            value={val}
-                            placeholder="Actual Qty"
-                            onChange={(e) => {
-                              const updated = [...rows];
-                              updated[i].actualQtyList[idx] = e.target.value;
-                              setRows(updated);
-                            }}
-                          />
-                          {idx === 0 ? (
-                            <Button size="sm" color="primary" onClick={() => addActualQty(i)}>
-                              +
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              color="failure"
-                              onClick={() => removeActualQty(i, idx)}
-                            >
-                              ✕
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </Table.Cell>
+                      {/* ACTUAL QTY */}
+                      <Table.Cell className="space-y-2 min-w-[180px]">
+                        {rows[i]?.actualQtyList.map((val, idx) => (
+                          <div key={idx} className="flex gap-2">
+                            <TextInput
+                              value={val}
+                              placeholder="Actual Qty"
+                              onChange={(e) => {
+                                const updated = [...rows];
+                                updated[i].actualQtyList[idx] = e.target.value;
+                                setRows(updated);
+                              }}
+                            />
+                            {idx === 0 ? (
+                              <Button size="sm" color="primary" onClick={() => addActualQty(i)}>
+                                +
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                color="failure"
+                                onClick={() => removeActualQty(i, idx)}
+                              >
+                                ✕
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </Table.Cell>
 
-                    {/* QC REF */}
-                    <Table.Cell className="space-y-2 min-w-[180px]">
-                      {rows[i]?.qcRefList.map((val, idx) => (
-                        <div key={idx} className="flex gap-2">
-                          <TextInput
-                            value={val}
-                            placeholder="QC Ref"
-                            onChange={(e) => {
-                              const updated = [...rows];
-                              updated[i].qcRefList[idx] = e.target.value;
-                              setRows(updated);
-                            }}
-                          />
-                          {idx === 0 ? (
-                            <Button size="sm" color="primary" onClick={() => addQcRef(i)}>
-                              +
-                            </Button>
-                          ) : (
-                            <Button size="sm" color="failure" onClick={() => removeQcRef(i, idx)}>
-                              ✕
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </Table.Cell>
+                      {/* QC REF */}
+                      <Table.Cell className="space-y-2 min-w-[180px]">
+                        {rows[i]?.qcRefList.map((val, idx) => (
+                          <div key={idx} className="flex gap-2">
+                            <TextInput
+                              value={val}
+                              placeholder="QC Ref"
+                              onChange={(e) => {
+                                const updated = [...rows];
+                                updated[i].qcRefList[idx] = e.target.value;
+                                setRows(updated);
+                              }}
+                            />
+                            {idx === 0 ? (
+                              <Button size="sm" color="primary" onClick={() => addQcRef(i)}>
+                                +
+                              </Button>
+                            ) : (
+                              <Button size="sm" color="failure" onClick={() => removeQcRef(i, idx)}>
+                                ✕
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </Table.Cell>
 
-                    <Table.Cell className="min-w-[180px]">
-                      <Select
-                        options={userOptions}
-                        value={rows[i]?.issuedBy}
-                        onChange={(val) => {
-                          const updated = [...rows];
-                          updated[i].issuedBy = val;
-                          setRows(updated);
-                        }}
-                        styles={selectStyles}
-                        menuPortalTarget={document.body}
-                      />
-                    </Table.Cell>
+                      <Table.Cell className="min-w-[180px]">
+                        <Select
+                          options={userOptions}
+                          value={rows[i]?.issuedBy}
+                          onChange={(val) => {
+                            const updated = [...rows];
+                            updated[i].issuedBy = val;
+                            setRows(updated);
+                          }}
+                          styles={selectStyles}
+                          menuPortalTarget={document.body}
+                        />
+                      </Table.Cell>
 
-                    <Table.Cell className="min-w-[180px]">
-                      <Select
-                        options={userOptions}
-                        value={rows[i]?.receivedBy}
-                        onChange={(val) => {
-                          const updated = [...rows];
-                          updated[i].receivedBy = val;
-                          setRows(updated);
-                        }}
-                        styles={selectStyles}
-                        menuPortalTarget={document.body}
-                      />
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
+                      <Table.Cell className="min-w-[180px]">
+                        <Select
+                          options={userOptions}
+                          value={rows[i]?.receivedBy}
+                          onChange={(val) => {
+                            const updated = [...rows];
+                            updated[i].receivedBy = val;
+                            setRows(updated);
+                          }}
+                          styles={selectStyles}
+                          menuPortalTarget={document.body}
+                        />
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
 
-            <div className="flex justify-end gap-3 pt-4">
-              <Button color="gray">Cancel</Button>
-              <Button color="success" onClick={handleSubmit}>
-                Submit
-              </Button>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button color="gray">Cancel</Button>
+                <Button color="success" onClick={handleSubmit}>
+                  Submit
+                </Button>
+              </div>
             </div>
-          </div>
-        </Accordion.Content>
+          </Accordion.Content>
+        )}
       </Accordion.Panel>
     </Accordion>
   );

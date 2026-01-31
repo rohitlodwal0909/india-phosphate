@@ -593,6 +593,17 @@ const SidebarContent: MenuItem[] = [
         view: false,
         edit: false,
         delete: false,
+          },
+           {
+            name: "Manufacturing Procedure",
+            icon: "mi:document",
+            id: uniqueId(),
+            url: "/master/manufacturingProcedure",
+            subId:31,
+             add: false,
+              view: false,
+              edit: false,
+              delete: false,
           }
         ],
       },

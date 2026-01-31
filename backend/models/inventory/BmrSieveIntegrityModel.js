@@ -26,6 +26,9 @@ module.exports = (sequelize, DataTypes) => {
       sieve_status: {
         type: DataTypes.STRING
       },
+      grills: {
+        type: DataTypes.STRING
+      },
 
       result: {
         type: DataTypes.STRING

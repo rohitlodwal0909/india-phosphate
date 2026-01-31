@@ -47,4 +47,40 @@ router.post(
   BmrReportController.savePMIssuence
 );
 
+router.post(
+  "/save-packing-record",
+  authMiddleware,
+  BmrReportController.savePackingRecord
+);
+
+router.post(
+  "/save-yield-calculation",
+  authMiddleware,
+  BmrReportController.saveYieldCalculation
+);
+
+router.post(
+  "/save-production-review",
+  authMiddleware,
+  BmrReportController.saveProductionReview
+);
+
+router.post(
+  "/save-product-release",
+  authMiddleware,
+  BmrReportController.saveProductRelease
+);
+
+router.post(
+  "/save-manufacturing-procedure",
+  authMiddleware,
+  BmrReportController.saveManufacturingProcedure
+);
+
+router.post(
+  "/save-line-clearance-processing",
+  authMiddleware,
+  BmrReportController.saveLineClearanceProcessing
+);
+
 module.exports = router;

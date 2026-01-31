@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { saveEquipmentList } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import { toast } from 'react-toastify';
 
-const Listofequipement = ({ bmr, data }) => {
+const Listofequipement = ({ bmr, data, isReadOnly }) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
 
@@ -61,44 +61,45 @@ const Listofequipement = ({ bmr, data }) => {
       <Accordion alwaysOpen>
         <Accordion.Panel>
           <Accordion.Title>3. List Of Equipment / Items</Accordion.Title>
+          {isReadOnly && (
+            <Accordion.Content>
+              <div className="mt-6 overflow-x-auto">
+                <Table>
+                  <Table.Head>
+                    <Table.HeadCell>S. No</Table.HeadCell>
+                    <Table.HeadCell>Equipment / Items</Table.HeadCell>
+                    <Table.HeadCell>Equipment ID No.</Table.HeadCell>
+                  </Table.Head>
 
-          <Accordion.Content>
-            <div className="mt-6 overflow-x-auto">
-              <Table>
-                <Table.Head>
-                  <Table.HeadCell>S. No</Table.HeadCell>
-                  <Table.HeadCell>Equipment / Items</Table.HeadCell>
-                  <Table.HeadCell>Equipment ID No.</Table.HeadCell>
-                </Table.Head>
+                  <Table.Body className="divide-y">
+                    {equipments.map((item, index) => (
+                      <Table.Row key={item?.equipment?.id || index}>
+                        <Table.Cell>{index + 1}</Table.Cell>
 
-                <Table.Body className="divide-y">
-                  {equipments.map((item, index) => (
-                    <Table.Row key={item?.equipment?.id || index}>
-                      <Table.Cell>{index + 1}</Table.Cell>
+                        <Table.Cell className="font-medium">{item?.equipment?.name}</Table.Cell>
 
-                      <Table.Cell className="font-medium">{item?.equipment?.name}</Table.Cell>
+                        <Table.Cell>
+                          <TextInput
+                            placeholder="Equipment ID No."
+                            value={rows[index]?.equipment_no || ''}
+                            onChange={(e) => handleChange(index, e.target.value)}
+                          />
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
 
-                      <Table.Cell>
-                        <TextInput
-                          placeholder="Equipment ID No."
-                          value={rows[index]?.equipment_no || ''}
-                          onChange={(e) => handleChange(index, e.target.value)}
-                        />
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
-
-            {/* ACTION BUTTONS */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-              <Button color="gray">Cancel</Button>
-              <Button color="primary" onClick={handleSubmit}>
-                Submit
-              </Button>
-            </div>
-          </Accordion.Content>
+              {/* ACTION BUTTONS */}
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <Button color="gray">Cancel</Button>
+                <Button color="primary" onClick={handleSubmit}>
+                  Submit
+                </Button>
+              </div>
+            </Accordion.Content>
+          )}
         </Accordion.Panel>
       </Accordion>
     </div>

@@ -12,6 +12,12 @@ const initialState = {
   pmIssuance: null,
   sieverecord: null,
   inprocessdata: null,
+  packingrecord: null,
+  yieldcal: null,
+  productionreview: null,
+  manufacturingProcedure: null,
+  lineClearanceProcessing: null,
+  productrelease: null,
   qcIntemation: null,
   updateResult: null,
   deleteResult: null,
@@ -179,6 +185,114 @@ export const savePmIssuence = createAsyncThunk<any, any, { rejectValue: string }
   },
 );
 
+export const savePackingRecord = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/save-packing-record',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-packing-record`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
+export const saveYieldCalculation = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/save-yield-calculation',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-yield-calculation`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
+export const savePostProductionReview = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/save-production-review',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-production-review`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
+export const saveProductRelease = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/save-product-release',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-product-release`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
+export const saveManufacturingProcedure = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/save-manufacturing-procedure',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-manufacturing-procedure`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
+export const saveLineClearanceProcessing = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/save-line-clearance-processing',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-line-clearance-processing`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
 const BmrReportSlice = createSlice({
   name: 'bmrReport',
   initialState,
@@ -271,6 +385,67 @@ const BmrReportSlice = createSlice({
         state.pmIssuance = action.payload;
       })
       .addCase(savePmIssuence.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(savePackingRecord.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(savePackingRecord.fulfilled, (state, action) => {
+        state.packingrecord = action.payload;
+      })
+      .addCase(savePackingRecord.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(saveYieldCalculation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveYieldCalculation.fulfilled, (state, action) => {
+        state.yieldcal = action.payload;
+      })
+      .addCase(saveYieldCalculation.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(savePostProductionReview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(savePostProductionReview.fulfilled, (state, action) => {
+        state.productionreview = action.payload;
+      })
+      .addCase(savePostProductionReview.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(saveProductRelease.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveProductRelease.fulfilled, (state, action) => {
+        state.productrelease = action.payload;
+      })
+      .addCase(saveProductRelease.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(saveManufacturingProcedure.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveManufacturingProcedure.fulfilled, (state, action) => {
+        state.manufacturingProcedure = action.payload;
+      })
+      .addCase(saveManufacturingProcedure.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(saveLineClearanceProcessing.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveLineClearanceProcessing.fulfilled, (state, action) => {
+        state.lineClearanceProcessing = action.payload;
+      })
+      .addCase(saveLineClearanceProcessing.rejected, (state, action) => {
         state.error = action.error.message;
       });
   },

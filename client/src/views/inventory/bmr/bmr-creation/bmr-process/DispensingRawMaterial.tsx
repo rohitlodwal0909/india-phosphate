@@ -11,7 +11,7 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const DispensingRawMaterial = ({ bmr, users, data }) => {
+const DispensingRawMaterial = ({ bmr, users, data, isReadOnly }) => {
   const dispatch = useDispatch<any>();
 
   const { id } = useParams();
@@ -113,166 +113,171 @@ const DispensingRawMaterial = ({ bmr, users, data }) => {
       <Accordion alwaysOpen>
         <Accordion.Panel>
           <Accordion.Title>2. Dispensing Of Raw Materials – Bill Of Material</Accordion.Title>
+          {isReadOnly && (
+            <Accordion.Content>
+              {/* TABLE */}
+              <div className="mt-6 overflow-x-auto">
+                <Table>
+                  <Table.Head>
+                    <Table.HeadCell>S. No</Table.HeadCell>
+                    <Table.HeadCell>Name of Raw Material</Table.HeadCell>
+                    <Table.HeadCell>Specification No.</Table.HeadCell>
+                    <Table.HeadCell>Standard Qty</Table.HeadCell>
+                    <Table.HeadCell>Actual Qty</Table.HeadCell>
+                    <Table.HeadCell>QC Reference No.</Table.HeadCell>
+                    <Table.HeadCell>Issued By</Table.HeadCell>
+                    <Table.HeadCell>Checked By / Date</Table.HeadCell>
+                  </Table.Head>
 
-          <Accordion.Content>
-            {/* TABLE */}
-            <div className="mt-6 overflow-x-auto">
-              <Table>
-                <Table.Head>
-                  <Table.HeadCell>S. No</Table.HeadCell>
-                  <Table.HeadCell>Name of Raw Material</Table.HeadCell>
-                  <Table.HeadCell>Specification No.</Table.HeadCell>
-                  <Table.HeadCell>Standard Qty</Table.HeadCell>
-                  <Table.HeadCell>Actual Qty</Table.HeadCell>
-                  <Table.HeadCell>QC Reference No.</Table.HeadCell>
-                  <Table.HeadCell>Issued By</Table.HeadCell>
-                  <Table.HeadCell>Checked By / Date</Table.HeadCell>
-                </Table.Head>
+                  <Table.Body className="divide-y">
+                    {rawMaterials.map((item, index) => (
+                      <Table.Row key={item?.id || index}>
+                        <Table.Cell>{index + 1}</Table.Cell>
 
-                <Table.Body className="divide-y">
-                  {rawMaterials.map((item, index) => (
-                    <Table.Row key={item?.id || index}>
-                      <Table.Cell>{index + 1}</Table.Cell>
+                        <Table.Cell className="font-medium">{item?.rmcodes?.rm_code}</Table.Cell>
 
-                      <Table.Cell className="font-medium">{item?.rmcodes?.rm_code}</Table.Cell>
+                        <Table.Cell>{item?.rmcodes?.rm_code}</Table.Cell>
 
-                      <Table.Cell>{item?.rmcodes?.rm_code}</Table.Cell>
+                        <Table.Cell>
+                          {item?.rm_quantity} {item?.rm_unit}
+                        </Table.Cell>
 
-                      <Table.Cell>
-                        {item?.rm_quantity} {item?.rm_unit}
-                      </Table.Cell>
+                        {/* ACTUAL QTY */}
+                        <Table.Cell>
+                          <div className="space-y-2">
+                            {rows[index]?.actualQty.map((val, i) => {
+                              const isLast = i === rows[index].actualQty.length - 1;
 
-                      {/* ACTUAL QTY */}
-                      <Table.Cell>
-                        <div className="space-y-2">
-                          {rows[index]?.actualQty.map((val, i) => {
-                            const isLast = i === rows[index].actualQty.length - 1;
+                              return (
+                                <div key={i} className="flex items-center gap-2">
+                                  <TextInput
+                                    placeholder="Qty"
+                                    value={val}
+                                    onChange={(e) =>
+                                      handleChange(index, 'actualQty', i, e.target.value)
+                                    }
+                                  />
 
-                            return (
-                              <div key={i} className="flex items-center gap-2">
-                                <TextInput
-                                  placeholder="Qty"
-                                  value={val}
-                                  onChange={(e) =>
-                                    handleChange(index, 'actualQty', i, e.target.value)
-                                  }
-                                />
+                                  {rows[index].actualQty.length > 1 && (
+                                    <Tooltip content="Remove">
+                                      <Button
+                                        size="xs"
+                                        color="failure"
+                                        onClick={() => removeField(index, 'actualQty', i)}
+                                      >
+                                        <Icon icon="material-symbols:delete-outline" height={14} />
+                                      </Button>
+                                    </Tooltip>
+                                  )}
 
-                                {rows[index].actualQty.length > 1 && (
-                                  <Tooltip content="Remove">
-                                    <Button
-                                      size="xs"
-                                      color="failure"
-                                      onClick={() => removeField(index, 'actualQty', i)}
-                                    >
-                                      <Icon icon="material-symbols:delete-outline" height={14} />
-                                    </Button>
-                                  </Tooltip>
-                                )}
+                                  {isLast && (
+                                    <Tooltip content="Add Qty">
+                                      <Button
+                                        size="xs"
+                                        color="success"
+                                        onClick={() => addField(index, 'actualQty')}
+                                      >
+                                        <Icon icon="material-symbols:add-rounded" height={14} />
+                                      </Button>
+                                    </Tooltip>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </Table.Cell>
 
-                                {isLast && (
-                                  <Tooltip content="Add Qty">
-                                    <Button
-                                      size="xs"
-                                      color="success"
-                                      onClick={() => addField(index, 'actualQty')}
-                                    >
-                                      <Icon icon="material-symbols:add-rounded" height={14} />
-                                    </Button>
-                                  </Tooltip>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </Table.Cell>
+                        {/* QC REF */}
+                        <Table.Cell>
+                          <div className="space-y-2">
+                            {rows[index]?.qcRef.map((val, i) => {
+                              const isLast = i === rows[index].qcRef.length - 1;
 
-                      {/* QC REF */}
-                      <Table.Cell>
-                        <div className="space-y-2">
-                          {rows[index]?.qcRef.map((val, i) => {
-                            const isLast = i === rows[index].qcRef.length - 1;
+                              return (
+                                <div key={i} className="flex items-center gap-2">
+                                  <TextInput
+                                    placeholder="QC Ref"
+                                    value={val}
+                                    onChange={(e) =>
+                                      handleChange(index, 'qcRef', i, e.target.value)
+                                    }
+                                  />
 
-                            return (
-                              <div key={i} className="flex items-center gap-2">
-                                <TextInput
-                                  placeholder="QC Ref"
-                                  value={val}
-                                  onChange={(e) => handleChange(index, 'qcRef', i, e.target.value)}
-                                />
+                                  {rows[index].qcRef.length > 1 && (
+                                    <Tooltip content="Remove">
+                                      <Button
+                                        size="xs"
+                                        color="failure"
+                                        onClick={() => removeField(index, 'qcRef', i)}
+                                      >
+                                        <Icon icon="material-symbols:delete-outline" height={14} />
+                                      </Button>
+                                    </Tooltip>
+                                  )}
 
-                                {rows[index].qcRef.length > 1 && (
-                                  <Tooltip content="Remove">
-                                    <Button
-                                      size="xs"
-                                      color="failure"
-                                      onClick={() => removeField(index, 'qcRef', i)}
-                                    >
-                                      <Icon icon="material-symbols:delete-outline" height={14} />
-                                    </Button>
-                                  </Tooltip>
-                                )}
+                                  {isLast && (
+                                    <Tooltip content="Add QC Ref">
+                                      <Button
+                                        size="xs"
+                                        color="success"
+                                        onClick={() => addField(index, 'qcRef')}
+                                      >
+                                        <Icon icon="material-symbols:add-rounded" height={14} />
+                                      </Button>
+                                    </Tooltip>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </Table.Cell>
 
-                                {isLast && (
-                                  <Tooltip content="Add QC Ref">
-                                    <Button
-                                      size="xs"
-                                      color="success"
-                                      onClick={() => addField(index, 'qcRef')}
-                                    >
-                                      <Icon icon="material-symbols:add-rounded" height={14} />
-                                    </Button>
-                                  </Tooltip>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </Table.Cell>
-
-                      {/* ISSUED BY */}
-                      <Table.Cell className="min-w-[180px]">
-                        <Select
-                          placeholder="Select User"
-                          options={userOptions}
-                          value={rows[index]?.issuedBy}
-                          onChange={(selected) => handleIssuedByChange(index, selected)}
-                          styles={selectStyles}
-                          menuPortalTarget={document.body}
-                        />
-                      </Table.Cell>
-
-                      {/* CHECKED */}
-                      <Table.Cell>
-                        <div className="space-y-2">
-                          <TextInput
-                            placeholder="Checked By"
-                            value={rows[index]?.checkedBy}
-                            onChange={(e) => handleSimpleChange(index, 'checkedBy', e.target.value)}
+                        {/* ISSUED BY */}
+                        <Table.Cell className="min-w-[180px]">
+                          <Select
+                            placeholder="Select User"
+                            options={userOptions}
+                            value={rows[index]?.issuedBy}
+                            onChange={(selected) => handleIssuedByChange(index, selected)}
+                            styles={selectStyles}
+                            menuPortalTarget={document.body}
                           />
-                          <TextInput
-                            type="date"
-                            value={rows[index]?.checkedDate}
-                            onChange={(e) =>
-                              handleSimpleChange(index, 'checkedDate', e.target.value)
-                            }
-                          />
-                        </div>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
+                        </Table.Cell>
 
-            {/* ACTIONS */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-              <Button color="gray">Cancel</Button>
-              <Button onClick={handleSubmit} color="primary">
-                Submit
-              </Button>
-            </div>
-          </Accordion.Content>
+                        {/* CHECKED */}
+                        <Table.Cell>
+                          <div className="space-y-2">
+                            <TextInput
+                              placeholder="Checked By"
+                              value={rows[index]?.checkedBy}
+                              onChange={(e) =>
+                                handleSimpleChange(index, 'checkedBy', e.target.value)
+                              }
+                            />
+                            <TextInput
+                              type="date"
+                              value={rows[index]?.checkedDate}
+                              onChange={(e) =>
+                                handleSimpleChange(index, 'checkedDate', e.target.value)
+                              }
+                            />
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <Button color="gray">Cancel</Button>
+                <Button onClick={handleSubmit} color="primary">
+                  Submit
+                </Button>
+              </div>
+            </Accordion.Content>
+          )}
         </Accordion.Panel>
       </Accordion>
     </div>

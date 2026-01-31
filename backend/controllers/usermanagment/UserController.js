@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const db = require("../../models");
 const { User } = db;
+const fs = require("fs");
+const path = require("path");
 
 exports.register = async (req, res, next) => {
   const { username, password, role_id } = req.body;
@@ -15,6 +17,12 @@ exports.register = async (req, res, next) => {
       return next(error);
     }
 
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Signature is required"
+      });
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     // Create user
@@ -22,6 +30,7 @@ exports.register = async (req, res, next) => {
       username,
       password: hashedPassword,
       showpassword: password,
+      signature: req.file.filename,
       role_id,
       status: "Inactive" // default status
     });
@@ -32,7 +41,8 @@ exports.register = async (req, res, next) => {
         id: user.id,
         username: user.username,
         role_id: user.role_id,
-        status: user.status
+        status: user.status,
+        signature: user.signature
       }
     });
   } catch (error) {
@@ -72,30 +82,48 @@ exports.listAllUsers = async (req, res, next) => {
 };
 
 exports.updatePassword = async (req, res, next) => {
-  const { username, password, role_id, id } = req.body;
-
   try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ where: { id } });
+    const { username, password, role_id, id } = req.body;
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // Create user
-    const user = await existingUser.update({
+    // 🔍 Find user
+    const existingUser = await User.findOne({ where: { id } });
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 🔐 Password hash
+    let hashedPassword = existingUser.password;
+    let showPassword = existingUser.showpassword;
+
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+      showPassword = password;
+    }
+
+    // 🖼️ Handle signature replace
+    let signature = existingUser.signature;
+    if (req.file) {
+      signature = req.file.filename;
+    }
+
+    // ✏️ Update user
+    await existingUser.update({
       username,
       password: hashedPassword,
-      showpassword: password,
+      showpassword: showPassword,
+      signature,
       role_id,
       status: "active"
     });
 
-    res.status(201).json({
-      message: "User Update successfully",
+    res.status(200).json({
+      message: "User updated successfully",
       user: {
-        id: user.id,
-        username: user.username,
-        role_id: user.role_id,
-        status: user.status
+        id: existingUser.id,
+        username: existingUser.username,
+        role_id: existingUser.role_id,
+        status: existingUser.status,
+        signature: existingUser.signature
       }
     });
   } catch (error) {

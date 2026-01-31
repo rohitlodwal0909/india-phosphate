@@ -16,50 +16,55 @@ const selectStyles = {
   menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
 };
 
+const defaultKeyPoints = {
+  absence_material: { cleaning: null, checked: null },
+  absence_labels: { cleaning: null, checked: null },
+  cleanliness_area: { cleaning: null, checked: null },
+  calibration_balance: { cleaning: null, checked: null },
+};
+
 const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
   const { id } = useParams();
+  const dispatch = useDispatch<any>();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<any>({
     id: null,
     bmr_id: id,
     clearance_date: '',
-    previous_product: null,
+    previous_product: '',
     cleaning_done_by: '',
     checked_by: '',
-    key_points: {
-      absence_material: { cleaning: null, checked: null },
-      absence_labels: { cleaning: null, checked: null },
-      cleanliness_area: { cleaning: null, checked: null },
-      calibration_balance: { cleaning: null, checked: null },
-    },
+    key_points: defaultKeyPoints,
   });
 
   useEffect(() => {
-    if (data) {
-      const lc = data;
+    if (!data) return;
 
-      const updatedKeyPoints = { ...form.key_points };
+    const updatedKeyPoints = { ...defaultKeyPoints };
 
-      lc.key_points.forEach((kp: any) => {
+    data.key_points?.forEach((kp: any) => {
+      if (updatedKeyPoints[kp.key_name]) {
         updatedKeyPoints[kp.key_name] = {
           cleaning: yesNoNaOptions.find((o) => o.value === kp.cleaning_status) || null,
           checked: yesNoNaOptions.find((o) => o.value === kp.checked_status) || null,
         };
-      });
+      }
+    });
 
-      setForm({
-        ...form,
-        id: lc.id, // 🔥 IMPORTANT (for update)
-        bmr_id: lc.bmr_id,
-        clearance_date: lc.clearance_date,
-        cleaning_done_by: lc.cleaning_by,
-        checked_by: lc.checked_by,
-        key_points: updatedKeyPoints,
-      });
-    }
+    setForm({
+      id: data.id,
+      bmr_id: data.bmr_id,
+      clearance_date: data.clearance_date || '',
+      previous_product: data.previous_product || '',
+      cleaning_done_by: data.cleaning_by || '',
+      checked_by: data.checked_by || '',
+      key_points: updatedKeyPoints,
+    });
   }, [data]);
 
-  // 🔹 KEY POINT ROW COMPONENT
+  /* ======================
+     KEY POINT ROW
+  ====================== */
   const KeyPointRow = ({ label, keyName }: any) => (
     <div className="grid grid-cols-12 gap-3 py-2">
       <div className="col-span-12 lg:col-span-4 font-medium text-gray-700">{label}</div>
@@ -67,9 +72,9 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
       <div className="col-span-12 sm:col-span-6 lg:col-span-4">
         <Select
           options={yesNoNaOptions}
-          value={form.key_points[keyName].cleaning}
+          value={form.key_points[keyName]?.cleaning}
           onChange={(val) =>
-            setForm((prev) => ({
+            setForm((prev: any) => ({
               ...prev,
               key_points: {
                 ...prev.key_points,
@@ -88,9 +93,9 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
       <div className="col-span-12 sm:col-span-6 lg:col-span-4">
         <Select
           options={yesNoNaOptions}
-          value={form.key_points[keyName].checked}
+          value={form.key_points[keyName]?.checked}
           onChange={(val) =>
-            setForm((prev) => ({
+            setForm((prev: any) => ({
               ...prev,
               key_points: {
                 ...prev.key_points,
@@ -108,11 +113,13 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
     </div>
   );
 
-  const dispatch = useDispatch<any>();
-  // 🔹 SUBMIT HANDLER
+  /* ======================
+     SUBMIT
+  ====================== */
+
   const handleSubmit = async () => {
     const payload = {
-      id: form.id, // 🔥 backend update ke liye
+      id: form.id,
       bmr_id: form.bmr_id,
       clearance_date: form.clearance_date,
       previous_product: form.previous_product,
@@ -120,96 +127,94 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
       checked_by: form.checked_by,
       key_points: Object.entries(form.key_points).map(([key, value]: any) => ({
         key_name: key,
-        cleaning_status: value.cleaning?.value,
-        checked_status: value.checked?.value,
+        cleaning_status: value.cleaning?.value || null,
+        checked_status: value.checked?.value || null,
       })),
     };
 
     try {
       await dispatch(saveLineClearance(payload)).unwrap();
       toast.success(form.id ? 'Line Clearance Updated' : 'Line Clearance Saved');
-    } catch (err) {
+    } catch {
       toast.error('Something went wrong');
     }
   };
 
   return (
-    <div className="space-y-6">
-      <Accordion alwaysOpen>
-        <Accordion.Panel>
-          <Accordion.Title>1. Line Clearance Dispensing (Raw Material)</Accordion.Title>
+    <Accordion alwaysOpen>
+      <Accordion.Panel>
+        <Accordion.Title>1. Line Clearance Dispensing (Raw Material)</Accordion.Title>
 
-          <Accordion.Content>
-            {/* BASIC DETAILS */}
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12 sm:col-span-6">
-                <Label value="Clearance Date" />
-                <TextInput
-                  type="date"
-                  value={form?.clearance_date}
-                  onChange={(e) => setForm({ ...form, clearance_date: e.target.value })}
-                />
-              </div>
-
-              <div className="col-span-12 sm:col-span-6">
-                <Label value="Previous Product" />
-                <Select
-                  placeholder="Select Product"
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
-                  onChange={(val) => setForm({ ...form, previous_product: val })}
-                />
-              </div>
-
-              <div className="col-span-12 sm:col-span-6">
-                <Label value="Batch No" />
-                <TextInput value={bmr?.records?.qc_batch_number} readOnly />
-              </div>
+        <Accordion.Content>
+          {/* BASIC DETAILS */}
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-12 sm:col-span-6">
+              <Label value="Clearance Date" />
+              <TextInput
+                type="date"
+                value={form.clearance_date}
+                onChange={(e) => setForm({ ...form, clearance_date: e.target.value })}
+              />
             </div>
 
-            {/* STAFF DETAILS */}
-            <div className="grid grid-cols-12 gap-4 pt-4">
-              <div className="col-span-12 sm:col-span-6">
-                <Label value="Cleaning Done By" />
-                <TextInput
-                  value={form?.cleaning_done_by}
-                  placeholder="Cleaning By"
-                  onChange={(e) => setForm({ ...form, cleaning_done_by: e.target.value })}
-                />
-              </div>
-
-              <div className="col-span-12 sm:col-span-6">
-                <Label value="Checked By" />
-                <TextInput
-                  value={form?.checked_by}
-                  placeholder="Checked By"
-                  onChange={(e) => setForm({ ...form, checked_by: e.target.value })}
-                />
-              </div>
+            <div className="col-span-12 sm:col-span-6">
+              <Label value="Previous Product" />
+              <TextInput
+                value={form.previous_product}
+                onChange={(e) => setForm({ ...form, previous_product: e.target.value })}
+              />
             </div>
 
-            {/* HEADER */}
-            <div className="hidden lg:grid grid-cols-12 font-semibold text-gray-600 border-b pb-2 mb-3 pt-4">
-              <div className="col-span-4">Key Point</div>
-              <div className="col-span-4">Cleaning Done</div>
-              <div className="col-span-4">Checked</div>
+            <div className="col-span-12 sm:col-span-6">
+              <Label value="Batch No" />
+              <TextInput value={bmr?.records?.qc_batch_number || ''} readOnly />
+            </div>
+          </div>
+
+          {/* STAFF */}
+          <div className="grid grid-cols-12 gap-4 pt-4">
+            <div className="col-span-12 sm:col-span-6">
+              <Label value="Cleaning Done By" />
+              <TextInput
+                value={form.cleaning_done_by}
+                onChange={(e) => setForm({ ...form, cleaning_done_by: e.target.value })}
+              />
             </div>
 
-            {/* KEY POINT ROWS */}
-            <KeyPointRow label="Absence of previous batch material" keyName="absence_material" />
-            <KeyPointRow label="Absence of previous batch labels" keyName="absence_labels" />
-            <KeyPointRow label="Cleanliness of area" keyName="cleanliness_area" />
-            <KeyPointRow label="Calibration of weighing balances" keyName="calibration_balance" />
-
-            {/* ACTION BUTTONS */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-              <Button color="gray">Cancel</Button>
-              <Button onClick={handleSubmit}>Submit</Button>
+            <div className="col-span-12 sm:col-span-6">
+              <Label value="Checked By" />
+              <TextInput
+                value={form.checked_by}
+                onChange={(e) => setForm({ ...form, checked_by: e.target.value })}
+              />
             </div>
-          </Accordion.Content>
-        </Accordion.Panel>
-      </Accordion>
-    </div>
+          </div>
+
+          {/* HEADER */}
+          <div className="hidden lg:grid grid-cols-12 font-semibold border-b pt-4 pb-2">
+            <div className="col-span-4">Key Point</div>
+            <div className="col-span-4">Cleaning Done</div>
+            <div className="col-span-4">Checked</div>
+          </div>
+
+          {/* ROWS */}
+          <KeyPointRow label="Absence of previous batch material" keyName="absence_material" />
+          <KeyPointRow label="Absence of previous batch labels" keyName="absence_labels" />
+          <KeyPointRow label="Cleanliness of area" keyName="cleanliness_area" />
+          <KeyPointRow label="Calibration of weighing balances" keyName="calibration_balance" />
+
+          {/* ACTIONS */}
+          <div className="flex justify-end gap-3 mt-6 border-t pt-4">
+            <Button color="gray" onClick={() => setForm({ ...form, key_points: defaultKeyPoints })}>
+              Cancel
+            </Button>
+            <Button color="success" onClick={handleSubmit}>
+              Submit
+            </Button>
+          </div>
+        </Accordion.Content>
+      </Accordion.Panel>
+    </Accordion>
   );
 };
 

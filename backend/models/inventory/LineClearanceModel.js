@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
 
-      bmr_product_id: {
-        type: DataTypes.INTEGER
+      previous_product: {
+        type: DataTypes.STRING
       },
 
       cleaning_by: {

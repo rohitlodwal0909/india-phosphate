@@ -17,7 +17,14 @@ const {
   BmrEquipmentList,
   BmrInprocessCheck,
   BmrQcIntimation,
-  BmrPMIssuance
+  BmrPMIssuance,
+  BmrPackingRecord,
+  BmrYieldCalculation,
+  BmrProductionReview,
+  BmrProductRelease,
+  ManufacturingProcedure,
+  BmrManufacturingProcedure,
+  LineClearanceProcessing
 } = db;
 const sequelize = db.sequelize;
 
@@ -104,6 +111,32 @@ exports.getbmrReport = async (req, res, next) => {
       where: { bmr_id: id }
     });
 
+    const packingrecords = await BmrPackingRecord.findOne({
+      where: { bmr_id: id }
+    });
+
+    const yieldcalculation = await BmrYieldCalculation.findOne({
+      where: { bmr_id: id }
+    });
+
+    const productionreviews = await BmrProductionReview.findAll({
+      where: { bmr_id: id }
+    });
+
+    const manufacturingprocedure = await BmrManufacturingProcedure.findAll({
+      where: { bmr_id: id }
+    });
+
+    const productrelease = await BmrProductRelease.findAll({
+      where: { bmr_id: id }
+    });
+
+    const lineClearanceProcessing = await LineClearanceProcessing.findOne({
+      where: { bmr_id: id }
+    });
+
+    const procedureList = await ManufacturingProcedure.findAll();
+
     res.status(200).json({
       lineClearance,
       dispensingRm,
@@ -111,7 +144,14 @@ exports.getbmrReport = async (req, res, next) => {
       sieveIntegiry,
       inprocesscheck,
       qcintimation,
-      pmIssuance
+      pmIssuance,
+      packingrecords,
+      yieldcalculation,
+      productionreviews,
+      productrelease,
+      procedureList,
+      manufacturingprocedure,
+      lineClearanceProcessing
     });
   } catch (error) {
     next(error);
@@ -121,7 +161,6 @@ exports.getbmrReport = async (req, res, next) => {
 exports.saveLineClearance = async (req, res) => {
   const {
     id,
-    user_id,
     bmr_id,
     clearance_date,
     previous_product,
@@ -147,7 +186,7 @@ exports.saveLineClearance = async (req, res) => {
       await lineClearance.update(
         {
           clearance_date,
-          bmr_product_id: previous_product || null,
+          previous_product: previous_product || null,
           cleaning_by: cleaning_done_by,
           checked_by,
           user_id: req.admin.id
@@ -168,7 +207,7 @@ exports.saveLineClearance = async (req, res) => {
         {
           bmr_id,
           clearance_date,
-          bmr_product_id: previous_product || null,
+          previous_product: previous_product || null,
           cleaning_by: cleaning_done_by,
           checked_by,
           user_id: req.admin.id,
@@ -298,6 +337,7 @@ exports.saveSieveIntegrityRecord = async (req, res) => {
           {
             time: item.time,
             sieve_status: item.sieve_status,
+            grills: item.grills,
             checked_by: item.checked_by,
             result: item.result,
             remark: item.remark,
@@ -314,6 +354,7 @@ exports.saveSieveIntegrityRecord = async (req, res) => {
           user_id: req.admin.id,
           time: item.time,
           sieve_status: item.sieve_status,
+          grills: item.grills,
           checked_by: item.checked_by,
           result: item.result,
           remark: item.remark
@@ -512,6 +553,346 @@ exports.savePMIssuence = async (req, res) => {
     });
   } catch (error) {
     console.error("PM Issuance error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+exports.savePackingRecord = async (req, res) => {
+  try {
+    const { id, bmr_id, date, time_from, time_to, packing_weights } = req.body;
+
+    if (!bmr_id || !date) {
+      return res.status(400).json({
+        success: false,
+        message: "BMR ID and date are required"
+      });
+    }
+
+    const payload = {
+      bmr_id,
+      date,
+      time_from,
+      packing_weights: packing_weights ? JSON.stringify(packing_weights) : null,
+      time_to,
+      user_id: req.admin?.id || null
+    };
+
+    let data;
+
+    // 🔹 UPDATE
+    if (id) {
+      data = await BmrPackingRecord.findByPk(id);
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message: "Packing Record not found"
+        });
+      }
+
+      await data.update(payload);
+    }
+    // 🔹 CREATE
+    else {
+      data = await BmrPackingRecord.create(payload);
+    }
+
+    return res.status(id ? 200 : 201).json({
+      success: true,
+      message: id
+        ? "Packing Record updated successfully"
+        : "Packing Record saved successfully",
+      data: {
+        ...data.toJSON(),
+        packing_weights: payload.packing_weights
+          ? JSON.parse(payload.packing_weights)
+          : []
+      }
+    });
+  } catch (error) {
+    console.error("Packing Record error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+exports.saveYieldCalculation = async (req, res) => {
+  try {
+    const {
+      id,
+      bmr_id,
+      total_qty,
+      theoretical_yield,
+      actual_yield,
+      remark,
+      performed_by
+    } = req.body;
+
+    if (!bmr_id) {
+      return res.status(400).json({
+        success: false,
+        message: "BMR ID  required"
+      });
+    }
+
+    const payload = {
+      bmr_id,
+      total_qty,
+      theoretical_yield,
+      remark,
+      actual_yield,
+      performed_by,
+      user_id: req.admin?.id || null
+    };
+
+    let data;
+
+    // 🔹 UPDATE
+    if (id) {
+      data = await BmrYieldCalculation.findByPk(id);
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message: "Yield caluculation not found"
+        });
+      }
+
+      await data.update(payload);
+    }
+    // 🔹 CREATE
+    else {
+      data = await BmrYieldCalculation.create(payload);
+    }
+
+    return res.status(id ? 200 : 201).json({
+      success: true,
+      message: id
+        ? "Yield caluculation updated successfully"
+        : "Yield caluculation saved successfully",
+      data: {
+        ...data.toJSON(),
+        packing_weights: payload.packing_weights
+          ? JSON.parse(payload.packing_weights)
+          : []
+      }
+    });
+  } catch (error) {
+    console.error("Yield caluculation error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+exports.saveProductionReview = async (req, res) => {
+  try {
+    const records = Array.isArray(req.body?.post_production_review)
+      ? req.body?.post_production_review
+      : [req.body?.post_production_review];
+
+    const savedData = [];
+
+    for (const item of records) {
+      const { id, bmr_id, department, checked_by, date } = item;
+
+      const payload = {
+        bmr_id,
+        department,
+        created_by: checked_by,
+        date,
+        user_id: req.admin?.id || null
+      };
+
+      let data;
+
+      // 🔹 UPDATE
+      if (id) {
+        data = await BmrProductionReview.findByPk(id);
+
+        if (!data) {
+          continue; // agar ek record nahi mila to next pe chala jao
+        }
+
+        await data.update(payload);
+      }
+      // 🔹 CREATE
+      else {
+        data = await BmrProductionReview.create(payload);
+      }
+
+      savedData.push(data);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Production Review saved successfully",
+      data: savedData
+    });
+  } catch (error) {
+    console.error("Production error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+exports.saveProductRelease = async (req, res) => {
+  try {
+    const records = Array.isArray(req.body) ? req.body : [req.body];
+
+    const savedData = [];
+
+    for (const item of records) {
+      const { id, bmr_id, department, date, user_id, release_date } = item;
+
+      const payload = {
+        bmr_id,
+        department,
+        created_by: user_id,
+        date,
+        product_release: release_date,
+        user_id: req.admin?.id || null
+      };
+
+      let data;
+
+      // 🔹 UPDATE
+      if (id) {
+        data = await BmrProductRelease.findByPk(id);
+
+        if (!data) {
+          continue;
+        }
+
+        await data.update(payload);
+      }
+      // 🔹 CREATE
+      else {
+        data = await BmrProductRelease.create(payload);
+      }
+
+      savedData.push(data);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Product Release saved successfully",
+      data: savedData
+    });
+  } catch (error) {
+    console.error("Product error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+exports.saveManufacturingProcedure = async (req, res) => {
+  try {
+    const records = Array.isArray(req.body?.manufacturing_procedure)
+      ? req.body?.manufacturing_procedure
+      : [req.body?.manufacturing_procedure];
+
+    const savedData = [];
+
+    for (const item of records) {
+      const { id } = item;
+
+      const payload = {
+        ...item,
+        user_id: req.admin?.id || null
+      };
+
+      let data;
+
+      // 🔹 UPDATE
+      if (id) {
+        data = await BmrManufacturingProcedure.findByPk(id);
+
+        if (!data) {
+          continue;
+        }
+
+        await data.update(payload);
+      }
+      // 🔹 CREATE
+      else {
+        data = await BmrManufacturingProcedure.create(payload);
+      }
+
+      savedData.push(data);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Product Release saved successfully",
+      data: savedData
+    });
+  } catch (error) {
+    console.error("Product error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+exports.saveLineClearanceProcessing = async (req, res) => {
+  try {
+    const { id, bmr_id, previousProduct, keyPoints, equipments } = req.body;
+
+    if (!bmr_id) {
+      return res.status(400).json({
+        success: false,
+        message: "BMR ID required"
+      });
+    }
+
+    const payload = {
+      bmr_id,
+      previous_product: previousProduct,
+      key_points: keyPoints ? JSON.stringify(keyPoints) : null,
+      equipments: equipments ? JSON.stringify(equipments) : null,
+      user_id: req.admin?.id || null
+    };
+
+    let data;
+
+    // 🔹 UPDATE
+    if (id) {
+      data = await LineClearanceProcessing.findByPk(id);
+
+      if (!data) {
+        return res.status(404).json({
+          success: false,
+          message: "Line Clearance not found"
+        });
+      }
+
+      await data.update(payload);
+    }
+    // 🔹 CREATE
+    else {
+      data = await LineClearanceProcessing.create(payload);
+    }
+
+    return res.status(id ? 200 : 201).json({
+      success: true,
+      message: id
+        ? "Line Clearance Processing updated successfully"
+        : "Line Clearance Processing saved successfully"
+    });
+  } catch (error) {
+    console.error("Line Clearance Record error:", error);
     return res.status(500).json({
       success: false,
       message: "Server error"

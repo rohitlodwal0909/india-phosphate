@@ -12,6 +12,7 @@ import PmIssuedInventory from 'src/views/inventory/inventory-issued/pm-issued/Pm
 import EquipementIssuedInventory from 'src/views/inventory/inventory-issued/equipement-issued/EquipementIssuedInventory';
 import RmIssuedInventory from 'src/views/inventory/inventory-issued/rm-issued/RmIssuedInventory';
 import BmrProcess from 'src/views/inventory/bmr/bmr-creation/bmr-process/BmrProcess';
+import ManufacturingProcedureTable from 'src/views/master/ManufacturingProcedure/ManufacturingComponent/ManufacturingProcedureTable';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -145,6 +146,7 @@ const fullLayoutChildren = [
   { path: '/master/states', element: <State /> },
   { path: '/master/cites', element: <City /> },
   { path: '/master/inward', element: <Inward /> },
+  { path: '/master/manufacturingProcedure', element: <ManufacturingProcedureTable /> },
   { path: '/master/finish-good', element: <FinishGood /> },
   { path: '/master/formula', element: <Formula /> },
   { path: '/master/document', element: <Document /> },

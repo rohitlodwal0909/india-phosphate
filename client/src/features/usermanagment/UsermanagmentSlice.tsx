@@ -38,7 +38,9 @@ export const updateUserPassword = createAsyncThunk(
   'users/update-password',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${apiUrl}/update-password`, formdata);
+      const response = await axios.put(`${apiUrl}/update-password`, formdata, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || { message: 'Update failed' });

@@ -3,16 +3,14 @@ import PendingOrderTable from './PendingOrderComponent.tsx/PendingOrderTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const PendingOrder = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Pending Order ", to: "/" }]}
-        title="Pending Order"/>
-         <CardBox>
-        <PendingOrderTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'Pending Order ', to: '/' }]} title="Pending Order" />
+      <CardBox>
+        <PendingOrderTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default PendingOrder
+export default PendingOrder;
