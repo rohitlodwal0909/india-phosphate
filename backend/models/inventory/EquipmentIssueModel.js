@@ -13,7 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       equipment_id: {
         type: DataTypes.INTEGER
       },
-
+      return_equipment: {
+        type: DataTypes.INTEGER
+      },
+      received_by: {
+        type: DataTypes.INTEGER
+      },
       quantity: {
         type: DataTypes.INTEGER,
         allowNull: false
@@ -21,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
       person_name: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      returned_by: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       type: {
         type: DataTypes.STRING,

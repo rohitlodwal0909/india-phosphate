@@ -5,7 +5,7 @@ const {
 const db = require("../../../models");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
-const { GrnEntry, PmCode, Equipment, GuardEntry, EquipmentIssueModel } = db;
+const { GrnEntry, Equipment, EquipmentIssueModel } = db;
 
 exports.getStoreEquipment = async (req, res, next) => {
   try {
@@ -21,20 +21,28 @@ exports.getStoreEquipment = async (req, res, next) => {
         {
           model: EquipmentIssueModel,
           as: "issuedEquipments",
-          attributes: ["quantity"],
+          attributes: ["quantity", "return_equipment"],
           required: false
         }
       ]
     });
 
     const data = equipments.map((eq) => {
+      // 🔹 Total GRN Quantity
       const grnTotal = eq.grnEntries.reduce(
         (sum, g) => sum + Number(g.quantity),
         0
       );
 
+      // 🔹 Total Issued Quantity
       const issuedTotal = eq.issuedEquipments.reduce(
-        (sum, i) => sum + Number(i.quantity),
+        (sum, i) => sum + Number(i.quantity || 0),
+        0
+      );
+
+      // 🔹 Total Returned Quantity
+      const returnedTotal = eq.issuedEquipments.reduce(
+        (sum, i) => sum + Number(i.return_equipment || 0),
         0
       );
 
@@ -42,7 +50,7 @@ exports.getStoreEquipment = async (req, res, next) => {
         id: eq.id,
         name: eq.name,
         unit: eq.grnEntries[0]?.unit || null,
-        total_quantity: grnTotal - issuedTotal
+        total_quantity: grnTotal - issuedTotal + returnedTotal
       };
     });
 
@@ -107,7 +115,7 @@ exports.deleteIssuedEquipment = async (req, res, next) => {
 
 exports.updateIssuedEquipment = async (req, res, next) => {
   try {
-    const { id } = req.body; // 🔑 id from URL
+    const { id, quantity, note, type, person_name } = req.body;
 
     const entry = await EquipmentIssueModel.findByPk(id);
 
@@ -118,11 +126,69 @@ exports.updateIssuedEquipment = async (req, res, next) => {
     }
 
     await entry.update({
-      ...req.body
+      quantity,
+      note,
+      type,
+      person_name
     });
 
     res.status(200).json({
       message: "Equipment issue updated successfully",
+      data: entry
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.returnEquipment = async (req, res, next) => {
+  try {
+    const { id, return_equipment, returned_by } = req.body;
+
+    const entry = await EquipmentIssueModel.findByPk(id);
+
+    if (!entry) {
+      return res.status(404).json({
+        message: "Equipment issue entry not found"
+      });
+    }
+
+    // total issued quantity
+    const issuedQty = entry.quantity;
+    const alreadyReturned = entry.return_equipment || 0;
+
+    // validation
+    if (return_equipment < alreadyReturned) {
+      return res.status(400).json({
+        message:
+          "Returned quantity cannot be less than already returned quantity"
+      });
+    }
+
+    if (return_equipment > issuedQty) {
+      return res.status(400).json({
+        message: "Returned quantity cannot be greater than issued quantity"
+      });
+    }
+
+    const newlyReturned = return_equipment - alreadyReturned;
+
+    // nothing new to return
+    if (newlyReturned === 0) {
+      return res.status(200).json({
+        message: "No new equipment returned",
+        data: entry
+      });
+    }
+
+    await entry.update({
+      return_equipment,
+      returned_by,
+      received_by: req.admin.id
+    });
+
+    res.status(200).json({
+      message: "Equipment returned successfully",
       data: entry
     });
   } catch (error) {

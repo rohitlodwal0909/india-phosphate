@@ -89,6 +89,9 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
   /* ================= KEY POINTS ================= */
   const [keyPoints, setKeyPoints] = useState([
     { point: 'Absence of previous batch material', status: '' },
+    { point: 'Ensure Availability of raw and packing materials with proper label', status: '' },
+    { point: 'Cleanliness of area and equipment', status: '' },
+    { point: 'Sifter (sieve status ) – broken /not broken', status: '' },
   ]);
 
   /* ================= LOAD MASTER EQUIPMENT ================= */

@@ -27,9 +27,11 @@ const EquipmentTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 14);
   }, [logindata, selectedIconId]);
+
   useEffect(() => {
     dispatch(GetEquipment());
   }, [dispatch]);
@@ -92,7 +94,7 @@ const EquipmentTable = () => {
               setAddmodal(true);
             }}
           >
-            Create Equipment {/* <Icon icon="ic:baseline-plus" height={18} /> */}
+            Create Equipment
           </Button>
         )}
       </div>
@@ -161,6 +163,7 @@ const EquipmentTable = () => {
                                 </Button>
                               </Tooltip>
                             )}
+
                             {permissions?.del && (
                               <Tooltip content="Delete" placement="bottom">
                                 <Button

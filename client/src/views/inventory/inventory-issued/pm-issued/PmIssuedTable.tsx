@@ -29,6 +29,7 @@ import {
   getStorePM,
 } from 'src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
 import CurrentStocks from './CurrentStocks';
+import ReturnPM from './ReturnPM';
 
 /* =======================
    BMR DATA TYPE
@@ -38,6 +39,8 @@ interface BmrDataType {
   quantity: string;
   person_name: string;
   batch_no: string;
+  ref_no: string;
+  return_bag: string;
   date: string;
   issuePM?: {
     id: number;
@@ -67,6 +70,7 @@ const RmIssuedTable = () => {
     add: false,
     edit: false,
     view: false,
+    return: false,
     delete: false,
   });
 
@@ -149,6 +153,12 @@ const RmIssuedTable = () => {
       columnHelper.accessor('batch_no', {
         header: 'Batch',
       }),
+      columnHelper.accessor('ref_no', {
+        header: 'Reference No.',
+      }),
+      columnHelper.accessor('return_bag', {
+        header: 'Return Bag',
+      }),
       columnHelper.accessor('date', {
         header: 'Date',
       }),
@@ -161,16 +171,28 @@ const RmIssuedTable = () => {
           return (
             <div className="flex gap-2 notranslate" translate="no">
               {permissions.edit && (
-                <Tooltip content="Edit">
-                  <Button
-                    size="xs"
-                    color="success"
-                    outline
-                    onClick={() => handleModal('edit', true, row)}
-                  >
-                    <Icon icon="solar:pen-outline" height={18} />
-                  </Button>
-                </Tooltip>
+                <>
+                  <Tooltip content="Edit">
+                    <Button
+                      size="xs"
+                      color="success"
+                      outline
+                      onClick={() => handleModal('edit', true, row)}
+                    >
+                      <Icon icon="solar:pen-outline" height={18} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content="Return">
+                    <Button
+                      size="xs"
+                      color="warning"
+                      outline
+                      onClick={() => handleModal('return', true, row)}
+                    >
+                      <Icon icon="solar:undo-left-outline" height={18} />
+                    </Button>
+                  </Tooltip>
+                </>
               )}
 
               {permissions.del && (
@@ -275,6 +297,17 @@ const RmIssuedTable = () => {
             setOpenModal={() => handleModal('edit', false)}
             storeRawMaterial={storeRawMaterial}
             logindata={logindata}
+          />
+        </Portal>
+      )}
+
+      {modals.return && selectedRow && (
+        <Portal>
+          <ReturnPM
+            openModal={modals.return}
+            data={selectedRow} // ✅ SINGLE ROW
+            setOpenModal={() => handleModal('return', false)}
+            StoreData={storeRawMaterial}
           />
         </Portal>
       )}

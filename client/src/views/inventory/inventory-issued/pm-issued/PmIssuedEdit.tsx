@@ -52,6 +52,7 @@ const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
         quantity: data.quantity,
         person_name: data.person_name,
         batch_no: data.batch_no,
+        ref_no: data.ref_no,
       });
 
       const storeItem = storeRawMaterial?.find((i: any) => i.id === data.issuePM?.id);
@@ -167,6 +168,17 @@ const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
             <Label value="Batch No." />
             <TextInput name="batch_no" value={formData.batch_no} onChange={handleChange} />
             {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Qc Reference Number." />
+            <TextInput
+              name="ref_no"
+              placeholder="Enter Reference Number"
+              value={formData.ref_no}
+              onChange={handleChange}
+            />
+            {errors.ref_no && <span className="text-red-500 text-sm">{errors.ref_no}</span>}
           </div>
 
           {/* ACTIONS */}

@@ -28,6 +28,7 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
     user_id: logindata?.admin?.id,
     pm_id: '',
     quantity: '',
+    ref_no: '',
     person_name: '',
     batch_no: '',
     date: '',
@@ -55,7 +56,7 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = ['pm_id', 'quantity', 'person_name', 'batch_no'];
+    const requiredFields = ['pm_id', 'quantity', 'person_name', 'ref_no', 'batch_no'];
     const newErrors: any = {};
 
     requiredFields.forEach((field) => {
@@ -86,6 +87,7 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
         user_id: logindata?.admin?.id,
         pm_id: '',
         quantity: '',
+        ref_no: '',
         person_name: '',
         batch_no: '',
         date: '',
@@ -158,6 +160,17 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
               onChange={handleChange}
             />
             {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Qc Reference Number." />
+            <TextInput
+              name="ref_no"
+              placeholder="Enter Reference Number"
+              value={formData.ref_no}
+              onChange={handleChange}
+            />
+            {errors.ref_no && <span className="text-red-500 text-sm">{errors.ref_no}</span>}
           </div>
 
           {/* ACTIONS */}

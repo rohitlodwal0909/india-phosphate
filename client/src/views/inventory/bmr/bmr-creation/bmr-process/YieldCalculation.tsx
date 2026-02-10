@@ -101,7 +101,7 @@ const YieldCalculation = ({ users, data, isReadOnly }) => {
                 </div>
 
                 <div className="col-span-6">
-                  <Label value="2. Theoretical Yield (%)" />
+                  <Label value="2. Theoretical Yield (Kg)" />
                   <TextInput
                     value={theoreticalYield}
                     onChange={(e) => setTheoreticalYield(e.target.value)}

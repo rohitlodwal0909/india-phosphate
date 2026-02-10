@@ -31,6 +31,7 @@ import {
   deleteIssuedEquipment,
 } from 'src/features/Inventorymodule/InventoryIssued/IssueEquipmentSlice';
 import CurrentStocks from './CurrentStocks';
+import ReturnEquipment from './ReturnEquipment';
 
 /* =======================
    BMR DATA TYPE
@@ -38,7 +39,9 @@ import CurrentStocks from './CurrentStocks';
 interface EquipementIssuedType {
   id: number;
   quantity: string;
+  return_equipment: string;
   person_name: string;
+  returned_by: string;
   type: string;
   note: string;
   date: string;
@@ -68,6 +71,7 @@ const EquipementIssuedTable = () => {
   const [modals, setModals] = useState({
     add: false,
     edit: false,
+    return: false,
     view: false,
     delete: false,
   });
@@ -148,8 +152,11 @@ const EquipementIssuedTable = () => {
       columnHelper.accessor('person_name', {
         header: 'Name of person',
       }),
-      columnHelper.accessor('type', {
-        header: 'Type',
+      columnHelper.accessor('return_equipment', {
+        header: 'Return Equipment',
+      }),
+      columnHelper.accessor('returned_by', {
+        header: 'Return BY',
       }),
       columnHelper.accessor('note', {
         header: 'Note',
@@ -166,16 +173,29 @@ const EquipementIssuedTable = () => {
           return (
             <div className="flex gap-2 notranslate" translate="no">
               {permissions.edit && (
-                <Tooltip content="Edit">
-                  <Button
-                    size="xs"
-                    color="success"
-                    outline
-                    onClick={() => handleModal('edit', true, row)}
-                  >
-                    <Icon icon="solar:pen-outline" height={18} />
-                  </Button>
-                </Tooltip>
+                <>
+                  <Tooltip content="Edit">
+                    <Button
+                      size="xs"
+                      color="success"
+                      outline
+                      onClick={() => handleModal('edit', true, row)}
+                    >
+                      <Icon icon="solar:pen-outline" height={18} />
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip content="Return">
+                    <Button
+                      size="xs"
+                      color="warning"
+                      outline
+                      onClick={() => handleModal('return', true, row)}
+                    >
+                      <Icon icon="solar:undo-left-outline" height={18} />
+                    </Button>
+                  </Tooltip>
+                </>
               )}
 
               {permissions.del && (
@@ -277,6 +297,18 @@ const EquipementIssuedTable = () => {
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
+            StoreData={storeequipments?.data}
+            logindata={logindata}
+          />
+        </Portal>
+      )}
+
+      {modals.return && selectedRow && (
+        <Portal>
+          <ReturnEquipment
+            openModal={modals.return}
+            data={selectedRow} // ✅ SINGLE ROW
+            setOpenModal={() => handleModal('return', false)}
             StoreData={storeequipments?.data}
             logindata={logindata}
           />

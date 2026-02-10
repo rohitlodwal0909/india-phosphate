@@ -1,12 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
   error: null,
   storeequipment: [],
   issueequipment: [],
+  return: [],
   data: null,
   addResult: null,
   update: null,
@@ -97,6 +99,24 @@ export const updateIssuedEquipment = createAsyncThunk(
     }
   },
 );
+
+export const returnEquipment = createAsyncThunk(
+  'issue/return-equipment',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/return-equipment`, data);
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        'Something went wrong while fetching check-ins.';
+      return rejectWithValue(message);
+    }
+  },
+);
+
 const IssueEquipmentSlice = createSlice({
   name: 'issueEquipment',
   initialState,
@@ -164,6 +184,19 @@ const IssueEquipmentSlice = createSlice({
         state.update = action.payload;
       })
       .addCase(updateIssuedEquipment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(returnEquipment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(returnEquipment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.return = action.payload;
+      })
+      .addCase(returnEquipment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

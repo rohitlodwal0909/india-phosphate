@@ -194,7 +194,7 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
           <div className="hidden lg:grid grid-cols-12 font-semibold border-b pt-4 pb-2">
             <div className="col-span-4">Key Point</div>
             <div className="col-span-4">Cleaning Done</div>
-            <div className="col-span-4">Checked</div>
+            <div className="col-span-4">Checked By Name</div>
           </div>
 
           {/* ROWS */}

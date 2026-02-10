@@ -13,12 +13,9 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  updateEquipment,
-  GetEquipment,
-} from 'src/features/master/Equipment/EquipmentSlice';
+import { updateEquipment, GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 
-const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => {
+const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -27,7 +24,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
     category: '',
     description: '',
     status: true,
-       created_by :logindata?.admin?.id
+    created_by: logindata?.admin?.id,
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -40,7 +37,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
         category: EquipmentData?.category || '',
         description: EquipmentData?.description || '',
         status: EquipmentData?.status ?? true,
-       created_by :logindata?.admin?.id
+        created_by: logindata?.admin?.id,
       });
     }
   }, [EquipmentData]);
@@ -81,7 +78,6 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
       <ModalHeader>Edit Equipment</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-
           {/* Name */}
           <div className="col-span-6">
             <Label htmlFor="name" value="Assets Name" />
@@ -94,9 +90,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
               placeholder="Enter assets name"
               color={errors.name ? 'failure' : 'gray'}
             />
-            {errors.name && (
-              <p className="text-red-500 text-xs">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
           </div>
 
           {/* Category */}
@@ -114,9 +108,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
               <option value="Production">Production</option>
               <option value="Office">Office</option>
             </Select>
-            {errors.category && (
-              <p className="text-red-500 text-xs">{errors.category}</p>
-            )}
+            {errors.category && <p className="text-red-500 text-xs">{errors.category}</p>}
           </div>
 
           {/* Description */}
@@ -144,7 +136,6 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData ,logindata}) => 
               />
             </div>
           </div>
-
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

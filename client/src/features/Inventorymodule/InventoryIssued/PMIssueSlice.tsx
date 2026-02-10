@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
@@ -88,6 +89,20 @@ export const updateIssuedPM = createAsyncThunk(
     }
   },
 );
+
+export const returnPM = createAsyncThunk('issue/return-pm', async (data, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(`/return-pm`, data);
+    return response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Something went wrong while fetching check-ins.';
+    return rejectWithValue(message);
+  }
+});
 
 const PMIssueSlice = createSlice({
   name: 'pmissue',

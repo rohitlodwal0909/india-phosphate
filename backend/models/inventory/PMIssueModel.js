@@ -25,11 +25,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      ref_no: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      return_bag: {
+        type: DataTypes.STRING
+      },
+      returned_by: {
+        type: DataTypes.STRING
+      },
       date: {
         type: DataTypes.STRING,
         allowNull: false
       },
-
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

@@ -21,7 +21,7 @@ exports.getStorePM = async (req, res, next) => {
         {
           model: PMIssueModel,
           as: "issuedPM",
-          attributes: ["quantity"],
+          attributes: ["quantity", "return_bag"],
           required: false
         }
       ]
@@ -38,11 +38,16 @@ exports.getStorePM = async (req, res, next) => {
         0
       );
 
+      const returnedTotal = eq.issuedPM.reduce(
+        (sum, i) => sum + Number(i.return_bag || 0),
+        0
+      );
+
       return {
         id: eq.id,
         name: eq.name,
         unit: eq.pmcodes[0]?.unit || null,
-        total_quantity: grnTotal - issuedTotal
+        total_quantity: grnTotal - issuedTotal + returnedTotal
       };
     });
 
@@ -100,6 +105,60 @@ exports.deleteIssuedPM = async (req, res, next) => {
 
     await entry.destroy();
     res.status(200).json({ message: "PM Entry deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.returnPM = async (req, res, next) => {
+  try {
+    const { id, return_bag, returned_by } = req.body;
+
+    const entry = await PMIssueModel.findByPk(id);
+
+    if (!entry) {
+      return res.status(404).json({
+        message: "Equipment issue entry not found"
+      });
+    }
+
+    // total issued quantity
+    const issuedQty = entry.quantity;
+    const alreadyReturned = entry.return_bag || 0;
+
+    // validation
+    if (return_bag < alreadyReturned) {
+      return res.status(400).json({
+        message:
+          "Returned quantity cannot be less than already returned quantity"
+      });
+    }
+
+    if (return_bag > issuedQty) {
+      return res.status(400).json({
+        message: "Returned quantity cannot be greater than issued quantity"
+      });
+    }
+
+    const newlyReturned = return_bag - alreadyReturned;
+
+    // nothing new to return
+    if (newlyReturned === 0) {
+      return res.status(200).json({
+        message: "No new equipment returned",
+        data: entry
+      });
+    }
+
+    await entry.update({
+      return_bag,
+      returned_by
+    });
+
+    res.status(200).json({
+      message: "PM returned successfully",
+      data: entry
+    });
   } catch (error) {
     next(error);
   }

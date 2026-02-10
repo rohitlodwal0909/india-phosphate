@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
+import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import { useDispatch } from 'react-redux';
-import Select from 'react-select';
 import { toast } from 'react-toastify';
-
 import { AppDispatch } from 'src/store';
+
 import {
-  updateIssuedEquipment,
   getIssuedEquipment,
   getStoreEquipment,
+  returnEquipment,
 } from 'src/features/Inventorymodule/InventoryIssued/IssueEquipmentSlice';
 
 interface IssuedEditProps {
@@ -19,7 +18,7 @@ interface IssuedEditProps {
   logindata: any;
 }
 
-const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
+const ReturnEquipment: React.FC<IssuedEditProps> = ({
   openModal,
   data,
   setOpenModal,
@@ -30,12 +29,9 @@ const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
 
   const [formData, setFormData] = useState<any>({
     id: '',
-    user_id: '',
-    equipment_id: '',
     quantity: 0,
-    person_name: '',
-    type: '',
-    note: '',
+    return_equipment: 0,
+    returned_by: '',
   });
 
   const [maxQuantity, setMaxQuantity] = useState<number>(0);
@@ -47,12 +43,9 @@ const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
     if (data) {
       setFormData({
         id: data.id,
-        user_id: logindata?.admin?.id,
-        equipment_id: data.issueequipment?.id,
         quantity: data.quantity,
-        person_name: data.person_name,
-        type: data.type,
-        note: data.note,
+        return_equipment: data.return_equipment || 0, // ✅
+        returned_by: data.returned_by || '',
       });
 
       const storeItem = StoreData?.find((i: any) => i.id === data.issueequipment?.id);
@@ -61,19 +54,6 @@ const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
     }
   }, [data, StoreData, logindata]);
 
-  /* =======================
-     OPTIONS
-  ======================= */
-  const equipmentOptions =
-    StoreData?.map((item: any) => ({
-      value: item.id,
-      label: item.name,
-      total_quantity: item.total_quantity,
-    })) || [];
-
-  /* =======================
-     SUBMIT
-  ======================= */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -82,9 +62,9 @@ const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
     }
 
     try {
-      await dispatch(updateIssuedEquipment(formData)).unwrap();
+      await dispatch(returnEquipment(formData)).unwrap();
 
-      toast.success('Issued equipment updated successfully');
+      toast.success('equipment returned successfully');
       dispatch(getIssuedEquipment());
       dispatch(getStoreEquipment());
 
@@ -96,61 +76,39 @@ const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
 
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
-      <Modal.Header>Edit Issued Equipment</Modal.Header>
+      <Modal.Header>Returned Equipment</Modal.Header>
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* Equipment */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Equipment Name" />
-            <Select
-              options={equipmentOptions}
-              value={equipmentOptions.find((opt: any) => opt.value === formData.equipment_id)}
-              isDisabled // ❌ equipment change nahi karna
-            />
-          </div>
 
-          {/* Quantity */}
+          {/* Person */}
+
           <div className="sm:col-span-6 col-span-12">
-            <Label value={`Issued Quantity (Max ${maxQuantity})`} />
+            <Label value="Returned Quantity" />
             <TextInput
               type="number"
-              min={1}
-              max={maxQuantity}
-              value={formData.quantity}
+              min={0}
+              max={formData.quantity}
+              value={formData.return_equipment}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  quantity: Number(e.target.value),
+                  return_equipment: Number(e.target.value),
                 })
               }
             />
           </div>
-
-          {/* Person */}
           <div className="sm:col-span-6 col-span-12">
-            <Label value="Issued Person Name" />
+            <Label value="Returned By" />
             <TextInput
-              value={formData.person_name}
-              onChange={(e) => setFormData({ ...formData, person_name: e.target.value })}
-            />
-          </div>
-
-          {/* Type */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Type" />
-            <TextInput
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            />
-          </div>
-
-          {/* Note */}
-          <div className="col-span-12">
-            <Label value="Note" />
-            <Textarea
-              value={formData.note}
-              onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+              value={formData.returned_by}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  returned_by: e.target.value,
+                })
+              }
             />
           </div>
 
@@ -169,4 +127,4 @@ const EquipementIssuedEdit: React.FC<IssuedEditProps> = ({
   );
 };
 
-export default EquipementIssuedEdit;
+export default ReturnEquipment;
