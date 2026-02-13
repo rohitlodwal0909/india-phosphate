@@ -36,6 +36,9 @@ module.exports = (sequelize, DataTypes) => {
 
       qc_reference: {
         type: DataTypes.STRING
+      },
+      qa_issuance: {
+        type: DataTypes.STRING
       }
     },
     {

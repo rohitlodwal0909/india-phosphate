@@ -35,7 +35,7 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
 
           return {
             id: existing?.id || null,
-
+            qa_issuance: existing?.qa_issuance || null,
             actualQtyList: existing?.actual_qty ? JSON.parse(existing.actual_qty) : [''],
 
             qcRefList: existing?.qc_reference ? JSON.parse(existing.qc_reference) : [''],
@@ -87,6 +87,7 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
         bmr_id: id,
         pm_id: item?.pmcodes?.id,
         issued_by: rows[index]?.issuedBy?.value || null,
+        qa_issuance: rows[index]?.qa_issuance || null,
         received_by: rows[index]?.receivedBy?.value || null,
         actual_qty: rows[index].actualQtyList,
         qc_reference: rows[index].qcRefList,
@@ -117,6 +118,7 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
                   <Table.HeadCell>Standard Qty</Table.HeadCell>
                   <Table.HeadCell>Actual Qty</Table.HeadCell>
                   <Table.HeadCell>QC Reference No.</Table.HeadCell>
+                  <Table.HeadCell>QA Issuance.</Table.HeadCell>
                   <Table.HeadCell>Issued By</Table.HeadCell>
                   <Table.HeadCell>Received By</Table.HeadCell>
                 </Table.Head>
@@ -186,6 +188,19 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
                             )}
                           </div>
                         ))}
+                      </Table.Cell>
+                      <Table.Cell className="min-w-[180px]">
+                        <TextInput
+                          value={rows[i]?.qa_issuance || ''}
+                          placeholder="QA Issuance"
+                          onChange={(e) => {
+                            setRows((prev) =>
+                              prev.map((row, index) =>
+                                index === i ? { ...row, qa_issuance: e.target.value } : row,
+                              ),
+                            );
+                          }}
+                        />
                       </Table.Cell>
 
                       <Table.Cell className="min-w-[180px]">

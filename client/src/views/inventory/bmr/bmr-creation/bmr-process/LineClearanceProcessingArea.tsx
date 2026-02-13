@@ -88,10 +88,14 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
 
   /* ================= KEY POINTS ================= */
   const [keyPoints, setKeyPoints] = useState([
-    { point: 'Absence of previous batch material', status: '' },
-    { point: 'Ensure Availability of raw and packing materials with proper label', status: '' },
-    { point: 'Cleanliness of area and equipment', status: '' },
-    { point: 'Sifter (sieve status ) – broken /not broken', status: '' },
+    { point: 'Absence of previous batch material', status: '', isDisabled: true },
+    {
+      point: 'Ensure Availability of raw and packing materials with proper label',
+      status: '',
+      isDisabled: true,
+    },
+    { point: 'Cleanliness of area and equipment', status: '', isDisabled: true },
+    { point: 'Sifter (sieve status ) – broken /not broken', status: '', isDisabled: true },
   ]);
 
   /* ================= LOAD MASTER EQUIPMENT ================= */
@@ -196,7 +200,8 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
   };
 
   /* ================= KEY POINT HANDLERS ================= */
-  const addKeyPoint = () => setKeyPoints([...keyPoints, { point: '', status: '' }]);
+  const addKeyPoint = () =>
+    setKeyPoints([...keyPoints, { point: '', status: '', isDisabled: false }]);
 
   const updateKeyPoint = (index, field, value) => {
     const updated = [...keyPoints];
@@ -268,6 +273,7 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
                 <div key={i} className="grid grid-cols-12 gap-3 mb-2">
                   <div className="col-span-7">
                     <TextInput
+                      readOnly={kp.isDisabled}
                       value={kp.point}
                       onChange={(e) => updateKeyPoint(i, 'point', e.target.value)}
                     />

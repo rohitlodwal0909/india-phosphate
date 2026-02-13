@@ -104,9 +104,18 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) =>
               color={errors.category ? 'failure' : 'gray'}
             >
               <option value="">Select Category</option>
-              <option value="Lab">Lab</option>
-              <option value="Production">Production</option>
-              <option value="Office">Office</option>
+              <option value="Lab Equipment">Lab Equipment</option>
+              <option value="Electrical Parts">Electrical Parts</option>
+              <option value="Mechanical Spare Parts">Mechanical Spare Parts</option>
+              <option value="Instrumentation">Instrumentation</option>
+              <option value="Utility Equipment">Utility Equipment</option>
+              <option value="HVAC System">HVAC System</option>
+              <option value="Safety Equipment">Safety Equipment</option>
+              <option value="Office Assets">Office Assets</option>
+              <option value="Computer system Equipment">Computer system Equipment</option>
+              <option value="Warehouse Equipment">Warehouse Equipment</option>
+              <option value="Calibration Instruments">Calibration Instruments</option>
+              <option value="Maintenance Tools">Maintenance Tools</option>
             </Select>
             {errors.category && <p className="text-red-500 text-xs">{errors.category}</p>}
           </div>

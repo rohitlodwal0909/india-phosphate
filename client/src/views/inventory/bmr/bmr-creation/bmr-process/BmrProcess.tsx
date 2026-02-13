@@ -41,7 +41,7 @@ const BmrProcess = () => {
     <div>
       <BreadcrumbComp items={[{ title: 'BMR Process', to: '/' }]} title="BMR Process" />
       <CardBox>
-        <LineClearanceAccordionDesign bmr={bmr} data={bmrreport?.lineClearance} />
+        <LineClearanceAccordionDesign bmr={bmr} data={bmrreport?.lineClearance} users={users} />
         <DispensingRawMaterial
           bmr={bmr}
           users={users}

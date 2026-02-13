@@ -15,7 +15,7 @@ import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { addEquipment, GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 
-const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
+const AddEquipmentModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -23,7 +23,7 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
     category: '',
     description: '',
     status: true,
-    created_by :logindata?.admin?.id
+    created_by: logindata?.admin?.id,
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -56,7 +56,7 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
         category: '',
         description: '',
         status: true,
-           created_by :logindata?.admin?.id
+        created_by: logindata?.admin?.id,
       });
       setShowmodal(false);
     } catch (err: any) {
@@ -69,7 +69,6 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
       <ModalHeader>Add Equipment</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-
           {/* Name */}
           <div className="col-span-6">
             <Label htmlFor="name" value="Assets Name" />
@@ -82,9 +81,7 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
               placeholder="Enter assets name"
               color={errors.name ? 'failure' : 'gray'}
             />
-            {errors.name && (
-              <p className="text-red-500 text-xs">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
           </div>
 
           {/* Category */}
@@ -98,13 +95,20 @@ const AddEquipmentModal = ({ show, setShowmodal,logindata }) => {
               color={errors.category ? 'failure' : 'gray'}
             >
               <option value="">Select Category</option>
-              <option value="Lab">Lab</option>
-              <option value="Production">Production</option>
-              <option value="Office">Office</option>
+              <option value="Lab Equipment">Lab Equipment</option>
+              <option value="Electrical Parts">Electrical Parts</option>
+              <option value="Mechanical Spare Parts">Mechanical Spare Parts</option>
+              <option value="Instrumentation">Instrumentation</option>
+              <option value="Utility Equipment">Utility Equipment</option>
+              <option value="HVAC System">HVAC System</option>
+              <option value="Safety Equipment">Safety Equipment</option>
+              <option value="Office Assets">Office Assets</option>
+              <option value="Computer system Equipment">Computer system Equipment</option>
+              <option value="Warehouse Equipment">Warehouse Equipment</option>
+              <option value="Calibration Instruments">Calibration Instruments</option>
+              <option value="Maintenance Tools">Maintenance Tools</option>
             </Select>
-            {errors.category && (
-              <p className="text-red-500 text-xs">{errors.category}</p>
-            )}
+            {errors.category && <p className="text-red-500 text-xs">{errors.category}</p>}
           </div>
 
           {/* Description */}

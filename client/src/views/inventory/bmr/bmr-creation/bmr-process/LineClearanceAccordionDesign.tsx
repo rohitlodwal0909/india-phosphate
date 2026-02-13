@@ -23,7 +23,7 @@ const defaultKeyPoints = {
   calibration_balance: { cleaning: null, checked: null },
 };
 
-const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
+const LineClearanceAccordionDesign = ({ bmr, data, users }: any) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
 
@@ -37,6 +37,11 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
     key_points: defaultKeyPoints,
   });
 
+  const userOptions = users.map((u) => ({
+    value: u.id,
+    label: u.name || u.username,
+  }));
+
   useEffect(() => {
     if (!data) return;
 
@@ -46,7 +51,7 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
       if (updatedKeyPoints[kp.key_name]) {
         updatedKeyPoints[kp.key_name] = {
           cleaning: yesNoNaOptions.find((o) => o.value === kp.cleaning_status) || null,
-          checked: yesNoNaOptions.find((o) => o.value === kp.checked_status) || null,
+          checked: userOptions.find((o) => o.value === kp.checked_status) || null,
         };
       }
     });
@@ -92,7 +97,7 @@ const LineClearanceAccordionDesign = ({ bmr, data }: any) => {
 
       <div className="col-span-12 sm:col-span-6 lg:col-span-4">
         <Select
-          options={yesNoNaOptions}
+          options={userOptions}
           value={form.key_points[keyName]?.checked}
           onChange={(val) =>
             setForm((prev: any) => ({

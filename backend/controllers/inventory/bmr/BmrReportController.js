@@ -513,7 +513,8 @@ exports.savePMIssuence = async (req, res) => {
         issued_by,
         received_by,
         actual_qty,
-        qc_reference
+        qc_reference,
+        qa_issuance
       } = item;
 
       const payload = {
@@ -521,6 +522,7 @@ exports.savePMIssuence = async (req, res) => {
         pm_id,
         issued_by,
         received_by,
+        qa_issuance,
         actual_qty: actual_qty ? JSON.stringify(actual_qty) : null,
         qc_reference: qc_reference ? JSON.stringify(qc_reference) : null,
         user_id: req.admin?.id || null
