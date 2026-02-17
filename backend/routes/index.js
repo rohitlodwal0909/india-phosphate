@@ -46,6 +46,8 @@ const BmrRoutes = require("../routes/inventory/BmrRecordRoutes");
 const IssuedRoutes = require("../routes/inventory/InventoryIssuedRoutes");
 const BmrReports = require("../routes/inventory/BmrReportRoutes");
 const ManufacturingProcedureRoutes = require("../routes/master/ManufacturingProcedureRoutes");
+const GrnMasterRoutes = require("../routes/master/GrnMasterRoutes");
+const authMiddleware = require("../middleware/authMiddleware");
 
 router.use("/api", authRoutes);
 router.use("/api", BmrRoutes);
@@ -93,5 +95,6 @@ router.use("/api", FprRoutes);
 router.use("/api", IssuedRoutes);
 router.use("/api", BmrReports);
 router.use("/api", ManufacturingProcedureRoutes);
+router.use("/api", authMiddleware, GrnMasterRoutes);
 
 module.exports = router;

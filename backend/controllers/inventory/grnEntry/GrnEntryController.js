@@ -2,7 +2,10 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const { createLogEntry } = require("../../../helper/createLogEntry");
-const { getISTDateTime } = require("../../../helper/dateTimeHelper");
+const {
+  getISTDateTime,
+  getFinancialYearFromDate
+} = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
 const {
   GrnEntry,
@@ -12,9 +15,21 @@ const {
   PmCode,
   RmCode,
   Equipment,
-  GuardEntry
+  GuardEntry,
+  GRNMaster
 } = db;
 
+const getGrnFinancial = async (financial_year) => {
+  const master = await GRNMaster.findOne({
+    where: { financial_year }
+  });
+
+  if (!master) {
+    throw new Error("Financial Year not configured in GRN Master");
+  }
+
+  return master;
+};
 // Create GRN Entry
 exports.store = async (req, res, next) => {
   try {
@@ -27,13 +42,17 @@ exports.store = async (req, res, next) => {
     });
 
     // 2️⃣ Generate new GRN number
+    const financial_year = getFinancialYearFromDate(entry_date);
+    const master = await getGrnFinancial(financial_year);
 
-    let newGrnNumber = "GRN0001";
+    let nextSerial = 1;
+
     if (lastEntry && lastEntry.grn_number) {
-      const lastNumber = parseInt(lastEntry.grn_number.replace("GRN", "")) || 0;
-      const nextNumber = lastNumber + 1;
-      newGrnNumber = `GRN${String(nextNumber).padStart(4, "0")}`;
+      const lastNumber = parseInt(lastEntry.grn_number.split("-").pop()) || 0;
+      nextSerial = lastNumber + 1;
     }
+
+    const newGrnNumber = `${master.grn_no}-${String(nextSerial).padStart(3, "0")}`;
 
     let status = "PENDING";
     if (type == "equipment") {

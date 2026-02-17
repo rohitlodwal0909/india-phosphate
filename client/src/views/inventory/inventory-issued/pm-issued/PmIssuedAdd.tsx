@@ -24,10 +24,12 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
   logindata,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+
   const [formData, setFormData] = useState<any>({
     user_id: logindata?.admin?.id,
     pm_id: '',
     quantity: '',
+    issued_bag: '',
     ref_no: '',
     person_name: '',
     batch_no: '',
@@ -37,14 +39,18 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
   const [errors, setErrors] = useState<any>({});
   const [maxQuantity, setMaxQuantity] = useState<number>(0);
 
-  // 🔁 Input Change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    // Prevent negative values
+    if ((name === 'quantity' || name === 'issued_bag') && Number(value) < 0) {
+      return;
+    }
+
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
   };
 
-  // ✅ Raw Material Options
   const rmOptions =
     storeRawMaterial?.map((item) => ({
       value: item.id,
@@ -52,11 +58,11 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
       total_quantity: item.total_quantity,
     })) || [];
 
-  // ✅ Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = ['pm_id', 'quantity', 'person_name', 'ref_no', 'batch_no'];
+    const requiredFields = ['pm_id', 'quantity', 'issued_bag', 'person_name', 'ref_no', 'batch_no'];
+
     const newErrors: any = {};
 
     requiredFields.forEach((field) => {
@@ -65,8 +71,17 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
       }
     });
 
-    if (Number(formData.quantity) > maxQuantity) {
+    const quantity = Number(formData.quantity);
+    const issuedBag = Number(formData.issued_bag);
+
+    // Max stock validation
+    if (quantity > maxQuantity) {
       newErrors.quantity = `Maximum allowed quantity is ${maxQuantity}`;
+    }
+
+    // Issued bag should not exceed printed quantity
+    if (issuedBag > quantity) {
+      newErrors.issued_bag = 'Issued bag cannot be greater than printed quantity';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -75,11 +90,7 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
     }
 
     try {
-      await dispatch(
-        issuedPM({
-          ...formData,
-        }),
-      ).unwrap();
+      await dispatch(issuedPM(formData)).unwrap();
 
       toast.success('PM issued successfully');
 
@@ -87,6 +98,7 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
         user_id: logindata?.admin?.id,
         pm_id: '',
         quantity: '',
+        issued_bag: '',
         ref_no: '',
         person_name: '',
         batch_no: '',
@@ -95,10 +107,11 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
 
       setMaxQuantity(0);
       setOpenModal(false);
+
       dispatch(getIssuedPM());
       dispatch(getStorePM());
     } catch (err: any) {
-      toast.error(err?.message || 'Failed to add BMR');
+      toast.error(err?.message || 'Failed to issue PM');
     }
   };
 
@@ -123,17 +136,30 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
             {errors.pm_id && <span className="text-red-500 text-sm">{errors.pm_id}</span>}
           </div>
 
-          {/* QUANTITY */}
+          {/* PRINTED QUANTITY */}
           <div className="sm:col-span-6 col-span-12">
-            <Label value={`Quantity (Max ${maxQuantity})`} />
+            <Label value={`Printed Bag (Max ${maxQuantity})`} />
             <TextInput
               type="number"
               name="quantity"
-              placeholder="Enter Quantity"
+              placeholder="Enter printed quantity"
               value={formData.quantity}
               onChange={handleChange}
             />
             {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
+          </div>
+
+          {/* ISSUED BAG */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Issued Bag" />
+            <TextInput
+              type="number"
+              name="issued_bag"
+              placeholder="Enter issued bag"
+              value={formData.issued_bag}
+              onChange={handleChange}
+            />
+            {errors.issued_bag && <span className="text-red-500 text-sm">{errors.issued_bag}</span>}
           </div>
 
           {/* PERSON */}
@@ -162,8 +188,9 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
             {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
           </div>
 
+          {/* QC REF */}
           <div className="sm:col-span-6 col-span-12">
-            <Label value="Qc Reference Number." />
+            <Label value="QC Reference Number" />
             <TextInput
               name="ref_no"
               placeholder="Enter Reference Number"
@@ -173,7 +200,6 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
             {errors.ref_no && <span className="text-red-500 text-sm">{errors.ref_no}</span>}
           </div>
 
-          {/* ACTIONS */}
           <div className="col-span-12 flex justify-end gap-3">
             <Button color="gray" onClick={() => setOpenModal(false)}>
               Cancel

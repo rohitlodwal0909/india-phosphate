@@ -46,6 +46,7 @@ import RMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/RMIssu
 import PMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
 import BmrReportSlices from '../src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import ProcedureSlice from '../src/features/master/ManufacturingProcedure/ManufacturingProcedureSlice';
+import GRNSlice from '../src/features/master/Grn/GRNSlice';
 
 export const store = configureStore({
   reducer: {
@@ -96,6 +97,7 @@ export const store = configureStore({
     fpr: FprSlice,
     bmrReport: BmrReportSlices,
     procedure: ProcedureSlice,
+    grn: GRNSlice,
   },
 });
 

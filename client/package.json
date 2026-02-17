@@ -36,6 +36,7 @@
     "react-router-dom": "^7.6.1",
     "react-select": "^5.10.1",
     "react-time-picker": "^7.0.0",
+    "react-to-print": "^3.2.0",
     "react-toastify": "^11.0.5",
     "simplebar": "^6.2.7",
     "simplebar-react": "^3.2.4",

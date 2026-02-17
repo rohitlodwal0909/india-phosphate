@@ -40,7 +40,8 @@ interface BmrDataType {
   person_name: string;
   batch_no: string;
   ref_no: string;
-  return_bag: string;
+  issued_bag: string;
+  return_bag: number;
   date: string;
   issuePM?: {
     id: number;
@@ -136,31 +137,41 @@ const RmIssuedTable = () => {
         header: 'S. No.',
         cell: (info) => <span>#{info.row.index + 1}</span>,
       }),
+      columnHelper.accessor('date', {
+        header: 'Date',
+      }),
 
       columnHelper.accessor((row) => row.issuePM?.name, {
         id: 'product_name',
         header: 'Product Name',
         cell: (info) => info.getValue() || '-',
       }),
-
-      columnHelper.accessor('quantity', {
-        header: 'Quantity',
-      }),
-
-      columnHelper.accessor('person_name', {
-        header: 'Name of person',
+      columnHelper.accessor('ref_no', {
+        header: 'Reference No.',
       }),
       columnHelper.accessor('batch_no', {
         header: 'Batch',
       }),
-      columnHelper.accessor('ref_no', {
-        header: 'Reference No.',
+      columnHelper.accessor('quantity', {
+        header: 'Total Printed bag',
       }),
-      columnHelper.accessor('return_bag', {
-        header: 'Return Bag',
+      columnHelper.accessor('issued_bag', {
+        header: 'Issued Bag',
       }),
-      columnHelper.accessor('date', {
-        header: 'Date',
+      columnHelper.display({
+        id: 'balance',
+        header: 'Balance',
+        cell: (info) => {
+          const row = info.row.original;
+
+          const balance =
+            Number(row.quantity) - Number(row.issued_bag) + Number(row.return_bag || 0);
+
+          return <span>{balance}</span>;
+        },
+      }),
+      columnHelper.accessor('person_name', {
+        header: 'Issued By',
       }),
 
       columnHelper.display({
