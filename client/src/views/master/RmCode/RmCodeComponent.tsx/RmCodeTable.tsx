@@ -144,9 +144,9 @@ const RmCodeTable = () => {
                           <>
                             <Button
                               onClick={() => {
-                                setMaterialaddmodal(true),
+                                (setMaterialaddmodal(true),
                                   triggerGoogleTranslateRescan(),
-                                  setSelectedRow(item);
+                                  setSelectedRow(item));
                               }}
                               color="secondary"
                               outline
@@ -160,9 +160,9 @@ const RmCodeTable = () => {
                               outline
                               size="sm"
                               onClick={() => {
-                                setviewmodal(true),
+                                (setviewmodal(true),
                                   triggerGoogleTranslateRescan(),
-                                  setSelectedRow(item);
+                                  setSelectedRow(item));
                               }}
                               className="p-0 bg-lightsecondary text-secondary hover:bg-secondary hover:text-white"
                             >

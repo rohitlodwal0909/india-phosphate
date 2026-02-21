@@ -35,6 +35,20 @@ export const addProcedure = createAsyncThunk(
   },
 );
 
+export const addProcedurePerameter = createAsyncThunk(
+  'proceduredata/perameter',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`${apiUrl}/create-procedure-perameter`, formdata);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
 export const updateProcedure = createAsyncThunk(
   'Proceduredata/update',
   async (updatedUser: any, { rejectWithValue }) => {
@@ -91,6 +105,13 @@ const ProcedureSlice = createSlice({
         state.addResult = action.payload;
       })
       .addCase(addProcedure.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(addProcedurePerameter.fulfilled, (state, action) => {
+        state.addResult = action.payload;
+      })
+      .addCase(addProcedurePerameter.rejected, (state, action) => {
         state.error = action.error.message;
       })
 

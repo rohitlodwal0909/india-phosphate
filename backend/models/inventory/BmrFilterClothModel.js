@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const BmrPMIssuance = sequelize.define(
-    "BmrPMIssuance",
+  const BmrFilterCloth = sequelize.define(
+    "BmrFilterCloth",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -12,45 +12,48 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true
       },
-      pm_id: {
-        type: DataTypes.STRING
-      },
 
       bmr_id: {
         type: DataTypes.INTEGER,
         allowNull: true
       },
 
-      received_by: {
-        type: DataTypes.INTEGER,
+      time: {
+        type: DataTypes.TIME,
         allowNull: false
       },
 
-      issued_by: {
-        type: DataTypes.INTEGER
-      },
-
-      actual_qty: {
-        type: DataTypes.STRING
-      },
-      qr_upload: {
+      status_cracked: {
         type: DataTypes.STRING
       },
 
-      qc_reference: {
+      status_clean: {
         type: DataTypes.STRING
       },
-      qa_issuance: {
+
+      date: {
+        type: DataTypes.DATE
+      },
+
+      result: {
+        type: DataTypes.STRING
+      },
+
+      checked_by: {
+        type: DataTypes.STRING
+      },
+
+      remark: {
         type: DataTypes.STRING
       }
     },
     {
-      tableName: "bmr_pm_issuances",
+      tableName: "bmr_filter_cloth_records",
       timestamps: true,
       paranoid: true,
       underscored: true
     }
   );
 
-  return BmrPMIssuance;
+  return BmrFilterCloth;
 };

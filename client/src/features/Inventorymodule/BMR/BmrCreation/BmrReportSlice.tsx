@@ -11,6 +11,7 @@ const initialState = {
   dispensingRaw: null,
   pmIssuance: null,
   sieverecord: null,
+  filterrecord: null,
   inprocessdata: null,
   packingrecord: null,
   yieldcal: null,
@@ -118,6 +119,24 @@ export const saveSieveIntegrityRecord = createAsyncThunk<any, any, { rejectValue
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(`/save-sieve-integrity-record`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return rejectWithValue(error.response.data?.message || 'Server Error');
+      }
+      if (error.request) {
+        return rejectWithValue('No response from server');
+      }
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
+
+export const saveFilterClothRecord = createAsyncThunk<any, any, { rejectValue: string }>(
+  'bmr/saveFilterCloth',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/save-filter-cloth-record`, data);
       return response.data;
     } catch (error: any) {
       if (error.response) {
@@ -357,6 +376,18 @@ const BmrReportSlice = createSlice({
       .addCase(saveSieveIntegrityRecord.rejected, (state, action) => {
         state.error = action.error.message;
       })
+
+      .addCase(saveFilterClothRecord.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveFilterClothRecord.fulfilled, (state, action) => {
+        state.filterrecord = action.payload;
+      })
+      .addCase(saveFilterClothRecord.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
       .addCase(inprocessCheck.pending, (state) => {
         state.loading = true;
         state.error = null;

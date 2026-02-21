@@ -168,52 +168,37 @@ function FinishingTable() {
 
     columnHelper.accessor('rm_code', {
       cell: (info) => {
-        const rowData = info.row.original;
+        const rowIndata = info.row.original;
+        let values = [];
 
-        // safely access rm_code
-        const rmCode = rowData?.production_results?.[0]?.rm_code;
-
-        let values: string[] = [];
         try {
-          values = typeof rmCode === 'string' ? JSON.parse(rmCode) : [];
-        } catch (e) {
-          values = [];
+          const raw = rowIndata?.production_results;
+          values = Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
+        } catch (err) {
+          console.error('Failed to parse production_results:', err);
         }
 
         return values.length ? (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-col gap-1">
             {values.map((v, i) => (
-              <span key={i} className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
-                {v}
-              </span>
+              <div key={i} className="flex items-center gap-2  px-2 py-1 rounded">
+                {/* RM CODE */}
+                <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">
+                  {v?.rmcodes?.rm_code || 'N/A'}
+                </span>
+
+                {/* QUANTITY */}
+                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
+                  {v?.rm_quantity} {v?.rm_unit || ''}
+                </span>
+              </div>
             ))}
           </div>
         ) : (
-          <span className="bg-pink-100 text-pink-800 text-xs px-2 py-0.5 rounded">No RM Code</span>
+          <span className="text-xs text-gray-400">No RM Code</span>
         );
       },
-      header: () => <span>RM Code</span>,
-    }),
-
-    columnHelper.accessor('quantity', {
-      cell: (info) => {
-        const rowData = info.row.original;
-        const raw = rowData?.production_results?.[0]?.quantity;
-
-        const values = typeof raw === 'string' ? raw.split(',').map((q) => q.trim()) : [];
-        return values.length ? (
-          <div className="flex flex-wrap gap-1">
-            {values.map((q, i) => (
-              <span key={i} className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-                {q}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p>-</p>
-        );
-      },
-      header: () => <span>Quantity</span>,
+      header: () => <span>RM Code / Quantity</span>,
     }),
 
     columnHelper.accessor('unfinish_quantity', {
@@ -255,7 +240,7 @@ function FinishingTable() {
                   <Button
                     color="secondary"
                     onClick={() => {
-                      setEditModal(true), triggerGoogleTranslateRescan(), setSelectedRow(data);
+                      (setEditModal(true), triggerGoogleTranslateRescan(), setSelectedRow(data));
                     }}
                     outline
                     size="xs"
@@ -267,7 +252,7 @@ function FinishingTable() {
               : permissions?.add && (
                   <Button
                     onClick={() => {
-                      setaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(data);
+                      (setaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(data));
                     }}
                     color="secondary"
                     outline

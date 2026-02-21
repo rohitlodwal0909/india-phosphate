@@ -264,6 +264,88 @@ exports.ProductionaddResult = async (req, res, next) => {
   }
 };
 
+exports.ProductionUpdateResult = async (req, res, next) => {
+  try {
+    const {
+      batch_id,
+      user_id,
+
+      rm_code = [],
+      rm_quantity = [],
+      rm_unit = [],
+
+      pm_code = [],
+      pm_quantity = [],
+      pm_unit = [],
+
+      equipments = []
+    } = req.body;
+
+    /* ================= VALIDATION ================= */
+
+    if (!batch_id) {
+      return res.status(400).json({
+        message: "Batch ID is required"
+      });
+    }
+
+    /* ================= DELETE OLD RECORDS ================= */
+
+    await ProductionResult.destroy({
+      where: { batch_id }
+    });
+
+    /* ================= PREPARE NEW DATA ================= */
+
+    const rowsToInsert = [];
+
+    const maxLength = Math.max(
+      rm_code.length,
+      pm_code.length,
+      equipments.length
+    );
+
+    for (let i = 0; i < maxLength; i++) {
+      rowsToInsert.push({
+        batch_id,
+        user_id: req.admin.id,
+
+        rm_code: rm_code[i] || null,
+        rm_quantity: rm_quantity[i] || null,
+        rm_unit: rm_unit[i] || null,
+
+        pm_code: pm_code[i] || null,
+        pm_quantity: pm_quantity[i] || null,
+        pm_unit: pm_unit[i] || null,
+
+        equipments: equipments[i] || null
+      });
+    }
+
+    /* ================= BULK INSERT NEW ================= */
+
+    const updatedEntries = await ProductionResult.bulkCreate(rowsToInsert);
+    /* ================= LOG SECTION ================= */
+
+    const data = await Qcbatch.findByPk(batch_id);
+    const { entry_date, entry_time } = getISTDateTime();
+
+    const logMessage = `Production entry for Batch Number ${data?.qc_batch_number} was updated by ${req.admin.username} on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry({
+      user_id: req.admin.id,
+      message: logMessage
+    });
+
+    return res.status(200).json({
+      message: "Production Entry updated successfully",
+      data: updatedEntries
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getQcbatchesWithProduction = async (req, res, next) => {
   try {
     const data = await Qcbatch.findAll({
@@ -309,6 +391,10 @@ exports.getAllProductionResults = async (req, res, next) => {
               model: Finishing,
               as: "finishing_entries",
               required: false
+            },
+            {
+              model: RmCode,
+              as: "rmcodes"
             }
           ]
         }

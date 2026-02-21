@@ -20,10 +20,14 @@ const YieldCalculation = ({ users, data, isReadOnly }) => {
   const [remark, setRemark] = useState('');
 
   // AUTO CALCULATION
+  // AUTO CALCULATION
   const actualYield = useMemo(() => {
     const total = parseFloat(totalQty) || 0;
     const theoretical = parseFloat(theoreticalYield) || 0;
-    return ((total * theoretical) / 100).toFixed(2);
+
+    // New formula: (Total Qty * 100) / Theoretical Yield
+    if (theoretical === 0) return '0.00'; // avoid division by zero
+    return ((total * 100) / theoretical).toFixed(2);
   }, [totalQty, theoreticalYield]);
 
   useEffect(() => {
@@ -83,7 +87,7 @@ const YieldCalculation = ({ users, data, isReadOnly }) => {
   return (
     <Accordion alwaysOpen>
       <Accordion.Panel>
-        <Accordion.Title>11. Yield Calculation</Accordion.Title>
+        <Accordion.Title>12. Yield Calculation</Accordion.Title>
 
         {isReadOnly && (
           <Accordion.Content>
@@ -113,7 +117,7 @@ const YieldCalculation = ({ users, data, isReadOnly }) => {
               {/* ACTUAL YIELD */}
               <div>
                 <Label value="3. Actual Yield (Kg)" />
-                <p className="text-sm mt-1">(Total Qty × Theoretical Yield) / 100</p>
+                <p className="text-sm mt-1">(totalQty * 100) / theoreticalYield</p>
                 <TextInput className="mt-2" value={actualYield} readOnly />
               </div>
 

@@ -5,6 +5,11 @@ const Controller = require("../../controllers/master/ManufacturingProcedure/Manu
 const authMiddleware = require("../../middleware/authMiddleware");
 
 router.post("/create-procedure", authMiddleware, Controller.createProcedure);
+router.post(
+  "/create-procedure-perameter",
+  authMiddleware,
+  Controller.createProcedurePerameter
+);
 router.get("/get-procedure", authMiddleware, Controller.getProcedure);
 
 router.put("/update-procedure/:id", authMiddleware, Controller.updateProcedure);

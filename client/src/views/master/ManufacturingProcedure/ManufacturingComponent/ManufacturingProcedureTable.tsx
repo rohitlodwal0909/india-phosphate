@@ -16,6 +16,7 @@ import {
   deleteProcedure,
   GetProcedure,
 } from 'src/features/master/ManufacturingProcedure/ManufacturingProcedureSlice';
+import AddManufacturing from './AddManufacturing';
 
 const ManufacturingProcedureTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -24,6 +25,7 @@ const ManufacturingProcedureTable = () => {
 
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
+  const [addpro, setAddpro] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
   const [selectedrow, setSelectedRow] = useState<any>();
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +43,11 @@ const ManufacturingProcedureTable = () => {
 
   const handleEdit = (entry: any) => {
     setEditmodal(true);
+    setSelectedRow(entry);
+  };
+
+  const handleAddpro = (entry: any) => {
+    setAddpro(true);
     setSelectedRow(entry);
   };
 
@@ -89,7 +96,6 @@ const ManufacturingProcedureTable = () => {
           </Button>
         )}
       </div>
-
       {permissions?.view ? (
         <>
           {' '}
@@ -128,6 +134,17 @@ const ManufacturingProcedureTable = () => {
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         <div className="flex justify-start gap-2">
                           <>
+                            {permissions?.add && (
+                              <Tooltip content="Add" placement="bottom">
+                                <Button
+                                  size="sm"
+                                  className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
+                                  onClick={() => handleAddpro(item)}
+                                >
+                                  <Icon icon="material-symbols:add-rounded" height={18} />
+                                </Button>
+                              </Tooltip>
+                            )}
                             {permissions?.edit && (
                               <Tooltip content="Edit" placement="bottom">
                                 <Button
@@ -183,7 +200,6 @@ const ManufacturingProcedureTable = () => {
       ) : (
         <NotPermission />
       )}
-
       <ComonDeletemodal
         handleConfirmDelete={handleDelete}
         isOpen={deletemodal}
@@ -191,13 +207,15 @@ const ManufacturingProcedureTable = () => {
         selectedUser={selectedrow}
         title="Are you sure you want to Delete this Outward?"
       />
-
       <AddManufacturingModal setShowmodal={setAddmodal} show={addmodal} />
       <EditManufacturingModal
         show={editmodal}
         setShowmodal={setEditmodal}
         OutwardData={selectedrow}
       />
+      {addpro && (
+        <AddManufacturing show={addpro} setShowmodal={setAddpro} selectedRow={selectedrow} />
+      )}
     </div>
   );
 };

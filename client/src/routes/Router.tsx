@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Navigate, createBrowserRouter } from 'react-router-dom'; // 🛠 make sure it's 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'; // 🛠 make sure it's 'react-router-dom'
 import Loadable from '../layouts/full/shared/loadable/Loadable';
 
 import ProtectedRoute from 'src/components/shared/ProtectedRoute'; // ✅ Import the guard
@@ -14,6 +14,7 @@ import RmIssuedInventory from 'src/views/inventory/inventory-issued/rm-issued/Rm
 import BmrProcess from 'src/views/inventory/bmr/bmr-creation/bmr-process/BmrProcess';
 import ManufacturingProcedureTable from 'src/views/master/ManufacturingProcedure/ManufacturingComponent/ManufacturingProcedureTable';
 import Grn from 'src/views/master/Grn/Grn';
+import AddReport from 'src/views/inventory/batch-approved/Addreport';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -98,6 +99,7 @@ const isAdminRole = logindata?.admin?.role_id == 1;
 const fullLayoutChildren = [
   { path: '/', element: <WelcomeDashboard /> },
   { path: '/view-report/:id', element: <ViewReport /> },
+  { path: '/inventory/qc-report/:id', element: <AddReport /> },
   { path: '/user-profile', element: <Userprofile /> },
   { path: '/change-password', element: <ChangePassword /> },
   { path: '/log', element: <Logs /> },
@@ -153,7 +155,7 @@ const fullLayoutChildren = [
   { path: '/master/document', element: <Document /> },
   { path: '/master/grn', element: <Grn /> },
 
-  { path: '*', element: <Navigate to="/auth/404" /> },
+  // { path: '*/', element: <Navigate to="/auth/404" /> },
 ];
 
 // Only add sensitive routes if NOT role_id === 1
@@ -202,7 +204,7 @@ const Router = [
       { path: '/admin/two-steps', element: <TwoSteps /> },
       { path: '/admin/maintenance', element: <Maintainance /> },
       { path: '/auth/404', element: <Error /> },
-      { path: '*', element: <Navigate to="/auth/404" /> },
+      // { path: '*/', element: <Navigate to="/auth/404" /> },
     ],
   },
 ];

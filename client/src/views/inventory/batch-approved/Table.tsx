@@ -26,6 +26,7 @@ import {
   GetAllQcbatch,
   batchStatusChange,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
+import { Link } from 'react-router';
 
 const columnHelper = createColumnHelper<any>();
 
@@ -41,7 +42,6 @@ function Table() {
   const [addModal, setAddmodal] = useState(false);
   const [onreload, setOnreload] = useState(false);
 
-  // ✅ Status change handler
   const onhandleStatusChange = async (row: any) => {
     const id = row?.id;
     if (!id) return;
@@ -170,6 +170,20 @@ function Table() {
                     <Icon icon="solar:plus-outline" height={16} />
                   </div>
                 </Button>
+              </Tooltip>
+            )}
+            {permissions?.view && (
+              <Tooltip content="Add Report">
+                <Link to={`/inventory/qc-report/${row?.id}`}>
+                  <Button
+                    color="secondary"
+                    outline
+                    size="xs"
+                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+                  >
+                    <Icon icon="tabler:report" height={18} />
+                  </Button>
+                </Link>
               </Tooltip>
             )}
           </div>

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 // --------------------
 // State Types
@@ -10,10 +11,12 @@ type QCState = {
   error: string | null;
   qcdata: any;
   qcbatchdata: any;
+  productSpecification: any;
   approveResult: any;
   rejectResult: any;
   holdResult: any;
   deleteResult: any;
+  createReport: any;
   finalresult: any;
   rowmaterial: any;
   qcReport: any;
@@ -24,11 +27,13 @@ const initialState: QCState = {
   error: null,
   qcdata: [],
   qcbatchdata: [],
+  productSpecification: [],
   approveResult: null,
   rejectResult: null,
   holdResult: null,
   deleteResult: null,
   finalresult: null,
+  createReport: null,
   rowmaterial: [],
   qcReport: [],
 };
@@ -102,6 +107,34 @@ export const Approvemodule = createAsyncThunk<
     return rejectWithValue('An unexpected error occurred');
   }
 });
+
+export const getProductandSpecification = createAsyncThunk<string, string, { rejectValue: any }>(
+  'qcs/productdata',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/get-product-and-specification/${id}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) return rejectWithValue(error.response.data);
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const createQcReport = createAsyncThunk<any, any, { rejectValue: any }>(
+  'result/createQcReport',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/create-qcReport`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
 
 export const Rejectmodule = createAsyncThunk<
   any,
@@ -306,6 +339,18 @@ const QcinventorySlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message || null;
       })
+      .addCase(getProductandSpecification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProductandSpecification.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productSpecification = action.payload;
+      })
+      .addCase(getProductandSpecification.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || null;
+      })
 
       .addCase(getQcreport.pending, (state) => {
         state.loading = true;
@@ -370,6 +415,17 @@ const QcinventorySlice = createSlice({
         state.approveResult = action.payload;
       })
       .addCase(Approvemodule.rejected, (state, action) => {
+        state.error = action.payload || action.error.message || null;
+      })
+
+      .addCase(createQcReport.pending, (state) => {
+        state.approveResult = null;
+        state.error = null;
+      })
+      .addCase(createQcReport.fulfilled, (state, action) => {
+        state.createReport = action.payload;
+      })
+      .addCase(createQcReport.rejected, (state, action) => {
         state.error = action.payload || action.error.message || null;
       })
 

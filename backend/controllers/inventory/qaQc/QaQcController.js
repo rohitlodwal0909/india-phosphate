@@ -14,8 +14,11 @@ const {
   PmQcResult,
   Qcbatch,
   Notification,
+  Formula,
+  ProductFormulaSpecification,
   Finishing,
-  User
+  User,
+  QcReportItem
 } = db;
 // Update Guard Entry
 
@@ -143,6 +146,106 @@ exports.getRawmaterial = async (req, res, next) => {
       res.status(200).json(rawMaterial);
     }
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.viewQcReport = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const exists = await Qcbatch.findOne({
+      where: { id: id },
+      include: [
+        {
+          model: QcReportItem,
+          as: "items"
+        }
+      ]
+    });
+
+    if (!exists) {
+      return res.status(404).json({ message: "Batch not found" });
+    }
+
+    const formulaData = await Formula.findOne({
+      where: {
+        product_type: exists.product_name
+      },
+      include: [
+        {
+          model: ProductFormulaSpecification,
+          as: "specification"
+        }
+      ]
+    });
+
+    return res.json({
+      batch: exists,
+      formula: formulaData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createQcReport = async (req, res, next) => {
+  const transaction = await Qcbatch.sequelize.transaction();
+
+  try {
+    const { qc_id, batch_number, mfg_date, exp_date, mol_weight, data } =
+      req.body;
+    const id = qc_id;
+    // 🔹 1️⃣ Check batch exists
+    const batch = await Qcbatch.findByPk(id, { transaction });
+
+    if (!batch) {
+      throw new Error("QC Batch not found");
+    }
+
+    // 🔹 2️⃣ Update Batch (Always update header fields)
+    await batch.update(
+      {
+        mol_weight
+      },
+      { transaction }
+    );
+
+    // 🔹 3️⃣ Check if items already exist
+    const existingItems = await QcReportItem.findAll({
+      where: { report_id: qc_id },
+      transaction
+    });
+
+    if (existingItems.length > 0) {
+      // 🔥 UPDATE MODE
+      await QcReportItem.destroy({
+        where: { report_id: qc_id },
+        transaction
+      });
+    }
+
+    // 🔹 4️⃣ Insert new items (works for both create & update)
+    const items = data.map((item) => ({
+      report_id: qc_id,
+      test: item.test,
+      specification: item.specification,
+      result: item.result,
+      user_id: req.admin?.id || 0
+    }));
+
+    await QcReportItem.bulkCreate(items, { transaction });
+
+    await transaction.commit();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        existingItems.length > 0
+          ? "QC Report updated successfully"
+          : "QC Report created successfully"
+    });
+  } catch (error) {
+    await transaction.rollback();
     next(error);
   }
 };

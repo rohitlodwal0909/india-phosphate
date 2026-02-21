@@ -5,6 +5,7 @@ import { useParams } from 'react-router';
 import { savePmIssuence } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
+import { ImageUrl } from 'src/constants/contant';
 
 const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
@@ -39,6 +40,7 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
             actualQtyList: existing?.actual_qty ? JSON.parse(existing.actual_qty) : [''],
 
             qcRefList: existing?.qc_reference ? JSON.parse(existing.qc_reference) : [''],
+            qr_upload: existing?.qr_upload || null, // ✅ add this
 
             issuedBy: existing?.issued_by
               ? userOptions.find((u) => u.value === existing.issued_by)
@@ -82,31 +84,42 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
   /** SUBMIT */
   const handleSubmit = async () => {
     try {
-      const payload = packingMaterials.map((item, index) => ({
-        id: rows[index]?.id || null,
-        bmr_id: id,
-        pm_id: item?.pmcodes?.id,
-        issued_by: rows[index]?.issuedBy?.value || null,
-        qa_issuance: rows[index]?.qa_issuance || null,
-        received_by: rows[index]?.receivedBy?.value || null,
-        actual_qty: rows[index].actualQtyList,
-        qc_reference: rows[index].qcRefList,
-      }));
+      const formData = new FormData();
 
-      await dispatch(savePmIssuence(payload)).unwrap();
+      packingMaterials.forEach((item: any, index: number) => {
+        formData.append(`data[${index}][id]`, rows[index]?.id || '');
+        formData.append(`data[${index}][bmr_id]`, id || '');
+        formData.append(`data[${index}][pm_id]`, item?.pmcodes?.id || '');
+        formData.append(`data[${index}][issued_by]`, rows[index]?.issuedBy?.value || '');
+        formData.append(`data[${index}][received_by]`, rows[index]?.receivedBy?.value || '');
+        formData.append(`data[${index}][qa_issuance]`, rows[index]?.qa_issuance || '');
 
-      toast.success(
-        rows[0]?.id ? 'PM Issuance updated successfully' : 'PM Issuance saved successfully',
-      );
-    } catch (error) {
-      toast.error(error?.message || 'Failed to save QC Issuance');
+        formData.append(
+          `data[${index}][actual_qty]`,
+          JSON.stringify(rows[index]?.actualQtyList || []),
+        );
+
+        formData.append(
+          `data[${index}][qc_reference]`,
+          JSON.stringify(rows[index]?.qcRefList || []),
+        );
+
+        if (rows[index]?.qr_upload instanceof File) {
+          formData.append(`data[${index}][qr_upload]`, rows[index].qr_upload);
+        }
+      });
+
+      await dispatch(savePmIssuence(formData)).unwrap();
+      toast.success('PM Issuance saved successfully');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to save PM Issuance');
     }
   };
 
   return (
     <Accordion alwaysOpen>
       <Accordion.Panel>
-        <Accordion.Title>9. Packing Material Issuance & Dispensing Record</Accordion.Title>
+        <Accordion.Title>10. Packing Material Issuance & Dispensing Record</Accordion.Title>
 
         {isReadOnly && (
           <Accordion.Content>
@@ -118,7 +131,8 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
                   <Table.HeadCell>Standard Qty</Table.HeadCell>
                   <Table.HeadCell>Actual Qty</Table.HeadCell>
                   <Table.HeadCell>QC Reference No.</Table.HeadCell>
-                  <Table.HeadCell>QA Issuance.</Table.HeadCell>
+                  <Table.HeadCell>QR Issuance.</Table.HeadCell>
+                  <Table.HeadCell>QR Upload.</Table.HeadCell>
                   <Table.HeadCell>Issued By</Table.HeadCell>
                   <Table.HeadCell>Received By</Table.HeadCell>
                 </Table.Head>
@@ -202,7 +216,41 @@ const PackingMaterialIssuance = ({ bmr, users, data, isReadOnly }) => {
                           }}
                         />
                       </Table.Cell>
+                      <Table.Cell>
+                        {rows[i]?.qr_upload && (
+                          <img
+                            src={
+                              typeof rows[i].qr_upload === 'string'
+                                ? ImageUrl + rows[i].qr_upload
+                                : URL.createObjectURL(rows[i].qr_upload)
+                            }
+                            alt="QR"
+                            className="w-16 h-16 border rounded mb-2"
+                          />
+                        )}
 
+                        <input
+                          id={`qr-upload-${i}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const updated = [...rows];
+                              updated[i].qr_upload = file;
+                              setRows(updated);
+                            }
+                          }}
+                        />
+
+                        <label
+                          htmlFor={`qr-upload-${i}`}
+                          className="cursor-pointer bg-gray-200 px-3 py-1 rounded"
+                        >
+                          Upload
+                        </label>
+                      </Table.Cell>
                       <Table.Cell className="min-w-[180px]">
                         <Select
                           options={userOptions}

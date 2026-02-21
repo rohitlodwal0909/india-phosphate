@@ -1,45 +1,29 @@
 // models/category.model.js
 
 module.exports = (sequelize, DataTypes) => {
-  const Formula = sequelize.define(
-    "Formula",
+  const ProductFormulaSpecification = sequelize.define(
+    "ProductFormulaSpecification",
     {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
       },
-      formula_name: {
-        type: DataTypes.STRING,
+      user_id: {
+        type: DataTypes.INTEGER,
         allowNull: false
       },
-      product_type: {
+      formula_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      test: {
         type: DataTypes.STRING
       },
-      ingredients: {
+      specification: {
         type: DataTypes.STRING
       },
-      quantity_per_batch_or_unit: {
-        type: DataTypes.DECIMAL(10, 2)
-      },
-      uom: {
-        type: DataTypes.STRING
-      },
-      batch_size: {
-        type: DataTypes.DECIMAL(10, 2)
-      },
-      quantity_per_batch_or_unit: {
-        type: DataTypes.STRING
-      },
-      manufacturing_instructions: {
-        type: DataTypes.TEXT
-      },
-      remarks: {
-        type: DataTypes.TEXT
-      },
-      created_by: {
-        type: DataTypes.INTEGER
-      },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
@@ -54,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: "formula_master",
+      tableName: "product_formula_specifications",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
@@ -62,12 +46,5 @@ module.exports = (sequelize, DataTypes) => {
       deletedAt: "deleted_at"
     }
   );
-
-  Formula.associate = (models) => {
-    Formula.hasMany(models.ProductFormulaSpecification, {
-      foreignKey: "formula_id",
-      as: "specification"
-    });
-  };
-  return Formula;
+  return ProductFormulaSpecification;
 };

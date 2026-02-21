@@ -105,7 +105,7 @@ const QualityControlIntimation = ({ users, data, isReadOnly }) => {
     <div className="space-y-6">
       <Accordion alwaysOpen>
         <Accordion.Panel>
-          <Accordion.Title>8. Quality Control Intimation</Accordion.Title>
+          <Accordion.Title>9. Quality Control Intimation</Accordion.Title>
 
           {isReadOnly && (
             <Accordion.Content>

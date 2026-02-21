@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
 const { ManufacturingProcedure } = db;
@@ -15,6 +16,38 @@ exports.createProcedure = async (req, res, next) => {
     res.status(201).json(newDepartment);
   } catch (error) {
     console.error("Create Department Error:", error);
+    next(error);
+  }
+};
+
+exports.createProcedurePerameter = async (req, res, next) => {
+  try {
+    const { perameters, id } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "ID is required" });
+    }
+
+    if (!perameters || !Array.isArray(perameters)) {
+      return res.status(400).json({ message: "Perameters must be an array" });
+    }
+
+    const updated = await ManufacturingProcedure.update(
+      {
+        perameters: JSON.stringify(perameters) // if column type is TEXT
+        // If column type is JSON then remove JSON.stringify
+      },
+      {
+        where: { id }
+      }
+    );
+
+    res.status(200).json({
+      message: "Procedure Perameters updated successfully",
+      data: updated
+    });
+  } catch (error) {
+    console.error("Update Procedure Error:", error);
     next(error);
   }
 };

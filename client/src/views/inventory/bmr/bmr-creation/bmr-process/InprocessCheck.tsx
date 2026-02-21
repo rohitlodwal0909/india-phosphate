@@ -132,7 +132,7 @@ const InprocessCheck = ({ users, data, isReadOnly }) => {
     <div className="space-y-6">
       <Accordion alwaysOpen>
         <Accordion.Panel>
-          <Accordion.Title>7. Inprocess Check</Accordion.Title>
+          <Accordion.Title>8. Inprocess Check</Accordion.Title>
           {isReadOnly && (
             <Accordion.Content>
               {/* ================= DATE ================= */}

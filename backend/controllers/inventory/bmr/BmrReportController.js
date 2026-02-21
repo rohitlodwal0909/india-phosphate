@@ -24,7 +24,8 @@ const {
   BmrProductRelease,
   ManufacturingProcedure,
   BmrManufacturingProcedure,
-  LineClearanceProcessing
+  LineClearanceProcessing,
+  BmrFilterCloth
 } = db;
 const sequelize = db.sequelize;
 
@@ -99,6 +100,10 @@ exports.getbmrReport = async (req, res, next) => {
       where: { bmr_id: id }
     });
 
+    const filterCloth = await BmrFilterCloth.findAll({
+      where: { bmr_id: id }
+    });
+
     const inprocesscheck = await BmrInprocessCheck.findOne({
       where: { bmr_id: id }
     });
@@ -142,6 +147,7 @@ exports.getbmrReport = async (req, res, next) => {
       dispensingRm,
       equipmentno,
       sieveIntegiry,
+      filterCloth,
       inprocesscheck,
       qcintimation,
       pmIssuance,
@@ -292,9 +298,34 @@ exports.saveEquipmentList = async (req, res) => {
   const items = req.body;
 
   try {
+    const bmrId = items[0]?.bmr_id;
+
+    if (!bmrId) {
+      return res.status(400).json({ message: "BMR ID is required" });
+    }
+
+    // 🔹 1️⃣ Get existing records from DB
+    const existingRecords = await BmrEquipmentList.findAll({
+      where: { bmr_id: bmrId }
+    });
+
+    const existingIds = existingRecords.map((item) => item.id);
+
+    const incomingIds = items.filter((item) => item.id).map((item) => item.id);
+
+    // 🔥 2️⃣ DELETE records that are not in incoming payload
+    const idsToDelete = existingIds.filter((id) => !incomingIds.includes(id));
+
+    if (idsToDelete.length > 0) {
+      await BmrEquipmentList.destroy({
+        where: { id: idsToDelete }
+      });
+    }
+
+    // 🔹 3️⃣ CREATE or UPDATE
     for (const item of items) {
       if (item.id) {
-        // 🔁 UPDATE existing record
+        // 🔁 UPDATE
         await BmrEquipmentList.update(
           {
             equipment_no: item.equipment_no || null,
@@ -307,7 +338,7 @@ exports.saveEquipmentList = async (req, res) => {
           }
         );
       } else {
-        // ➕ CREATE new record
+        // ➕ CREATE
         await BmrEquipmentList.create({
           bmr_id: item.bmr_id,
           equipment_id: item.equipment_id,
@@ -317,9 +348,15 @@ exports.saveEquipmentList = async (req, res) => {
       }
     }
 
+    // 🔹 4️⃣ Return updated list
+    const updatedList = await BmrEquipmentList.findAll({
+      where: { bmr_id: bmrId }
+    });
+
     return res.json({
       success: true,
-      message: "Equipment list saved successfully"
+      message: "Equipment list saved successfully",
+      data: updatedList
     });
   } catch (err) {
     console.error("Equipment Save Error:", err);
@@ -368,6 +405,52 @@ exports.saveSieveIntegrityRecord = async (req, res) => {
     });
   } catch (err) {
     console.error("Sieve Integirty Save Error:", err);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+exports.saveFilterClothRecord = async (req, res) => {
+  const items = req.body;
+
+  try {
+    for (const item of items) {
+      if (item.id) {
+        await BmrFilterCloth.update(
+          {
+            time: item.time,
+            status_cracked: item.status_cracked,
+            status_clean: item.status_clean,
+            date: item.date,
+            checked_by: item.checked_by,
+            result: item.result,
+            remark: item.remark,
+            bmr_id: item.bmr_id,
+            user_id: req.admin.id
+          },
+          {
+            where: { id: item.id }
+          }
+        );
+      } else {
+        await BmrFilterCloth.create({
+          bmr_id: item.bmr_id,
+          user_id: req.admin.id,
+          time: item.time,
+          status_cracked: item.status_cracked,
+          status_clean: item.status_clean,
+          date: item.date,
+          checked_by: item.checked_by,
+          result: item.result,
+          remark: item.remark
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: "Filter Cloth saved successfully"
+    });
+  } catch (err) {
+    console.error("Filter Cloth Save Error:", err);
     return res.status(500).json({ message: "Server Error" });
   }
 };
@@ -501,11 +584,13 @@ exports.saveQCintimation = async (req, res) => {
 
 exports.savePMIssuence = async (req, res) => {
   try {
-    const records = Array.isArray(req.body) ? req.body : [req.body];
+    const records = req.body.data ? Object.values(req.body.data) : [];
 
     const savedData = [];
 
-    for (const item of records) {
+    for (let i = 0; i < records.length; i++) {
+      const item = records[i];
+
       const {
         id,
         bmr_id,
@@ -517,30 +602,38 @@ exports.savePMIssuence = async (req, res) => {
         qa_issuance
       } = item;
 
+      // 🔹 find uploaded file for this index
+      const uploadedFile = req.files.find(
+        (file) => file.fieldname === `data[${i}][qr_upload]`
+      );
+
       const payload = {
         bmr_id,
         pm_id,
         issued_by,
         received_by,
         qa_issuance,
-        actual_qty: actual_qty ? JSON.stringify(actual_qty) : null,
-        qc_reference: qc_reference ? JSON.stringify(qc_reference) : null,
+        actual_qty: actual_qty ? actual_qty : null,
+        qc_reference: qc_reference ? qc_reference : null,
         user_id: req.admin?.id || null
       };
 
+      // 🔹 if image uploaded
+      if (uploadedFile) {
+        payload.qr_upload = "uploads/pm-issuance/" + uploadedFile.filename;
+      }
+
       let data;
 
-      // 🔹 UPDATE
+      // ================= UPDATE =================
       if (id) {
         data = await BmrPMIssuance.findByPk(id);
 
-        if (!data) {
-          continue; // agar ek record nahi mila to next pe chala jao
-        }
+        if (!data) continue;
 
         await data.update(payload);
       }
-      // 🔹 CREATE
+      // ================= CREATE =================
       else {
         data = await BmrPMIssuance.create(payload);
       }

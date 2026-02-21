@@ -66,7 +66,7 @@ const ProductRelease = ({ users = [], bmr, data, isReadOnly }) => {
   return (
     <Accordion alwaysOpen>
       <Accordion.Panel>
-        <Accordion.Title>13. Product Release</Accordion.Title>
+        <Accordion.Title>14. Product Release</Accordion.Title>
         {isReadOnly && (
           <Accordion.Content>
             <div className="border rounded-md p-4 space-y-4 text-dark">

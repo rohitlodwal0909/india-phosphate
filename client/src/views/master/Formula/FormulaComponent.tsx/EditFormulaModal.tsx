@@ -12,10 +12,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  updateFormula,
-  GetFormula,
-} from 'src/features/master/Formula/FormulaSlice';
+import { updateFormula, GetFormula } from 'src/features/master/Formula/FormulaSlice';
 import { allUnits } from 'src/utils/AllUnit';
 
 const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
@@ -59,7 +56,14 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = ['formula_name', 'product_type', 'ingredients', 'quantity_per_batch_or_unit', 'uom', 'batch_size'];
+    const required = [
+      'formula_name',
+      'product_type',
+      'ingredients',
+      'quantity_per_batch_or_unit',
+      'uom',
+      'batch_size',
+    ];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace(/_/g, ' ')} is required`;
@@ -84,7 +88,9 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
   const renderInput = (id: string, label: string, type = 'text', isTextarea = false) => (
     <div className="col-span-12 md:col-span-6">
       <Label htmlFor={id} value={label} />
-      {['remarks', 'manufacturing_instructions'].includes(id) ? null : <span className="text-red-700 ps-1">*</span>}
+      {['remarks', 'manufacturing_instructions'].includes(id) ? null : (
+        <span className="text-red-700 ps-1">*</span>
+      )}
       {isTextarea ? (
         <Textarea
           id={id}
@@ -118,7 +124,9 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
       >
         <option value="">Select {label}</option>
         {options.map((option) => (
-          <option key={option?.value} value={option?.value}>{option?.value}</option>
+          <option key={option?.value} value={option?.value}>
+            {option?.value}
+          </option>
         ))}
       </select>
       {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}

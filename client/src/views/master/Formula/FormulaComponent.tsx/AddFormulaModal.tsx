@@ -38,7 +38,14 @@ const AddFormulaModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['formula_name', 'product_type', 'ingredients', 'quantity_per_batch_or_unit', 'uom', 'batch_size'];
+    const requiredFields = [
+      'formula_name',
+      'product_type',
+      'ingredients',
+      'quantity_per_batch_or_unit',
+      'uom',
+      'batch_size',
+    ];
     const newErrors: any = {};
     requiredFields.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace(/_/g, ' ')} is required`;

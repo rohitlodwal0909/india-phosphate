@@ -28,6 +28,7 @@ import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 import { formatDate } from 'src/utils/Datetimeformate';
+import Editproductionmodal from './Editproductionmodal';
 
 export interface PaginationTableType {
   id: number;
@@ -53,6 +54,7 @@ function ProductionInventoryTable() {
   const [selectedRow, setSelectedRow] = useState<PaginationTableType | null>(null);
 
   const [addmodal, setaddmodal] = useState(false);
+  const [editmodal, seteditmodal] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
@@ -282,17 +284,31 @@ function ProductionInventoryTable() {
           <div className="flex gap-2">
             {raw ? (
               // <Link to={`/view-report/${idStr}`}>
-              <Button
-                color="secondary"
-                outline
-                size="xs"
-                className="border border-primary text-primary   hover:bg-primary hover:text-white rounded-md"
-              >
-                <Icon icon="solar:eye-outline" height={18} />
-              </Button>
+              <>
+                <Button
+                  color="secondary"
+                  outline
+                  size="xs"
+                  className="border border-primary text-primary   hover:bg-primary hover:text-white rounded-md"
+                >
+                  <Icon icon="solar:eye-outline" height={18} />
+                </Button>
+                {permissions?.edit && (
+                  <Button
+                    onClick={() => {
+                      (seteditmodal(true), setSelectedRow(rowData));
+                    }}
+                    color="secondary"
+                    outline
+                    size="xs"
+                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+                  >
+                    <Icon icon="material-symbols:edit-rounded" height={18} />
+                  </Button>
+                )}
+              </>
             ) : (
               // </Link>
-
               permissions?.add && (
                 <Button
                   onClick={() => {
@@ -402,6 +418,16 @@ function ProductionInventoryTable() {
         selectedRow={selectedRow}
         logindata={logindata}
       />
+      {editmodal && (
+        <Editproductionmodal
+          openModal={editmodal}
+          setOpenModal={seteditmodal}
+          rmcodes={rm_codes}
+          pmcodes={pm_codes}
+          equipments={equipments}
+          selectedRow={selectedRow?.production_results}
+        />
+      )}
     </>
   );
 }

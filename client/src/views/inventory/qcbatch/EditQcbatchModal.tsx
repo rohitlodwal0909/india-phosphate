@@ -1,6 +1,6 @@
 import { Field } from '@headlessui/react';
 import { Modal, ModalBody, ModalHeader, Button, TextInput, Label, Select } from 'flowbite-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import {
@@ -9,29 +9,79 @@ import {
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { AppDispatch } from 'src/store';
 
+const gradeOptions = ['IP', 'BP', 'EP', 'USP', 'FCC', 'Other'];
+
 const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [form, setForm] = useState({
-    id: row?.id,
-    batch_no: row?.qc_batch_number,
-    product_name: row?.product_name,
-    mfg_date: row?.mfg_date,
-    exp_date: row?.exp_date,
-    grade: row?.grade,
-    size: row?.size,
+    id: '',
+    batch_no: '',
+    product_name: '',
+    mfg_date: '',
+    exp_date: '',
+    grade: '',
+    size: '',
   });
+
+  const [manualGrade, setManualGrade] = useState('');
+
+  // ✅ Auto detect grade
+  useEffect(() => {
+    if (row) {
+      const existingGrade = row?.grade || '';
+
+      if (gradeOptions.includes(existingGrade)) {
+        // Dropdown me available hai
+        setForm({
+          id: row?.id || '',
+          batch_no: row?.qc_batch_number || '',
+          product_name: row?.product_name || '',
+          mfg_date: row?.mfg_date || '',
+          exp_date: row?.exp_date || '',
+          grade: existingGrade,
+          size: row?.size || '',
+        });
+        setManualGrade('');
+      } else {
+        // Dropdown me nahi hai → Manual
+        setForm({
+          id: row?.id || '',
+          batch_no: row?.qc_batch_number || '',
+          product_name: row?.product_name || '',
+          mfg_date: row?.mfg_date || '',
+          exp_date: row?.exp_date || '',
+          grade: 'Manual',
+          size: row?.size || '',
+        });
+        setManualGrade(existingGrade);
+      }
+    }
+  }, [row]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // Agar Manual select kare to manualGrade reset
+    if (name === 'grade' && value !== 'Manual') {
+      setManualGrade('');
+    }
   };
 
   const handleSubmit = async () => {
     try {
+      const finalGrade = form.grade === 'Manual' ? manualGrade : form.grade;
+
+      if (!finalGrade) {
+        toast.error('Please select or enter grade.');
+        return;
+      }
+
       const result = await dispatch(
         qcBatchUpdate({
           id: form.id,
@@ -39,31 +89,18 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: form.product_name,
           mfg_date: form.mfg_date,
           exp_date: form.exp_date,
-          grade: form.grade,
+          grade: finalGrade, // ✅ correct grade send
           size: form.size,
           user_id: logindata?.admin?.id,
         }),
       );
 
-      if (result.payload) {
-        if (result.payload.message) {
-          dispatch(GetAllQcbatch());
-          setForm({
-            id: '',
-            batch_no: '',
-            product_name: '',
-            mfg_date: '',
-            exp_date: '',
-            grade: '',
-            size: '',
-          });
-          toast.success('QC Batch updated successfully.');
-          setPlaceModal(false);
-        } else {
-          toast.error(result.payload);
-        }
+      if (result.payload?.message) {
+        dispatch(GetAllQcbatch());
+        toast.success('QC Batch updated successfully.');
+        setPlaceModal(false);
       } else {
-        toast.error('Failed to create QC Batch.');
+        toast.error('Update failed.');
       }
     } catch (error) {
       toast.error(error.message);
@@ -81,26 +118,17 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
       <ModalHeader />
       <ModalBody>
         <div className="text-center">
-          <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Edit Batch</h3>
+          <h3 className="mb-5 text-lg font-normal text-gray-500">Edit Batch</h3>
+
           <div className="grid grid-cols-2 gap-4 text-left">
             <Field>
               <Label className="mb-2 block font-medium">Batch Number</Label>
-              <TextInput
-                name="batch_no"
-                placeholder="Enter Batch Number"
-                value={form.batch_no}
-                onChange={handleChange}
-              />
+              <TextInput name="batch_no" value={form.batch_no} onChange={handleChange} />
             </Field>
 
             <Field>
               <Label className="mb-2 block font-medium">Product Name</Label>
-              <TextInput
-                name="product_name"
-                placeholder="Enter Product Name"
-                value={form.product_name}
-                onChange={handleChange}
-              />
+              <TextInput name="product_name" value={form.product_name} onChange={handleChange} />
             </Field>
 
             <Field>
@@ -125,28 +153,36 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
 
             <Field>
               <Label className="mb-2 block font-medium">Size</Label>
-              <TextInput
-                type="text"
-                name="size"
-                placeholder="Enter Size"
-                value={form.size}
-                onChange={handleChange}
-              />
+              <TextInput name="size" value={form.size} onChange={handleChange} />
             </Field>
 
-            <Field className="col-span-1">
+            <Field>
               <Label className="mb-2 block font-medium">Grade</Label>
               <Select name="grade" value={form.grade} onChange={handleChange}>
                 <option value="">Select Grade</option>
-                <option value="IP">IP</option>
-                <option value="BP">BP</option>
-                <option value="EP">EP</option>
-                <option value="USP">USP</option>
-                <option value="FCC">FCC</option>
-                <option value="Other">Other</option>
+                {gradeOptions.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+                <option value="Manual">Manual</option>
               </Select>
             </Field>
           </div>
+
+          {/* ✅ Manual Input Field */}
+          {form.grade === 'Manual' && (
+            <div className="mt-4 text-left">
+              <Field>
+                <Label className="mb-2 block font-medium">Enter Manual Grade</Label>
+                <TextInput
+                  placeholder="Enter Custom Grade"
+                  value={manualGrade}
+                  onChange={(e) => setManualGrade(e.target.value)}
+                />
+              </Field>
+            </div>
+          )}
 
           <div className="flex justify-center gap-4 mt-6">
             <Button color="success" onClick={handleSubmit}>

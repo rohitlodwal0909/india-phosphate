@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       size: DataTypes.STRING,
       status: DataTypes.INTEGER,
       reference_number: DataTypes.STRING,
+      mol_weight: DataTypes.STRING,
 
       created_at: {
         type: DataTypes.DATE,
@@ -51,6 +52,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "batch_id", // Points to Qcbatch.id
       sourceKey: "id",
       as: "batch_releases" // Optional alias
+    });
+
+    Qcbatch.hasMany(models.QcReportItem, {
+      foreignKey: "report_id",
+      as: "items"
     });
 
     Qcbatch.hasOne(models.Finishing, {

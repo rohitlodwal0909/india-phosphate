@@ -6,17 +6,14 @@ import {
   ModalHeader,
   Label,
   TextInput,
-  
+
   // ToggleSwitch,
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  addMakeMaster,
-  GetMakeMaster,
-} from 'src/features/master/MakeMaster/MakeMasterSlice';
+import { addMakeMaster, GetMakeMaster } from 'src/features/master/MakeMaster/MakeMasterSlice';
 
 const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -37,7 +34,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
   };
 
   const validateForm = () => {
-    const required = [ 'make_name'];
+    const required = ['make_name'];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) {
@@ -65,7 +62,7 @@ const AddMakeMasterModal = ({ show, setShowmodal, logindata }) => {
       });
       setShowmodal(false);
     } catch (err: any) {
-      toast.error(err?.message ||  err ||'Something went wrong');
+      toast.error(err?.message || err || 'Something went wrong');
     }
   };
 

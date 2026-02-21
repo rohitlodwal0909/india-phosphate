@@ -12,6 +12,10 @@ router.post("/save-report-result", qaQcController.saveReportresult);
 router.post("/qc-batch-number", qaQcController.addQcBatch);
 router.post("/qc-batch-update", qaQcController.updateQcBatch);
 router.get("/report/:qc_id", qaQcController.report);
+
+router.get("/get-product-and-specification/:id", qaQcController.viewQcReport);
+router.post("/create-qcReport", qaQcController.createQcReport);
+
 router.delete("/qc-batch/:id", qaQcController.deleteQcBatch);
 router.get("/all-qc-batch", qaQcController.getAllQcBatches);
 

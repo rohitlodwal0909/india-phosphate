@@ -17,7 +17,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
   const [rows, setRows] = useState([
     {
       id: null,
-      stepId: null,
+      step_name: null,
       actualQty: '',
       value: '',
       timeFrom: '',
@@ -34,7 +34,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
     if (proce && proce.length > 0) {
       const mappedRows = proce.map((item) => ({
         id: item.id,
-        stepId: processingSteps.find((s) => s.value === item.step_id) || null,
+        step_name: item.step_name,
         value: item.value || '',
         actualQty: item.actual_qty || '',
         timeFrom: item.time_from || '',
@@ -59,6 +59,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
   const processingSteps = data.map((s) => ({
     value: s.id,
     label: s.name,
+    perameters: s.perameters, // ✅ correct key
   }));
 
   /* ===== HANDLERS ===== */
@@ -73,7 +74,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
       ...rows,
       {
         id: null,
-        stepId: null,
+        step_name: null,
         actualQty: '',
         value: '',
         timeFrom: '',
@@ -87,6 +88,36 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
     ]);
   };
 
+  const handleChangePro = (selected) => {
+    if (!selected?.perameters) {
+      setRows([]);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(selected.perameters);
+
+      const generatedRows = parsed.map((param) => ({
+        id: null,
+        step_name: param,
+        perameter: param, // 🔥 each row gets one perameter
+        actualQty: '',
+        value: '',
+        timeFrom: '',
+        timeTo: '',
+        temp: '',
+        ph: '',
+        spGravity: '',
+        doneBy: null,
+        checkedBy: null,
+      }));
+
+      setRows(generatedRows);
+    } catch {
+      setRows([]);
+    }
+  };
+
   const removeRow = (index) => {
     if (rows.length === 1) return;
     setRows(rows.filter((_, i) => i !== index));
@@ -94,7 +125,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
 
   /* ===== SUBMIT ===== */
   const handleSubmit = async () => {
-    const invalidRow = rows.find((row) => !row.stepId);
+    const invalidRow = rows.find((row) => !row.step_name);
     if (invalidRow) {
       alert('Please select Processing Step in all rows');
       return;
@@ -104,7 +135,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
       manufacturing_procedure: rows.map((row) => ({
         id: row.id || null,
         bmr_id: id,
-        step_id: row.stepId.value,
+        step_name: row.step_name,
         value: row.value,
         actual_qty: row.actualQty,
         time_from: row.timeFrom,
@@ -129,8 +160,17 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
     <Accordion alwaysOpen>
       <Accordion.Panel>
         <Accordion.Title>5. Manufacturing Procedure</Accordion.Title>
+
         {isReadOnly && (
           <Accordion.Content>
+            <div className="m-3" style={{ width: '300px' }}>
+              <Select
+                options={processingSteps}
+                onChange={(val) => handleChangePro(val)}
+                styles={selectStyles}
+                menuPortalTarget={document.body}
+              />
+            </div>
             <div className="border rounded-md p-4 overflow-x-auto text-dark">
               <table className="w-full text-sm border-collapse border">
                 <thead className="bg-gray-100">
@@ -153,12 +193,10 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
                   {rows.map((row, index) => (
                     <tr key={index}>
                       <td className="border p-1">
-                        <Select
-                          options={processingSteps}
-                          value={row.stepId}
-                          onChange={(val) => handleChange(index, 'stepId', val)}
-                          styles={selectStyles}
-                          menuPortalTarget={document.body}
+                        <TextInput
+                          sizing="sm"
+                          value={row.step_name}
+                          onChange={(e) => handleChange(index, 'step_name', e.target.value)}
                         />
                       </td>
 

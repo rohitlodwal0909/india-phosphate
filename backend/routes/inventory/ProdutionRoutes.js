@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ProductionController = require("../../controllers/inventory/qaQc/ProductionController");
+const authMiddleware = require("../../middleware/authMiddleware");
 
 // List by user_id
 router.get(
@@ -10,6 +11,11 @@ router.get(
 
 router.get("/all-production", ProductionController.getAllProductionResults);
 router.post("/add-Production", ProductionController.ProductionaddResult);
+router.post(
+  "/edit-Production",
+  authMiddleware,
+  ProductionController.ProductionUpdateResult
+);
 
 router.post("/add-finishing-entry", ProductionController.createFinishingEntry);
 router.put(

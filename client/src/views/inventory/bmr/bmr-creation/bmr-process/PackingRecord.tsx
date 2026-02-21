@@ -92,7 +92,7 @@ const PackingRecord = ({ bmr, data, isReadOnly }) => {
   return (
     <Accordion alwaysOpen>
       <Accordion.Panel>
-        <Accordion.Title>10. Packing Record</Accordion.Title>
+        <Accordion.Title>11. Packing Record</Accordion.Title>
 
         {isReadOnly && (
           <Accordion.Content>

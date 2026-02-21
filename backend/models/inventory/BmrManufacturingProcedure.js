@@ -36,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
       sp_gravity: {
         type: DataTypes.STRING
       },
-      step_id: {
-        type: DataTypes.INTEGER
+      step_name: {
+        type: DataTypes.STRING
       },
       temp: {
         type: DataTypes.STRING

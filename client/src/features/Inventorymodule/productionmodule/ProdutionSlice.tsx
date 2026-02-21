@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
@@ -8,6 +9,7 @@ const initialState = {
   productiondata: [],
   qcproduction: [],
   addResult: null,
+  editResult: null,
   updateResult: null,
   deleteResult: null,
 };
@@ -51,6 +53,28 @@ export const addProduction = createAsyncThunk(
   async (newCheckin: any, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${apiUrl}/add-Production`, newCheckin);
+      return response.data;
+    } catch (error) {
+      // Optional: Log for debugging
+      console.error('Add checkin error:', error);
+
+      // Try to extract a message from the server
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        'Unknown error occurred';
+
+      return rejectWithValue(message);
+    }
+  },
+);
+
+export const editProduction = createAsyncThunk(
+  'editProduction/edit',
+  async (newCheckin: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/edit-Production`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
@@ -154,6 +178,13 @@ const ProdutionSlice = createSlice({
         state.addResult = action.payload;
       })
       .addCase(addProduction.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(editProduction.fulfilled, (state, action) => {
+        state.editResult = action.payload;
+      })
+      .addCase(editProduction.rejected, (state, action) => {
         state.error = action.error.message;
       })
 

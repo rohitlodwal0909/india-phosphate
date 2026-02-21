@@ -7,7 +7,6 @@ import {
   Label,
   TextInput,
   Textarea,
- 
 } from 'flowbite-react';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -15,7 +14,7 @@ import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { addBatchMaster, GetBatchMaster } from 'src/features/master/BatchMaster/BatchMasterSlice';
 
-const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnumber}) => {
+const AddBatchMasterModal = ({ show, setShowmodal, logindata, rmcodedata, batchnumber }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
@@ -42,7 +41,18 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
   };
 
   const validateForm = () => {
-    const required = ['bmr_number', 'batch_number', 'product_name', 'production_date','grade', 'expiry_date', 'quantity_produced','raw_materials_used','verified_by','approved_by'];
+    const required = [
+      'bmr_number',
+      'batch_number',
+      'product_name',
+      'production_date',
+      'grade',
+      'expiry_date',
+      'quantity_produced',
+      'raw_materials_used',
+      'verified_by',
+      'approved_by',
+    ];
     const newErrors: any = {};
     required.forEach((field) => {
       if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
@@ -101,30 +111,32 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
           ].map(({ id, label, type = 'text' }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
-               <span className="text-red-700 ps-1">*</span>
- { id=== "batch_number" ? <select
-              id="batch_number"
-              value={formData.batch_number}
-            
-              onChange={(e) => handleChange('batch_number', e.target.value)}
-              className="w-full border border-gray-300 p-2 rounded-md"
-            >
-              <option value="">Select Batch Number</option>
-              {(batchnumber?.data ||[]).map((type) => (
-                <option key={type?.qc_batch_number} value={type?.qc_batch_number}>{type?.qc_batch_number}</option>
-              ))}
-            </select> :(
-
-              <TextInput
-                id={id}
-                type={type}
-                value={formData[id]}
-                onChange={(e) => handleChange(id, e.target.value)}
-                placeholder={`Enter ${label}`}
-                className='form-rounded-md'
-                color={errors[id] ? 'failure' : 'gray'}
-              />
-            )}
+              <span className="text-red-700 ps-1">*</span>
+              {id === 'batch_number' ? (
+                <select
+                  id="batch_number"
+                  value={formData.batch_number}
+                  onChange={(e) => handleChange('batch_number', e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded-md"
+                >
+                  <option value="">Select Batch Number</option>
+                  {(batchnumber?.data || []).map((type) => (
+                    <option key={type?.qc_batch_number} value={type?.qc_batch_number}>
+                      {type?.qc_batch_number}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <TextInput
+                  id={id}
+                  type={type}
+                  value={formData[id]}
+                  onChange={(e) => handleChange(id, e.target.value)}
+                  placeholder={`Enter ${label}`}
+                  className="form-rounded-md"
+                  color={errors[id] ? 'failure' : 'gray'}
+                />
+              )}
 
               {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
             </div>
@@ -133,26 +145,28 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
           {/* Raw Materials Used */}
           <div className="col-span-4">
             <Label htmlFor="raw_materials_used" value="Raw Materials Used (JSON)" />
-               <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
 
-             <select
+            <select
               id="raw_materials_used"
               value={formData.raw_materials_used}
-            
               onChange={(e) => handleChange('raw_materials_used', e.target.value)}
               className="w-full border border-gray-300 p-2 rounded-md"
             >
               <option value="">Select Raw Material Code</option>
-              {(rmcodedata ||[]).map((type) => (
-                <option key={type?.rm_code} value={type?.rm_code}>{type?.rm_code}</option>
+              {(rmcodedata || []).map((type) => (
+                <option key={type?.rm_code} value={type?.rm_code}>
+                  {type?.rm_code}
+                </option>
               ))}
             </select>
-           
-            {errors.raw_materials_used && <p className="text-red-500 text-xs">{errors.raw_materials_used}</p>}
+
+            {errors.raw_materials_used && (
+              <p className="text-red-500 text-xs">{errors.raw_materials_used}</p>
+            )}
           </div>
 
           {/* Process Details */}
-         
 
           {/* Status */}
           <div className="col-span-6">
@@ -163,7 +177,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
               onChange={(e) => handleChange('status', e.target.value)}
               className="w-full border border-gray-300 p-2 rounded-md"
             >
-                 <option value="">Select Status</option>
+              <option value="">Select Status</option>
               {['Draft', 'Final', 'Cancelled'].map((status) => (
                 <option key={status} value={status}>
                   {status}
@@ -171,7 +185,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
               ))}
             </select>
           </div>
-           <div className="col-span-6">
+          <div className="col-span-6">
             <Label htmlFor="process_details" value="Process Details (Optional)" />
             <Textarea
               id="process_details"
@@ -179,7 +193,7 @@ const AddBatchMasterModal = ({ show, setShowmodal, logindata ,rmcodedata,batchnu
               onChange={(e) => handleChange('process_details', e.target.value)}
               placeholder="Enter process notes or remarks"
               rows={2}
-              className='rounded-md'
+              className="rounded-md"
             />
           </div>
         </form>

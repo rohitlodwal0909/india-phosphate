@@ -26,6 +26,7 @@ import {
   getProductionBatch,
   getBmrReport,
 } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
+import FilterClothRecord from './FilterClothRecord';
 
 const BmrProcess = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -85,10 +86,16 @@ const BmrProcess = () => {
             data={bmrreport?.sieveIntegiry}
             isReadOnly={Boolean(bmrreport?.manufacturingprocedure?.length > 0)}
           />
+          <FilterClothRecord
+            bmr={bmr}
+            users={users}
+            data={bmrreport?.filterCloth}
+            isReadOnly={Boolean(bmrreport?.sieveIntegiry?.length > 0)}
+          />
           <InprocessCheck
             users={users}
             data={bmrreport?.inprocesscheck}
-            isReadOnly={Boolean(bmrreport?.sieveIntegiry?.length > 0)}
+            isReadOnly={Boolean(bmrreport?.filterCloth?.length > 0)}
           />
           <QualityControlIntimation
             users={users}

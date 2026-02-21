@@ -1,54 +1,62 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
   error: null,
-  Formuladata: [],         
-  addResult: null,  
+  Formuladata: [],
+  data: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
-export const GetFormula = createAsyncThunk(
-  "GetFormula /fetch",
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/get-formula`);
-      return response.data;
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch user modules.";
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
+export const GetFormula = createAsyncThunk('GetFormula /fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-formula`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
   }
-);
+});
 
 export const addFormula = createAsyncThunk(
-  "Formula/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'Formula/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-formula`,
-        formdata);
+      const response = await axiosInstance.post(`/store-formula`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
-export const updateFormula = createAsyncThunk(
-  'Formula/update',
-  async (updatedUser: any, { rejectWithValue }) => {
+export const createSpecification = createAsyncThunk(
+  'specification/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/update-formula/${updatedUser?.id}`,
-        updatedUser
+      const response = await axiosInstance.post(`/create-specification`, formdata);
+      return response.data;
+    } catch (error) {
+      // Return a rejected action containing the error message
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
+    }
+  },
+);
+
+export const getSpecificationById = createAsyncThunk(
+  'Formula/getSpecificationById',
+  async (id: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/getSpecificationById/${id}`);
       return response.data;
     } catch (error: any) {
       // Handle server or validation error
@@ -58,28 +66,43 @@ export const updateFormula = createAsyncThunk(
         return rejectWithValue({ message: 'Something went wrong. Please try again.' });
       }
     }
-  }
+  },
 );
-export const deleteFormula = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deleteFormula/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
+
+export const updateFormula = createAsyncThunk(
+  'Formula/update',
+  async (updatedUser: any, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/delete-formula/${id}`,{
-      data: { user_id }
-    });
-      return id;
+      const response = await axiosInstance.put(`/update-formula/${updatedUser?.id}`, updatedUser);
+      return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
+      // Handle server or validation error
+      if (error.response && error.response.data) {
+        return rejectWithValue(error.response.data); // API responded with error message
+      } else {
+        return rejectWithValue({ message: 'Something went wrong. Please try again.' });
+      }
     }
-  }
+  },
 );
 
-
+export const deleteFormula = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('deleteFormula/delete', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    await axiosInstance.delete(`/delete-formula/${id}`, {
+      data: { user_id },
+    });
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
+  }
+});
 
 const FormulaSlice = createSlice({
-  name: "formula",
+  name: 'formula',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -98,11 +121,31 @@ const FormulaSlice = createSlice({
         state.error = action.error.message;
       })
 
+      .addCase(getSpecificationById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getSpecificationById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(getSpecificationById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
       // ADD user
       .addCase(addFormula.fulfilled, (state, action) => {
         state.addResult = action.payload;
       })
       .addCase(addFormula.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(createSpecification.fulfilled, (state, action) => {
+        state.addResult = action.payload;
+      })
+      .addCase(createSpecification.rejected, (state, action) => {
         state.error = action.error.message;
       })
 
@@ -125,4 +168,3 @@ const FormulaSlice = createSlice({
 });
 
 export default FormulaSlice.reducer;
-
