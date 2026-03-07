@@ -2,7 +2,6 @@ const db = require("../models");
 const { Notification, User } = db;
 
 const createNotificationByRoleId = async ({ title, message, role_id }) => {
-  console.log(role_id, "zxvsb");
   try {
     if (!role_id) {
       console.warn("❌ role_id is required");
@@ -18,7 +17,7 @@ const createNotificationByRoleId = async ({ title, message, role_id }) => {
       return;
     }
 
-    console.log(`✅ Notifying ${users.length} users with role_id ${role_id}`);
+    // console.log(`✅ Notifying ${users.length} users with role_id ${role_id}`);
 
     for (const user of users) {
       const notification = await Notification.create({

@@ -15,6 +15,8 @@ import BmrProcess from 'src/views/inventory/bmr/bmr-creation/bmr-process/BmrProc
 import ManufacturingProcedureTable from 'src/views/master/ManufacturingProcedure/ManufacturingComponent/ManufacturingProcedureTable';
 import Grn from 'src/views/master/Grn/Grn';
 import AddReport from 'src/views/inventory/batch-approved/Addreport';
+import PurchaseOrder from 'src/views/marketing/purchaseorder/PurchaseOrder';
+import WorkOrder from 'src/views/inventory/work-order/WorkOrder';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -118,6 +120,11 @@ const fullLayoutChildren = [
   { path: '/inventory/inventory-pm', element: <PmIssuedInventory /> },
   { path: '/inventory/inventory-equipment', element: <EquipementIssuedInventory /> },
   { path: '/inventory/inventory-rm', element: <RmIssuedInventory /> },
+  { path: '/inventory/work-order', element: <WorkOrder /> },
+
+  // Marketing
+
+  { path: '/marketing/purchase-order', element: <PurchaseOrder /> },
 
   { path: '/inventory/report/:id', element: <SubmitReport /> },
   { path: '/master/company', element: <Company /> },

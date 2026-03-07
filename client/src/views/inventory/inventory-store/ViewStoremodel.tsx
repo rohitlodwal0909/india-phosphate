@@ -42,6 +42,7 @@ const ViewStoreModel = ({
     ['QA/QC Status', selectedRow?.qa_qc_status],
     ['Quantity', selectedRow?.quantity],
     ['Unit', selectedRow?.unit],
+    ['QC Reference No.', selectedRow?.qc_ref],
 
     ...(selectedRow?.type == 'equipment' ? [['Equipment', selectedRow?.equipments?.name]] : []),
   ];

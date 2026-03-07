@@ -1,14 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react';
 
 // import { ChildItem } from "../Sidebaritems";
-import { Sidebar } from "flowbite-react";
-import { Icon } from "@iconify/react";
-import { Link, useLocation } from "react-router";
-import { useTranslation } from "react-i18next";
-import { DashboardContext } from "src/context/DashboardContext/DashboardContext";
-
-
-
+import { Sidebar } from 'flowbite-react';
+import { Icon } from '@iconify/react';
+import { Link, useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { DashboardContext } from 'src/context/DashboardContext/DashboardContext';
 
 interface NavItemsProps {
   item: any;
@@ -18,18 +15,18 @@ const NavItems: React.FC<NavItemsProps> = ({ item }) => {
   const pathname = location.pathname;
   const { t } = useTranslation();
 
-  const {setIsMobileSidebarOpen}  = useContext(DashboardContext);
- 
+  const { setIsMobileSidebarOpen } = useContext(DashboardContext);
+
   return (
     <>
       <Sidebar.Item
         to={item.url}
         as={Link}
-        onClick = {() => setIsMobileSidebarOpen(false)}
+        onClick={() => setIsMobileSidebarOpen(false)}
         className={`${
           item.url == pathname
-            ? "text-primary bg-lightprimary rounded-full active"
-            : "text-link bg-transparent group/link "
+            ? 'text-primary bg-lightprimary rounded-full active'
+            : 'text-link bg-transparent group/link '
         } `}
       >
         <span className="flex gap-3 align-center items-center">
@@ -39,17 +36,13 @@ const NavItems: React.FC<NavItemsProps> = ({ item }) => {
             <span
               className={`${
                 item.url == pathname
-                  ? "dark:bg-white rounded-full mx-1.5 group-hover/link:bg-primary !bg-primary h-[6px] w-[6px]"
-                  : "h-[6px] w-[6px] bg-black/40 dark:bg-white rounded-full mx-1.5 group-hover/link:bg-primary"
+                  ? 'dark:bg-white rounded-full mx-1.5 group-hover/link:bg-primary !bg-primary h-[6px] w-[6px]'
+                  : 'h-[6px] w-[6px] bg-black/40 dark:bg-white rounded-full mx-1.5 group-hover/link:bg-primary'
               } `}
             ></span>
           )}
-          <span
-            className={`max-w-36 overflow-hidden`}
-          >
-            {t(`${item.name}`)}
-          </span>
-        </span> 
+          <span className={`max-w-36 overflow-hidden`}>{t(`${item.name}`)}</span>
+        </span>
       </Sidebar.Item>
     </>
   );

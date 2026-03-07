@@ -1,17 +1,17 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import { apiUrl } from "../../../constants/contant.tsx";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant.tsx';
 
 const initialState = {
   loading: false,
   error: null as string | null,
-  data: [] as any[],         // for approved batches
-  addResult: null as any,    // for add-fpr result
+  data: [] as any[], // for approved batches
+  addResult: null as any, // for add-fpr result
 };
 
 // ✅ Fetch Approved Batches
 export const getApprovedBatch = createAsyncThunk(
-  "approvedBatch/fetch",
+  'approvedBatch/fetch',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${apiUrl}/get-approved-batch`);
@@ -21,33 +21,30 @@ export const getApprovedBatch = createAsyncThunk(
         error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
-        "Something went wrong while fetching approved batches.";
+        'Something went wrong while fetching approved batches.';
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 // ✅ Add FPR (Release No + Release Date)
-export const addFpr = createAsyncThunk(
-  "fpr/add",
-  async (data: any, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${apiUrl}/add-fpr`, data);
-      return response.data;
-    } catch (error: any) {
-      console.error("Add FPR error:", error);
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Unknown error occurred";
-      return rejectWithValue(message);
-    }
+export const addFpr = createAsyncThunk('fpr/add', async (data: any, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(`${apiUrl}/add-fpr`, data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Add FPR error:', error);
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Unknown error occurred';
+    return rejectWithValue(message);
   }
-);
+});
 
 const FprSlice = createSlice({
-  name: "fpr",
+  name: 'fpr',
   initialState,
   reducers: {
     resetAddResult(state) {

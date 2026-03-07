@@ -49,6 +49,29 @@ const SidebarContent: MenuItem[] = [
     ],
   },
   
+      {
+    id: 4,
+    name: "Marketing Department",
+    items: [
+      {
+        heading: "Marketing Department",
+         children: [
+             {
+             name: "Purchase Order",
+            icon: "tabler:file-invoice",             
+            id: uniqueId(),
+             url: "/marketing/purchase-order",
+             subId:1,
+             add: false,
+             view: false,
+             edit: false,
+             delete: false,
+          },
+    
+        ]
+      },
+    ],
+  },
    {
     id: 2,
     name: "inventory Managment",
@@ -201,9 +224,9 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/inventory/production",
              add: false,
-        view: false,
-        edit: false,
-        delete: false,
+             view: false,
+              edit: false,
+              delete: false,
           },
 
           {
@@ -213,9 +236,9 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/inventory/finishing",
              add: false,
-        view: false,
-        edit: false,
-        delete: false,
+            view: false,
+            edit: false,
+            delete: false,
           },
               {
             subId:7,
@@ -239,6 +262,17 @@ const SidebarContent: MenuItem[] = [
               edit: false,
               delete: false,
           },
+           {
+            subId:10,
+            name: "Work Order",
+            icon: "mdi:disc",
+            id: uniqueId(),
+            url: "/inventory/work-order",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },
           
           {
             subId:9,
@@ -255,6 +289,7 @@ const SidebarContent: MenuItem[] = [
       },
     ],
   },
+
      {
     id: 3,
     name: "Master",
@@ -621,6 +656,10 @@ const SidebarContent: MenuItem[] = [
       },
     ],
      },
+          
+
+
+
 ];
 
 export default SidebarContent;

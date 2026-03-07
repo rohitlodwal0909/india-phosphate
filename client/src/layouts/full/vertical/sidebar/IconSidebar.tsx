@@ -1,28 +1,29 @@
-import  { useContext } from "react";
-import { Icon } from "@iconify/react";
-import Miniicons from "./MiniSidebar";
-import SimpleBar from "simplebar-react";
-import { Button, Tooltip } from "flowbite-react";
-import { CustomizerContext } from "src/context/CustomizerContext";
-import Logo from "../../shared/logo/Logo";
-import { useSelector } from "react-redux";
+import { useContext } from 'react';
+import { Icon } from '@iconify/react';
+import Miniicons from './MiniSidebar';
+import SimpleBar from 'simplebar-react';
+import { Button, Tooltip } from 'flowbite-react';
+import { CustomizerContext } from 'src/context/CustomizerContext';
+import Logo from '../../shared/logo/Logo';
+import { useSelector } from 'react-redux';
 
 export const IconSidebar = () => {
   const { selectedIconId, setSelectedIconId, setIsCollapse } = useContext(CustomizerContext) || {};
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
   const hasPermissionForModule = (moduleId: number) => {
-    return logindata?.permission?.some((p: any) =>
-      p.module_id === moduleId &&
-      p.role_id === logindata?.admin?.role_id &&
-      [1, 2, 3, 4].includes(p.permission_id) &&
-      p.status === true
+    return logindata?.permission?.some(
+      (p: any) =>
+        p.module_id === moduleId &&
+        p.role_id === logindata?.admin?.role_id &&
+        [1, 2, 3, 4].includes(p.permission_id) &&
+        p.status === true,
     );
   };
 
   const handleClick = (id: number) => {
     setSelectedIconId(id);
-    setIsCollapse("full-sidebar");
+    setIsCollapse('full-sidebar');
   };
 
   return (
@@ -42,8 +43,8 @@ export const IconSidebar = () => {
               key={index}
               className={`h-12 w-12 hover:text-primary text-darklink hover:bg-lightprimary rounded-full flex justify-center items-center mx-auto mb-2 ${
                 links.id === selectedIconId
-                  ? "text-primary bg-lightprimary"
-                  : "text-darklink bg-transparent"
+                  ? 'text-primary bg-lightprimary'
+                  : 'text-darklink bg-transparent'
               }`}
               type="button"
               onClick={() => {

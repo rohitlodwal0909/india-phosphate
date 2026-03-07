@@ -13,6 +13,8 @@ import { useSelector } from 'react-redux';
 const SidebarLayout = () => {
   const { selectedIconId, setSelectedIconId } = useContext(CustomizerContext) || {};
 
+  // const selectedIconId = 4;
+
   const selectedContent = SidebarContent.find((data) => data.id === selectedIconId);
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -25,12 +27,13 @@ const SidebarLayout = () => {
         p.user_id === logindata?.admin?.id &&
         p.submodule_id === subId &&
         [1, 2, 3, 4].includes(p.permission_id) &&
-        p.status === true, // ✅ If *any one* of the 1–4 permissions is true, return true
+        p.status === true,
     );
   };
 
   const location = useLocation();
   const pathname = location.pathname;
+
   function findActiveUrl(narray: any, targetUrl: any) {
     for (const item of narray) {
       if (item.items) {
@@ -58,9 +61,9 @@ const SidebarLayout = () => {
       }
     }, 100);
   }, [pathname]);
+
   useEffect(() => {
     const result = findActiveUrl(SidebarContent, pathname);
-
     if (result) {
       setSelectedIconId(result);
     }
@@ -79,7 +82,7 @@ const SidebarLayout = () => {
         >
           <SimpleBar className="h-[calc(100vh_-_85px)]">
             <Sidebar.Items className="pe-4 rtl:pe-0 rtl:ps-4">
-              <Sidebar.ItemGroup className="sidebar-nav hide-menu ">
+              <Sidebar.ItemGroup className="sidebar-nav hide-menu">
                 {selectedContent &&
                   selectedContent.items?.map((item, index) => {
                     const filteredChildren = item.children?.filter((child) => {

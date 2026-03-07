@@ -12,30 +12,35 @@ exports.register = async (req, res, next) => {
     const existingUser = await User.findOne({ where: { username } });
 
     if (existingUser) {
-      const error = new Error("Username already exists");
-      error.status = 400;
-      return next(error);
+      return res.status(400).json({
+        success: false,
+        message: "Username already exists"
+      });
     }
 
+    // Signature check
     if (!req.file) {
       return res.status(400).json({
+        success: false,
         message: "Signature is required"
       });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create user
     const user = await User.create({
       username,
       password: hashedPassword,
       showpassword: password,
-      signature: req.file.filename,
+      signature: `${req.file.filename}`, // save full path
       role_id,
-      status: "Inactive" // default status
+      status: "Inactive"
     });
 
     res.status(201).json({
+      success: true,
       message: "User registered successfully",
       user: {
         id: user.id,

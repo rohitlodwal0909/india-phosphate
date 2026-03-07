@@ -25,8 +25,6 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
     fields: [{ test: '', specification: '' }],
   });
 
-  const [errors, setErrors] = useState<any>({});
-
   /* ===========================
      FETCH DATA
   ============================ */
@@ -36,9 +34,6 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
     }
   }, [selectedRow, show]);
 
-  /* ===========================
-     SET FORM FROM SELECTOR
-  ============================ */
   useEffect(() => {
     if (data && Array.isArray(data) && data.length > 0) {
       setFormData({
@@ -56,9 +51,6 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
     }
   }, [data]);
 
-  /* ===========================
-     FIELD CHANGE
-  ============================ */
   const handleFieldChange = (index: number, field: string, value: string) => {
     const updatedFields = [...formData.fields];
     updatedFields[index][field] = value;
@@ -90,7 +82,6 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
         newErrors[`fields_${index}_specification`] = 'Specification is required';
     });
 
-    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 

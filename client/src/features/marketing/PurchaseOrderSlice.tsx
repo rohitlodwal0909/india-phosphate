@@ -1,0 +1,171 @@
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axiosInstance from 'src/constants/axiosInstance';
+
+const initialState = {
+  loading: false,
+  error: null,
+  purchaseOrders: [],
+  addResult: null,
+  remark: null,
+  status: null,
+  addWorkOrder: null,
+  updateResult: null,
+  deleteResult: null,
+};
+
+export const getPurchaseOrders = createAsyncThunk('purchaseOrder/fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-purchase-orders`);
+    return response.data;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch purchase orders.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
+export const addPurchaseOrder = createAsyncThunk(
+  'purchaseOrder/add',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/store-purchase-order`, formdata);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
+export const updatePurchaseOrder = createAsyncThunk(
+  'purchaseOrder/update',
+  async (updatedOrder: any) => {
+    const response = await axiosInstance.put(
+      `/update-purchase-order/${updatedOrder?.id}`,
+      updatedOrder,
+    );
+    return response.data;
+  },
+);
+
+export const deletePurchaseOrder = createAsyncThunk<any, number, { rejectValue: any }>(
+  'purchaseOrder/delete',
+  async (id, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/delete-purchase-order/${id}`);
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete purchase order.');
+    }
+  },
+);
+
+export const createWorkOrderNo = createAsyncThunk(
+  'purchaseOrder/createWorkorder',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/create-work-order-no`, formdata);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
+export const updateWorkOrderStatus = createAsyncThunk(
+  'purchaseOrder/updateWorkOrderStatus',
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post('/work-order/status-update', data);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response.data.message);
+    }
+  },
+);
+
+export const addRemark = createAsyncThunk(
+  'purchaseOrder/remark',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/add-remark`, formdata);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
+const PurchaseOrderSlice = createSlice({
+  name: 'purchaseOrder',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // GET
+      .addCase(getPurchaseOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPurchaseOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.purchaseOrders = action.payload;
+      })
+      .addCase(getPurchaseOrders.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ADD
+      .addCase(addPurchaseOrder.fulfilled, (state, action) => {
+        state.addResult = action.payload;
+      })
+      .addCase(addPurchaseOrder.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      // UPDATE
+      .addCase(updatePurchaseOrder.fulfilled, (state, action) => {
+        state.updateResult = action.payload;
+      })
+      .addCase(updatePurchaseOrder.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      // DELETE
+      .addCase(deletePurchaseOrder.fulfilled, (state, action) => {
+        state.deleteResult = action.payload;
+      })
+      .addCase(deletePurchaseOrder.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      // ADD
+      .addCase(createWorkOrderNo.fulfilled, (state, action) => {
+        state.addWorkOrder = action.payload;
+      })
+      .addCase(createWorkOrderNo.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      .addCase(addRemark.fulfilled, (state, action) => {
+        state.remark = action.payload;
+      })
+      .addCase(addRemark.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      .addCase(updateWorkOrderStatus.fulfilled, (state, action) => {
+        state.status = action.payload;
+      })
+      .addCase(updateWorkOrderStatus.rejected, (state, action: any) => {
+        state.error = action.payload;
+      });
+  },
+});
+
+export default PurchaseOrderSlice.reducer;

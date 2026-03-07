@@ -102,22 +102,32 @@ const GRNEntryTable: React.FC = () => {
     }
   };
 
-  const filteredData = useMemo(
-    () =>
-      data.filter((item) => {
-        const matchType =
-          !filters.guard_type ||
-          item.guard_type?.toLowerCase().includes(filters.guard_type.toLowerCase());
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const entry = item?.grn_entries?.[0];
 
-        const matchSearch =
-          !searchText ||
-          Object.values(item).some((v) =>
-            String(v).toLowerCase().includes(searchText.toLowerCase()),
-          );
-        return matchType && matchSearch;
-      }),
-    [data, filters, searchText],
-  );
+      const searchFields = [
+        item?.inward_number,
+        item?.guard_type,
+        entry?.rmcode?.rm_code,
+        entry?.pm_code?.packaging_type,
+        entry?.quantity,
+        entry?.unit,
+        entry?.qa_qc_status,
+        entry?.grn_date,
+        entry?.grn_time,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const matchSearch = searchFields.includes(searchText.toLowerCase());
+
+      const matchType =
+        !filters.guard_type || item.guard_type?.toLowerCase() === filters.guard_type.toLowerCase();
+
+      return matchSearch && matchType;
+    });
+  }, [data, searchText, filters]);
 
   const columns = useMemo(
     () => [

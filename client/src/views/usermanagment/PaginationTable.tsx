@@ -132,7 +132,7 @@ function PaginationTable({ roleData }) {
 
         return signature ? (
           <img
-            src={`${ImageUrl}/uploads/signatures/${signature}`}
+            src={`${ImageUrl}/signatures/${signature}`}
             alt="User Signature"
             className="h-16 w-auto border rounded"
           />

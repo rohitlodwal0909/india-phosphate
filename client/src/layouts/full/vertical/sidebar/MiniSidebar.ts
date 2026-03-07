@@ -19,8 +19,17 @@ const Miniicons: MiniiconsType[] = [
   {
     id: 3,
     icon: "hugeicons:master-card",
+    
     // icon: "solar:lock-keyhole-minimalistic-bold-duotone",
     tooltip: "Master",
+  },
+  {
+    id: 4,
+  // icon: "mdi:chart-line",
+    icon: "mdi:bullhorn-outline",
+
+    // icon: "solar:lock-keyhole-minimalistic-bold-duotone",
+    tooltip: "Marketing Department",
   },
 
 ];

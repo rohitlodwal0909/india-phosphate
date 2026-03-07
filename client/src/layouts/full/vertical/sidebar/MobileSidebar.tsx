@@ -1,19 +1,16 @@
-
-import  { useContext } from "react";
-import { Sidebar } from "flowbite-react";
-import { IconSidebar } from "./IconSidebar";
-import SidebarContent from "./Sidebaritems";
-import NavItems from "./NavItems";
-import NavCollapse from "./NavCollapse";
-import SimpleBar from "simplebar-react";
-import { CustomizerContext } from "../../../../context/CustomizerContext";
-import React from "react";
+import { useContext } from 'react';
+import { Sidebar } from 'flowbite-react';
+import { IconSidebar } from './IconSidebar';
+import SidebarContent from './Sidebaritems';
+import NavItems from './NavItems';
+import NavCollapse from './NavCollapse';
+import SimpleBar from 'simplebar-react';
+import { CustomizerContext } from '../../../../context/CustomizerContext';
+import React from 'react';
 
 const MobileSidebar = () => {
   const { selectedIconId } = useContext(CustomizerContext) || {};
-  const selectedContent = SidebarContent.find(
-    (data) => data.id === selectedIconId
-  );
+  const selectedContent = SidebarContent.find((data) => data.id === selectedIconId);
   return (
     <>
       <div>
@@ -30,9 +27,7 @@ const MobileSidebar = () => {
                 {selectedContent &&
                   selectedContent.items?.map((item, index) => (
                     <React.Fragment key={index}>
-                      <h5 className="text-link font-semibold text-sm caption">
-                        {item.heading}
-                      </h5>
+                      <h5 className="text-link font-semibold text-sm caption">{item.heading}</h5>
                       {item.children?.map((child, index) => (
                         <React.Fragment key={child.id && index}>
                           {child.children ? (
