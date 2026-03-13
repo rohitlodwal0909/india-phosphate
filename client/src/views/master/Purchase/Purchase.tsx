@@ -3,16 +3,14 @@ import PurchaseTable from './PurchaseComponent.tsx/PurchaseTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const Purchase = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Purchase ", to: "/" }]}
-        title="Purchase"/>
-         <CardBox>
-        <PurchaseTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'Purchase ', to: '/' }]} title="Purchase" />
+      <CardBox>
+        <PurchaseTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default Purchase
+export default Purchase;

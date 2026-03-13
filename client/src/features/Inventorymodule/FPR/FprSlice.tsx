@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
@@ -14,7 +13,7 @@ export const getApprovedBatch = createAsyncThunk(
   'approvedBatch/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-approved-batch`);
+      const response = await axiosInstance.get(`/get-approved-batch`);
       return response.data;
     } catch (error: any) {
       const message =
@@ -30,7 +29,7 @@ export const getApprovedBatch = createAsyncThunk(
 // ✅ Add FPR (Release No + Release Date)
 export const addFpr = createAsyncThunk('fpr/add', async (data: any, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/add-fpr`, data);
+    const response = await axiosInstance.post(`/add-fpr`, data);
     return response.data;
   } catch (error: any) {
     console.error('Add FPR error:', error);

@@ -1,47 +1,45 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import  { apiUrl  }from '../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
   error: null,
-  notificationData: [],         
-  addResult: null,  
+  notificationData: [],
+  addResult: null,
 };
 
 export const GetNotification = createAsyncThunk(
-  "GetNotification/fetch",
+  'GetNotification/fetch',
   async (user_id, thunkAPI) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-all-notification/${user_id}`);
+      const response = await axiosInstance.get(`/get-all-notification/${user_id}`);
       return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Failed to fetch leads.";
+      const errorMessage = error.response?.data?.message || 'Failed to fetch leads.';
       return thunkAPI.rejectWithValue(errorMessage);
     }
-  }
+  },
 );
 
 export const ReadNotification = createAsyncThunk(
-  "ReadNotifications/add",
-  async (id:any, { rejectWithValue }) => {
+  'ReadNotifications/add',
+  async (id: any, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/read-notification/${id}`,
-       );
+      const response = await axios.get(`${apiUrl}/read-notification/${id}`);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
-
-
 const NotificationSlice = createSlice({
-  name: "notification",
+  name: 'notification',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -66,10 +64,8 @@ const NotificationSlice = createSlice({
       })
       .addCase(ReadNotification.rejected, (state, action) => {
         state.error = action.error.message;
-      })
-
+      });
   },
 });
 
 export default NotificationSlice.reducer;
-

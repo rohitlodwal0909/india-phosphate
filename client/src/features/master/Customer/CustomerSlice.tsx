@@ -1,74 +1,82 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
   error: null,
-  customerdata: [],         
-  addResult: null,  
+  customerdata: [],
+  existscustomer: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
-export const GetCustomer = createAsyncThunk(
-  "GetCustomer /fetch",
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/get-customer`);
-      return response.data;
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch user modules.";
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
+export const GetCustomer = createAsyncThunk('GetCustomer /fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-customer`);
+    return response.data.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
   }
-);
+});
+
+export const GetExistingCustomer = createAsyncThunk('existing/fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-existing-customer`);
+    return response.data.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
+export const addNote = createAsyncThunk('note/add', async (formdata: any, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(`/add-note`, formdata);
+    return response.data;
+  } catch (error) {
+    // Return a rejected action containing the error message
+    return rejectWithValue(
+      error.response?.data?.message || error.message || 'Something went wrong',
+    );
+  }
+});
 
 export const addCustomer = createAsyncThunk(
-  "Customer/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'Customer/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-customer`,
-        formdata);
+      const response = await axiosInstance.post(`/store-customer`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
-  export const updateCustomer = createAsyncThunk("Customer/update", async (updatedUser:any) => {
-  const response = await axios.put(
-     `${apiUrl}/update-customer/${updatedUser?.id}`,
-    updatedUser
-  );
+export const updateCustomer = createAsyncThunk('Customer/update', async (updatedUser: any) => {
+  const response = await axiosInstance.put(`/update-customer/${updatedUser?.id}`, updatedUser);
   return response.data;
 });
 
-export const deleteCustomer = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deleteCustomer/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
+export const deleteCustomer = createAsyncThunk<any, { id: string }, { rejectValue: any }>(
+  'deleteCustomer/delete',
+  async ({ id }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/delete-customer/${id}`,{
-      data: { user_id }
-    });
+      await axiosInstance.delete(`/delete-customer/${id}`);
       return id;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
     }
-  }
+  },
 );
 
-
-
 const CustomerSlice = createSlice({
-  name: "Customer",
+  name: 'Customer',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -87,11 +95,31 @@ const CustomerSlice = createSlice({
         state.error = action.error.message;
       })
 
+      .addCase(GetExistingCustomer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(GetExistingCustomer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.existscustomer = action.payload;
+      })
+      .addCase(GetExistingCustomer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
       // ADD user
       .addCase(addCustomer.fulfilled, (state, action) => {
         state.addResult = action.payload;
       })
       .addCase(addCustomer.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(addNote.fulfilled, (state, action) => {
+        state.addResult = action.payload;
+      })
+      .addCase(addNote.rejected, (state, action) => {
         state.error = action.error.message;
       })
 
@@ -114,4 +142,3 @@ const CustomerSlice = createSlice({
 });
 
 export default CustomerSlice.reducer;
-

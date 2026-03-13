@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
@@ -14,7 +13,7 @@ const initialState = {
 
 export const GetRmCode = createAsyncThunk('GetRmCode /fetch', async (_, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-rm-code`);
+    const response = await axiosInstance.get(`/get-rm-code`);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
@@ -26,7 +25,7 @@ export const addRmCode = createAsyncThunk(
   'RmCode/add',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-rm-code`, formdata);
+      const response = await axiosInstance.post(`/store-rm-code`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
@@ -41,7 +40,7 @@ export const addrawmaterial = createAsyncThunk(
   'RmCode/add',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-row-material`, formdata);
+      const response = await axiosInstance.post(`/store-row-material`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
@@ -53,7 +52,7 @@ export const addrawmaterial = createAsyncThunk(
 );
 
 export const updateRmCode = createAsyncThunk('RmCode/update', async (updatedUser: any) => {
-  const response = await axios.put(`${apiUrl}/update-rm-code/${updatedUser?.id}`, updatedUser);
+  const response = await axiosInstance.put(`/update-rm-code/${updatedUser?.id}`, updatedUser);
   return response.data;
 });
 
@@ -63,7 +62,7 @@ export const deleteRmCode = createAsyncThunk<
   { rejectValue: any }
 >('deleteRmCode/delete', async ({ id, user_id }, { rejectWithValue }) => {
   try {
-    await axios.delete(`${apiUrl}/delete-rm-code/${id}`, {
+    await axiosInstance.delete(`/delete-rm-code/${id}`, {
       data: { user_id },
     });
     return id;
@@ -78,7 +77,7 @@ export const rawmaterialdelete = createAsyncThunk<
   { rejectValue: string }
 >('rawmaterial/delete', async (id, { rejectWithValue }) => {
   try {
-    await axios.delete(`${apiUrl}/delete-rm-material/${id}`);
+    await axiosInstance.delete(`/delete-rm-material/${id}`);
     return id;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to delete raw material');

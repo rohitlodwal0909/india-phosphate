@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
@@ -13,7 +12,7 @@ const initialState = {
 
 export const GetEquipment = createAsyncThunk('GetEquipment /fetch', async (_, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-equipment`);
+    const response = await axiosInstance.get(`/get-equipment`);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
@@ -25,7 +24,7 @@ export const addEquipment = createAsyncThunk(
   'Equipment/add',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/create-equipment`, formdata);
+      const response = await axiosInstance.post(`/create-equipment`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
@@ -40,10 +39,7 @@ export const updateEquipment = createAsyncThunk(
   'Equipment/update',
   async (updatedUser: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/update-equipment/${updatedUser?.id}`,
-        updatedUser,
-      );
+      const response = await axiosInstance.put(`/update-equipment/${updatedUser?.id}`, updatedUser);
       return response.data;
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -61,7 +57,7 @@ export const deleteEquipment = createAsyncThunk<
   { rejectValue: any }
 >('deleteEquipment/delete', async ({ id, user_id }, { rejectWithValue }) => {
   try {
-    await axios.delete(`${apiUrl}/delete-equipment/${id}`, {
+    await axiosInstance.delete(`/delete-equipment/${id}`, {
       data: { user_id },
     });
     return id;

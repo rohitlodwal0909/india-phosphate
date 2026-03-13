@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
 import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
@@ -18,7 +16,7 @@ export const GetFetchProduction = createAsyncThunk(
   'GetFetchProduction/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/all-production`);
+      const response = await axiosInstance.get(`/all-production`);
       return response.data;
     } catch (error) {
       const message =
@@ -35,7 +33,7 @@ export const GetFetchQcProduction = createAsyncThunk(
   'GetFetchQcProduction/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/qc-allproduction`);
+      const response = await axiosInstance.get(`/qc-allproduction`);
       return response.data;
     } catch (error) {
       const message =
@@ -52,7 +50,7 @@ export const addProduction = createAsyncThunk(
   'addProduction/add',
   async (newCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/add-Production`, newCheckin);
+      const response = await axiosInstance.post(`/add-Production`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
@@ -96,7 +94,7 @@ export const addFinishingEntry = createAsyncThunk(
   'addFinishingEntry/add',
   async (newCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/add-finishing-entry`, newCheckin);
+      const response = await axiosInstance.post(`/add-finishing-entry`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
@@ -118,8 +116,8 @@ export const updateFinishentry = createAsyncThunk(
   'updateFinishentry/update',
   async (updatedCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/update-finishing-entry/${updatedCheckin.batch_number}`,
+      const response = await axiosInstance.put(
+        `/update-finishing-entry/${updatedCheckin.batch_number}`,
         updatedCheckin,
       );
       return response.data;
@@ -133,7 +131,7 @@ export const deleteDispatch = createAsyncThunk(
   'Dispatch/delete',
   async (checkinId: any, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/delete-dispatch/${checkinId}`);
+      await axiosInstance.delete(`/delete-dispatch/${checkinId}`);
       return checkinId;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');

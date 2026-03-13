@@ -38,7 +38,9 @@ interface PurchaseOrderDataType {
     remark: string;
     status: string;
   };
-  company_name: string;
+  customers?: {
+    company_name: string;
+  };
   product_name: string;
 }
 
@@ -95,7 +97,7 @@ const ViewWorkOrderTable = () => {
       return (
         item.po_no?.toLowerCase().includes(search) ||
         item.product_name?.toLowerCase().includes(search) ||
-        item.company_name?.toLowerCase().includes(search) ||
+        item.customers?.company_name?.toLowerCase().includes(search) ||
         item.workNo?.work_order_no?.toLowerCase().includes(search) ||
         item.workNo?.remark?.toLowerCase().includes(search)
       );
@@ -137,12 +139,10 @@ const ViewWorkOrderTable = () => {
         cell: (info) => info.row.original.workNo?.work_order_no || '-',
       }),
 
-      columnHelper.accessor('product_name', {
-        header: 'Product Name',
-      }),
-
-      columnHelper.accessor('company_name', {
-        header: 'Company Name',
+      columnHelper.display({
+        id: 'customers',
+        header: 'Work Order No.',
+        cell: (info) => info.row.original.customers?.company_name || '-',
       }),
 
       columnHelper.display({

@@ -17,6 +17,7 @@ import Grn from 'src/views/master/Grn/Grn';
 import AddReport from 'src/views/inventory/batch-approved/Addreport';
 import PurchaseOrder from 'src/views/marketing/purchaseorder/PurchaseOrder';
 import WorkOrder from 'src/views/inventory/work-order/WorkOrder';
+import ExistingCustomer from 'src/views/master/ExistingCustomer/ExistingCus';
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -130,6 +131,7 @@ const fullLayoutChildren = [
   { path: '/master/company', element: <Company /> },
   { path: '/master/supplier', element: <Supplier /> },
   { path: '/master/customer', element: <Customer /> },
+  { path: '/master/existing-customer', element: <ExistingCustomer /> },
   // { path: '/master/category', element: <Category/> },
   { path: '/master/rm-code', element: <RmCode /> },
   { path: '/master/pm-code', element: <PmCode /> },

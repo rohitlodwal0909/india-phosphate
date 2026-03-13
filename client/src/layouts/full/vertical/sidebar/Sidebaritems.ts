@@ -332,6 +332,17 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
+           {
+            name: "Existing Customer",
+            icon: "ix:customer",
+            id: uniqueId(),
+            url: "/master/existing-customer",
+            subId:33,
+             add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },
       
            {
             name: "Accounts",

@@ -13,11 +13,17 @@ module.exports = (sequelize, DataTypes) => {
       user_id: {
         type: DataTypes.INTEGER
       },
-      company_name: {
+      company_id: {
+        type: DataTypes.INTEGER
+      },
+      submitted_by: {
         type: DataTypes.STRING
       },
 
       company_address: {
+        type: DataTypes.TEXT
+      },
+      products: {
         type: DataTypes.TEXT
       },
 
@@ -123,6 +129,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "user_id",
       sourceKey: "id",
       as: "users"
+    });
+    PurchaseOrderModel.belongsTo(models.Customer, {
+      foreignKey: "company_id",
+      sourceKey: "id",
+      as: "customers"
     });
     PurchaseOrderModel.hasOne(models.WorkOrderModel, {
       foreignKey: "po_id",

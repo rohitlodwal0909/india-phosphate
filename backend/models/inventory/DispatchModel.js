@@ -8,8 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true
       },
       user_id: {
-        type: DataTypes.INTEGER,
-      
+        type: DataTypes.INTEGER
+      },
+      po_id: {
+        type: DataTypes.INTEGER
       },
       vehicle_number: DataTypes.STRING,
       driver_details: DataTypes.STRING,

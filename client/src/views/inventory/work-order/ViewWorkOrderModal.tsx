@@ -8,6 +8,11 @@ type Props = {
 };
 
 const ViewWorkOrderModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow }: Props) => {
+  const products =
+    typeof selectedRow?.products === 'string'
+      ? JSON.parse(selectedRow.products)
+      : selectedRow?.products || [];
+
   return (
     <Modal
       size="5xl"
@@ -15,84 +20,133 @@ const ViewWorkOrderModal = ({ placeModal, modalPlacement, setPlaceModal, selecte
       position={modalPlacement}
       onClose={() => setPlaceModal(false)}
     >
-      <ModalHeader className="pb-0 text-center mb-4 font-semibold text-gray-800">
-        View Work Order
+      <ModalHeader className="text-center font-bold text-xl text-gray-900 border-b pb-3">
+        Work Order
       </ModalHeader>
 
-      <ModalBody>
-        <div className="mx-auto p-6 bg-white shadow-md rounded-md">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[
-              ['Company Name', selectedRow?.company_name],
-              ['Company Address', selectedRow?.company_address],
-              ['Delivery Address', selectedRow?.delivery_address],
-              ['Product Name', selectedRow?.product_name],
-              ['Grade', selectedRow?.grade],
-              ['Quantity', selectedRow?.quantity],
-              ['Rate', selectedRow?.rate],
-              ['GST (%)', selectedRow?.gst],
-              ['Total Amount', selectedRow?.total],
-              ['Packing', selectedRow?.packing],
-              ['Freight', selectedRow?.freight],
-              ['Payment Terms', selectedRow?.payment_terms],
-              ['Order Type', selectedRow?.export ? 'Export' : 'Domestic'],
-              ['Expected Delivery Date', selectedRow?.expected_delivery_date],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">{label}</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded-md">{value || '-'}</p>
-              </div>
-            ))}
+      <ModalBody className="space-y-6">
+        {/* Company Details */}
+        <div className="bg-gray-50 p-5 rounded-lg border">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">PO Information</h3>
 
-            {/* Export Specific Fields */}
-            {selectedRow?.export && (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Country Name
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded-md">
-                    {selectedRow?.country_name || '-'}
-                  </p>
-                </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="text-sm font-semibold text-gray-800">PO No.</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.po_no || '-'}</p>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Inco Term
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded-md">
-                    {selectedRow?.inco_term || '-'}
-                  </p>
-                </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Company Name</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.customers?.company_name || '-'}</p>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Discharge Port
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded-md">
-                    {selectedRow?.discharge_port || '-'}
-                  </p>
-                </div>
-              </>
-            )}
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Company Address</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.company_address || '-'}</p>
+            </div>
 
-            {/* Custom Labels */}
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Customise Labels
-              </label>
-              <p className="text-gray-900 bg-gray-50 p-2 rounded-md">
-                {selectedRow?.customise_labels || '-'}
-              </p>
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Delivery Address</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.delivery_address || '-'}</p>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Payment Terms</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.payment_terms || '-'}</p>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Freight</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.freight || '-'}</p>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Expected Delivery Date</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.expected_delivery_date || '-'}</p>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-800">Submitted By</label>
+              <p className="text-gray-900 mt-1">{selectedRow?.submitted_by || '-'}</p>
             </div>
           </div>
         </div>
+
+        {/* Products */}
+        <div className="bg-white border rounded-lg p-5">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+            Product Details
+          </h3>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border border-gray-200 rounded-md overflow-hidden">
+              <thead className="bg-gray-800 text-white">
+                <tr>
+                  <th className="p-3 text-left">Product</th>
+                  <th className="p-3 text-left">Grade</th>
+                  <th className="p-3 text-left">Quantity</th>
+                  <th className="p-3 text-left">Rate</th>
+                  <th className="p-3 text-left">GST %</th>
+                  <th className="p-3 text-left">Packing</th>
+                  <th className="p-3 text-left">Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {products.length ? (
+                  products.map((p: any, i: number) => (
+                    <tr key={i} className="border-t hover:bg-gray-50">
+                      <td className="p-3 font-medium text-gray-900">{p.product_name}</td>
+                      <td className="p-3 text-gray-700">{p.grade}</td>
+                      <td className="p-3 text-gray-700">{p.quantity}</td>
+                      <td className="p-3 text-gray-700">{p.rate}</td>
+                      <td className="p-3 text-gray-700">{p.gst}</td>
+                      <td className="p-3 text-gray-700">{p.packing}</td>
+                      <td className="p-3 font-semibold text-gray-900">{p.total}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="text-center p-4 text-gray-500">
+                      No Products Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Export Details */}
+        {selectedRow?.export && (
+          <div className="bg-gray-50 p-5 rounded-lg border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+              Export Details
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div>
+                <label className="text-sm font-semibold text-gray-800">Country</label>
+                <p className="text-gray-900 mt-1">{selectedRow?.country_name || '-'}</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-gray-800">Inco Term</label>
+                <p className="text-gray-900 mt-1">{selectedRow?.inco_term || '-'}</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-gray-800">Discharge Port</label>
+                <p className="text-gray-900 mt-1">{selectedRow?.discharge_port || '-'}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </ModalBody>
 
       <ModalFooter>
         <button
           onClick={() => setPlaceModal(false)}
-          className="px-4 py-2 bg-gray-500 text-white rounded-md"
+          className="px-5 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-md"
         >
           Close
         </button>

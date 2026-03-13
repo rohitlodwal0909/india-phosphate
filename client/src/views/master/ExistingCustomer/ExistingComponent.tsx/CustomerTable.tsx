@@ -7,23 +7,18 @@ import CommonPagination from '../../../../utils/CommonPagination';
 import ComonDeletemodal from '../../../../utils/deletemodal/ComonDeletemodal';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import EditCustomerModal from './EditCustomerModal';
-import AddCustomerModal from './AddCustomerModal';
-import { deleteCustomer, GetCustomer } from 'src/features/master/Customer/CustomerSlice';
+
+import { deleteCustomer, GetExistingCustomer } from 'src/features/master/Customer/CustomerSlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import NotPermission from 'src/utils/NotPermission';
 import ViewCustomerModal from './ViewCustomerModal';
-import Note from './NoteModal';
 
 const CustomerTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
-  const { customerdata, loading } = useSelector((state: any) => state.customer);
+  const { existscustomer, loading } = useSelector((state: any) => state.customer);
 
-  const [editmodal, setEditmodal] = useState(false);
-  const [addmodal, setAddmodal] = useState(false);
-  const [notemodal, setNotemodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [selectedrow, setSelectedRow] = useState<any>();
@@ -36,19 +31,14 @@ const CustomerTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    dispatch(GetCustomer());
+    dispatch(GetExistingCustomer());
   }, [dispatch]);
-
-  const handleEdit = (entry: any) => {
-    setEditmodal(true);
-    setSelectedRow(entry);
-  };
 
   const handleDelete = async (userToDelete: any) => {
     if (!userToDelete) return;
     try {
       await dispatch(deleteCustomer({ id: userToDelete?.id })).unwrap();
-      dispatch(GetCustomer());
+      dispatch(GetExistingCustomer());
       toast.success('customer was successfully deleted.');
     } catch (error: any) {
       console.error('Delete failed:', error);
@@ -58,7 +48,7 @@ const CustomerTable = () => {
     }
   };
 
-  const filteredItems = (customerdata || []).filter((item: any) => {
+  const filteredItems = (existscustomer || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
     const supllier = item?.company_name || '';
     const mouldNo = item?.customer_type || '';
@@ -84,17 +74,6 @@ const CustomerTable = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-        )}
-        {permissions?.add && (
-          <Button
-            size="sm"
-            className="p-0 bg-primary border rounded-md"
-            onClick={() => {
-              setAddmodal(true);
-            }}
-          >
-            Create Customer {/* <Icon icon="ic:baseline-plus" height={18} /> */}
-          </Button>
         )}
       </div>
 
@@ -152,17 +131,7 @@ const CustomerTable = () => {
                             >
                               <Icon icon="hugeicons:view" height={18} />
                             </Button>
-                            {permissions?.edit && (
-                              <Tooltip content="Edit" placement="bottom">
-                                <Button
-                                  size="sm"
-                                  className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
-                                  onClick={() => handleEdit(item)}
-                                >
-                                  <Icon icon="solar:pen-outline" height={18} />
-                                </Button>
-                              </Tooltip>
-                            )}
+
                             {permissions?.del && (
                               <Tooltip content="Delete" placement="bottom">
                                 <Button
@@ -178,18 +147,6 @@ const CustomerTable = () => {
                                 </Button>
                               </Tooltip>
                             )}
-                            <Tooltip content="Convert Customer">
-                              <Button
-                                size="xs"
-                                color="warning"
-                                onClick={() => {
-                                  setNotemodal(true);
-                                  setSelectedRow(item);
-                                }}
-                              >
-                                <Icon icon="mdi:comment-plus-outline" height={18} />
-                              </Button>
-                            </Tooltip>
                           </>
                         </div>
                       </td>
@@ -232,13 +189,6 @@ const CustomerTable = () => {
         selectedRow={selectedrow}
         placeModal={viewModal}
       />
-      <AddCustomerModal setShowmodal={setAddmodal} show={addmodal} />
-      <Note
-        placeModal={notemodal}
-        setPlaceModal={() => setNotemodal(false)}
-        selectedRow={selectedrow}
-      />
-      <EditCustomerModal show={editmodal} setShowmodal={setEditmodal} CustomerData={selectedrow} />
     </div>
   );
 };

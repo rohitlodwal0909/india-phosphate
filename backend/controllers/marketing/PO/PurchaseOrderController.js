@@ -2,7 +2,7 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
-const { PurchaseOrderModel, WorkOrderModel, User } = db;
+const { PurchaseOrderModel, Customer, WorkOrderModel, User } = db;
 
 exports.getPurchaseOrders = async (req, res) => {
   try {
@@ -12,6 +12,10 @@ exports.getPurchaseOrders = async (req, res) => {
           model: User,
           as: "users",
           attributes: ["id", "username"]
+        },
+        {
+          model: Customer,
+          as: "customers"
         },
         {
           model: WorkOrderModel,
@@ -26,10 +30,37 @@ exports.getPurchaseOrders = async (req, res) => {
   }
 };
 
+exports.getCustomers = async (req, res) => {
+  try {
+    const data = await Customer.findAll();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.storePurchaseOrder = async (req, res) => {
   try {
+    // products parse
+    let products = [];
+    if (req.body.products) {
+      products = JSON.parse(req.body.products);
+    }
+
+    const files = req.files || [];
+
+    // attach uploaded files to products
+    products = products.map((p, index) => {
+      const file = files.find((f) => f.fieldname === `file_${index}`);
+      if (file) {
+        p.file = file.filename;
+      }
+      return p;
+    });
+
     const data = await PurchaseOrderModel.create({
       ...req.body,
+      products: JSON.stringify(products),
       user_id: req.admin.id
     });
 
@@ -38,7 +69,10 @@ exports.storePurchaseOrder = async (req, res) => {
       data
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({
+      message: error.message
+    });
   }
 };
 
@@ -210,13 +244,54 @@ exports.addRemark = async (req, res) => {
 };
 exports.updatePurchaseOrder = async (req, res) => {
   try {
-    await PurchaseOrderModel.update(req.body, {
-      where: { id: req.params.id }
+    const { id } = req.params;
+
+    let products = [];
+
+    // products JSON parse
+    if (req.body.products) {
+      products =
+        typeof req.body.products === "string"
+          ? JSON.parse(req.body.products)
+          : req.body.products;
+    }
+
+    // attach uploaded files to products
+    if (req.files) {
+      products = products.map((p, index) => {
+        const file = req.files[`file_${index}`];
+        if (file) {
+          p.file = file[0].filename;
+        }
+        return p;
+      });
+    }
+
+    const updateData = {
+      po_no: req.body.po_no,
+      company_id: req.body.company_id,
+      company_address: req.body.company_address,
+      delivery_address: req.body.delivery_address,
+      freight: req.body.freight,
+      payment_terms: req.body.payment_terms,
+      expected_delivery_date: req.body.expected_delivery_date,
+      submitted_by: req.body.submitted_by,
+      type: req.body.type,
+      products: JSON.stringify(products)
+    };
+
+    await PurchaseOrderModel.update(updateData, {
+      where: { id }
     });
 
-    res.json({ message: "Purchase Order Updated" });
+    res.json({
+      message: "Purchase Order Updated Successfully"
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({
+      message: error.message || "Update failed"
+    });
   }
 };
 

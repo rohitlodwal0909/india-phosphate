@@ -5,6 +5,7 @@ const initialState = {
   loading: false,
   error: null,
   purchaseOrders: [],
+  customers: [],
   addResult: null,
   remark: null,
   status: null,
@@ -23,11 +24,29 @@ export const getPurchaseOrders = createAsyncThunk('purchaseOrder/fetch', async (
   }
 });
 
+export const getAllCustomers = createAsyncThunk(
+  'purchaseOrder/all-customers',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/get-all-customers`);
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch purchase orders.';
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  },
+);
+
 export const addPurchaseOrder = createAsyncThunk(
   'purchaseOrder/add',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/store-purchase-order`, formdata);
+      const response = await axiosInstance.post(`/store-purchase-order`, formdata, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -39,11 +58,12 @@ export const addPurchaseOrder = createAsyncThunk(
 
 export const updatePurchaseOrder = createAsyncThunk(
   'purchaseOrder/update',
-  async (updatedOrder: any) => {
-    const response = await axiosInstance.put(
-      `/update-purchase-order/${updatedOrder?.id}`,
-      updatedOrder,
-    );
+  async ({ id, data }: any) => {
+    const response = await axiosInstance.put(`/update-purchase-order/${id}`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 );
@@ -116,6 +136,19 @@ const PurchaseOrderSlice = createSlice({
         state.purchaseOrders = action.payload;
       })
       .addCase(getPurchaseOrders.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getAllCustomers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllCustomers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customers = action.payload;
+      })
+      .addCase(getAllCustomers.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
       })

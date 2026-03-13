@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 const initialState = {
   loading: false,
   error: null,
@@ -11,7 +10,7 @@ const initialState = {
 
 export const GetRole = createAsyncThunk('role/fetch', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`${apiUrl}/roles`);
+    const response = await axiosInstance.get(`/roles`);
     return response.data;
   } catch (error) {
     const message =
@@ -27,7 +26,7 @@ export const SavePermission = createAsyncThunk(
   'Save/fetch',
   async (fromdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/save/permission`, fromdata);
+      const response = await axiosInstance.post(`/save/permission`, fromdata);
       return response.data;
     } catch (error) {
       const message =
@@ -44,7 +43,7 @@ export const GetSavePermission = createAsyncThunk(
   'Savepermission/fetch',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/role/permission/${userId}`);
+      const response = await axiosInstance.get(`/role/permission/${userId}`);
       return response.data;
     } catch (error) {
       const message =

@@ -1,165 +1,300 @@
-import React, {  useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from 'src/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
 import Select from 'react-select';
 import { allUnits } from 'src/utils/AllUnit';
-import { addDispatch, GetFetchDispatch } from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
+import {
+  addDispatch,
+  GetFetchDispatch,
+} from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
 import { toast } from 'react-toastify';
+import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
+
 interface VehicleDispatchModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-   StoreData:any;
-   logindata:any;
+  StoreData: any;
 }
 
-const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal,StoreData,logindata}) => {
-
+const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
+  openModal,
+  setOpenModal,
+  StoreData,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
+
   const [formData, setFormData] = useState<any>({
-    user_id:logindata?.admin?.id,
+    po_id: '',
     vehicle_number: '',
-  driver_details: '',
-  product_name: '',
-  quantity: '',
-  delivery_location: '',
-  batch_numbers: '',
-  delivered_by: '',
-  invoice_number: '',
-  remarks: '',
-  unit: ''
+    driver_details: '',
+    batch_numbers: [],
+    quantity: '',
+    unit: '',
+    delivery_location: '',
+    delivered_by: '',
+    remarks: '',
   });
+
+  const batchMap = Object.fromEntries((StoreData || []).map((b: any) => [b.id, b]));
+
   const [errors, setErrors] = useState<any>({});
 
- 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const purchaseOrder = useSelector(
+    (state: RootState) => state.purchaseOrder.purchaseOrders,
+  ) as any[];
+
+  const purchaseOrders = purchaseOrder.filter(
+    (d) => d.workNo !== null && d.workNo.status == 'Approved',
+  );
+
+  useEffect(() => {
+    dispatch(getPurchaseOrders());
+  }, [dispatch]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: '' });
-   };
-  
 
-  const batchOptions = StoreData?.flatMap((item) => item.qc_batch_number || []).map((batch) => ({ value: batch, label: batch }));
+    setFormData((prev: any) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-  const handleSubmit = async(e: React.FormEvent) => {
+    setErrors((prev: any) => ({
+      ...prev,
+      [name]: '',
+    }));
+  };
+
+  const batchOptions =
+    StoreData?.map((item: any) => ({
+      value: item.id,
+      label: item.qc_batch_number,
+    })) || [];
+
+  const po_nos =
+    purchaseOrders?.map((po: any) => ({
+      value: po.id,
+      label: po.po_no,
+    })) || [];
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const newErrors: any = {};
-   const requiredFields = ['vehicle_number', 'driver_details', 'product_name', 'quantity', 'delivery_location', 'batch_numbers', 'delivered_by', 'invoice_number', 'remarks', 'unit'];;
-    requiredFields.forEach(field => {
-      if (!formData[field]) {
+
+    const requiredFields = [
+      'po_id',
+      'vehicle_number',
+      'driver_details',
+      'quantity',
+      'delivery_location',
+      'batch_numbers',
+      'delivered_by',
+      'remarks',
+      'unit',
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!formData[field] || (Array.isArray(formData[field]) && formData[field].length === 0)) {
         newErrors[field] = 'This field is required';
       }
     });
+
+    if (formData.quantity > formData.max_quantity) {
+      toast.error(`Quantity cannot exceed ${formData.max_quantity}`);
+      return;
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-     try {
-           const res = await   dispatch(addDispatch(formData)).unwrap();
-           if (res) {
-             toast.success("New Dispatch Entry  Successfully");
-                dispatch(GetFetchDispatch())
-                dispatch(GetStoremodule())
-                 setFormData({
-  vehicle_number: '',
-  driver_details: '',
-  product_name: '',
-  quantity: '',
-  delivery_location: '',
-  batch_numbers: '',
-  delivered_by: '',
-  invoice_number: '',
-  remarks: '',
-  unit: ''
-})
 
-    setOpenModal(false);
-           }
-         } catch (err: any) {
-           toast.error(err.message || "Failed to update entry");
-         }
-     
-     
- 
-  
+    try {
+      const res = await dispatch(addDispatch(formData)).unwrap();
+
+      if (res) {
+        toast.success('Dispatch entry created successfully');
+        dispatch(GetFetchDispatch());
+
+        setFormData({
+          po_id: '',
+          vehicle_number: '',
+          driver_details: '',
+          batch_numbers: [],
+          quantity: '',
+          unit: '',
+          delivery_location: '',
+          delivered_by: '',
+          remarks: '',
+        });
+
+        setOpenModal(false);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to create dispatch entry');
+    }
   };
 
   return (
-    <Modal show={openModal} onClose={() => setOpenModal(false)}>
+    <Modal show={openModal} onClose={() => setOpenModal(false)} size="4xl">
       <Modal.Header>Dispatch Details</Modal.Header>
+
       <Modal.Body>
-       <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
+        <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
+          {/* PO Number */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="PO No." />
+            <Select
+              options={po_nos}
+              value={po_nos.find((opt) => opt.value === formData.po_id) || null}
+              onChange={(selected: any) => setFormData({ ...formData, po_id: selected?.value })}
+            />
+            {errors.po_id && <span className="text-red-500 text-sm">{errors.po_id}</span>}
+          </div>
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="vehicle_number" value="Vehicle Number" />
-    <TextInput id="vehicle_number" name="vehicle_number" placeholder=' Enter Vehicle Number' value={formData.vehicle_number || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.vehicle_number && <span className="text-red-500 text-sm">{errors.vehicle_number}</span>}
-  </div>
+          {/* Vehicle Number */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Vehicle Number" />
+            <TextInput
+              name="vehicle_number"
+              placeholder="Enter Vehicle Number"
+              value={formData.vehicle_number}
+              onChange={handleChange}
+            />
+            {errors.vehicle_number && (
+              <span className="text-red-500 text-sm">{errors.vehicle_number}</span>
+            )}
+          </div>
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="driver_details" value="Driver Details" />
-    <TextInput id="driver_details" name="driver_details" placeholder=' Enter Driver Details' value={formData.driver_details || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.driver_details && <span className="text-red-500 text-sm">{errors.driver_details}</span>}
-  </div>
+          {/* Driver */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Driver Details" />
+            <TextInput
+              name="driver_details"
+              placeholder="Enter Driver Details"
+              value={formData.driver_details}
+              onChange={handleChange}
+            />
+            {errors.driver_details && (
+              <span className="text-red-500 text-sm">{errors.driver_details}</span>
+            )}
+          </div>
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="product_name" value="Product Name" />
-    <TextInput id="product_name" name="product_name"  placeholder=' Enter Produuct Name'value={formData.product_name || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.product_name && <span className="text-red-500 text-sm">{errors.product_name}</span>}
-  </div>
+          {/* Batch Numbers */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Batch Numbers" />
+            <Select
+              isMulti
+              options={batchOptions}
+              value={batchOptions.filter((opt: any) => formData.batch_numbers.includes(opt.value))}
+              onChange={(selected: any) => {
+                const ids = selected ? selected.map((s: any) => s.value) : [];
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="batch_numbers" value="Batch Numbers" className='' />
-    <Select isMulti options={batchOptions} value={formData.batch_numbers || []} onChange={(selected) => { setFormData({ ...formData, batch_numbers: selected }); setErrors({ ...errors, batch_numbers: '' }); }} classNamePrefix="react-select  "  />
-    {errors.batch_numbers && <span className="text-red-500 text-sm">{errors.batch_numbers}</span>}
-  </div>
+                let maxQty = 0;
 
-  <div className="sm:col-span-6 col-span-12">
-    <Label htmlFor="quantity" value="Quantity " />
-    <div className="flex rounded-md shadow-sm mt-2">
-      <input type="text" id="quantity" name='quantity' className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100" value={formData?.quantity} onChange={handleChange}  placeholder=' Enter Quantity' />
-      <select className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700" name='unit' value={formData?.unit || ''} onChange={handleChange}>
-        <option value="">Unit</option>
-        {allUnits.map((unit) => (
-          <option key={unit.value} value={unit.value}>{unit.value}</option>
-        ))}
-      </select>
-    </div>
-    {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
-    {errors.unit && <span className="text-red-500 text-sm">{errors.unit}</span>}
-  </div>
+                ids.forEach((id: any) => {
+                  const batch = batchMap[id];
+                  maxQty += batch?.finishing?.finish_quantity || 0;
+                });
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="delivery_location" value="Delivery Location"  />
-    <TextInput id="delivery_location" name="delivery_location"  placeholder=' Enter Delivery Location' value={formData.delivery_location || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.delivery_location && <span className="text-red-500 text-sm">{errors.delivery_location}</span>}
-  </div>
+                setFormData({
+                  ...formData,
+                  batch_numbers: ids,
+                  max_quantity: maxQty,
+                });
+              }}
+            />
+            {errors.batch_numbers && (
+              <span className="text-red-500 text-sm">{errors.batch_numbers}</span>
+            )}
+          </div>
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="delivered_by" value="Delivered By"  />
-    <TextInput id="delivered_by" name="delivered_by"   placeholder=' Enter Delivered By' value={formData.delivered_by || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.delivered_by && <span className="text-red-500 text-sm">{errors.delivered_by}</span>}
-  </div>
+          {/* Quantity */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Quantity" />
+            <div className="flex">
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                max={formData.max_quantity || 0}
+                className="w-full border px-3 py-2 rounded-l-md"
+              />
 
-  <div className='sm:col-span-6 col-span-12'>
-    <Label htmlFor="invoice_number" value="Invoice Number" />
-    <TextInput id="invoice_number" name="invoice_number"   placeholder=' Enter Invoice Number'  value={formData.invoice_number || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.invoice_number && <span className="text-red-500 text-sm">{errors.invoice_number}</span>}
-  </div>
+              <select
+                name="unit"
+                value={formData.unit}
+                onChange={handleChange}
+                className="border border-l-0 px-2 rounded-r-md"
+              >
+                <option value="">Unit</option>
+                {allUnits.map((unit) => (
+                  <option key={unit.value} value={unit.value}>
+                    {unit.value}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-  <div className='sm:col-span-12 col-span-12'>
-    <Label htmlFor="remarks" value="Remarks" />
-    <Textarea id="remarks" name="remarks"  placeholder=' Enter remarks'    value={formData.remarks || ''} onChange={handleChange} className="form-rounded-md" />
-    {errors.remarks && <span className="text-red-500 text-sm">{errors.remarks}</span>}
-  </div>
+            {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
+            {errors.unit && <span className="text-red-500 text-sm">{errors.unit}</span>}
+          </div>
 
-  <div className="flex justify-end gap-2 col-span-12">
-    <Button type="button" color="gray" onClick={() => setOpenModal(false)}>Cancel</Button>
-    <Button type="submit" color='primary'>Submit</Button>
-  </div>
+          {/* Delivery Location */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Delivery Location" />
+            <TextInput
+              name="delivery_location"
+              placeholder="Enter Delivery Location"
+              value={formData.delivery_location}
+              onChange={handleChange}
+            />
+            {errors.delivery_location && (
+              <span className="text-red-500 text-sm">{errors.delivery_location}</span>
+            )}
+          </div>
 
-</form>
+          {/* Transporter */}
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Transporter" />
+            <TextInput
+              name="delivered_by"
+              placeholder="Enter Transporter"
+              value={formData.delivered_by}
+              onChange={handleChange}
+            />
+            {errors.delivered_by && (
+              <span className="text-red-500 text-sm">{errors.delivered_by}</span>
+            )}
+          </div>
+
+          {/* Remarks */}
+          <div className="col-span-12">
+            <Label value="Remarks" />
+            <Textarea
+              name="remarks"
+              placeholder="Enter Remarks"
+              value={formData.remarks}
+              onChange={handleChange}
+            />
+            {errors.remarks && <span className="text-red-500 text-sm">{errors.remarks}</span>}
+          </div>
+
+          {/* Buttons */}
+          <div className="col-span-12 flex justify-end gap-2">
+            <Button color="gray" type="button" onClick={() => setOpenModal(false)}>
+              Cancel
+            </Button>
+            <Button color="primary" type="submit">
+              Submit
+            </Button>
+          </div>
+        </form>
       </Modal.Body>
     </Modal>
   );

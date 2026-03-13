@@ -33,11 +33,15 @@ interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
-  company_name: string;
+  customers?: {
+    id: number;
+    company_name: string;
+  };
   delivery_address: string;
   product_name: string;
   quantity: string;
   total: string;
+  submitted_by: string;
   expected_delivery_date: string;
   users?: {
     id: number;
@@ -131,20 +135,25 @@ const PurchaseOrderTable = () => {
         ),
       }),
       columnHelper.accessor('po_no', { header: 'PO No.' }),
-      columnHelper.accessor('company_name', { header: 'Company Name' }),
+      columnHelper.accessor('customers', {
+        header: 'Company Name',
+        cell: (info) => (
+          <div className="truncate">
+            <p>{info.row.original.customers?.company_name}</p>
+          </div>
+        ),
+      }),
       columnHelper.accessor('delivery_address', { header: 'Delivery Address' }),
-      columnHelper.accessor('product_name', { header: 'Product Name' }),
-      columnHelper.accessor('quantity', {
-        header: 'Quantity',
-      }),
-      columnHelper.accessor('total', {
-        header: 'Amount',
-      }),
+
       columnHelper.accessor('expected_delivery_date', {
         header: 'Delivery Date',
       }),
+      columnHelper.accessor('submitted_by', {
+        header: 'Submitted by',
+      }),
+
       columnHelper.accessor('user_id', {
-        header: 'Submited By',
+        header: 'Created By',
         cell: (info) => (
           <div className="truncate">
             <p>{info.row.original.users?.username}</p>

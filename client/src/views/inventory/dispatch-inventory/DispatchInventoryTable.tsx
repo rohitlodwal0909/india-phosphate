@@ -26,11 +26,9 @@ import {
   GetFetchDispatch,
   updateDispatch,
 } from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
-import { GetAllQcbatch } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
-import { GetFetchProduction } from 'src/features/Inventorymodule/productionmodule/ProdutionSlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
+import { getApprovedBatch } from 'src/features/Inventorymodule/FPR/FprSlice';
 
 interface DispatchDataType {
   id: number;
@@ -51,11 +49,9 @@ const columnHelper = createColumnHelper<DispatchDataType>();
 const DispatchInventoryTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+
   const vehicledata = useSelector((state: RootState) => state.dispatchData.dispatchdata) as any;
-  const qcAlldata = useSelector((state: RootState) => state.qcinventory.qcbatchdata) as any;
-  const ProductionAlldata = useSelector(
-    (state: RootState) => state.productionData.productiondata,
-  ) as any;
+  const approvedBatch = useSelector((state: any) => state.fpr.data);
 
   const [data, setData] = useState<DispatchDataType[]>([]);
   const [filteredProductionData, setFilteredProductionData] = useState<any[]>([]);
@@ -73,24 +69,16 @@ const DispatchInventoryTable = () => {
   }, [vehicledata?.data]);
 
   useEffect(() => {
-    if (!Array.isArray(ProductionAlldata?.data) || !Array.isArray(qcAlldata?.data)) {
+    if (!Array.isArray(approvedBatch?.data) || !Array.isArray(approvedBatch?.data)) {
       setFilteredProductionData([]);
       return;
     }
 
-    const batchIds = ProductionAlldata.data
-      .filter((i) => i.rm_code && i.quantity)
-      .map((i) => String(i.batch_id));
-
-    const filtered = qcAlldata.data.filter((i) => batchIds.includes(String(i.id)));
-
-    setFilteredProductionData(filtered || []);
-  }, [qcAlldata, ProductionAlldata]);
+    setFilteredProductionData(approvedBatch?.data || []);
+  }, [approvedBatch]);
 
   useEffect(() => {
-    dispatch(GetStoremodule());
-    dispatch(GetAllQcbatch());
-    dispatch(GetFetchProduction());
+    dispatch(getApprovedBatch());
     dispatch(GetFetchDispatch());
   }, [dispatch]);
 
@@ -104,8 +92,7 @@ const DispatchInventoryTable = () => {
     if (!selectedRow?.id) return toast.error('No entry selected.');
     try {
       await dispatch(deleteDispatch(selectedRow.id)).unwrap();
-      toast.success('Dispatch Entry deleted!');
-      dispatch(GetStoremodule());
+      toast.success('Dispatch entry deleted successfully!');
       setData((prev) => prev.filter((item) => item.id !== selectedRow.id));
     } catch (err: any) {
       toast.error(err.message || 'Delete failed');
@@ -117,9 +104,8 @@ const DispatchInventoryTable = () => {
   const handleUpdate = async (rowdata: DispatchDataType) => {
     try {
       await dispatch(updateDispatch(rowdata)).unwrap();
-      toast.success('Update Dispatch Entry Successfully');
+      toast.success('Dispatch entry updated successfully.');
       dispatch(GetFetchDispatch());
-      dispatch(GetStoremodule());
     } catch (err: any) {
       toast.error(err.message || 'Failed to update entry');
     } finally {
@@ -151,7 +137,6 @@ const DispatchInventoryTable = () => {
       }),
       columnHelper.accessor('vehicle_number', { header: 'Vehicle Number' }),
       columnHelper.accessor('driver_details', { header: 'Driver' }),
-      columnHelper.accessor('product_name', { header: 'Product' }),
       columnHelper.accessor('quantity', {
         header: 'Quantity',
         cell: (info) => (
@@ -163,11 +148,25 @@ const DispatchInventoryTable = () => {
       columnHelper.accessor('batch_numbers', {
         header: 'Batch Numbers',
         cell: (info) => {
-          const val =
-            typeof info.row.original.batch_numbers === 'string'
-              ? JSON.parse(info.row.original.batch_numbers || '[]')
-              : info.row.original.batch_numbers;
-          return Array.isArray(val) ? val.map((v) => v.label).join(', ') : '';
+          let val = info.row.original.batch_numbers;
+
+          if (typeof val === 'string') {
+            try {
+              val = JSON.parse(val);
+            } catch {
+              val = [];
+            }
+          }
+
+          if (!Array.isArray(val)) return '';
+
+          return val
+            .map((id: any) => {
+              const batch = filteredProductionData?.find((b: any) => Number(b.id) === Number(id));
+              return batch?.qc_batch_number || '';
+            })
+            .filter(Boolean)
+            .join(', ');
         },
       }),
       columnHelper.display({
@@ -218,7 +217,7 @@ const DispatchInventoryTable = () => {
         },
       }),
     ],
-    [permissions],
+    [permissions, filteredProductionData],
   );
 
   const table = useReactTable({
@@ -296,6 +295,7 @@ const DispatchInventoryTable = () => {
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
+            StoreDatas={filteredProductionData}
             modalPlacement="center"
           />
         </Portal>
@@ -306,7 +306,6 @@ const DispatchInventoryTable = () => {
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
             StoreData={filteredProductionData}
-            logindata={logindata}
           />
         </Portal>
       )}
@@ -318,7 +317,6 @@ const DispatchInventoryTable = () => {
             selectedRow={selectedRow}
             StoreDatas={filteredProductionData}
             handleupdated={handleUpdate}
-            logindata={logindata}
           />
         </Portal>
       )}

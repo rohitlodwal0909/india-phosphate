@@ -11,169 +11,386 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  updateCustomer,
-  GetCustomer,
-} from 'src/features/master/Customer/CustomerSlice';
+import { updateCustomer, GetCustomer } from 'src/features/master/Customer/CustomerSlice';
 
-const EditCustomerModal = ({ show, setShowmodal, CustomerData,logindata }) => {
+const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const dispatch = useDispatch<AppDispatch>();
- const domesticOptions = ["National", "International"];
+
   const [formData, setFormData] = useState({
     id: '',
-    user_id:logindata?.admin.id,
-    customer_name: '',
-    email: '',
-    address: '',
-    contact_no: '',
-     gst_number:"",
-    invoice_no:"",
-    domestic:"",
+    company_name: '',
+    customer_type: '',
+    trader_names: [''],
+    open_field: '',
+    contacts: [{ person: '', number: '' }],
+    addresses: [
+      {
+        company_address: '',
+        factory_address: '',
+        city: '',
+        country: '',
+      },
+    ],
+    products: [{ product: '', grade: '' }],
   });
-
-  const [errors, setErrors] = useState<any>({});
 
   useEffect(() => {
     if (CustomerData) {
+      let contacts = CustomerData.contacts;
+      let addresses = CustomerData.addresses;
+      let products = CustomerData.products;
+      let traders = CustomerData.trader_names;
+
+      try {
+        if (typeof contacts === 'string') contacts = JSON.parse(contacts);
+      } catch {
+        contacts = [];
+      }
+
+      try {
+        if (typeof addresses === 'string') addresses = JSON.parse(addresses);
+      } catch {
+        addresses = [];
+      }
+
+      try {
+        if (typeof products === 'string') products = JSON.parse(products);
+      } catch {
+        products = [];
+      }
+
+      try {
+        if (typeof traders === 'string') traders = JSON.parse(traders);
+      } catch {
+        traders = [];
+      }
+
       setFormData({
-        id: CustomerData?.id || '',
-        customer_name: CustomerData?.customer_name || '',
-        email: CustomerData?.email || '',
-        address: CustomerData?.address || '',
-         contact_no: CustomerData?.contact_no || '',
-        user_id:logindata?.admin.id,
-         gst_number:CustomerData?.gst_number || "",
-    invoice_no:CustomerData?.invoice_no || "",
-    domestic:CustomerData?.domestic || "",
+        id: CustomerData.id,
+        company_name: CustomerData.company_name || '',
+        customer_type: CustomerData.customer_type || '',
+        trader_names: Array.isArray(traders) ? traders : [''],
+        open_field: CustomerData.open_field || '',
+        contacts: Array.isArray(contacts) ? contacts : [{ person: '', number: '' }],
+        addresses: Array.isArray(addresses)
+          ? addresses
+          : [{ company_address: '', factory_address: '', city: '', country: '' }],
+        products: Array.isArray(products) ? products : [{ product: '', grade: '' }],
       });
     }
   }, [CustomerData]);
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
-  const validateForm = () => {
-    const required = ['customer_name', 'email', 'address', 'contact_no','gst_number','invoice_no','domestic'];
-    const newErrors: any = {};
-    required.forEach((field) => {
-      if (!formData[field]) newErrors[field] = `${field.replace('_', ' ')} is required`;
+  /* ---------------- TRADER ---------------- */
+
+  const addTrader = () => {
+    setFormData({
+      ...formData,
+      trader_names: [...formData.trader_names, ''],
     });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: any) => {
+  const removeTrader = (index) => {
+    const updated = formData.trader_names.filter((_, i) => i !== index);
+    setFormData({ ...formData, trader_names: updated });
+  };
+
+  const handleTraderChange = (index, value) => {
+    const updated = [...formData.trader_names];
+    updated[index] = value;
+    setFormData({ ...formData, trader_names: updated });
+  };
+
+  /* ---------------- CONTACT ---------------- */
+
+  const addContact = () => {
+    setFormData({
+      ...formData,
+      contacts: [...formData.contacts, { person: '', number: '' }],
+    });
+  };
+
+  const removeContact = (index) => {
+    const updated = formData.contacts.filter((_, i) => i !== index);
+    setFormData({ ...formData, contacts: updated });
+  };
+
+  const handleContactChange = (index, field, value) => {
+    const updated = [...formData.contacts];
+    updated[index][field] = value;
+    setFormData({ ...formData, contacts: updated });
+  };
+
+  /* ---------------- ADDRESS ---------------- */
+
+  const addAddress = () => {
+    setFormData({
+      ...formData,
+      addresses: [
+        ...formData.addresses,
+        { company_address: '', factory_address: '', city: '', country: '' },
+      ],
+    });
+  };
+
+  const removeAddress = (index) => {
+    const updated = formData.addresses.filter((_, i) => i !== index);
+    setFormData({ ...formData, addresses: updated });
+  };
+
+  const handleAddressChange = (index, field, value) => {
+    const updated = [...formData.addresses];
+    updated[index][field] = value;
+    setFormData({ ...formData, addresses: updated });
+  };
+
+  /* ---------------- PRODUCT ---------------- */
+
+  const addProduct = () => {
+    setFormData({
+      ...formData,
+      products: [...formData.products, { product: '', grade: '' }],
+    });
+  };
+
+  const removeProduct = (index) => {
+    const updated = formData.products.filter((_, i) => i !== index);
+    setFormData({ ...formData, products: updated });
+  };
+
+  const handleProductChange = (index, field, value) => {
+    const updated = [...formData.products];
+    updated[index][field] = value;
+    setFormData({ ...formData, products: updated });
+  };
+
+  /* ---------------- SUBMIT ---------------- */
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
 
     try {
       const result = await dispatch(updateCustomer(formData)).unwrap();
-      toast.success(result.message || 'Customer updated successfully');
+      toast.success(result.message || 'Customer Updated');
+
       dispatch(GetCustomer());
       setShowmodal(false);
-    } catch (err) {
-      toast.error('Failed to update Customer');
+    } catch (error) {
+      toast.error('Update failed');
     }
   };
 
   return (
-    <Modal show={show} onClose={() => setShowmodal(false)} size="2xl">
+    <Modal show={show} onClose={() => setShowmodal(false)} size="4xl">
       <ModalHeader>Edit Customer</ModalHeader>
+
       <ModalBody>
-        <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          {[
-            {
-              id: 'customer_name',
-              label: 'Customer Name',
-              type: 'text',
-              placeholder: 'Enter Customer name',
-            },
-             {
-              id: 'contact_no',
-              label: 'Contact No',
-              type: 'text',
-              placeholder: 'Enter contact number',
-            },
-            {
-              id: 'email',
-              label: 'Email',
-              type: 'email',
-              placeholder: 'Enter email',
-            },
-             {
-              id: 'gst_number',
-              label: 'GST Number',
-              type: 'text',
-              placeholder: 'Enter GST Number',
-            },
-             {
-              id: 'invoice_no',
-              label: 'Invoice Number',
-              type: 'text',
-              placeholder: 'Enter Invoice Number',
-            },
-           
-          ].map(({ id, label, type, placeholder }) => (
-            <div className={`${type ==="email" ? "col-span-6" :"col-span-6"}`} key={id}>
-              <Label htmlFor={id} value={label} />
-              <span className="text-red-700 ps-1">*</span>
+        <form className="grid grid-cols-12 gap-4">
+          {/* Company Name */}
+
+          <div className="col-span-6">
+            <Label value="Company Name" />
+            <TextInput
+              value={formData.company_name}
+              onChange={(e) => handleChange('company_name', e.target.value)}
+            />
+          </div>
+
+          {/* Customer Type */}
+
+          <div className="col-span-6">
+            <Label value="Customer Type" />
+            <select
+              value={formData.customer_type}
+              onChange={(e) => handleChange('customer_type', e.target.value)}
+              className="w-full border rounded-md p-2"
+            >
+              <option value="">Select</option>
+              <option value="Trader">Trader</option>
+              <option value="End Customer">End Customer</option>
+              <option value="Open Field">Open Field</option>
+            </select>
+          </div>
+
+          {/* Trader */}
+
+          {formData.customer_type === 'Trader' &&
+            formData.trader_names.map((trader, index) => (
+              <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
+                <div className="col-span-10">
+                  <TextInput
+                    value={trader}
+                    onChange={(e) => handleTraderChange(index, e.target.value)}
+                  />
+                </div>
+
+                <div className="col-span-2 flex gap-2">
+                  <Button color="primary" size="xs" onClick={addTrader}>
+                    +
+                  </Button>
+
+                  {index !== 0 && (
+                    <Button size="xs" color="failure" onClick={() => removeTrader(index)}>
+                      -
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+
+          {/* Open Field */}
+
+          {formData.customer_type === 'Open Field' && (
+            <div className="col-span-12">
+              <Label value="Open Field" />
               <TextInput
-                id={id}
-                type={type}
-                value={formData[id]}
-                placeholder={placeholder}
-                onChange={(e) => handleChange(id, e.target.value)}
-                color={errors[id] ? 'failure' : 'gray'}
-                className='form-rounded-md'
+                value={formData.open_field}
+                onChange={(e) => handleChange('open_field', e.target.value)}
               />
-              {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
+            </div>
+          )}
+
+          {/* CONTACTS */}
+
+          <div className="col-span-12">
+            <Label value="Contact Persons" />
+          </div>
+
+          {formData.contacts.map((contact, index) => (
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
+              <div className="col-span-5">
+                <TextInput
+                  placeholder="Contact Person"
+                  value={contact.person}
+                  onChange={(e) => handleContactChange(index, 'person', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-5">
+                <TextInput
+                  placeholder="Contact Number"
+                  value={contact.number}
+                  onChange={(e) => handleContactChange(index, 'number', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-2 flex gap-2">
+                <Button color="primary" size="xs" onClick={addContact}>
+                  +
+                </Button>
+
+                {index !== 0 && (
+                  <Button size="xs" color="failure" onClick={() => removeContact(index)}>
+                    -
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
 
-<div className="col-span-6">
-            <Label htmlFor="domestic" value="Domestic" />
-            <span className="text-red-700 ps-1">*</span>
+          {/* ADDRESSES */}
 
-            <select
-              id="domestic"
-              value={formData.domestic}
-              onChange={(e) => handleChange('domestic', e.target.value)}
-              className="w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm p-2.5"
-
-            >
-              <option value="">Select Domestic</option>
-              {domesticOptions.map((mode) => (
-                <option key={mode} value={mode}>{mode}</option>
-              ))}
-            </select>
-            {errors.domestic && <p className="text-red-500 text-xs">{errors.domestic}</p>}
-          </div>
           <div className="col-span-12">
-            <Label htmlFor="address" value="Address" />
-            <span className="text-red-700 ps-1">*</span>
-            <textarea
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleChange('address', e.target.value)}
-              placeholder="Enter Customer address"
-              className={`w-full border rounded-md p-2 ${
-                errors.address ? 'border-red-500' : 'border-gray-300'
-              }`}
-              rows={3}
-            />
-            {errors.address && (
-              <p className="text-red-500 text-xs">{errors.address}</p>
-            )}
+            <Label value="Addresses" />
           </div>
+
+          {formData.addresses.map((addr, index) => (
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
+              <div className="col-span-3">
+                <TextInput
+                  placeholder="Company Address"
+                  value={addr.company_address}
+                  onChange={(e) => handleAddressChange(index, 'company_address', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-3">
+                <TextInput
+                  placeholder="Factory Address"
+                  value={addr.factory_address}
+                  onChange={(e) => handleAddressChange(index, 'factory_address', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <TextInput
+                  placeholder="City"
+                  value={addr.city}
+                  onChange={(e) => handleAddressChange(index, 'city', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <TextInput
+                  placeholder="Country"
+                  value={addr.country}
+                  onChange={(e) => handleAddressChange(index, 'country', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-2 flex gap-2">
+                <Button color="primary" size="xs" onClick={addAddress}>
+                  +
+                </Button>
+
+                {index !== 0 && (
+                  <Button size="xs" color="failure" onClick={() => removeAddress(index)}>
+                    -
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/* PRODUCTS */}
+
+          <div className="col-span-12">
+            <Label value="Interested Products" />
+          </div>
+
+          {formData.products.map((item, index) => (
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
+              <div className="col-span-5">
+                <TextInput
+                  placeholder="Product"
+                  value={item.product}
+                  onChange={(e) => handleProductChange(index, 'product', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-5">
+                <TextInput
+                  placeholder="Grade"
+                  value={item.grade}
+                  onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-2 flex gap-2">
+                <Button color="primary" size="xs" onClick={addProduct}>
+                  +
+                </Button>
+
+                {index !== 0 && (
+                  <Button size="xs" color="failure" onClick={() => removeProduct(index)}>
+                    -
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
         </form>
       </ModalBody>
-      <ModalFooter className="justify-end">
+
+      <ModalFooter>
         <Button color="gray" onClick={() => setShowmodal(false)}>
           Cancel
         </Button>
-        <Button type="submit" color="primary" onClick={handleSubmit}>
+
+        <Button color="primary" onClick={handleSubmit}>
           Update
         </Button>
       </ModalFooter>

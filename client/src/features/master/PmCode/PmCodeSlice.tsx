@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
@@ -14,7 +13,7 @@ const initialState = {
 
 export const GetPmCode = createAsyncThunk('GetPmCode/fetch', async (_, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-pm-code`);
+    const response = await axiosInstance.get(`/get-pm-code`);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
@@ -24,7 +23,7 @@ export const GetPmCode = createAsyncThunk('GetPmCode/fetch', async (_, thunkAPI)
 
 export const GetPmRawMaterial = createAsyncThunk('GetPmRaw/fetch', async (id, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-pm-raw-material/` + id);
+    const response = await axiosInstance.get(`/get-pm-raw-material/` + id);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
@@ -36,7 +35,7 @@ export const addPmCode = createAsyncThunk(
   'PmCode/add',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-pm-code`, formdata);
+      const response = await axiosInstance.post(`/store-pm-code`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
@@ -51,7 +50,7 @@ export const addpmrawmaterial = createAsyncThunk(
   'PmCode/add',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-pm-raw-material`, formdata);
+      const response = await axiosInstance.post(`/store-pm-raw-material`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
@@ -63,7 +62,7 @@ export const addpmrawmaterial = createAsyncThunk(
 );
 
 export const updatePmCode = createAsyncThunk('PmCode/update', async (updatedUser: any) => {
-  const response = await axios.put(`${apiUrl}/update-pm-code/${updatedUser?.id}`, updatedUser);
+  const response = await axiosInstance.put(`/update-pm-code/${updatedUser?.id}`, updatedUser);
   return response.data;
 });
 
@@ -73,7 +72,7 @@ export const deletePmCode = createAsyncThunk<
   { rejectValue: any }
 >('deletePmCode/delete', async ({ id, user_id }, { rejectWithValue }) => {
   try {
-    await axios.delete(`${apiUrl}/delete-pm-code/${id}`, {
+    await axiosInstance.delete(`/delete-pm-code/${id}`, {
       data: { user_id },
     });
     return id;
