@@ -268,11 +268,9 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
                 <Label value="Product Name" />
                 <Select
                   options={productOptions}
-                  value={productOptions?.find((o: any) => o.value === product.product_id)}
+                  value={productOptions?.find((o: any) => o.value === (product as any).product_id)}
                   onChange={(selected: any) => {
                     handleProductChange(index, 'product_id', selected.value);
-                    handleProductChange(index, 'grade', selected.grade);
-                    handleProductChange(index, 'rate', selected.rate);
                   }}
                 />
               </div>
