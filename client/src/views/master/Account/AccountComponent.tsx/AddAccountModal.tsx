@@ -74,11 +74,10 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
       <ModalHeader>Create New Account</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-
           {/* Account Name */}
           <div className="col-span-6">
             <Label htmlFor="account_name" value="Account Name" />
-             <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="account_name"
               value={formData.account_name}
@@ -92,7 +91,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           {/* Account Type */}
           <div className="col-span-6">
             <Label htmlFor="account_type" value="Account Type" />
-             <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <select
               id="account_type"
               value={formData.account_type}
@@ -101,14 +100,16 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
             >
               <option value="">Select Account Type</option>
               {['Expense', 'Income', 'Asset', 'Liability'].map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
             {errors.account_type && <p className="text-red-500 text-xs">{errors.account_type}</p>}
           </div>
-      <div className="col-span-6">
+          <div className="col-span-6">
             <Label htmlFor="parent_account" value="Parent Acccount" />
-             <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="parent_account"
               type="number"
@@ -117,7 +118,9 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
               placeholder="Enter Parent Balance"
               color={errors.parent_account ? 'failure' : 'gray'}
             />
-            {errors.parent_account && <p className="text-red-500 text-xs">{errors.parent_account}</p>}
+            {errors.parent_account && (
+              <p className="text-red-500 text-xs">{errors.parent_account}</p>
+            )}
           </div>
           {/* Parent Account */}
           {/* <div className="col-span-6">
@@ -140,7 +143,7 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
           {/* Opening Balance */}
           <div className="col-span-6">
             <Label htmlFor="opening_balance" value="Opening Balance" />
-             <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <TextInput
               id="opening_balance"
               type="number"
@@ -149,13 +152,15 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
               placeholder="Enter Opening Balance"
               color={errors.opening_balance ? 'failure' : 'gray'}
             />
-            {errors.opening_balance && <p className="text-red-500 text-xs">{errors.opening_balance}</p>}
+            {errors.opening_balance && (
+              <p className="text-red-500 text-xs">{errors.opening_balance}</p>
+            )}
           </div>
 
           {/* Balance Type */}
           <div className="col-span-6">
             <Label htmlFor="balance_type" value="Balance Type" />
-             <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <select
               id="balance_type"
               value={formData.balance_type}
@@ -164,7 +169,9 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
             >
               <option value="">Select Balance Type</option>
               {['Credit', 'Debit'].map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
             {errors.balance_type && <p className="text-red-500 text-xs">{errors.balance_type}</p>}
@@ -182,12 +189,15 @@ const AddAccountModal = ({ show, setShowmodal, logindata }) => {
               />
             </div>
           </div> */}
-
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">
-        <Button color="gray" onClick={() => setShowmodal(false)}>Cancel</Button>
-        <Button color="primary" onClick={handleSubmit}>Submit</Button>
+        <Button color="gray" onClick={() => setShowmodal(false)}>
+          Cancel
+        </Button>
+        <Button color="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
       </ModalFooter>
     </Modal>
   );

@@ -24,6 +24,8 @@ import CompanySlice from '../src/features/master/Company/CompanySlice';
 import DepartmentMasterSlice from '../src/features/master/DepartmentMaster/DepartmentMasterSlice';
 import MakeMasterSlice from '../src/features/master/MakeMaster/MakeMasterSlice';
 import AccountSlice from '../src/features/master/Account/AccountSlice';
+import ProductSlice from '../src/features/master/Product/ProductSlice';
+
 import PackingMaterialSlice from '../src/features/master/PackingMaterial/PackingMaterialSlice';
 import TransportSlice from '../src/features/master/Transport/TransportSlice';
 import BatchMasterSlice from '../src/features/master/BatchMaster/BatchMasterSlice';
@@ -70,6 +72,7 @@ export const store = configureStore({
     rmcodes: RmCodeSlice,
     pmcodes: PmCodeSlice,
     unit: UnitSlice,
+    products: ProductSlice,
     staffmaster: StaffMasterSlice,
     designation: DesignationSlice,
     qualification: QualificationSlice,

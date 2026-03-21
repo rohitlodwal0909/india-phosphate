@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { getAllCustomers, updatePurchaseOrder } from 'src/features/marketing/PurchaseOrderSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
 
 interface PurchaseOrderEditModalProps {
   openModal: boolean;
@@ -39,7 +40,19 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               ? JSON.parse(selectedRow.products)
               : selectedRow.products;
 
-          setProducts(parsed);
+          // 🔥 IMPORTANT mapping
+          const formatted = parsed.map((p: any) => ({
+            product_id: p.product_id,
+            grade: p.grade,
+            quantity: p.quantity,
+            rate: p.rate,
+            gst: p.gst,
+            total: p.total,
+            packing: p.packing,
+            file: null,
+          }));
+
+          setProducts(formatted);
         } catch {
           setProducts([]);
         }
@@ -48,6 +61,14 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
   }, [selectedRow]);
 
   const customers = useSelector((state: RootState) => state.purchaseOrder.customers) as any;
+  const { productdata } = useSelector((state: any) => state.products);
+
+  const productOptions = productdata?.map((p: any) => ({
+    label: `${p.product_name} (${p.grade || ''})`,
+    value: p.id,
+    grade: p.grade,
+    rate: p.rate,
+  }));
 
   const customerOptions = customers?.map((c: any) => {
     let address = '';
@@ -132,6 +153,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
   // ✅ Auto Total Calculation
   useEffect(() => {
     dispatch(getAllCustomers());
+    dispatch(GetProduct());
   }, []);
 
   const handleChange = (e: any) => {
@@ -155,7 +177,12 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       payload.append('freight', formData.freight);
       payload.append('payment_terms', formData.payment_terms);
       payload.append('expected_delivery_date', formData.expected_delivery_date);
-      payload.append('submitted_by', formData.submitted_by);
+      payload.append('company_type', formData.company_type || '');
+      payload.append('remark', formData.remark || '');
+      payload.append('commission', formData.commission || '');
+      payload.append('insurance', formData.insurance || '');
+      payload.append('insurance_remark', formData.insurance_remark || '');
+      payload.append('customise_labels', formData.customise_labels || '');
       payload.append('type', formData.export ? 'export' : 'domestic');
       payload.append('products', JSON.stringify(products));
 
@@ -188,6 +215,20 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
           <div className="col-span-6">
             <Label value="PO No." />
             <TextInput name="po_no" value={formData.po_no || ''} onChange={handleChange} />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Company Type" />
+            <select
+              name="company_type"
+              value={formData.company_type || ''}
+              className="w-full border border-gray-500 p-2 rounded-md"
+              onChange={handleChange}
+            >
+              <option value="">Select Company Type</option>
+              <option value="Trader">Trader</option>
+              <option value="end customer">End customer</option>
+            </select>
           </div>
 
           {/* Company Name */}
@@ -225,10 +266,14 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               {/* Product Name */}
               <div className="col-span-4">
                 <Label value="Product Name" />
-                <TextInput
-                  placeholder="Product Name"
-                  value={product.product_name}
-                  onChange={(e) => handleProductChange(index, 'product_name', e.target.value)}
+                <Select
+                  options={productOptions}
+                  value={productOptions?.find((o: any) => o.value === product.product_id)}
+                  onChange={(selected: any) => {
+                    handleProductChange(index, 'product_id', selected.value);
+                    handleProductChange(index, 'grade', selected.grade);
+                    handleProductChange(index, 'rate', selected.rate);
+                  }}
                 />
               </div>
 
@@ -326,14 +371,34 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
           </div>
 
           {/* Payment Terms */}
+
           <div className="col-span-6">
             <Label value="Payment Terms" />
-            <Textarea
+            <select
               name="payment_terms"
+              className="w-full border border-gray-500 p-2 rounded-md"
               value={formData.payment_terms || ''}
               onChange={handleChange}
-            />
+            >
+              <option value="">Select Payment Term</option>
+              <option value="Advance">Advance</option>
+              <option value="LC">LC</option>
+              <option value="Credit">Credit</option>
+              <option value="Immediate">Immediate</option>
+            </select>
           </div>
+
+          {['LC', 'Credit'].includes(formData.payment_terms) && (
+            <div className="col-span-6">
+              <Label value="Remark" />
+              <Textarea
+                value={formData.remark || ''}
+                name="remark"
+                placeholder="Enter remark"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           {/* Domestic / Export */}
           <div className="col-span-12 flex gap-6 items-center">
@@ -362,11 +427,25 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
 
               <div className="col-span-4">
                 <Label value="Inco Term" />
-                <TextInput
+                <select
                   name="inco_term"
+                  className="w-full border rounded p-2"
                   value={formData.inco_term || ''}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select Inco Term</option>
+                  <option value="EXW">EXW</option>
+                  <option value="FCA">FCA</option>
+                  <option value="FAS">FAS</option>
+                  <option value="FOB">FOB</option>
+                  <option value="CFR">CFR</option>
+                  <option value="CIF">CIF</option>
+                  <option value="CPT">CPT</option>
+                  <option value="CIP">CIP</option>
+                  <option value="DPU">DPU</option>
+                  <option value="DAP">DAP</option>
+                  <option value="DDP">DDP</option>
+                </select>
               </div>
 
               <div className="col-span-4">
@@ -379,6 +458,69 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               </div>
             </>
           )}
+          <div className="col-span-2">
+            <Label value="Customise Labels" />
+
+            <div className="flex gap-6 mt-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="customise_labels"
+                  value="yes"
+                  checked={formData.customise_labels === 'yes'}
+                  onChange={handleChange}
+                />
+                Yes
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="customise_labels"
+                  value="no"
+                  checked={formData.customise_labels === 'no'}
+                  onChange={handleChange}
+                />
+                No
+              </label>
+            </div>
+          </div>
+
+          <div className="col-span-4">
+            <Label value="Commission" />
+            <TextInput
+              name="commission"
+              value={formData.commission}
+              placeholder="Enter Commission"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-span-6">
+            <Label value="Insurance" />
+            <select
+              name="insurance"
+              value={formData.insurance}
+              className="w-full border border-gray-500 p-2 rounded-md"
+              onChange={handleChange}
+            >
+              <option value="">Select Insurance</option>
+              <option value="0.1%">0.1%</option>
+              <option value="Nil">Nil</option>
+              <option value="own_policy">Own Policy</option>
+            </select>
+          </div>
+
+          {['own_policy'].includes(formData.insurance) && (
+            <div className="col-span-6">
+              <Label value="Remark" />
+              <Textarea
+                value={formData.insurance_remark}
+                name="insurance_remark"
+                placeholder="Enter remark"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           {/* Expected Delivery Date */}
           <div className="col-span-6">
@@ -387,15 +529,6 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               type="date"
               name="expected_delivery_date"
               value={formData.expected_delivery_date || ''}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-span-6">
-            <Label value="Submited By" />
-            <TextInput
-              name="submitted_by"
-              value={formData.submitted_by || ''}
               onChange={handleChange}
             />
           </div>

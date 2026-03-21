@@ -1,74 +1,62 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
   error: null,
-  supplierdata: [],         
-  addResult: null,  
+  supplierdata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
-export const GetSupplier = createAsyncThunk(
-  "GetSupplier /fetch",
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/get-supplier`);
-      return response.data;
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch user modules.";
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
+export const GetSupplier = createAsyncThunk('GetSupplier /fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-supplier`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
   }
-);
+});
 
 export const addSupplier = createAsyncThunk(
-  "Supplier/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'Supplier/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-supplier`,
-        formdata);
+      const response = await axiosInstance.post(`/store-supplier`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
-  export const updateSupplier = createAsyncThunk("Supplier/update", async (updatedUser:any) => {
-  const response = await axios.put(
-     `${apiUrl}/update-supplier/${updatedUser?.id}`,
-    updatedUser
-  );
+export const updateSupplier = createAsyncThunk('Supplier/update', async (updatedUser: any) => {
+  const response = await axiosInstance.put(`/update-supplier/${updatedUser?.id}`, updatedUser);
   return response.data;
 });
 
-export const deleteSupplier = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deleteSupplier/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${apiUrl}/delete-supplier/${id}`,{
-      data: { user_id }
+export const deleteSupplier = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('deleteSupplier/delete', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    await axiosInstance.delete(`/delete-supplier/${id}`, {
+      data: { user_id },
     });
-      return id;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
-    }
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
   }
-);
-
-
+});
 
 const SupplierSlice = createSlice({
-  name: "supplier",
+  name: 'supplier',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -114,4 +102,3 @@ const SupplierSlice = createSlice({
 });
 
 export default SupplierSlice.reducer;
-

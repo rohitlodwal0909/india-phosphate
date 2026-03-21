@@ -1,6 +1,6 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { PendingOrder, User} = db;
+const { PendingOrder, User } = db;
 
 // Create
 exports.createPendingOrder = async (req, res, next) => {
@@ -18,12 +18,11 @@ exports.createPendingOrder = async (req, res, next) => {
     } = req.body;
 
     // Optional: Check for duplicate order_number
-     const lastOrder = await PendingOrder.findOne({
-      order: [["created_at", "DESC"]],
+    const lastOrder = await PendingOrder.findOne({
+      order: [["created_at", "DESC"]]
     });
 
-    
-  let nextOrderNumber = "ORD-0001"; // default
+    let nextOrderNumber = "ORD-0001"; // default
     if (lastOrder && lastOrder.order_number) {
       const lastNumber = parseInt(lastOrder.order_number.split("-")[1]);
       const newNumber = (lastNumber + 1).toString().padStart(4, "0");
@@ -33,7 +32,7 @@ exports.createPendingOrder = async (req, res, next) => {
     const quantity_pending = total_quantity - quantity_delivered;
 
     const newOrder = await PendingOrder.create({
-      order_number:nextOrderNumber,
+      order_number: nextOrderNumber,
       customer_name_or_id,
       order_date,
       expected_delivery_date,
@@ -47,8 +46,8 @@ exports.createPendingOrder = async (req, res, next) => {
     });
 
     const user_id = req.body.created_by || newOrder?.created_by;
-      const user = await User.findByPk(user_id);
-      const username = user ? user.username : "Unknown User";
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
@@ -57,7 +56,7 @@ exports.createPendingOrder = async (req, res, next) => {
     await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(201).json({
       message: "Pending order created successfully",
-      data: newOrder,
+      data: newOrder
     });
   } catch (error) {
     console.error("Create PendingOrder Error:", error);
@@ -65,30 +64,29 @@ exports.createPendingOrder = async (req, res, next) => {
   }
 };
 
-exports.getPendingOrderById = async (req, res,next) => {
+exports.getPendingOrderById = async (req, res, next) => {
   try {
     const PendingOrders = await PendingOrder.findByPk(req.params.id);
-    if (!PendingOrders){
-       const error = new Error( "Make master entry not found" );
-       error.status = 404;
-      return next(error); 
-     }
-   
+    if (!PendingOrders) {
+      const error = new Error("Make master entry not found");
+      error.status = 404;
+      return next(error);
+    }
 
     res.json(PendingOrders);
   } catch (error) {
-  next(error)
+    next(error);
   }
 };
 
-        // Read By ID
-       exports.getAllPendingOrder = async (req, res, next) => {
+// Read By ID
+exports.getAllPendingOrder = async (req, res, next) => {
   try {
     const makeList = await PendingOrder.findAll({
       where: {
         deleted_at: null
       },
-      order: [['created_at', 'DESC']]
+      order: [["created_at", "DESC"]]
     });
 
     res.status(200).json(makeList);
@@ -138,9 +136,9 @@ exports.updatePendingOrder = async (req, res, next) => {
       created_by
     });
 
-     const user_id = req.body.created_by || existingOrder?.created_by;
-      const user = await User.findByPk(user_id);
-      const username = user ? user.username : "Unknown User";
+    const user_id = req.body.created_by || existingOrder?.created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
@@ -149,7 +147,7 @@ exports.updatePendingOrder = async (req, res, next) => {
     await createLogEntry({ user_id: user_id, message: logMessage });
     res.status(200).json({
       message: "Pending order updated successfully",
-      data: existingOrder,
+      data: existingOrder
     });
   } catch (error) {
     console.error("Update PendingOrder Error:", error);
@@ -157,30 +155,29 @@ exports.updatePendingOrder = async (req, res, next) => {
   }
 };
 
-
-
 // Delete
-exports.deletePendingOrder = async (req, res,next) => {
+exports.deletePendingOrder = async (req, res, next) => {
   try {
     const PendingOrders = await PendingOrder.findByPk(req.params.id);
 
-    if (!PendingOrders){ const error = new Error( "Pending order entry not found" );
-       error.status = 404;
-      return next(error); 
-     }
-      const user_id = req.body.user_id || PendingOrders?.created_by;
-      const user = await User.findByPk(user_id);
-      const username = user ? user.username : "Unknown User";
+    if (!PendingOrders) {
+      const error = new Error("Pending order entry not found");
+      error.status = 404;
+      return next(error);
+    }
+    const user_id = req.body.user_id || PendingOrders?.created_by;
+    const user = await User.findByPk(user_id);
+    const username = user ? user.username : "Unknown User";
     // Step 4: Create log
     const now = new Date();
     const entry_date = now.toISOString().split("T")[0];
     const entry_time = now.toTimeString().split(" ")[0];
     const logMessage = `Pending order number '${PendingOrders?.order_number}' was deleted by '${username}' on ${entry_date} at ${entry_time}.`;
     await createLogEntry({ user_id: user_id, message: logMessage });
-      
+
     await PendingOrders.destroy();
     res.json({ message: "Make master entry deleted" });
   } catch (error) {
-   next(error)
+    next(error);
   }
 };

@@ -31,6 +31,12 @@ const Miniicons: MiniiconsType[] = [
     // icon: "solar:lock-keyhole-minimalistic-bold-duotone",
     tooltip: "Marketing Department",
   },
+   {
+    id: 5,
+  // icon: "mdi:chart-line",
+    icon: "mdi:account-cash",
+    tooltip: "Account Department",
+  },
 
 ];
 

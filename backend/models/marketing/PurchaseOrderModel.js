@@ -16,9 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       company_id: {
         type: DataTypes.INTEGER
       },
-      submitted_by: {
-        type: DataTypes.STRING
-      },
+      company_type: DataTypes.STRING,
 
       company_address: {
         type: DataTypes.TEXT
@@ -70,6 +68,11 @@ module.exports = (sequelize, DataTypes) => {
       payment_terms: {
         type: DataTypes.TEXT
       },
+
+      remark: DataTypes.TEXT,
+      commission: DataTypes.STRING,
+      insurance: DataTypes.STRING,
+      insurance_remark: DataTypes.TEXT,
 
       domestic: {
         type: DataTypes.BOOLEAN,

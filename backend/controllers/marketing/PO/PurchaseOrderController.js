@@ -268,16 +268,38 @@ exports.updatePurchaseOrder = async (req, res) => {
     }
 
     const updateData = {
+      // ✅ Basic
       po_no: req.body.po_no,
       company_id: req.body.company_id,
+      company_type: req.body.company_type,
       company_address: req.body.company_address,
       delivery_address: req.body.delivery_address,
+
+      // ✅ Products
+      products: JSON.stringify(products),
+
+      // ✅ Financial
       freight: req.body.freight,
       payment_terms: req.body.payment_terms,
-      expected_delivery_date: req.body.expected_delivery_date,
-      submitted_by: req.body.submitted_by,
-      type: req.body.type,
-      products: JSON.stringify(products)
+      remark: req.body.remark,
+      commission: req.body.commission,
+
+      // ✅ Insurance
+      insurance: req.body.insurance,
+      insurance_remark: req.body.insurance_remark,
+
+      // ✅ Type
+      domestic: req.body.type === "domestic",
+      export: req.body.type === "export",
+
+      // ✅ Export Fields
+      country_name: req.body.country_name,
+      inco_term: req.body.inco_term,
+      discharge_port: req.body.discharge_port,
+
+      // ✅ Other
+      customise_labels: req.body.customise_labels,
+      expected_delivery_date: req.body.expected_delivery_date
     };
 
     await PurchaseOrderModel.update(updateData, {

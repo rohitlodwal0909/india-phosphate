@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Unit = sequelize.define(
-    "Unit",
+  const Product = sequelize.define(
+    "Product",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       user_id: {
         type: DataTypes.INTEGER
       },
-      unit: {
+      product_name: {
         type: DataTypes.STRING(50),
         allowNull: false,
         unique: true
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: "unit_names",
+      tableName: "new_products",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
@@ -40,5 +40,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  return Unit;
+  return Product;
 };

@@ -3,16 +3,14 @@ import UnitTable from './UnitComponent.tsx/UnitTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const Unit = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Unit ", to: "/" }]}
-        title="Unit"/>
-         <CardBox>
-        <UnitTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'Unit ', to: '/' }]} title="Unit" />
+      <CardBox>
+        <UnitTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default Unit
+export default Unit;

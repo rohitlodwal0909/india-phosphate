@@ -16,7 +16,6 @@ export interface MenuItem {
 
 import { uniqueId } from "lodash";
 
-
 const SidebarContent: MenuItem[] = [
   
   {
@@ -71,7 +70,127 @@ const SidebarContent: MenuItem[] = [
         ]
       },
     ],
-  },
+      },
+      
+  {
+  id: 5,
+  name: "Account Department",
+  icon: "tabler:building-bank",
+  items: [
+    {
+      heading: "Account Management",
+      children: [
+        {
+          name: "Domestic",
+          icon: "tabler:home-dollar",
+          id: uniqueId(),
+          url: "/accounts/domestic",
+          subId: 1,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+
+          children: [
+            {
+              subId: 111,
+              name: "Tax Invoice",
+              icon: "tabler:receipt-tax",
+              id: uniqueId(),
+              url: "/accounts/domestic/tax_invoice",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+            {
+              subId: 112,
+              name: "E-Way Bill",
+              icon: "tabler:truck-delivery",
+              id: uniqueId(),
+              url: "/accounts/domestic/e-way-bill",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+          ],
+        },
+
+        {
+          name: "Export",
+          icon: "tabler:world",
+          id: uniqueId(),
+          url: "/accounts/export",
+          subId: 2,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+
+          children: [
+            {
+              subId: 121,
+              name: "Tax Invoice Export",
+              icon: "tabler:file-export",
+              id: uniqueId(),
+              url: "/accounts/export/tax_invoice",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+            {
+              subId: 122,
+              name: "Export Invoice",
+              icon: "tabler:invoice",
+              id: uniqueId(),
+              url: "/accounts/export/export-invoice",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+            {
+              subId: 123,
+              name: "Packing List",
+              icon: "tabler:package",
+              id: uniqueId(),
+              url: "/accounts/export/packing-list",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+            {
+              subId: 124,
+              name: "Draft Packing List",
+              icon: "tabler:file-pencil",
+              id: uniqueId(),
+              url: "/accounts/export/draft-packing-list",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+            {
+              subId: 125,
+              name: "Sample Invoice",
+              icon: "tabler:file-text",
+              id: uniqueId(),
+              url: "/accounts/export/sample-invoice",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+},
+
    {
     id: 2,
     name: "inventory Managment",
@@ -288,7 +407,7 @@ const SidebarContent: MenuItem[] = [
         ]
       },
     ],
-  },
+   },
 
      {
     id: 3,
@@ -321,6 +440,17 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
+           {
+            name: "Products",
+            icon: "tabler:package",
+            id: uniqueId(),
+            url: "/master/products",
+            subId:34,
+             add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },
           {
             name: "Customer",
             icon: "ix:customer",
@@ -332,6 +462,9 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
+         
+      
+          
            {
             name: "Existing Customer",
             icon: "ix:customer",

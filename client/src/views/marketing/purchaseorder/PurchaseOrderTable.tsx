@@ -41,7 +41,6 @@ interface PurchaseOrderDataType {
   product_name: string;
   quantity: string;
   total: string;
-  submitted_by: string;
   expected_delivery_date: string;
   users?: {
     id: number;
@@ -54,6 +53,7 @@ const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 const PurchaseOrderTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+
   const purchaseOrders = useSelector(
     (state: RootState) => state.purchaseOrder.purchaseOrders,
   ) as any;
@@ -148,12 +148,9 @@ const PurchaseOrderTable = () => {
       columnHelper.accessor('expected_delivery_date', {
         header: 'Delivery Date',
       }),
-      columnHelper.accessor('submitted_by', {
-        header: 'Submitted by',
-      }),
 
       columnHelper.accessor('user_id', {
-        header: 'Created By',
+        header: 'Submitted by',
         cell: (info) => (
           <div className="truncate">
             <p>{info.row.original.users?.username}</p>

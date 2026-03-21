@@ -61,7 +61,7 @@ const DispatchInventoryTable = () => {
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 7);
+    return getPermissions(logindata, selectedIconId, 9);
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
@@ -73,7 +73,6 @@ const DispatchInventoryTable = () => {
       setFilteredProductionData([]);
       return;
     }
-
     setFilteredProductionData(approvedBatch?.data || []);
   }, [approvedBatch]);
 

@@ -3,16 +3,14 @@ import AccountTable from './AccountComponent.tsx/AccountTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const Account = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Account ", to: "/" }]}
-        title="Account"/>
-         <CardBox>
-        <AccountTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'Account ', to: '/' }]} title="Account" />
+      <CardBox>
+        <AccountTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default Account
+export default Account;

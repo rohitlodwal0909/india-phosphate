@@ -9,6 +9,7 @@ import {
 } from 'src/features/marketing/PurchaseOrderSlice';
 import { toast } from 'react-toastify';
 import { RootState } from 'src/store';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
 
 interface PurchaseOrderModalProps {
   openModal: boolean;
@@ -25,6 +26,12 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   const dispatch = useDispatch<any>();
 
   const customers = useSelector((state: RootState) => state.purchaseOrder.customers) as any;
+  const { productdata } = useSelector((state: any) => state.products);
+
+  const productOptions = productdata?.map((p: any) => ({
+    label: p.product_name, // ya jo bhi field ho
+    value: p.id,
+  }));
 
   const customerOptions = customers?.map((c: any) => {
     let address = '';
@@ -125,6 +132,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
 
   useEffect(() => {
     dispatch(getAllCustomers());
+    dispatch(GetProduct());
   }, []);
 
   const handleCustomerChange = (selected: any) => {
@@ -135,27 +143,18 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     });
   };
 
-  // ✅ Auto Total Calculation
-  useEffect(() => {
-    const qty = parseFloat(formData.quantity) || 0;
-    const rate = parseFloat(formData.rate) || 0;
-    const gst = parseFloat(formData.gst) || 0;
-
-    const subtotal = qty * rate;
-    const gstAmount = subtotal * (gst / 100);
-    const total = subtotal + gstAmount;
-
-    setFormData((prev: any) => ({
-      ...prev,
-      total: total.toFixed(2),
-    }));
-  }, [formData.quantity, formData.rate, formData.gst]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.po_no || !formData.company_id) {
+      toast.error('Please fill required fields ❌');
+      return;
+    }
+
     try {
       const payload = new FormData();
+
+      // ✅ Basic Fields
       payload.append('po_no', formData.po_no);
       payload.append('company_id', formData.company_id);
       payload.append('company_address', formData.company_address);
@@ -163,25 +162,59 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       payload.append('freight', formData.freight);
       payload.append('payment_terms', formData.payment_terms);
       payload.append('expected_delivery_date', formData.expected_delivery_date);
-      payload.append('submitted_by', formData.submitted_by);
-      payload.append('type', formData.export ? 'export' : 'domestic');
-      payload.append('products', JSON.stringify(products));
 
+      // ✅ Extra Fields
+      payload.append('company_type', formData.company_type || '');
+      payload.append('remark', formData.remark || '');
+      payload.append('commission', formData.commission || '');
+      payload.append('insurance', formData.insurance || '');
+      payload.append('insurance_remark', formData.insurance_remark || '');
+      payload.append('customise_labels', formData.customise_labels || '');
+
+      // ✅ Type
+      payload.append('type', formData.export ? 'export' : 'domestic');
+
+      // ✅ Export Fields (only if export)
+      if (formData.export) {
+        payload.append('country_name', formData.country_name || '');
+        payload.append('inco_term', formData.inco_term || '');
+        payload.append('discharge_port', formData.discharge_port || '');
+      }
+
+      // ✅ Products Clean
+      const cleanProducts = products.map((p, index) => ({
+        product_id: p.product_name,
+        grade: p.grade,
+        quantity: p.quantity,
+        rate: p.rate,
+        gst: p.gst,
+        total: p.total,
+        packing: p.packing,
+        file_key: p.file ? `file_${index}` : null,
+      }));
+
+      payload.append('products', JSON.stringify(cleanProducts));
+
+      // ✅ Files
       products.forEach((p, index) => {
         if (p.file) {
           payload.append(`file_${index}`, p.file);
         }
       });
 
+      // ✅ API Call
       await dispatch(addPurchaseOrder(payload));
+
       toast.success('Purchase Order Created Successfully ✅');
       dispatch(getPurchaseOrders());
-      // success
       setOpenModal(false);
     } catch (error) {
       console.error('Error submitting purchase order:', error);
+      toast.error('Something went wrong ❌');
     }
   };
+
+  const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
 
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)} size="5xl">
@@ -191,6 +224,18 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
           <div className="col-span-6">
             <Label value="PO No." />
             <TextInput name="po_no" placeholder="Enter PO No." onChange={handleChange} />
+          </div>
+          <div className="col-span-6">
+            <Label value="Company Type" />
+            <select
+              name="company_type"
+              className="w-full border border-gray-500 p-2 rounded-md"
+              onChange={handleChange}
+            >
+              <option value="">Select Company Type</option>
+              <option value="Trader">Trader</option>
+              <option value="end customer">End customer</option>
+            </select>
           </div>
 
           {/* Company Name */}
@@ -225,23 +270,31 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               {/* Product Name */}
               <div className="col-span-4">
                 <Label value="Product Name" />
-                <TextInput
-                  placeholder="Product Name"
-                  value={product.product_name}
-                  onChange={(e) => handleProductChange(index, 'product_name', e.target.value)}
+
+                <Select
+                  options={productOptions}
+                  value={productOptions.find((opt: any) => opt.value === product.product_name)}
+                  onChange={(selected: any) => {
+                    handleProductChange(index, 'product_name', selected.value);
+                  }}
                 />
               </div>
-
               {/* Grade */}
               <div className="col-span-2">
                 <Label value="Grade" />
-                <TextInput
-                  placeholder="Grade"
+                <select
+                  className="w-full border rounded p-2 text-gray"
                   value={product.grade}
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
-                />
+                >
+                  <option value="">Select Grade</option>
+                  {grades.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
               </div>
-
               {/* Quantity */}
               <div className="col-span-2">
                 <Label value="Qty" />
@@ -252,7 +305,6 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
                 />
               </div>
-
               {/* Rate */}
               <div className="col-span-2">
                 <Label value="Rate" />
@@ -263,7 +315,6 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   onChange={(e) => handleProductChange(index, 'rate', e.target.value)}
                 />
               </div>
-
               {/* GST */}
               <div className="col-span-2">
                 <Label value="GST" />
@@ -272,13 +323,11 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   onChange={(val: any) => handleProductChange(index, 'gst', val.value)}
                 />
               </div>
-
               {/* Total */}
               <div className="col-span-2">
                 <Label value="Total" />
                 <TextInput value={product.total} readOnly />
               </div>
-
               {/* Packing */}
               <div className="col-span-3">
                 <Label value="Packing" />
@@ -288,11 +337,10 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   onChange={(e) => handleProductChange(index, 'packing', e.target.value)}
                 />
               </div>
-
               {/* IHS File */}
-              {product.grade === 'IHS' && (
+              {product.grade === 'HIS' && (
                 <div className="col-span-3">
-                  <Label value="IHS Upload" />
+                  <Label value="HIS Upload" />
                   <input
                     type="file"
                     accept="application/pdf"
@@ -300,7 +348,6 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   />
                 </div>
               )}
-
               {/* Remove Button */}
               <div className="col-span-1 flex items-center">
                 {index > 0 && (
@@ -320,19 +367,32 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
 
           {/* Freight */}
           <div className="col-span-6">
-            <Label value="Freight" />
-            <TextInput name="freight" placeholder="Enter freight charges" onChange={handleChange} />
+            <Label value="Delivery Terms" />
+            <TextInput name="freight" placeholder="Enter delivery terms" onChange={handleChange} />
           </div>
 
-          {/* Payment Terms */}
+          {/* Payment Terms Dropdown */}
           <div className="col-span-6">
             <Label value="Payment Terms" />
-            <Textarea
+            <select
               name="payment_terms"
-              placeholder="Enter payment terms"
+              className="w-full border border-gray-500 p-2 rounded-md"
               onChange={handleChange}
-            />
+            >
+              <option value="">Select Payment Term</option>
+              <option value="Advance">Advance</option>
+              <option value="LC">LC</option>
+              <option value="Credit">Credit</option>
+              <option value="Immediate">Immediate</option>
+            </select>
           </div>
+
+          {['LC', 'Credit'].includes(formData.payment_terms) && (
+            <div className="col-span-6">
+              <Label value="Remark" />
+              <Textarea name="remark" placeholder="Enter remark" onChange={handleChange} />
+            </div>
+          )}
 
           {/* Domestic / Export */}
           <div className="col-span-12 flex gap-6 items-center">
@@ -375,11 +435,24 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
 
               <div className="col-span-4">
                 <Label value="Inco Term" />
-                <TextInput
+                <select
                   name="inco_term"
-                  placeholder="Enter Inco term (e.g. FOB, CIF)"
+                  className="w-full border rounded p-2"
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select Inco Term</option>
+                  <option value="EXW">EXW</option>
+                  <option value="FCA">FCA</option>
+                  <option value="FAS">FAS</option>
+                  <option value="FOB">FOB</option>
+                  <option value="CFR">CFR</option>
+                  <option value="CIF">CIF</option>
+                  <option value="CPT">CPT</option>
+                  <option value="CIP">CIP</option>
+                  <option value="DPU">DPU</option>
+                  <option value="DAP">DAP</option>
+                  <option value="DDP">DDP</option>
+                </select>
               </div>
 
               <div className="col-span-4">
@@ -392,29 +465,66 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               </div>
             </>
           )}
-
-          {/* Customise Labels */}
-          <div className="col-span-12">
+          <div className="col-span-2">
             <Label value="Customise Labels" />
-            <Textarea
-              name="customise_labels"
-              placeholder="Enter customise label details"
-              onChange={handleChange}
-            />
+
+            <div className="flex gap-6 mt-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="customise_labels"
+                  value="yes"
+                  checked={formData.customise_labels === 'yes'}
+                  onChange={handleChange}
+                />
+                Yes
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="customise_labels"
+                  value="no"
+                  checked={formData.customise_labels === 'no'}
+                  onChange={handleChange}
+                />
+                No
+              </label>
+            </div>
           </div>
+          <div className="col-span-4">
+            <Label value="Commission" />
+            <TextInput name="commission" placeholder="Enter Commission" onChange={handleChange} />
+          </div>
+          <div className="col-span-6">
+            <Label value="Insurance" />
+            <select
+              name="insurance"
+              className="w-full border border-gray-500 p-2 rounded-md"
+              onChange={handleChange}
+            >
+              <option value="">Select Insurance</option>
+              <option value="0.1%">0.1%</option>
+              <option value="Nil">Nil</option>
+              <option value="own_policy">Own Policy</option>
+            </select>
+          </div>
+
+          {['own_policy'].includes(formData.insurance) && (
+            <div className="col-span-6">
+              <Label value="Remark" />
+              <Textarea
+                name="insurance_remark"
+                placeholder="Enter remark"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           {/* Expected Delivery Date */}
           <div className="col-span-6">
             <Label value="Expected Delivery Date" />
             <TextInput type="date" name="expected_delivery_date" onChange={handleChange} />
-          </div>
-          <div className="col-span-6">
-            <Label value="Submitted by " />
-            <TextInput
-              name="submitted_by"
-              placeholder="Enter submitted by name"
-              onChange={handleChange}
-            />
           </div>
 
           {/* Buttons */}
