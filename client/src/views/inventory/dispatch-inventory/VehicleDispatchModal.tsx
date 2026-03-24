@@ -34,6 +34,10 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     delivery_location: '',
     delivered_by: '',
     remarks: '',
+    invoice_no: '',
+    booking_date: '',
+    arrived_booking: '', // ✅ NEW FIELD
+    max_quantity: 0,
   });
 
   const batchMap = Object.fromEntries((StoreData || []).map((b: any) => [b.id, b]));
@@ -93,8 +97,11 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
       'delivery_location',
       'batch_numbers',
       'delivered_by',
+      'invoice_no',
+      'booking_date',
       'remarks',
       'unit',
+      'arrived_booking', // ✅ added
     ];
 
     requiredFields.forEach((field) => {
@@ -181,6 +188,47 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
             />
             {errors.driver_details && (
               <span className="text-red-500 text-sm">{errors.driver_details}</span>
+            )}
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Invoice no." />
+            <TextInput
+              name="invoice_no"
+              placeholder="Enter Invoice no."
+              value={formData.invoice_no}
+              onChange={handleChange}
+            />
+            {errors.invoice_no && <span className="text-red-500 text-sm">{errors.invoice_no}</span>}
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Date of booking" />
+
+            <input
+              type="date"
+              name="booking_date"
+              value={formData.booking_date || ''}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md dark:bg-gray-800 "
+            />
+            {errors.booking_date && (
+              <span className="text-red-500 text-sm">{errors.booking_date}</span>
+            )}
+          </div>
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Arrived Booking Date" />
+
+            <input
+              type="date"
+              name="arrived_booking"
+              value={formData.arrived_booking || ''}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md dark:bg-gray-800 dark:text-white"
+            />
+
+            {errors.arrived_booking && (
+              <span className="text-red-500 text-sm">{errors.arrived_booking}</span>
             )}
           </div>
 

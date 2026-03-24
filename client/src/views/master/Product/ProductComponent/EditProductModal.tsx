@@ -19,6 +19,7 @@ const EditProductModal = ({ show, setShowmodal, ProductData }) => {
   const [formData, setFormData] = useState({
     id: '',
     product_name: '',
+    ihs_code: '', // ✅ NEW FIELD
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -28,6 +29,7 @@ const EditProductModal = ({ show, setShowmodal, ProductData }) => {
       setFormData({
         id: ProductData?.id || '',
         product_name: ProductData?.product_name || '',
+        ihs_code: ProductData?.ihs_code || '', // ✅ SET VALUE
       });
     }
   }, [ProductData]);
@@ -44,6 +46,10 @@ const EditProductModal = ({ show, setShowmodal, ProductData }) => {
       newErrors.product_name = 'Product name is required';
     }
 
+    if (!formData.ihs_code) {
+      newErrors.ihs_code = 'IHS code is required'; // ✅ VALIDATION
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -56,6 +62,7 @@ const EditProductModal = ({ show, setShowmodal, ProductData }) => {
     try {
       const payload = {
         product_name: formData.product_name,
+        ihs_code: formData.ihs_code, // ✅ SEND TO API
       };
 
       const result = await dispatch(updateProduct({ id: formData.id, ...payload })).unwrap();
@@ -81,6 +88,7 @@ const EditProductModal = ({ show, setShowmodal, ProductData }) => {
 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
+          {/* Product Name */}
           <div className="col-span-12">
             <Label htmlFor="product_name" value="Product Name" />
             <span className="text-red-700 ps-1">*</span>
@@ -92,10 +100,26 @@ const EditProductModal = ({ show, setShowmodal, ProductData }) => {
               placeholder="Enter Product name"
               onChange={(e) => handleChange('product_name', e.target.value)}
               color={errors.product_name ? 'failure' : 'gray'}
-              className="form-rounded-md"
             />
 
             {errors.product_name && <p className="text-red-500 text-xs">{errors.product_name}</p>}
+          </div>
+
+          {/* ✅ IHS Code */}
+          <div className="col-span-12">
+            <Label htmlFor="ihs_code" value="HSN Code" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <TextInput
+              id="ihs_code"
+              type="text"
+              value={formData.ihs_code}
+              placeholder="Enter HSN Code"
+              onChange={(e) => handleChange('ihs_code', e.target.value)}
+              color={errors.ihs_code ? 'failure' : 'gray'}
+            />
+
+            {errors.ihs_code && <p className="text-red-500 text-xs">{errors.ihs_code}</p>}
           </div>
         </form>
       </ModalBody>

@@ -141,7 +141,7 @@ const ViewWorkOrderTable = () => {
 
       columnHelper.display({
         id: 'customers',
-        header: 'Work Order No.',
+        header: 'Company Name',
         cell: (info) => info.row.original.customers?.company_name || '-',
       }),
 
@@ -215,13 +215,13 @@ const ViewWorkOrderTable = () => {
                 </Tooltip>
               )}
 
-              {permissions.add && (
+              {/* {permissions.add && (
                 <Tooltip content="Add Work Order">
                   <Button size="xs" color="success" onClick={() => handleModal('add', true, row)}>
                     <Icon icon="material-symbols:add-rounded" height={18} />
                   </Button>
                 </Tooltip>
-              )}
+              )} */}
 
               {remarkPermission && (
                 <Tooltip content="Add Remark">

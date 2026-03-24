@@ -5,11 +5,14 @@ import { saveManufacturingProcedure } from 'src/features/Inventorymodule/BMR/Bmr
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
-
+import { useRef } from 'react';
 const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly }) => {
   const selectStyles = {
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
   };
+  const timeFromRef = useRef<HTMLInputElement>(null);
+  const timeToRef = useRef<HTMLInputElement>(null);
+
   const dispatch = useDispatch<any>();
 
   const { id } = useParams();
@@ -195,8 +198,9 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
                       <td className="border p-1">
                         <TextInput
                           sizing="sm"
-                          value={row.step_name}
-                          onChange={(e) => handleChange(index, 'step_name', e.target.value)}
+                          value={row.step_name || ''}
+                          readOnly // ✅ IMPORTANT
+                          className="bg-gray-100"
                         />
                       </td>
 
@@ -218,19 +222,23 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
 
                       <td className="border p-1">
                         <TextInput
+                          ref={timeFromRef}
                           type="time"
                           sizing="sm"
-                          value={row.timeFrom}
+                          value={row.timeFrom || ''}
                           onChange={(e) => handleChange(index, 'timeFrom', e.target.value)}
+                          onClick={() => timeFromRef.current?.showPicker()} // 🔥 force open
                         />
                       </td>
 
                       <td className="border p-1">
                         <TextInput
+                          ref={timeToRef}
                           type="time"
+                          value={row.timeTo || ''}
                           sizing="sm"
-                          value={row.timeTo}
                           onChange={(e) => handleChange(index, 'timeTo', e.target.value)}
+                          onClick={() => timeToRef.current?.showPicker()} // 🔥 force open
                         />
                       </td>
 
@@ -259,12 +267,11 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
                       </td>
 
                       <td className="border p-1 min-w-[140px]">
-                        <Select
-                          options={userOptions}
-                          value={row.doneBy}
-                          onChange={(val) => handleChange(index, 'doneBy', val)}
-                          styles={selectStyles}
-                          menuPortalTarget={document.body}
+                        <TextInput
+                          sizing="sm"
+                          placeholder="Enter Labour Name"
+                          value={row.doneBy || ''}
+                          onChange={(e) => handleChange(index, 'doneBy', e.target.value)}
                         />
                       </td>
 

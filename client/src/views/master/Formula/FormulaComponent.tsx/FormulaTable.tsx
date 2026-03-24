@@ -103,7 +103,8 @@ const FormulaTable = () => {
       </div>
       {permissions?.view ? (
         <>
-          <div className="overflow-x-auto">
+          <div className="w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            {' '}
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
@@ -114,6 +115,7 @@ const FormulaTable = () => {
                     'Ingredients',
                     'Quantity / Unit',
                     'UOM',
+                    'Mol Wt',
                     'Batch Size',
                     'Manufacturing Instructions',
                     'Remarks',
@@ -156,6 +158,9 @@ const FormulaTable = () => {
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.uom || '-'}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {item?.mol_wt || '-'}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.batch_size || '-'}

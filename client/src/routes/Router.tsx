@@ -19,6 +19,10 @@ import PurchaseOrder from 'src/views/marketing/purchaseorder/PurchaseOrder';
 import WorkOrder from 'src/views/inventory/work-order/WorkOrder';
 import ExistingCustomer from 'src/views/master/ExistingCustomer/ExistingCus';
 import Product from 'src/views/master/Product/Product';
+import TaxInvoice from 'src/views/accounts/domestic/taxinvoice/TaxInvoice';
+import TaxInvoiceExport from 'src/views/accounts/export/taxinvoice/TaxInvoice';
+import Replacement from 'src/views/inventory/replacement/Replacement';
+
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
 // const Category = Loadable(lazy(() => import('src/views/master/Category/Category')));
@@ -123,6 +127,12 @@ const fullLayoutChildren = [
   { path: '/inventory/inventory-equipment', element: <EquipementIssuedInventory /> },
   { path: '/inventory/inventory-rm', element: <RmIssuedInventory /> },
   { path: '/inventory/work-order', element: <WorkOrder /> },
+  { path: '/inventory/replacement', element: <Replacement /> },
+
+  // Account Managment
+
+  { path: '/accounts/domestic/tax-invoice', element: <TaxInvoice /> },
+  { path: '/accounts/export/tax-invoice', element: <TaxInvoiceExport /> },
 
   // Marketing
 

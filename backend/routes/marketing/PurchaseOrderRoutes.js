@@ -43,8 +43,6 @@ router.delete(
   purchaseOrderController.deletePurchaseOrder
 );
 
-router.post("/create-work-order-no", purchaseOrderController.createWorkOrderNo);
-
 router.post("/add-remark", purchaseOrderController.addRemark);
 router.post(
   "/work-order/status-update",

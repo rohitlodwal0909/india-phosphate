@@ -6,10 +6,11 @@ const { Product } = db;
 // Create
 exports.createProduct = async (req, res, next) => {
   try {
-    const { product_name } = req.body;
+    const { product_name, ihs_code } = req.body;
 
     const newProduct = await Product.create({
       product_name,
+      ihs_code,
       user_id: req.admin.id
     });
 
@@ -51,10 +52,11 @@ exports.updateProduct = async (req, res, next) => {
       return next(error);
     }
 
-    const { product_name } = req.body;
+    const { product_name, ihs_code } = req.body;
 
     await products.update({
-      product_name
+      product_name,
+      ihs_code
     });
 
     const { entry_date, entry_time } = getISTDateTime();

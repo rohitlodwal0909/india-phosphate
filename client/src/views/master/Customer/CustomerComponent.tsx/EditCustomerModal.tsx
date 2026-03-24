@@ -19,6 +19,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const [formData, setFormData] = useState({
     id: '',
     company_name: '',
+    application: '',
     customer_type: '',
     trader_names: [''],
     open_field: '',
@@ -68,6 +69,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
       setFormData({
         id: CustomerData.id,
         company_name: CustomerData.company_name || '',
+        application: CustomerData.application || '',
         customer_type: CustomerData.customer_type || '',
         trader_names: Array.isArray(traders) ? traders : [''],
         open_field: CustomerData.open_field || '',
@@ -196,6 +198,15 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
             <TextInput
               value={formData.company_name}
               onChange={(e) => handleChange('company_name', e.target.value)}
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Application" />
+            <TextInput
+              placeholder="Enter Application"
+              value={formData.application}
+              onChange={(e) => handleChange('application', e.target.value)}
             />
           </div>
 

@@ -50,6 +50,8 @@ import BmrReportSlices from '../src/features/Inventorymodule/BMR/BmrCreation/Bmr
 import ProcedureSlice from '../src/features/master/ManufacturingProcedure/ManufacturingProcedureSlice';
 import GRNSlice from '../src/features/master/Grn/GRNSlice';
 import PurchaseOrderSlice from '../src/features/marketing/PurchaseOrderSlice';
+import TaxInvoiceSlice from '../src/features/account/invoice/taxinvoice';
+import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
 
 export const store = configureStore({
   reducer: {
@@ -103,6 +105,8 @@ export const store = configureStore({
     procedure: ProcedureSlice,
     grn: GRNSlice,
     purchaseOrder: PurchaseOrderSlice,
+    taxinvoices: TaxInvoiceSlice,
+    replacements: ReplacementSlice,
   },
 });
 

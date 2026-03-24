@@ -60,6 +60,13 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
               </div>
 
               <div className="bg-gray-100 p-4 rounded shadow-sm">
+                <p className="text-gray-700 text-sm font-semibold">Application</p>
+                <p className="text-gray-900 font-bold text-base">
+                  {selectedRow?.application || '-'}
+                </p>
+              </div>
+
+              <div className="bg-gray-100 p-4 rounded shadow-sm">
                 <p className="text-gray-700 text-sm font-semibold">Customer Type</p>
                 <p className="text-gray-900 font-bold text-base">
                   {selectedRow?.customer_type || '-'}

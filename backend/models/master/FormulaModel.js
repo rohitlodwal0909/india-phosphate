@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) => {
       uom: {
         type: DataTypes.STRING
       },
+      mol_wt: {
+        type: DataTypes.STRING
+      },
       batch_size: {
         type: DataTypes.DECIMAL(10, 2)
       },

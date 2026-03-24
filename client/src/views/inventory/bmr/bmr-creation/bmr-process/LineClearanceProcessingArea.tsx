@@ -11,11 +11,10 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
+const LineClearanceProcessingArea = ({ bmr, equipment, users = [], data, isReadOnly }) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
   const { Equipmentdata } = useSelector((state: any) => state.equipment);
-
   const [previousProduct, setPreviousProduct] = useState('');
 
   /* ================= USERS OPTIONS ================= */
@@ -85,6 +84,8 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
   }, [equipmentsFromBmr]);
 
   const [equipmentRows, setEquipmentRows] = useState(initialEquipmentRows);
+
+  // console.log(initialEquipmentRows);
 
   /* ================= KEY POINTS ================= */
   const [keyPoints, setKeyPoints] = useState([

@@ -25,6 +25,7 @@ const AddFormulaModal = ({ show, setShowmodal, logindata }) => {
     quantity_per_batch_or_unit: '',
     uom: '',
     batch_size: '',
+    mol_wt: '', // ✅ reset
     manufacturing_instructions: '',
     remarks: '',
     created_by: logindata?.admin?.id,
@@ -44,6 +45,7 @@ const AddFormulaModal = ({ show, setShowmodal, logindata }) => {
       'ingredients',
       'quantity_per_batch_or_unit',
       'uom',
+      'mol_wt', // ✅ added
       'batch_size',
     ];
     const newErrors: any = {};
@@ -68,6 +70,7 @@ const AddFormulaModal = ({ show, setShowmodal, logindata }) => {
         ingredients: '',
         quantity_per_batch_or_unit: '',
         uom: '',
+        mol_wt: '',
         batch_size: '',
         manufacturing_instructions: '',
         remarks: '',
@@ -141,6 +144,7 @@ const AddFormulaModal = ({ show, setShowmodal, logindata }) => {
           {renderInput('quantity_per_batch_or_unit', 'Quantity Per Batch / Unit', 'number')}
           {renderSelect('uom', 'Unit of Measure', allUnits)}
           {renderInput('batch_size', 'Batch Size', 'number')}
+          {renderInput('mol_wt', 'Molecular Weight (mol.wt)', 'number')}
           {renderTextarea('manufacturing_instructions', 'Manufacturing Instructions')}
           {renderTextarea('remarks', 'Remarks / Notes')}
         </form>

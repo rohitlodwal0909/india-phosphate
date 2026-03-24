@@ -18,6 +18,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
 
   const [formData, setFormData] = useState({
     company_name: '',
+    application: '',
     customer_type: '',
     trader_names: [''],
     open_field: '',
@@ -155,6 +156,14 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
               onChange={(e) => handleChange('company_name', e.target.value)}
             />
           </div>
+          <div className="col-span-6">
+            <Label value="Application" />
+            <TextInput
+              placeholder="Enter Application"
+              value={formData.application}
+              onChange={(e) => handleChange('application', e.target.value)}
+            />
+          </div>
 
           {/* Customer Type */}
 
@@ -210,7 +219,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
           {/* ---------------- OPEN FIELD ---------------- */}
 
           {formData.customer_type === 'Open Field' && (
-            <div className="col-span-12">
+            <div className="col-span-6">
               <Label value="Open Field" />
 
               <TextInput

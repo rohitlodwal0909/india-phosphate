@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   customerdata: [],
   existscustomer: [],
+  productswithpo: [],
   addResult: null,
   updateResult: null,
   deleteResult: null,
@@ -75,6 +76,18 @@ export const deleteCustomer = createAsyncThunk<any, { id: string }, { rejectValu
   },
 );
 
+export const getProductWithPO = createAsyncThunk<any, { id: string }, { rejectValue: any }>(
+  'productspo/find',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/get-products-po/${id}`);
+      return response.data.data; // ✅ RETURN DATA
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch product PO.');
+    }
+  },
+);
+
 const CustomerSlice = createSlice({
   name: 'Customer',
   initialState,
@@ -104,6 +117,19 @@ const CustomerSlice = createSlice({
         state.existscustomer = action.payload;
       })
       .addCase(GetExistingCustomer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(getProductWithPO.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProductWithPO.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productswithpo = action.payload;
+      })
+      .addCase(getProductWithPO.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

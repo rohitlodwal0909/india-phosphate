@@ -21,9 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       delivery_location: DataTypes.STRING,
       batch_numbers: DataTypes.JSON,
       delivered_by: DataTypes.STRING,
-      invoice_number: DataTypes.STRING,
+      invoice_no: DataTypes.STRING,
       remarks: DataTypes.TEXT,
       dispatch_date: DataTypes.DATE,
+      arrived_booking: DataTypes.DATE,
+      booking_date: DataTypes.DATE,
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -44,6 +46,13 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true
     }
   );
+
+  DispatchVehicle.associate = (models) => {
+    DispatchVehicle.belongsTo(models.PurchaseOrderModel, {
+      foreignKey: "po_id",
+      as: "poentry"
+    });
+  };
 
   return DispatchVehicle;
 };

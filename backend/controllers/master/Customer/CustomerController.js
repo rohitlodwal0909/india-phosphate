@@ -1,13 +1,14 @@
 const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Customer, User } = db;
+const { Customer, User, PurchaseOrderModel, Product } = db;
 
 // Create
 exports.createCustomer = async (req, res) => {
   try {
     const customer = await Customer.create({
       company_name: req.body.company_name,
+      application: req.body.application,
       customer_type: req.body.customer_type,
       trader_names: req.body.trader_names,
       open_field: req.body.open_field,
@@ -117,12 +118,62 @@ exports.getExistingCustomers = async (req, res) => {
   }
 };
 
+exports.getProductsWithPo = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const purchaseOrders = await PurchaseOrderModel.findAll({
+      order: [["id", "DESC"]],
+      attributes: ["products"],
+      where: {
+        company_id: id
+      }
+    });
+
+    let allProductIds = [];
+
+    // ✅ Step 1: Parse and collect product_ids
+    purchaseOrders.forEach((po) => {
+      if (po.products) {
+        const productsArray = JSON.parse(po.products); // 🔥 important
+
+        productsArray.forEach((item) => {
+          allProductIds.push(item.product_id);
+        });
+      }
+    });
+
+    // ✅ Step 2: Remove duplicates
+    allProductIds = [...new Set(allProductIds)];
+
+    // ✅ Step 3: Fetch product details
+    const productDetails = await Product.findAll({
+      where: {
+        id: allProductIds
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: productDetails
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error"
+    });
+  }
+};
+
 // Update
 exports.updateCustomer = async (req, res) => {
   try {
     const {
       id,
       company_name,
+      application,
       customer_type,
       trader_names,
       open_field,
@@ -142,6 +193,7 @@ exports.updateCustomer = async (req, res) => {
 
     await customer.update({
       company_name: company_name || "",
+      application: application || "",
       customer_type: customer_type || "",
       trader_names: JSON.stringify(trader_names || []),
       open_field: open_field || "",

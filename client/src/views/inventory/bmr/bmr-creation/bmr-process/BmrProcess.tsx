@@ -71,6 +71,7 @@ const BmrProcess = () => {
           <LineClearanceProcessingArea
             bmr={bmr}
             users={users}
+            equipment={bmrreport?.equipmentno}
             data={bmrreport?.lineClearanceProcessing}
             isReadOnly={Boolean(bmrreport?.equipmentno?.length > 0)}
           />

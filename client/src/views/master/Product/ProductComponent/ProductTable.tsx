@@ -96,7 +96,7 @@ const ProductTable = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  {['Sr.No', 'Product Name', 'Action'].map((title) => (
+                  {['Sr.No', 'Product Name', 'HSN Code', 'Action'].map((title) => (
                     <th
                       key={title}
                       className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -122,6 +122,9 @@ const ProductTable = () => {
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {(item?.product_name || '-').replace(/^\w/, (c: string) => c.toUpperCase())}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {item?.ihs_code || '-'}
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">

@@ -18,6 +18,7 @@ const AddProductModal = ({ show, setShowmodal }) => {
 
   const [formData, setFormData] = useState({
     product_name: '',
+    ihs_code: '', // ✅ NEW FIELD
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -28,7 +29,7 @@ const AddProductModal = ({ show, setShowmodal }) => {
   };
 
   const validateForm = () => {
-    const required = ['product_name'];
+    const required = ['product_name', 'ihs_code']; // ✅ Added ihs_code
     const newErrors: any = {};
 
     required.forEach((field) => {
@@ -54,6 +55,7 @@ const AddProductModal = ({ show, setShowmodal }) => {
 
       setFormData({
         product_name: '',
+        ihs_code: '', // ✅ reset
       });
 
       setShowmodal(false);
@@ -68,6 +70,7 @@ const AddProductModal = ({ show, setShowmodal }) => {
 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
+          {/* Product Name */}
           <div className="col-span-12">
             <Label htmlFor="product_name" value="Product Name" />
             <span className="text-red-700 ps-1">*</span>
@@ -79,10 +82,26 @@ const AddProductModal = ({ show, setShowmodal }) => {
               placeholder="Enter Product name"
               onChange={(e) => handleChange('product_name', e.target.value)}
               color={errors.product_name ? 'failure' : 'gray'}
-              className="form-rounded-md"
             />
 
             {errors.product_name && <p className="text-red-500 text-xs">{errors.product_name}</p>}
+          </div>
+
+          {/* ✅ IHS Code Field */}
+          <div className="col-span-12">
+            <Label htmlFor="ihs_code" value="HSN Code" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <TextInput
+              id="ihs_code"
+              type="text"
+              value={formData.ihs_code}
+              placeholder="Enter HSN Code"
+              onChange={(e) => handleChange('ihs_code', e.target.value)}
+              color={errors.ihs_code ? 'failure' : 'gray'}
+            />
+
+            {errors.ihs_code && <p className="text-red-500 text-xs">{errors.ihs_code}</p>}
           </div>
         </form>
       </ModalBody>

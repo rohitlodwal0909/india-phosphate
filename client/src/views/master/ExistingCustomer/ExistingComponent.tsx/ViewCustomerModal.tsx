@@ -1,6 +1,10 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { TabItem, Tabs } from 'flowbite-react';
 import { Icon } from '@iconify/react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProductWithPO } from 'src/features/master/Customer/CustomerSlice';
+import { AppDispatch } from 'src/store';
 
 type Props = {
   placeModal: boolean;
@@ -10,6 +14,9 @@ type Props = {
 };
 
 const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow }: Props) => {
+  const dispatch = useDispatch<AppDispatch>(); // ✅ IMPORTANT
+  const { productswithpo } = useSelector((state: any) => state.customer);
+
   const traders = Array.isArray(selectedRow?.trader_names)
     ? selectedRow.trader_names
     : typeof selectedRow?.trader_names === 'string'
@@ -34,6 +41,20 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
       ? JSON.parse(selectedRow.products)
       : [];
 
+  const fetchData = async () => {
+    if (!selectedRow?.id) return;
+
+    try {
+      await dispatch(getProductWithPO({ id: selectedRow.id })).unwrap();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [selectedRow]);
+
   return (
     <Modal
       size="6xl"
@@ -56,6 +77,13 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                 <p className="text-gray-700 text-sm font-semibold">Company Name</p>
                 <p className="text-gray-900 font-bold text-base">
                   {selectedRow?.company_name || '-'}
+                </p>
+              </div>
+
+              <div className="bg-gray-100 p-4 rounded shadow-sm">
+                <p className="text-gray-700 text-sm font-semibold">Application</p>
+                <p className="text-gray-900 font-bold text-base">
+                  {selectedRow?.application || '-'}
                 </p>
               </div>
 
@@ -183,6 +211,39 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                         <td className="p-2 border">{index + 1}</td>
                         <td className="p-2 border font-medium">{p.product}</td>
                         <td className="p-2 border">{p.grade}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="text-center p-3 text-gray-500">
+                        No products found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </TabItem>
+
+          <TabItem
+            title="Added Products"
+            icon={() => <Icon icon="solar:box-outline" height={20} />}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-300">
+                <thead className="bg-gray-200 text-gray-900 font-semibold">
+                  <tr>
+                    <th className="p-2 border">S.No</th>
+                    <th className="p-2 border">Product Name</th>
+                  </tr>
+                </thead>
+
+                <tbody className="text-gray-900">
+                  {productswithpo.length > 0 ? (
+                    productswithpo.map((p: any, index: number) => (
+                      <tr key={index}>
+                        <td className="p-2 border">{index + 1}</td>
+                        <td className="p-2 border font-medium">{p.product_name}</td>
                       </tr>
                     ))
                   ) : (

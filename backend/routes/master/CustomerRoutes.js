@@ -8,6 +8,9 @@ router.get("/get-customer", CustomerController.getCustomers);
 router.get("/get-existing-customer", CustomerController.getExistingCustomers);
 
 router.get("/view-customer/:id", CustomerController.getCustomerById);
+
+router.get("/get-products-po/:id", CustomerController.getProductsWithPo);
+
 router.put("/update-customer/:id", CustomerController.updateCustomer);
 router.post("/add-note", CustomerController.addNote);
 router.delete("/delete-customer/:id", CustomerController.deleteCustomer);

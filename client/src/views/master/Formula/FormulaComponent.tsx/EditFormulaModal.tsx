@@ -25,6 +25,7 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
     ingredients: '',
     quantity_per_batch_or_unit: '',
     uom: '',
+    mol_wt: '', // ✅ reset
     batch_size: '',
     manufacturing_instructions: '',
     remarks: '',
@@ -42,6 +43,7 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
         ingredients: FormulaData?.ingredients || '',
         quantity_per_batch_or_unit: FormulaData?.quantity_per_batch_or_unit || '',
         uom: FormulaData?.uom || '',
+        mol_wt: FormulaData?.mol_wt || '',
         batch_size: FormulaData?.batch_size || '',
         manufacturing_instructions: FormulaData?.manufacturing_instructions || '',
         remarks: FormulaData?.remarks || '',
@@ -62,6 +64,7 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
       'ingredients',
       'quantity_per_batch_or_unit',
       'uom',
+      'mol_wt',
       'batch_size',
     ];
     const newErrors: any = {};
@@ -144,6 +147,7 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
           {renderInput('quantity_per_batch_or_unit', 'Quantity per batch/unit')}
           {renderSelect('uom', 'Unit of Measure', allUnits)}
           {renderInput('batch_size', 'Batch Size')}
+          {renderInput('mol_wt', 'Molecular Weight (mol.wt)', 'number')}
           {renderInput('manufacturing_instructions', 'Manufacturing Instructions', 'text', true)}
           {renderInput('remarks', 'Remarks', 'text', true)}
         </form>

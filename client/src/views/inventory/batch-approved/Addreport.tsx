@@ -116,8 +116,8 @@ const AddReport = () => {
       if (RawMaterialResult.rejected.match(response)) {
         toast.error(response.payload?.message || 'Submission failed');
       } else {
-        toast.success('QC Report submitted successfully');
-        navigate('/inventory/qc');
+        toast.success('QC report submitted successfully');
+        navigate('/inventory/qa-qc-approval');
       }
     } catch (error) {
       toast.error('Unexpected error occurred.');
@@ -184,7 +184,9 @@ const AddReport = () => {
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
               Mol. Wt.
             </div>
-            <div className="col-span-4 border-t border-black p-1">
+            <div className="col-span-4 border-t border-black p-1">{formula?.mol_wt || ''}</div>
+
+            {/* <div className="col-span-4 border-t border-black p-1">
               <input
                 type="text"
                 value={localBatch?.mol_weight || ''}
@@ -196,7 +198,7 @@ const AddReport = () => {
                 }
                 className="w-full outline-none"
               />
-            </div>
+            </div> */}
 
             {/* Date Of Mfg */}
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
@@ -300,7 +302,7 @@ const AddReport = () => {
             </table>
 
             <div className="flex justify-end">
-              <Button size="xs" onClick={handleAddRow}>
+              <Button color="primary" size="xs" onClick={handleAddRow}>
                 Add Row
               </Button>
             </div>
@@ -308,7 +310,9 @@ const AddReport = () => {
         )}
 
         <div className="flex justify-center mt-4">
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button color="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
         </div>
       </div>
     </CardBox>

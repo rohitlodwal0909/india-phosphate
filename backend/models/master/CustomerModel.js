@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      application: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
 
       customer_type: {
         type: DataTypes.ENUM("Trader", "End Customer", "Open Field")
