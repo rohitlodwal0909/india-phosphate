@@ -116,6 +116,7 @@ const TaxInvoiceTable = () => {
                             className="p-0"
                             onClick={() => {
                               setAddModal(true);
+                              setSelectedRow(item);
                             }}
                             title="Add Invoice"
                           >
@@ -185,7 +186,13 @@ const TaxInvoiceTable = () => {
         />
       )}
 
-      {addModal && <AddInvoiceTaxModel show={addModal} setShowmodal={() => setAddModal(false)} />}
+      {addModal && (
+        <AddInvoiceTaxModel
+          show={addModal}
+          data={selectedrow}
+          setShowmodal={() => setAddModal(false)}
+        />
+      )}
 
       {dispatchModal && (
         <ViewDispatchModal

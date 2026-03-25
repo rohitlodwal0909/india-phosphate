@@ -11,7 +11,7 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const LineClearanceProcessingArea = ({ bmr, equipment, users = [], data, isReadOnly }) => {
+const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
   const { Equipmentdata } = useSelector((state: any) => state.equipment);
