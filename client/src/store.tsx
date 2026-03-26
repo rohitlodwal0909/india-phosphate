@@ -51,6 +51,8 @@ import ProcedureSlice from '../src/features/master/ManufacturingProcedure/Manufa
 import GRNSlice from '../src/features/master/Grn/GRNSlice';
 import PurchaseOrderSlice from '../src/features/marketing/PurchaseOrderSlice';
 import TaxInvoiceSlice from '../src/features/account/invoice/taxinvoice';
+import ExportInvoiceSlice from '../src/features/account/exportinvoice/exportInvoice';
+
 import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
 
 export const store = configureStore({
@@ -106,6 +108,7 @@ export const store = configureStore({
     grn: GRNSlice,
     purchaseOrder: PurchaseOrderSlice,
     taxinvoices: TaxInvoiceSlice,
+    exportinvoices: ExportInvoiceSlice,
     replacements: ReplacementSlice,
   },
 });

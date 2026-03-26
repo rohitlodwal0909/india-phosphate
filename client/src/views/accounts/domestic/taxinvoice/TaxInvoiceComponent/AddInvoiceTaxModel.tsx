@@ -11,7 +11,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 
-const AddInvoiceTaxModel = ({ show, setShowmodal, data }) => {
+const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   const [activeTab, setActiveTab] = useState('invoice');
   const dispatch = useDispatch<AppDispatch>();
   const invoice = useSelector((state: RootState) => state.taxinvoices.singleinvoice) as any;
@@ -57,6 +57,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data }) => {
 
   const [formData, setFormData] = useState({
     // Basic
+    invoice_type: type,
     dispatch_id: data?.id,
     invoice_no: '',
     invoice_date: '',

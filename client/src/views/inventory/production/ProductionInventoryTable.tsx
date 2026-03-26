@@ -17,10 +17,7 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch } from 'src/store';
 import Addproductionmodal from './Addproductionmodal';
 
-import {
-  GetFetchProduction,
-  GetFetchQcProduction,
-} from 'src/features/Inventorymodule/productionmodule/ProdutionSlice';
+import { GetFetchQcProduction } from 'src/features/Inventorymodule/productionmodule/ProdutionSlice';
 
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
@@ -33,6 +30,7 @@ import Editproductionmodal from './Editproductionmodal';
 export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
+  product_name: string;
   production_date: string;
   rm_code: string;
   pm_code: string;
@@ -51,6 +49,13 @@ const columnHelper = createColumnHelper<PaginationTableType>();
 // const Statuses = ["PENDING", "APPROVED", "REJECT", "HOLD"];
 
 function ProductionInventoryTable() {
+  const parseProduction = (raw: any) => {
+    try {
+      return Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
+    } catch {
+      return [];
+    }
+  };
   const [selectedRow, setSelectedRow] = useState<PaginationTableType | null>(null);
 
   const [addmodal, setaddmodal] = useState(false);
@@ -77,15 +82,18 @@ function ProductionInventoryTable() {
     dispatch(GetRmCode());
     dispatch(GetPmCode());
     dispatch(GetEquipment());
+
     const fetchSqcData = async () => {
       try {
         const result = await dispatch(GetFetchQcProduction());
-        if (GetFetchProduction.rejected.match(result))
-          return console.error('Store Module Error:', result.payload || result.error.message);
+        if (GetFetchQcProduction.rejected.match(result)) {
+          console.error('Store Module Error:', result.payload || result.error.message);
+        }
       } catch (error) {
         console.error('Unexpected error:', error);
       }
     };
+
     fetchSqcData();
   }, [dispatch]);
 
@@ -146,17 +154,15 @@ function ProductionInventoryTable() {
       header: () => <span>Batch Number</span>,
     }),
 
+    columnHelper.accessor('product_name', {
+      cell: (info) => <p>{info.getValue() || 'N0 Code'}</p>,
+      header: () => <span>Product name</span>,
+    }),
+
     columnHelper.accessor('rm_code', {
       cell: (info) => {
         const rowIndata = info.row.original;
-        let values = [];
-
-        try {
-          const raw = rowIndata?.production_results;
-          values = Array.isArray(raw) ? raw : JSON.parse(raw || '[]');
-        } catch (err) {
-          console.error('Failed to parse production_results:', err);
-        }
+        const values = parseProduction(rowIndata?.production_results);
 
         return values.length ? (
           <div className="flex flex-col gap-1">
@@ -283,16 +289,7 @@ function ProductionInventoryTable() {
         return (
           <div className="flex gap-2">
             {raw ? (
-              // <Link to={`/view-report/${idStr}`}>
               <>
-                <Button
-                  color="secondary"
-                  outline
-                  size="xs"
-                  className="border border-primary text-primary   hover:bg-primary hover:text-white rounded-md"
-                >
-                  <Icon icon="solar:eye-outline" height={18} />
-                </Button>
                 {permissions?.edit && (
                   <Button
                     onClick={() => {

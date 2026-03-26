@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const InvoiceController = require("../../controllers/account/invoice/invoiceController");
+const InvoiceController = require("../../controllers/account/invoice/InvoiceController");
 const multer = require("multer");
 const path = require("path");
 

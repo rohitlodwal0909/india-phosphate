@@ -12,10 +12,11 @@ import { getentryinvoice } from 'src/features/account/invoice/taxinvoice';
 import ViewDispatchModal from 'src/views/inventory/dispatch-inventory/ViewDispatchModal';
 import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 import AddInvoiceTaxModel from './AddInvoiceTaxModel';
+import InvoiceViewModel from './InvoiceViewModel';
 
 const TaxInvoiceTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
-  const vehicledata = useSelector((state: RootState) => state.taxinvoices.invoiceentry) as any;
+  const { invoiceentry, loading } = useSelector((state: RootState) => state.taxinvoices) as any;
 
   const dispatch = useDispatch<AppDispatch>();
   const [selectedrow, setSelectedRow] = useState<any>();
@@ -24,8 +25,7 @@ const TaxInvoiceTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewModal, setViewModal] = useState(false);
   const [addModal, setAddModal] = useState(false);
-
-  const loading = false;
+  const [viewInvoice, setViewInvoice] = useState(false);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
@@ -38,19 +38,17 @@ const TaxInvoiceTable = () => {
   }, [dispatch]);
   const [dispatchModal, setDispatchModal] = useState(false);
 
-  const filteredItems = (vehicledata || []).filter((item: any) => {
+  const filteredItems = (invoiceentry || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
 
-    const supllier = item?.account_name || '';
-    const mouldNo = item?.account_type || '';
-    const hardness = item?.opening_balence || '';
-    const temperature = item?.parent_account || '';
+    const company_name = item?.poentry?.customers?.company_name || '';
+    const po_no = item?.poentry?.po_no || '';
+    const invoice_no = item?.invoice_no || '';
 
     return (
-      mouldNo.toString().toLowerCase().includes(searchText) ||
-      supllier.toString().toLowerCase().includes(searchText) ||
-      hardness.toString().toLowerCase().includes(searchText) ||
-      temperature.toString().toLowerCase().includes(searchText)
+      company_name.toString().toLowerCase().includes(searchText) ||
+      po_no.toString().toLowerCase().includes(searchText) ||
+      invoice_no.toString().toLowerCase().includes(searchText)
     );
   });
 
@@ -77,7 +75,7 @@ const TaxInvoiceTable = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  {['Sr.No', 'Invoice No.', '', 'Action'].map((title) => (
+                  {['Sr.No', 'Company Name', 'Invoice No.', 'Po No.', 'Action'].map((title) => (
                     <th
                       key={title}
                       className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -103,12 +101,36 @@ const TaxInvoiceTable = () => {
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {(item?.poentry?.customers?.company_name || '-').replace(
+                          /^\w/,
+                          (c: string) => c.toUpperCase(),
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {(item?.invoice_no || '-').replace(/^\w/, (c: string) => c.toUpperCase())}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {(item?.poentry?.po_no || '-').replace(/^\w/, (c: string) =>
+                          c.toUpperCase(),
+                        )}
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         <div className="flex justify-start gap-2">
                           {/* PO Details View */}
+
+                          <Button
+                            size="sm"
+                            color={'lightsecondary'}
+                            className="p-0"
+                            onClick={() => {
+                              setViewInvoice(true);
+                              setSelectedRow(item);
+                            }}
+                            title="View Invoice"
+                          >
+                            <Icon icon="mdi:file-document-outline" height={18} />{' '}
+                          </Button>
 
                           <Button
                             size="sm"
@@ -191,6 +213,7 @@ const TaxInvoiceTable = () => {
           show={addModal}
           data={selectedrow}
           setShowmodal={() => setAddModal(false)}
+          type="domestic"
         />
       )}
 
@@ -201,6 +224,13 @@ const TaxInvoiceTable = () => {
           selectedRow={selectedrow}
           StoreDatas={[]}
           modalPlacement="center"
+        />
+      )}
+      {viewInvoice && (
+        <InvoiceViewModel
+          placeModal={viewInvoice}
+          setPlaceModal={() => setViewInvoice(false)}
+          selectedRow={selectedrow}
         />
       )}
     </div>

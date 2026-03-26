@@ -42,11 +42,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use(express.static(path.join(__dirname, "dist")));
+// app.use(express.static(path.join(__dirname, "dist")));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
+// app.use((req, res) => {
+//   res.sendFile(path.join(__dirname, "dist", "index.html"));
+// });
 
 //  DB connection and start
 sequelize

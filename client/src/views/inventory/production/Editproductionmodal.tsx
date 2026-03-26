@@ -33,93 +33,89 @@ const Editproductionmodal: React.FC<Props> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
-    id: selectedRow?.id,
+    id: '',
+    batch_id: '',
     rm_items: [{ rm_code: '', quantity: '', unit: '' }],
     pm_items: [{ pm_code: '', quantity: '', unit: '' }],
     equipments: [''],
   });
 
+  /* ================= INIT ================= */
   useEffect(() => {
-    if (selectedRow && selectedRow.length > 0) {
+    if (selectedRow && Array.isArray(selectedRow) && selectedRow.length > 0) {
       const rmItems = selectedRow
-        .filter((item: any) => item.rm_code)
-        .map((item: any) => ({
-          rm_code: Number(item.rm_code),
-          quantity: item.rm_quantity || '',
-          unit: item.rm_unit || '',
+        .filter((i: any) => i.rm_code)
+        .map((i: any) => ({
+          rm_code: Number(i.rm_code),
+          quantity: i.rm_quantity || '',
+          unit: i.rm_unit || '',
         }));
 
       const pmItems = selectedRow
-        .filter((item: any) => item.pm_code) // ✅ only valid pm
-        .map((item: any) => ({
-          pm_code: Number(item.pm_code),
-          quantity: item.pm_quantity || '',
-          unit: item.pm_unit || '',
+        .filter((i: any) => i.pm_code)
+        .map((i: any) => ({
+          pm_code: Number(i.pm_code),
+          quantity: i.pm_quantity || '',
+          unit: i.pm_unit || '',
         }));
 
       const equipmentItems = selectedRow
-        .filter((item: any) => item.equipments) // ✅ only valid equipment
-        .map((item: any) => Number(item.equipments));
+        .filter((i: any) => i.equipments)
+        .map((i: any) => Number(i.equipments));
 
       setFormData({
+        id: selectedRow[0]?.id || '',
         batch_id: selectedRow[0]?.batch_id || '',
-        rm_items: rmItems.length ? rmItems : [],
-        pm_items: pmItems.length ? pmItems : [],
-        equipments: equipmentItems.length ? equipmentItems : [],
+        rm_items: rmItems.length ? rmItems : [{ rm_code: '', quantity: '', unit: '' }],
+        pm_items: pmItems.length ? pmItems : [{ pm_code: '', quantity: '', unit: '' }],
+        equipments: equipmentItems.length ? equipmentItems : [''],
       });
     }
   }, [selectedRow]);
 
   /* ================= OPTIONS ================= */
-
-  const rmOptions = rmcodes.map((i: any) => ({
+  const rmOptions = rmcodes.map((i) => ({
     value: i.id,
     label: i.rm_code,
   }));
 
-  const pmOptions = pmcodes.map((i: any) => ({
+  const pmOptions = pmcodes.map((i) => ({
     value: i.id,
     label: i.name,
   }));
 
-  const equipmentOptions = equipments.map((i: any) => ({
+  const equipmentOptions = equipments.map((i) => ({
     value: i.id,
     label: i.name,
   }));
 
   /* ================= HANDLERS ================= */
-
-  const handleItemChange = (
-    type: 'rm_items' | 'pm_items',
-    index: number,
-    field: string,
-    value: string,
-  ) => {
+  const handleItemChange = (type: any, index: number, field: string, value: string) => {
     const updated = [...formData[type]];
-    updated[index][field] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setFormData((prev: any) => ({ ...prev, [type]: updated }));
   };
 
   const addRow = (type: 'rm_items' | 'pm_items') => {
+    const newItem =
+      type === 'rm_items'
+        ? { rm_code: '', quantity: '', unit: '' }
+        : { pm_code: '', quantity: '', unit: '' };
+
     setFormData((prev: any) => ({
       ...prev,
-      [type]: [
-        ...prev[type],
-        type === 'rm_items'
-          ? { rm_code: '', quantity: '', unit: '' }
-          : { pm_code: '', quantity: '', unit: '' },
-      ],
+      [type]: [...prev[type], newItem],
     }));
   };
 
   const deleteRow = (type: 'rm_items' | 'pm_items', index: number) => {
+    if (formData[type].length === 1) return;
     const updated = [...formData[type]];
     updated.splice(index, 1);
     setFormData((prev: any) => ({ ...prev, [type]: updated }));
   };
 
-  /* ============== EQUIPMENT ================= */
-
+  /* ================= EQUIPMENT ================= */
   const handleEquipmentChange = (index: number, value: string) => {
     const updated = [...formData.equipments];
     updated[index] = value;
@@ -134,17 +130,18 @@ const Editproductionmodal: React.FC<Props> = ({
   };
 
   const deleteEquipment = (index: number) => {
+    if (formData.equipments.length === 1) return;
     const updated = [...formData.equipments];
     updated.splice(index, 1);
     setFormData((prev: any) => ({ ...prev, equipments: updated }));
   };
 
   /* ================= SUBMIT ================= */
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     const payload = {
+      id: formData.id, // ✅ important
       batch_id: formData.batch_id,
 
       rm_code: formData.rm_items.map((i: any) => i.rm_code),
@@ -160,7 +157,8 @@ const Editproductionmodal: React.FC<Props> = ({
 
     try {
       await dispatch(editProduction(payload)).unwrap();
-      toast.success('Production added successfully');
+
+      toast.success('Production updated successfully');
 
       await Promise.all([
         dispatch(GetAllrowmaterial()),
@@ -175,15 +173,13 @@ const Editproductionmodal: React.FC<Props> = ({
   };
 
   /* ================= UI ================= */
-
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)} size="5xl">
-      <Modal.Header>Production Entry</Modal.Header>
+      <Modal.Header>Edit Production</Modal.Header>
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          {/* ================= RM ================= */}
-
+          {/* RM */}
           {formData.rm_items.map((item: any, index: number) => (
             <div key={index} className="col-span-12 grid grid-cols-12 gap-4 items-end">
               <div className="col-span-5">
@@ -217,7 +213,7 @@ const Editproductionmodal: React.FC<Props> = ({
                   <select
                     id="unit"
                     name="unit"
-                    value={formData.unit}
+                    value={item.unit}
                     onChange={(e) => handleItemChange('rm_items', index, 'unit', e.target.value)}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
@@ -245,8 +241,7 @@ const Editproductionmodal: React.FC<Props> = ({
             </div>
           ))}
 
-          {/* ================= PM ================= */}
-
+          {/* PM */}
           {formData.pm_items.map((item: any, index: number) => (
             <div key={index} className="col-span-12 grid grid-cols-12 gap-4 items-end">
               <div className="col-span-5">
@@ -280,7 +275,7 @@ const Editproductionmodal: React.FC<Props> = ({
                   <select
                     id="unit"
                     name="unit"
-                    value={formData.unit}
+                    value={item.unit}
                     onChange={(e) => handleItemChange('pm_items', index, 'unit', e.target.value)}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
@@ -308,8 +303,7 @@ const Editproductionmodal: React.FC<Props> = ({
             </div>
           ))}
 
-          {/* ================= EQUIPMENT ================= */}
-
+          {/* EQUIPMENT */}
           {formData.equipments.map((eq: string, index: number) => (
             <div key={index} className="col-span-12 grid grid-cols-12 gap-4 items-end">
               <div className="col-span-5">
@@ -338,13 +332,13 @@ const Editproductionmodal: React.FC<Props> = ({
             </div>
           ))}
 
-          {/* ================= ACTIONS ================= */}
-          <div className="col-span-12 flex justify-end gap-2 mt-4">
+          {/* ACTION */}
+          <div className="col-span-12 flex justify-end gap-2">
             <Button color="gray" onClick={() => setOpenModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" color="primary">
-              Submit
+            <Button color="primary" type="submit">
+              Update
             </Button>
           </div>
         </form>

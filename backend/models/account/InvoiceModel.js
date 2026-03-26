@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       // 🔹 Basic
+      invoice_type: DataTypes.STRING,
       invoice_no: DataTypes.STRING,
       invoice_date: DataTypes.DATE,
       eway_bill: DataTypes.STRING,

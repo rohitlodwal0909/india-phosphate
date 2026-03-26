@@ -74,6 +74,7 @@ exports.createInvoice = async (req, res) => {
     const invoice = await Invoice.create(
       {
         dispatch_id: invoiceData.dispatch_id,
+        invoice_type: invoiceData.invoice_type,
         invoice_no: invoiceData.invoice_no,
         invoice_date: invoiceData.invoice_date,
         eway_bill: invoiceData.eway_bill,

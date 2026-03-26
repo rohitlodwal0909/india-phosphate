@@ -1,10 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "flowbite-react";
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { TabItem, Tabs } from 'flowbite-react';
 import { Icon } from '@iconify/react';
 
@@ -13,7 +7,7 @@ type Props = {
   modalPlacement: string;
   setPlaceModal: (value: boolean) => void;
   selectedRow: any;
-Statedata:any;
+  Statedata: any;
 };
 
 const ViewCompanyModal = ({
@@ -21,58 +15,51 @@ const ViewCompanyModal = ({
   modalPlacement,
   setPlaceModal,
   selectedRow,
- Statedata
+  Statedata,
 }: Props) => {
-Statedata
+  Statedata;
 
   const fields = [
-  ["Account Name", selectedRow?.account_name],
-  ["Account Code", selectedRow?.account_type],
-  ["Is Active ", selectedRow?.is_active == 1?"Active":"Inactive"],
-  ["Opening Balance", selectedRow?.opening_balance],
-  ["Balance Type", selectedRow?.balance_type],
-  ["parent Account", selectedRow?.parent_account],
-  ["Create by", selectedRow?.created_by_username],
- 
-  
+    ['Account Name', selectedRow?.account_name],
+    ['Account Code', selectedRow?.account_type],
+    ['Is Active ', selectedRow?.is_active == 1 ? 'Active' : 'Inactive'],
+    ['Opening Balance', selectedRow?.opening_balance],
+    ['Balance Type', selectedRow?.balance_type],
+    ['parent Account', selectedRow?.parent_account],
+    ['Create by', selectedRow?.created_by_username],
+  ];
 
- 
-]
-  
-console.log(selectedRow)
   return (
     <Modal
-  size="5xl"
-  show={placeModal}
-  position={modalPlacement}
-  onClose={() => setPlaceModal(false)}
-  className="overflow-x-hidden"
->
-
-  <ModalHeader className="pb-0 text-center text-2xl font-bold text-gray-800">
-    Account Details
-  </ModalHeader>
-  <ModalBody>
-
-     <Tabs aria-label="Tabs with underline" variant="underline">
+      size="5xl"
+      show={placeModal}
+      position={modalPlacement}
+      onClose={() => setPlaceModal(false)}
+      className="overflow-x-hidden"
+    >
+      <ModalHeader className="pb-0 text-center text-2xl font-bold text-gray-800">
+        Account Details
+      </ModalHeader>
+      <ModalBody>
+        <Tabs aria-label="Tabs with underline" variant="underline">
           <TabItem
             active
             title="Account View"
             icon={() => <Icon icon="solar:shield-user-outline" height={20} />}
           >
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 my-2">
-           {fields.map(([label, value]) => (
-          <div
-            key={label}
-            className="bg-gray-50 rounded-md p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <p className="text-sm text-gray-500 font-semibold">{label}</p>
-            <p className="text-base text-gray-800 mt-1 font-medium break-words">
-              {value || "-"}
-            </p>
-          </div>
-        ))}
-      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 my-2">
+              {fields.map(([label, value]) => (
+                <div
+                  key={label}
+                  className="bg-gray-50 rounded-md p-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <p className="text-sm text-gray-500 font-semibold">{label}</p>
+                  <p className="text-base text-gray-800 mt-1 font-medium break-words">
+                    {value || '-'}
+                  </p>
+                </div>
+              ))}
+            </div>
           </TabItem>
           {/* <TabItem title="Notes View" icon={() => <Icon icon="solar:graph-linear" height={20} />}>
             <div className="space-y-4">
@@ -110,23 +97,17 @@ console.log(selectedRow)
         </div>
     
           </TabItem> */}
-          </Tabs>
-    <div className="rounded-lg  n px-2">
-     
-
-       <div className="bg-white shadow rounded p-4">
-     
-       
-    </div>
-
-    </div>
-  </ModalBody>
-  <ModalFooter className="justify-center">
-    <Button color="gray" onClick={() => setPlaceModal(false)}>
-      Close
-    </Button>
-  </ModalFooter>
-</Modal>
+        </Tabs>
+        <div className="rounded-lg  n px-2">
+          <div className="bg-white shadow rounded p-4"></div>
+        </div>
+      </ModalBody>
+      <ModalFooter className="justify-center">
+        <Button color="gray" onClick={() => setPlaceModal(false)}>
+          Close
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 };
 

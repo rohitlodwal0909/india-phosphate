@@ -146,7 +146,7 @@ const Addproductionmodal: React.FC<Props> = ({
       await Promise.all([
         dispatch(GetAllrowmaterial()),
         dispatch(GetFetchQcProduction()),
-        dispatch(GetNotification(logindata?.admin?.id)),
+        dispatch(GetNotification()),
       ]);
 
       setOpenModal(false);
@@ -198,7 +198,7 @@ const Addproductionmodal: React.FC<Props> = ({
                   <select
                     id="unit"
                     name="unit"
-                    value={formData.unit}
+                    value={item.unit}
                     onChange={(e) => handleItemChange('rm_items', index, 'unit', e.target.value)}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
@@ -261,7 +261,7 @@ const Addproductionmodal: React.FC<Props> = ({
                   <select
                     id="unit"
                     name="unit"
-                    value={formData.unit}
+                    value={item.unit}
                     onChange={(e) => handleItemChange('pm_items', index, 'unit', e.target.value)}
                     className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
