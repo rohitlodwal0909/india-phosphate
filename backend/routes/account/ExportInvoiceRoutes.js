@@ -3,6 +3,9 @@ const router = express.Router();
 const InvoiceController1 = require("../../controllers/account/invoice/ExportInvoiceController");
 const multer = require("multer");
 const path = require("path");
+const {
+  protectedExcelDownload
+} = require("../../middleware/excelDownloadMiddleware");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -35,6 +38,12 @@ router.get("/get-excel-invoice", InvoiceController1.getExcelInvoice);
 router.delete(
   "/delete-export-invoice/:id",
   InvoiceController1.deleteExportInvoice
+);
+
+router.get(
+  "/download-export-invoice/:id",
+  InvoiceController1.download,
+  protectedExcelDownload
 );
 
 module.exports = router;

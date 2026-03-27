@@ -93,3 +93,21 @@ exports.deleteExportInvoice = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.download = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const invoice = await ExportInvoiceModel.findByPk(id);
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+    // middleware ko data pass
+    req.fileData = invoice;
+    return next();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Download failed" });
+  }
+};

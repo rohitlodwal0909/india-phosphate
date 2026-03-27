@@ -52,6 +52,9 @@ import GRNSlice from '../src/features/master/Grn/GRNSlice';
 import PurchaseOrderSlice from '../src/features/marketing/PurchaseOrderSlice';
 import TaxInvoiceSlice from '../src/features/account/invoice/taxinvoice';
 import ExportInvoiceSlice from '../src/features/account/exportinvoice/exportInvoice';
+import ExportPackingSlice from '../src/features/account/exportinvoice/packinglist';
+import DraftPackingListSlice from '../src/features/account/exportinvoice/draft';
+import SampleInvoiceSlice from '../src/features/account/exportinvoice/sampleinvoice';
 
 import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
 
@@ -109,6 +112,9 @@ export const store = configureStore({
     purchaseOrder: PurchaseOrderSlice,
     taxinvoices: TaxInvoiceSlice,
     exportinvoices: ExportInvoiceSlice,
+    exportpackinglists: ExportPackingSlice,
+    draftPackingList: DraftPackingListSlice,
+    sampleInvoice: SampleInvoiceSlice,
     replacements: ReplacementSlice,
   },
 });

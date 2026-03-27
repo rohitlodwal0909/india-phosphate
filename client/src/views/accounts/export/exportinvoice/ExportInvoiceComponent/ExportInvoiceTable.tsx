@@ -13,8 +13,8 @@ import CreateModel from './CreateModel';
 import {
   getExcelInvoice,
   deleteExportInvoice,
+  downloadInvoice,
 } from 'src/features/account/exportinvoice/exportInvoice';
-import { ImageUrl } from 'src/constants/contant';
 import EditModel from './EditModel';
 import { toast } from 'react-toastify';
 
@@ -71,6 +71,10 @@ const ExportInvoiceTable = () => {
     toast.success('Invoice deleted successfully');
 
     setDeleteModel(false);
+  };
+
+  const handleDownload = (id: number) => {
+    dispatch(downloadInvoice(id));
   };
 
   return (
@@ -157,15 +161,16 @@ const ExportInvoiceTable = () => {
                           )}
 
                           {item?.file ? (
-                            <a
-                              href={`${ImageUrl}${item.file}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center gap-1 text-blue-600 hover:underline"
-                            >
-                              <Icon icon="mdi:download" height={16} />
-                              Download
-                            </a>
+                            <Tooltip content="Download">
+                              <Button
+                                size="sm"
+                                color="primary"
+                                className="p-1"
+                                onClick={() => handleDownload(item.id)}
+                              >
+                                <Icon icon="mdi:download" height={16} />
+                              </Button>
+                            </Tooltip>
                           ) : (
                             <span className="text-gray-400 text-sm">No File</span>
                           )}

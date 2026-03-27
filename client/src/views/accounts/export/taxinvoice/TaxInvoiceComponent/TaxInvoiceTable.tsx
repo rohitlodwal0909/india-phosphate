@@ -33,7 +33,6 @@ const TaxInvoiceTable = () => {
     return getPermissions(logindata, selectedIconId, 2);
   }, [logindata, selectedIconId]);
 
-  console.log(permissions);
   useEffect(() => {
     dispatch(getentryinvoice(2));
   }, [dispatch]);
@@ -201,6 +200,7 @@ const TaxInvoiceTable = () => {
       ) : (
         <NotPermission />
       )}
+
       {viewModal && (
         <ViewPurchaseOrderModal
           placeModal={viewModal}

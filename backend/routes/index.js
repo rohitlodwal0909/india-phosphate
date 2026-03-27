@@ -55,6 +55,9 @@ const PurchaseOrderRoutes = require("../routes/marketing/purchaseOrderRoutes");
 
 const InvoiceRoutes = require("../routes/account/InvoiceRoutes");
 const ExportInvoiceRoutes = require("../routes/account/ExportInvoiceRoutes");
+const PackingListRoutes = require("../routes/account/PackingListRoutes");
+const DraftPackingRoutes = require("../routes/account/DraftPackingRoutes");
+const SampleInvoiceRoutes = require("../routes/account/SampleInvoiceRoutes");
 
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -112,5 +115,8 @@ router.use("/api", authMiddleware, ReplacementRoutes);
 // Account Routes
 router.use("/api", authMiddleware, InvoiceRoutes);
 router.use("/api", authMiddleware, ExportInvoiceRoutes);
+router.use("/api", authMiddleware, PackingListRoutes);
+router.use("/api", authMiddleware, DraftPackingRoutes);
+router.use("/api", authMiddleware, SampleInvoiceRoutes);
 
 module.exports = router;

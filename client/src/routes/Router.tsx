@@ -24,6 +24,9 @@ import TaxInvoiceExport from 'src/views/accounts/export/taxinvoice/TaxInvoice';
 import Replacement from 'src/views/inventory/replacement/Replacement';
 import Ewaybill from '../views/accounts/domestic/ewaybill/Ewaybill';
 import ExportInvoice from 'src/views/accounts/export/exportinvoice/ExportInvoice';
+import PackingList from 'src/views/accounts/export/packinglist/PackingList';
+import DraftList from 'src/views/accounts/export/draft/Draft';
+import SampleInvoice from 'src/views/accounts/export/sampleinvoice/SampleInvoice';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -138,6 +141,9 @@ const fullLayoutChildren = [
 
   { path: '/accounts/export/tax-invoice', element: <TaxInvoiceExport /> },
   { path: '/accounts/export/export-invoice', element: <ExportInvoice /> },
+  { path: '/accounts/export/packing-list', element: <PackingList /> },
+  { path: '/accounts/export/draft-packing-list', element: <DraftList /> },
+  { path: '/accounts/export/sample-invoice', element: <SampleInvoice /> },
 
   // Marketing
 

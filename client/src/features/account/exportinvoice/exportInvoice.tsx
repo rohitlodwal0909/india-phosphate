@@ -25,6 +25,32 @@ export const createExcelInvoice = createAsyncThunk<any, FormData>(
   },
 );
 
+export const downloadInvoice = createAsyncThunk<any, number>(
+  'invoice/download',
+  async (id, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/download-export-invoice/${id}`, {
+        responseType: 'blob', // ✅ VERY IMPORTANT
+      });
+
+      // create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `ExportInvoiceTax.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+
+      return true;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Download failed');
+    }
+  },
+);
+
 // ✅ GET
 export const getExcelInvoice = createAsyncThunk<any>('invoice/get', async (_, thunkAPI) => {
   try {
@@ -98,6 +124,17 @@ const ExportInvoiceSlice = createSlice({
         state.excels = action.payload;
       })
       .addCase(getExcelInvoice.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(downloadInvoice.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(downloadInvoice.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(downloadInvoice.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
       })
