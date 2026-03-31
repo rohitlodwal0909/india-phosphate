@@ -27,6 +27,7 @@ import ExportInvoice from 'src/views/accounts/export/exportinvoice/ExportInvoice
 import PackingList from 'src/views/accounts/export/packinglist/PackingList';
 import DraftList from 'src/views/accounts/export/draft/Draft';
 import SampleInvoice from 'src/views/accounts/export/sampleinvoice/SampleInvoice';
+import Quotation from 'src/views/purchase/quotation/Quotation';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -148,6 +149,10 @@ const fullLayoutChildren = [
   // Marketing
 
   { path: '/marketing/purchase-order', element: <PurchaseOrder /> },
+
+  // Purchase Department
+
+  { path: '/purchase/quotation', element: <Quotation /> },
 
   { path: '/inventory/report/:id', element: <SubmitReport /> },
   { path: '/master/company', element: <Company /> },

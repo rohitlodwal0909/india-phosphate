@@ -76,7 +76,7 @@ const BmrCreateTable = () => {
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 10);
+    return getPermissions(logindata, selectedIconId, 13);
   }, [logindata, selectedIconId]);
 
   const handleAddData = (id) => {

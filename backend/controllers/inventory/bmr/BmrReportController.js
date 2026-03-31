@@ -169,6 +169,7 @@ exports.saveLineClearance = async (req, res) => {
     id,
     bmr_id,
     clearance_date,
+    batch_no,
     previous_product,
     cleaning_done_by,
     checked_by,
@@ -194,6 +195,7 @@ exports.saveLineClearance = async (req, res) => {
           clearance_date,
           previous_product: previous_product || null,
           cleaning_by: cleaning_done_by,
+          batch_no: batch_no,
           checked_by,
           user_id: req.admin.id
         },
@@ -215,6 +217,7 @@ exports.saveLineClearance = async (req, res) => {
           clearance_date,
           previous_product: previous_product || null,
           cleaning_by: cleaning_done_by,
+          batch_no: batch_no,
           checked_by,
           user_id: req.admin.id,
           status: "Pending"
@@ -894,9 +897,38 @@ exports.saveProductRelease = async (req, res) => {
 exports.saveManufacturingProcedure = async (req, res) => {
   try {
     const records = Array.isArray(req.body?.manufacturing_procedure)
-      ? req.body?.manufacturing_procedure
-      : [req.body?.manufacturing_procedure];
+      ? req.body.manufacturing_procedure
+      : [req.body.manufacturing_procedure];
 
+    const bmr_id = records?.[0]?.bmr_id;
+
+    if (!bmr_id) {
+      return res.status(400).json({
+        success: false,
+        message: "BMR id required"
+      });
+    }
+
+    /* ================= EXISTING DB DATA ================= */
+    const existingRecords = await BmrManufacturingProcedure.findAll({
+      where: { bmr_id },
+      attributes: ["id"]
+    });
+
+    const existingIds = existingRecords.map((r) => r.id);
+
+    const requestIds = records.filter((r) => r.id).map((r) => Number(r.id));
+
+    /* ================= DELETE REMOVED ROWS ================= */
+    const deleteIds = existingIds.filter((id) => !requestIds.includes(id));
+
+    if (deleteIds.length) {
+      await BmrManufacturingProcedure.destroy({
+        where: { id: deleteIds }
+      });
+    }
+
+    /* ================= CREATE / UPDATE ================= */
     const savedData = [];
 
     for (const item of records) {
@@ -909,31 +941,30 @@ exports.saveManufacturingProcedure = async (req, res) => {
 
       let data;
 
-      // 🔹 UPDATE
+      // UPDATE
       if (id) {
         data = await BmrManufacturingProcedure.findByPk(id);
 
-        if (!data) {
-          continue;
+        if (data) {
+          await data.update(payload);
         }
-
-        await data.update(payload);
       }
-      // 🔹 CREATE
+      // CREATE
       else {
         data = await BmrManufacturingProcedure.create(payload);
       }
 
-      savedData.push(data);
+      if (data) savedData.push(data);
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
-      message: "Product Release saved successfully",
+      message: "Manufacturing Procedure synced successfully",
       data: savedData
     });
   } catch (error) {
-    console.error("Product error:", error);
+    console.error("Manufacturing Procedure Error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Server error"
@@ -943,7 +974,8 @@ exports.saveManufacturingProcedure = async (req, res) => {
 
 exports.saveLineClearanceProcessing = async (req, res) => {
   try {
-    const { id, bmr_id, previousProduct, keyPoints, equipments } = req.body;
+    const { id, bmr_id, previousProduct, batch_no, keyPoints, equipments } =
+      req.body;
 
     if (!bmr_id) {
       return res.status(400).json({
@@ -955,6 +987,7 @@ exports.saveLineClearanceProcessing = async (req, res) => {
     const payload = {
       bmr_id,
       previous_product: previousProduct,
+      batch_no: batch_no,
       key_points: keyPoints ? JSON.stringify(keyPoints) : null,
       equipments: equipments ? JSON.stringify(equipments) : null,
       user_id: req.admin?.id || null

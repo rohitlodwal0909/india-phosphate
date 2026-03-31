@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
 
       invoice_id: DataTypes.INTEGER,
       product_id: DataTypes.INTEGER,
-
       kind_of_pkgs: DataTypes.STRING,
       batch_no: DataTypes.STRING,
       mfg: DataTypes.DATE,
@@ -32,6 +31,9 @@ module.exports = (sequelize, DataTypes) => {
   InvoiceItem.associate = (models) => {
     InvoiceItem.belongsTo(models.Invoice, {
       foreignKey: "invoice_id"
+    });
+    InvoiceItem.belongsTo(models.Product, {
+      foreignKey: "product_id"
     });
   };
 

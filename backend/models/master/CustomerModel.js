@@ -15,6 +15,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      company_hq: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      company_address: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
 
       customer_type: {
         type: DataTypes.ENUM("Trader", "End Customer", "Open Field")

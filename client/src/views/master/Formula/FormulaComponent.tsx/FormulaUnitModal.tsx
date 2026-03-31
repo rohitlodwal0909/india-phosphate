@@ -25,6 +25,7 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
     fields: [{ test: '', specification: '' }],
   });
 
+  const [errors, setErrors] = useState<any>({});
   /* ===========================
      FETCH DATA
   ============================ */
@@ -54,7 +55,14 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
   const handleFieldChange = (index: number, field: string, value: string) => {
     const updatedFields = [...formData.fields];
     updatedFields[index][field] = value;
+
     setFormData({ ...formData, fields: updatedFields });
+
+    // remove error instantly
+    setErrors((prev: any) => ({
+      ...prev,
+      [`fields_${index}_${field}`]: '',
+    }));
   };
 
   const addFieldRow = () => {
@@ -77,10 +85,16 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
     const newErrors: any = {};
 
     formData.fields.forEach((field, index) => {
-      if (!field.test) newErrors[`fields_${index}_test`] = 'Test is required';
-      if (!field.specification)
+      if (!field.test?.trim()) {
+        newErrors[`fields_${index}_test`] = 'Test is required';
+      }
+
+      if (!field.specification?.trim()) {
         newErrors[`fields_${index}_specification`] = 'Specification is required';
+      }
     });
+
+    setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
   };
@@ -91,7 +105,6 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     try {
       const payload = {
         formula_id: formData.formula_id,
@@ -123,6 +136,9 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
                 <TextInput
                   type="text"
                   value={field.test}
+                  placeholder="Enter Tests"
+                  color={errors[`fields_${index}_test`] ? 'failure' : 'gray'}
+                  helperText={errors[`fields_${index}_test`]}
                   onChange={(e) => handleFieldChange(index, 'test', e.target.value)}
                 />
               </div>
@@ -132,6 +148,9 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
                 <TextInput
                   type="text"
                   value={field.specification}
+                  placeholder="Enter Specification"
+                  color={errors[`fields_${index}_specification`] ? 'failure' : 'gray'}
+                  helperText={errors[`fields_${index}_specification`]}
                   onChange={(e) => handleFieldChange(index, 'specification', e.target.value)}
                 />
               </div>
@@ -161,7 +180,7 @@ const FormulaUnitModal = ({ show, setShowmodal, selectedRow }) => {
         <Button color="gray" onClick={() => setShowmodal(false)}>
           Cancel
         </Button>
-        <Button type="submit" onClick={handleSubmit}>
+        <Button color="primary" type="submit" onClick={handleSubmit}>
           {data?.length > 0 ? 'Update' : 'Submit'}
         </Button>
       </ModalFooter>

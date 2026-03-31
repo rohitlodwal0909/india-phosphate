@@ -93,6 +93,18 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                   {selectedRow?.customer_type || '-'}
                 </p>
               </div>
+              <div className="bg-gray-100 p-4 rounded shadow-sm">
+                <p className="text-gray-700 text-sm font-semibold">Company HQ</p>
+                <p className="text-gray-900 font-bold text-base">
+                  {selectedRow?.company_hq || '-'}
+                </p>
+              </div>
+              <div className="bg-gray-100 p-4 rounded shadow-sm">
+                <p className="text-gray-700 text-sm font-semibold">Company Address</p>
+                <p className="text-gray-900 font-bold text-base">
+                  {selectedRow?.company_address || '-'}
+                </p>
+              </div>
 
               <div className="bg-gray-100 p-4 rounded shadow-sm">
                 <p className="text-gray-700 text-sm font-semibold">Open Field</p>
@@ -131,6 +143,7 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                   <tr>
                     <th className="p-2 border">#</th>
                     <th className="p-2 border">Contact Person</th>
+                    <th className="p-2 border">Contact Email</th>
                     <th className="p-2 border">Number</th>
                   </tr>
                 </thead>
@@ -141,6 +154,7 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                       <tr key={index}>
                         <td className="p-2 border">{index + 1}</td>
                         <td className="p-2 border font-medium">{c.person}</td>
+                        <td className="p-2 border font-medium">{c.email}</td>
                         <td className="p-2 border">{c.number}</td>
                       </tr>
                     ))
@@ -166,10 +180,10 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
               {addresses.length > 0 ? (
                 addresses.map((addr: any, index: number) => (
                   <div key={index} className="bg-gray-100 p-4 rounded shadow-sm text-gray-900">
-                    <p>
+                    {/* <p>
                       <span className="font-semibold text-gray-800">Company Address:</span>{' '}
                       {addr.company_address}
-                    </p>
+                    </p> */}
 
                     <p>
                       <span className="font-semibold text-gray-800">Factory Address:</span>{' '}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Label, Textarea, Checkbox } from 'flowbite-react';
+import { Button, Modal, Label, Textarea, Checkbox, TextInput } from 'flowbite-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 import Select from 'react-select';
@@ -9,7 +9,7 @@ import {
   addReplacement,
   getReplacement,
 } from 'src/features/Inventorymodule/replacement/ReplacementSlice';
-import { GetFetchDispatch } from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
+import { getInvoices } from 'src/features/account/invoice/taxinvoice';
 
 interface ReplacementModalProps {
   openModal: boolean;
@@ -19,13 +19,14 @@ interface ReplacementModalProps {
 const ReplacementModal: React.FC<ReplacementModalProps> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const invoicesdata = useSelector((state: RootState) => state.dispatchData.dispatchdata) as any;
+  const invoicesdata = useSelector((state: RootState) => state.taxinvoices.invoices) as any;
 
   useEffect(() => {
-    dispatch(GetFetchDispatch());
+    dispatch(getInvoices());
   }, [dispatch]);
 
   const [formData, setFormData] = useState<any>({
+    product_name: '',
     invoice_no: '',
     replacement_type: '',
     quantity: '',
@@ -54,7 +55,7 @@ const ReplacementModal: React.FC<ReplacementModalProps> = ({ openModal, setOpenM
   };
 
   const po_nos =
-    invoicesdata?.data?.map((po: any) => ({
+    invoicesdata?.map((po: any) => ({
       value: po.id,
       label: po.invoice_no,
     })) || [];
@@ -64,7 +65,13 @@ const ReplacementModal: React.FC<ReplacementModalProps> = ({ openModal, setOpenM
 
     const newErrors: any = {};
 
-    const requiredFields = ['invoice_no', 'replacement_type', 'replacement_choice', 'credit_note'];
+    const requiredFields = [
+      'product_name',
+      'invoice_no',
+      'replacement_type',
+      'replacement_choice',
+      'credit_note',
+    ];
 
     if (formData.replacement_type === 'short_qty') {
       requiredFields.push('quantity', 'unit');
@@ -95,6 +102,7 @@ const ReplacementModal: React.FC<ReplacementModalProps> = ({ openModal, setOpenM
 
         // reset form
         setFormData({
+          product_name: '',
           invoice_no: '',
           replacement_type: '',
           quantity: '',
@@ -118,6 +126,19 @@ const ReplacementModal: React.FC<ReplacementModalProps> = ({ openModal, setOpenM
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* PO */}
+
+          <div className="col-span-6">
+            <Label value="Product Name" />
+            <TextInput
+              name="product_name"
+              placeholder="Enter Product name"
+              value={formData.product_name}
+              onChange={handleChange}
+            />
+            {errors.product_name && (
+              <span className="text-red-500 text-sm">{errors.product_name}</span>
+            )}
+          </div>
           <div className="col-span-6">
             <Label value="Invoice No." />
             <Select
@@ -175,38 +196,37 @@ const ReplacementModal: React.FC<ReplacementModalProps> = ({ openModal, setOpenM
           </div>
 
           {/* Quantity */}
-          {formData.replacement_type === 'short_qty' && (
-            <div className="col-span-6">
-              <Label value="Quantity" />
-              <div className="flex">
-                <input
-                  type="number"
-                  name="quantity"
-                  placeholder="Enter quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded-l-md"
-                />
 
-                <select
-                  name="unit"
-                  value={formData.unit}
-                  onChange={handleChange}
-                  className="border border-l-0 px-2 rounded-r-md"
-                >
-                  <option value="">Unit</option>
-                  {allUnits.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
-                      {unit.value}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="col-span-6">
+            <Label value="Quantity" />
+            <div className="flex">
+              <input
+                type="number"
+                name="quantity"
+                placeholder="Enter quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                className="w-full border px-3 py-2 rounded-l-md"
+              />
 
-              {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
-              {errors.unit && <span className="text-red-500 text-sm">{errors.unit}</span>}
+              <select
+                name="unit"
+                value={formData.unit}
+                onChange={handleChange}
+                className="border border-l-0 px-2 rounded-r-md"
+              >
+                <option value="">Unit</option>
+                {allUnits.map((unit) => (
+                  <option key={unit.value} value={unit.value}>
+                    {unit.value}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+
+            {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
+            {errors.unit && <span className="text-red-500 text-sm">{errors.unit}</span>}
+          </div>
 
           {/* Replacement */}
           <div className="col-span-6 flex gap-6 items-center">

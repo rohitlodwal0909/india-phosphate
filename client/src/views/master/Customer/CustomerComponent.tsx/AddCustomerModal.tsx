@@ -22,10 +22,11 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
     customer_type: '',
     trader_names: [''],
     open_field: '',
-    contacts: [{ person: '', number: '' }],
+    company_address: '',
+    company_hq: '',
+    contacts: [{ person: '', email: '', number: '' }],
     addresses: [
       {
-        company_address: '',
         factory_address: '',
         city: '',
         country: '',
@@ -65,7 +66,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
   const addContact = () => {
     setFormData({
       ...formData,
-      contacts: [...formData.contacts, { person: '', number: '' }],
+      contacts: [...formData.contacts, { person: '', email: '', number: '' }],
     });
   };
 
@@ -85,10 +86,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
   const addAddress = () => {
     setFormData({
       ...formData,
-      addresses: [
-        ...formData.addresses,
-        { company_address: '', factory_address: '', city: '', country: '' },
-      ],
+      addresses: [...formData.addresses, { factory_address: '', city: '', country: '' }],
     });
   };
 
@@ -182,6 +180,24 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
             </select>
           </div>
 
+          <div className="col-span-6">
+            <Label value="Company Address" />
+            <TextInput
+              placeholder="Company Address"
+              value={formData.company_address}
+              onChange={(e) => handleChange('company_address', e.target.value)}
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Company HQ" />
+            <TextInput
+              placeholder="Company HQ"
+              value={formData.company_hq}
+              onChange={(e) => handleChange('company_hq', e.target.value)}
+            />
+          </div>
+
           {/* ---------------- TRADER FIELD ---------------- */}
 
           {formData.customer_type === 'Trader' && (
@@ -238,7 +254,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
 
           {formData.contacts.map((contact, index) => (
             <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
-              <div className="col-span-5">
+              <div className="col-span-3">
                 <TextInput
                   placeholder="Contact Person"
                   value={contact.person}
@@ -246,7 +262,15 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
                 />
               </div>
 
-              <div className="col-span-5">
+              <div className="col-span-4">
+                <TextInput
+                  placeholder="Enter Email"
+                  value={contact.email}
+                  onChange={(e) => handleContactChange(index, 'email', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-3">
                 <TextInput
                   placeholder="Contact Number"
                   value={contact.number}
@@ -276,14 +300,6 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
 
           {formData.addresses.map((addr, index) => (
             <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
-              <div className="col-span-3">
-                <TextInput
-                  placeholder="Company Address"
-                  value={addr.company_address}
-                  onChange={(e) => handleAddressChange(index, 'company_address', e.target.value)}
-                />
-              </div>
-
               <div className="col-span-3">
                 <TextInput
                   placeholder="Factory Address"
@@ -339,11 +355,20 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
               </div>
 
               <div className="col-span-5">
-                <TextInput
-                  placeholder="Grade"
+                <select
+                  className="w-full border rounded-md p-2"
                   value={item.grade}
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
-                />
+                >
+                  <option value="">Select Grade</option>
+                  <option value="IP">IP</option>
+                  <option value="BP">BP</option>
+                  <option value="EP">EP</option>
+                  <option value="USP">USP</option>
+                  <option value="FCC">FCC</option>
+                  <option value="DC">DC</option>
+                  <option value="IHS">IHS</option>
+                </select>
               </div>
 
               <div className="col-span-2 flex gap-2">

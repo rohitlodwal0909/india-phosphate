@@ -10,8 +10,8 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
   const selectStyles = {
     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
   };
-  const timeFromRef = useRef<HTMLInputElement>(null);
-  const timeToRef = useRef<HTMLInputElement>(null);
+  const timeFromRef = useRef({});
+  const timeToRef = useRef({});
 
   const dispatch = useDispatch<any>();
 
@@ -45,7 +45,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
         temp: item.temp || '',
         ph: item.ph || '',
         spGravity: item.sp_gravity || '',
-        doneBy: userOptions.find((u) => u.value === item.done_by) || null,
+        doneBy: item.done_by || null,
         checkedBy: userOptions.find((u) => u.value === item.checked_by) || null,
       }));
 
@@ -146,14 +146,14 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
         temp: row.temp,
         ph: row.ph,
         sp_gravity: row.spGravity,
-        done_by: row.doneBy?.value || null,
+        done_by: row.doneBy || null,
         checked_by: row.checkedBy?.value || null,
       })),
     };
 
     try {
       await dispatch(saveManufacturingProcedure(payload)).unwrap();
-      toast.success('Manufacturing Procedure');
+      toast.success('Manufacturing procedure saved successfully');
     } catch (err) {
       toast.error('Something went wrong');
     }
@@ -222,24 +222,36 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
 
                       <td className="border p-1">
                         <TextInput
-                          ref={timeFromRef}
+                          ref={(el) => (timeFromRef.current[index] = el)}
                           type="time"
                           sizing="sm"
                           value={row.timeFrom || ''}
                           onChange={(e) => handleChange(index, 'timeFrom', e.target.value)}
-                          onClick={() => timeFromRef.current?.showPicker()} // 🔥 force open
+                          onClick={() => timeFromRef.current[index]?.showPicker()}
                         />
+                        {/* <TextInput
+                          type="time"
+                          sizing="sm"
+                          value={row.timeFrom || ''}
+                          onChange={(e) => handleChange(index, 'timeFrom', e.target.value)}
+                        /> */}
                       </td>
 
                       <td className="border p-1">
                         <TextInput
-                          ref={timeToRef}
+                          ref={(el) => (timeToRef.current[index] = el)}
                           type="time"
                           value={row.timeTo || ''}
                           sizing="sm"
                           onChange={(e) => handleChange(index, 'timeTo', e.target.value)}
-                          onClick={() => timeToRef.current?.showPicker()} // 🔥 force open
+                          onFocus={() => timeToRef.current[index]?.showPicker()}
                         />
+                        {/* <TextInput
+                          type="time"
+                          sizing="sm"
+                          value={row.timeTo || ''}
+                          onChange={(e) => handleChange(index, 'timeTo', e.target.value)}
+                        /> */}
                       </td>
 
                       <td className="border p-1">

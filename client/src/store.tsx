@@ -57,6 +57,9 @@ import DraftPackingListSlice from '../src/features/account/exportinvoice/draft';
 import SampleInvoiceSlice from '../src/features/account/exportinvoice/sampleinvoice';
 
 import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
+// Puchase
+
+import QuotationSlice from '../src/features/purchase/quotation/quotationSlice';
 
 export const store = configureStore({
   reducer: {
@@ -116,6 +119,9 @@ export const store = configureStore({
     draftPackingList: DraftPackingListSlice,
     sampleInvoice: SampleInvoiceSlice,
     replacements: ReplacementSlice,
+
+    // Purchase
+    quotation: QuotationSlice,
   },
 });
 

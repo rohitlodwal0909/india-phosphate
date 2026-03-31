@@ -61,6 +61,9 @@ const SampleInvoiceRoutes = require("../routes/account/SampleInvoiceRoutes");
 
 const authMiddleware = require("../middleware/authMiddleware");
 
+// Purchase
+const QuotationRoutes = require("../routes/purchase/QuotationRoutes");
+
 router.use("/api", authRoutes);
 router.use("/api", BmrRoutes);
 router.use("/api", userRoutes);
@@ -102,7 +105,7 @@ router.use("/api", OutwardRoutes);
 router.use("/api", PurchaseRoutes);
 router.use("/api", BmrMasterRoutes);
 router.use("/api", FinishGoodRoutes);
-router.use("/api", FormulaRoutes);
+router.use("/api", authMiddleware, FormulaRoutes);
 router.use("/api", DocumentRoutes);
 router.use("/api", FprRoutes);
 router.use("/api", IssuedRoutes);
@@ -118,5 +121,8 @@ router.use("/api", authMiddleware, ExportInvoiceRoutes);
 router.use("/api", authMiddleware, PackingListRoutes);
 router.use("/api", authMiddleware, DraftPackingRoutes);
 router.use("/api", authMiddleware, SampleInvoiceRoutes);
+
+// Purchase
+router.use("/api", authMiddleware, QuotationRoutes);
 
 module.exports = router;

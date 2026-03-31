@@ -24,7 +24,9 @@ export const GetUsermodule = createAsyncThunk('users/fetch', async (_, thunkAPI)
 
 export const addUser = createAsyncThunk('users/add', async (formdata: any, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/register`, formdata);
+    const response = await axios.post(`${apiUrl}/register`, formdata, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   } catch (error) {
     // Return a rejected action containing the error message

@@ -11,11 +11,55 @@ const selectStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
+const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly, equipments }) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
   const { Equipmentdata } = useSelector((state: any) => state.equipment);
   const [previousProduct, setPreviousProduct] = useState('');
+  const [batch_no, setBatchNo] = useState('');
+
+  const additionalEquipmentsNames = [
+    'Reaction Tank',
+    'Collecting Vessel',
+    'Centrifuge',
+    'Filter Press',
+    'Sparkler Filter',
+    'Dryer',
+    'Blender',
+    'Sifter',
+    'Metal Detector',
+    'Cone Mill',
+    'Multi Mill',
+    'Air Classifying Machine',
+    'Roll Compactor',
+    'Bookner',
+    'Vaccum pump',
+    'Heating Mental',
+    'Jet Mill',
+    'SS vessel',
+    'DeepFreezer',
+    'Water Bath',
+  ];
+
+  const joinedEquipments = useMemo(() => {
+    if (!equipments) return [];
+
+    return (
+      equipments
+        // ✅ only 001 format allowed
+        .filter((eq) => /^0\d{2}$/.test(eq.equipment_id))
+
+        // ✅ join with array
+        .map((eq) => {
+          const index = parseInt(eq.equipment_id, 10) - 1;
+
+          return {
+            ...eq,
+            equipmentName: additionalEquipmentsNames[index] || null,
+          };
+        })
+    );
+  }, [equipments]);
 
   /* ================= USERS OPTIONS ================= */
   const userOptions = useMemo(
@@ -29,13 +73,24 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
 
   /* ================= EQUIPMENT DROPDOWN ================= */
   const equipmentList = useMemo(() => {
+    const staticEquipments = additionalEquipmentsNames.map((name, index) => ({
+      value: String(index + 1).padStart(3, '0'),
+      label: name,
+      isStatic: true,
+    }));
+
     return [
-      { value: 'processing', label: 'Processing Area' },
+      { value: 'processing', label: 'Processing Area', isStatic: true },
+
+      ...staticEquipments,
+
       ...(Equipmentdata || []).map((e) => ({
         value: e.id,
         label: e.name,
+        isStatic: false,
       })),
-      { value: 'packaging', label: 'Packaging Area' },
+
+      { value: 'packaging', label: 'Packaging Area', isStatic: true },
     ];
   }, [Equipmentdata]);
 
@@ -61,6 +116,15 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
       production: null,
       qa: null,
     }));
+    const statics = joinedEquipments.map((eq) => ({
+      equipmentId: eq.equipment_id,
+      equipmentName: eq.equipmentName,
+      date: '',
+      doneBy: null,
+      production: null,
+      qa: null,
+      isStatic: true,
+    }));
 
     return [
       {
@@ -71,7 +135,10 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
         production: null,
         qa: null,
       },
+
       ...middleRows,
+      ...statics,
+
       {
         equipmentId: 'packaging',
         equipmentName: 'Packaging Area',
@@ -81,11 +148,12 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
         qa: null,
       },
     ];
-  }, [equipmentsFromBmr]);
+  }, [joinedEquipments, equipmentsFromBmr]);
 
-  const [equipmentRows, setEquipmentRows] = useState(initialEquipmentRows);
-
-  // console.log(initialEquipmentRows);
+  const [equipmentRows, setEquipmentRows] = useState(null);
+  useEffect(() => {
+    setEquipmentRows(initialEquipmentRows);
+  }, [initialEquipmentRows]);
 
   /* ================= KEY POINTS ================= */
   const [keyPoints, setKeyPoints] = useState([
@@ -109,6 +177,7 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
     if (!data) return;
 
     setPreviousProduct(data.previous_product || '');
+    setBatchNo(data.batch_no || '');
 
     /* ---- Key Points ---- */
     if (data.key_points) {
@@ -140,7 +209,7 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
             equipmentId: 'processing',
             equipmentName: 'Processing Area',
             date: processing?.date,
-            doneBy: userOptions.find((u) => u.value === processing.done_by) || null,
+            doneBy: processing.done_by || null,
             production: userOptions.find((u) => u.value === processing.production) || null,
             qa: userOptions.find((u) => u.value === processing.qa) || null,
           },
@@ -149,16 +218,17 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
             equipmentId: eq.equipment_id,
             equipmentName: eq.equipment_name,
             date: eq.date || '',
-            doneBy: userOptions.find((u) => u.value === eq.done_by) || null,
+            doneBy: eq.done_by || null,
             production: userOptions.find((u) => u.value === eq.production) || null,
             qa: userOptions.find((u) => u.value === eq.qa) || null,
+            isStatic: /^0\d{2}$/.test(eq.equipment_id),
           })),
 
           {
             equipmentId: 'packaging',
             equipmentName: 'Packaging Area',
             date: packaging?.date,
-            doneBy: userOptions.find((u) => u.value === packaging.done_by) || null,
+            doneBy: packaging.done_by || null,
             production: userOptions.find((u) => u.value === packaging.production) || null,
             qa: userOptions.find((u) => u.value === packaging.qa) || null,
           },
@@ -222,12 +292,13 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
       id: data?.id || null,
       bmr_id: id,
       previousProduct,
+      batch_no,
       keyPoints,
       equipments: equipmentRows.map((row) => ({
         equipment_id: row.equipmentId,
         equipment_name: row.equipmentName,
         date: row.date,
-        done_by: row.doneBy?.value || null,
+        done_by: row.doneBy || null,
         production: row.production?.value || null,
         qa: row.qa?.value || null,
       })),
@@ -252,12 +323,18 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
                 <Label value="Previous Product" />
                 <TextInput
                   value={previousProduct}
+                  placeholder="Enter product name"
                   onChange={(e) => setPreviousProduct(e.target.value)}
                 />
               </div>
               <div className="col-span-6">
                 <Label value="Batch No" />
-                <TextInput value={bmr?.records?.qc_batch_number} readOnly />
+                <TextInput
+                  value={batch_no}
+                  placeholder="Enter batch name"
+                  onChange={(e) => setBatchNo(e.target.value)}
+                />
+                {/* <TextInput value={bmr?.records?.qc_batch_number} readOnly /> */}
               </div>
             </div>
 
@@ -321,7 +398,7 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
               </Table.Head>
 
               <Table.Body>
-                {equipmentRows.map((row, i) => {
+                {equipmentRows?.map((row, i) => {
                   const fixed = row.equipmentId === 'processing' || row.equipmentId === 'packaging';
 
                   return (
@@ -329,12 +406,17 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
                       <Table.Cell>{i + 1}</Table.Cell>
                       <Table.Cell>
                         <Select
-                          isDisabled={fixed}
+                          isDisabled={fixed || row.isStatic}
                           options={equipmentList}
-                          value={equipmentList.find((e) => e.value === row.equipmentId) || null}
+                          value={
+                            equipmentList.find(
+                              (e) => String(e.value) === String(row.equipmentId),
+                            ) || null
+                          }
                           onChange={(opt) => {
                             updateRow(i, 'equipmentId', opt.value);
                             updateRow(i, 'equipmentName', opt.label);
+                            updateRow(i, 'isStatic', opt.isStatic);
                           }}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
@@ -348,12 +430,11 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
                         />
                       </Table.Cell>
                       <Table.Cell>
-                        <Select
-                          options={userOptions}
-                          value={row.doneBy}
-                          onChange={(opt) => updateRow(i, 'doneBy', opt)}
-                          styles={selectStyles}
-                          menuPortalTarget={document.body}
+                        <TextInput
+                          sizing="sm"
+                          placeholder="Enter Labour Name"
+                          value={row.doneBy || ''}
+                          onChange={(e) => updateRow(i, 'doneBy', e.target.value)}
                         />
                       </Table.Cell>
                       <Table.Cell>
@@ -388,7 +469,7 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly }) => {
             </Table>
 
             <div className="flex justify-end mt-4">
-              <Button size="sm" onClick={addEquipmentRow}>
+              <Button color="primary" size="sm" onClick={addEquipmentRow}>
                 + Add More Equipment
               </Button>
             </div>

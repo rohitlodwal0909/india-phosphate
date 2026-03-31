@@ -4,7 +4,9 @@ const InvoiceController = require("../../controllers/account/invoice/InvoiceCont
 const multer = require("multer");
 const path = require("path");
 
-const storage = multer.diskStorage({
+/* ================= EWAY UPLOAD ================= */
+
+const ewayStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/eway/");
   },
@@ -13,25 +15,52 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+const uploadEway = multer({
+  storage: ewayStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// List by user_id
+/* ================= OQ UPLOAD ================= */
+
+const oqStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/oq-uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const uploadOQ = multer({
+  storage: oqStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+/* ================= ROUTES ================= */
+
+// List
 router.get("/get-invoice-entry", InvoiceController.getEntryInvoice);
-
 router.get("/get-invoice/:id", InvoiceController.getInvoice);
-
-router.post("/create-invoice", InvoiceController.createInvoice);
-
-router.put("/update-invoice/:id", InvoiceController.updateInvoice);
-
 router.get("/get-invoices", InvoiceController.getInvoices);
 
+// Create Invoice + OQ Upload
+router.post(
+  "/create-invoice",
+  uploadOQ.single("oq_upload"),
+  InvoiceController.createInvoice
+);
+
+// Update
+router.put(
+  "/update-invoice/:id",
+  uploadOQ.single("oq_upload"),
+  InvoiceController.updateInvoice
+);
+
+// Upload Eway PDF
 router.post(
   "/upload-eway",
-  upload.single("eway_pdf"),
+  uploadEway.single("eway_pdf"),
   InvoiceController.uploadEwayPdf
 );
 

@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       invoice_no: DataTypes.STRING,
       invoice_date: DataTypes.DATE,
       eway_bill: DataTypes.STRING,
+      oq_upload: DataTypes.STRING,
       delivery_note: DataTypes.STRING,
       delivery_note_date: DataTypes.DATE,
 
@@ -56,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       insurance: DataTypes.STRING,
 
       // 🔹 GST
-      gst_rate: DataTypes.FLOAT,
+      gst: DataTypes.STRING,
 
       // 🔹 Other
       terms_delivery: DataTypes.TEXT,

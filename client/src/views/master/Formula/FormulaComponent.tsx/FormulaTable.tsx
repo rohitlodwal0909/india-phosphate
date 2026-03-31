@@ -66,10 +66,10 @@ const FormulaTable = () => {
     return (
       String(item?.formula_name)?.toLowerCase().includes(searchText) ||
       String(item?.product_type)?.toLowerCase().includes(searchText) ||
-      String(item?.batch_size)?.toLowerCase().includes(searchText) ||
-      String(item?.uom)?.toLowerCase().includes(searchText) ||
-      String(item?.ingredients)?.toLowerCase().includes(searchText) ||
-      String(item?.manufacturing_instructions)?.toLowerCase().includes(searchText)
+      String(item?.mol_wt)?.toLowerCase().includes(searchText)
+      // String(item?.uom)?.toLowerCase().includes(searchText) ||
+      // String(item?.ingredients)?.toLowerCase().includes(searchText) ||
+      // String(item?.manufacturing_instructions)?.toLowerCase().includes(searchText)
     );
   });
 
@@ -112,13 +112,13 @@ const FormulaTable = () => {
                     'Sr.No',
                     'Formula Name',
                     'Product Type',
-                    'Ingredients',
-                    'Quantity / Unit',
-                    'UOM',
                     'Mol Wt',
-                    'Batch Size',
-                    'Manufacturing Instructions',
-                    'Remarks',
+                    // 'Ingredients',
+                    // 'Quantity / Unit',
+                    // 'UOM',
+                    // 'Batch Size',
+                    // 'Manufacturing Instructions',
+                    // 'Remarks',
                     'Action',
                   ].map((title) => (
                     <th
@@ -151,6 +151,9 @@ const FormulaTable = () => {
                         {item?.product_type || '-'}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {item?.mol_wt || '-'}
+                      </td>
+                      {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.ingredients || '-'}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
@@ -159,9 +162,7 @@ const FormulaTable = () => {
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.uom || '-'}
                       </td>
-                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {item?.mol_wt || '-'}
-                      </td>
+
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.batch_size || '-'}
                       </td>
@@ -170,7 +171,7 @@ const FormulaTable = () => {
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.remarks || '-'}
-                      </td>
+                      </td> */}
                       {/* <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
             {item?.created_by && logindata?.admin?.id ==  item?.created_by ? logindata?.admin?.username : "-"}
           </td> */}
@@ -251,14 +252,9 @@ const FormulaTable = () => {
         selectedUser={selectedrow}
         title="Are you sure you want to Delete this Formula?"
       />
-      <AddFormulaModal setShowmodal={setAddmodal} show={addmodal} logindata={logindata} />
+      <AddFormulaModal setShowmodal={setAddmodal} show={addmodal} />
 
-      <EditFormulaModal
-        show={editmodal}
-        setShowmodal={setEditmodal}
-        FormulaData={selectedrow}
-        logindata={logindata}
-      />
+      <EditFormulaModal show={editmodal} setShowmodal={setEditmodal} FormulaData={selectedrow} />
 
       {specification && (
         <FormulaUnitModal

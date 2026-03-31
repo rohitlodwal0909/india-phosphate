@@ -31,6 +31,7 @@ import { getPermissions } from 'src/utils/getPermissions';
 export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
+  product_name: string;
   rm_code: any;
   quantity: any;
   finishing: any;
@@ -164,6 +165,15 @@ function FinishingTable() {
         return <p>{rowData?.qc_batch_number || 'No Code'}</p>;
       },
       header: () => <span>Batch Number</span>,
+    }),
+
+    columnHelper.accessor('product_name', {
+      cell: (info) => {
+        const rowData = info.row.original;
+
+        return <p>{rowData?.product_name || 'No Code'}</p>;
+      },
+      header: () => <span>Product Name</span>,
     }),
 
     columnHelper.accessor('rm_code', {

@@ -15,18 +15,20 @@ import { updateCustomer, GetCustomer } from 'src/features/master/Customer/Custom
 
 const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const [errors, setErrors] = useState<any>({});
 
   const [formData, setFormData] = useState({
     id: '',
     company_name: '',
     application: '',
+    company_hq: '',
+    company_address: '',
     customer_type: '',
     trader_names: [''],
     open_field: '',
-    contacts: [{ person: '', number: '' }],
+    contacts: [{ person: '', email: '', number: '' }],
     addresses: [
       {
-        company_address: '',
         factory_address: '',
         city: '',
         country: '',
@@ -71,19 +73,30 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
         company_name: CustomerData.company_name || '',
         application: CustomerData.application || '',
         customer_type: CustomerData.customer_type || '',
+        company_hq: CustomerData.company_hq || '',
+        company_address: CustomerData.company_address || '',
         trader_names: Array.isArray(traders) ? traders : [''],
         open_field: CustomerData.open_field || '',
-        contacts: Array.isArray(contacts) ? contacts : [{ person: '', number: '' }],
+        contacts: Array.isArray(contacts) ? contacts : [{ person: '', email: '', number: '' }],
         addresses: Array.isArray(addresses)
           ? addresses
-          : [{ company_address: '', factory_address: '', city: '', country: '' }],
+          : [{ factory_address: '', city: '', country: '' }],
         products: Array.isArray(products) ? products : [{ product: '', grade: '' }],
       });
     }
   }, [CustomerData]);
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      let updated = { ...prev, [field]: value };
+
+      if (field === 'customer_type') {
+        if (value !== 'Trader') updated.trader_names = [''];
+        if (value !== 'Open Field') updated.open_field = '';
+      }
+
+      return updated;
+    });
   };
 
   /* ---------------- TRADER ---------------- */
@@ -111,19 +124,45 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const addContact = () => {
     setFormData({
       ...formData,
-      contacts: [...formData.contacts, { person: '', number: '' }],
+      contacts: [...formData.contacts, { person: '', email: '', number: '' }],
     });
   };
 
+  const validateForm = () => {
+    let newErrors: any = {};
+
+    if (!formData.company_name.trim()) newErrors.company_name = 'Company name required';
+
+    if (!formData.customer_type) newErrors.customer_type = 'Select customer type';
+
+    // trader validation
+    if (formData.customer_type === 'Trader') {
+      formData.trader_names.forEach((t, i) => {
+        if (!t.trim()) newErrors[`trader_${i}`] = 'Trader name required';
+      });
+    }
+
+    // contacts
+    formData.contacts.forEach((c, i) => {
+      if (!c.person.trim()) newErrors[`contact_person_${i}`] = 'Person required';
+
+      if (!c.number.trim()) newErrors[`contact_number_${i}`] = 'Number required';
+    });
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
   const removeContact = (index) => {
     const updated = formData.contacts.filter((_, i) => i !== index);
     setFormData({ ...formData, contacts: updated });
   };
 
   const handleContactChange = (index, field, value) => {
-    const updated = [...formData.contacts];
-    updated[index][field] = value;
-    setFormData({ ...formData, contacts: updated });
+    setFormData((prev) => ({
+      ...prev,
+      contacts: prev.contacts.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    }));
   };
 
   /* ---------------- ADDRESS ---------------- */
@@ -131,10 +170,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const addAddress = () => {
     setFormData({
       ...formData,
-      addresses: [
-        ...formData.addresses,
-        { company_address: '', factory_address: '', city: '', country: '' },
-      ],
+      addresses: [...formData.addresses, { factory_address: '', city: '', country: '' }],
     });
   };
 
@@ -144,9 +180,12 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   };
 
   const handleAddressChange = (index, field, value) => {
-    const updated = [...formData.addresses];
-    updated[index][field] = value;
-    setFormData({ ...formData, addresses: updated });
+    setFormData((prev) => ({
+      ...prev,
+      addresses: prev.addresses.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
+    }));
   };
 
   /* ---------------- PRODUCT ---------------- */
@@ -164,9 +203,10 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   };
 
   const handleProductChange = (index, field, value) => {
-    const updated = [...formData.products];
-    updated[index][field] = value;
-    setFormData({ ...formData, products: updated });
+    setFormData((prev) => ({
+      ...prev,
+      products: prev.products.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    }));
   };
 
   /* ---------------- SUBMIT ---------------- */
@@ -174,13 +214,16 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) return;
+
     try {
       const result = await dispatch(updateCustomer(formData)).unwrap();
+
       toast.success(result.message || 'Customer Updated');
 
       dispatch(GetCustomer());
       setShowmodal(false);
-    } catch (error) {
+    } catch {
       toast.error('Update failed');
     }
   };
@@ -197,6 +240,8 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
             <Label value="Company Name" />
             <TextInput
               value={formData.company_name}
+              color={errors.company_name ? 'failure' : 'gray'}
+              helperText={errors.company_name}
               onChange={(e) => handleChange('company_name', e.target.value)}
             />
           </div>
@@ -217,13 +262,33 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
             <select
               value={formData.customer_type}
               onChange={(e) => handleChange('customer_type', e.target.value)}
-              className="w-full border rounded-md p-2"
+              className={`w-full border rounded-md p-2 ${
+                errors.customer_type ? 'border-red-500' : ''
+              }`}
             >
               <option value="">Select</option>
               <option value="Trader">Trader</option>
               <option value="End Customer">End Customer</option>
               <option value="Open Field">Open Field</option>
             </select>
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Company Address" />
+            <TextInput
+              placeholder="Company Address"
+              value={formData.company_address}
+              onChange={(e) => handleChange('company_address', e.target.value)}
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Company HQ" />
+            <TextInput
+              placeholder="Company HQ"
+              value={formData.company_hq}
+              onChange={(e) => handleChange('company_hq', e.target.value)}
+            />
           </div>
 
           {/* Trader */}
@@ -234,6 +299,8 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
                 <div className="col-span-10">
                   <TextInput
                     value={trader}
+                    color={errors[`trader_${index}`] ? 'failure' : 'gray'}
+                    helperText={errors[`trader_${index}`]}
                     onChange={(e) => handleTraderChange(index, e.target.value)}
                   />
                 </div>
@@ -271,16 +338,26 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
           </div>
 
           {formData.contacts.map((contact, index) => (
-            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
-              <div className="col-span-5">
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={`contact-${index}`}>
+              <div className="col-span-3">
                 <TextInput
                   placeholder="Contact Person"
+                  color={errors[`contact_person_${index}`] ? 'failure' : 'gray'}
+                  helperText={errors[`contact_person_${index}`]}
                   value={contact.person}
                   onChange={(e) => handleContactChange(index, 'person', e.target.value)}
                 />
               </div>
 
-              <div className="col-span-5">
+              <div className="col-span-4">
+                <TextInput
+                  placeholder="Enter Email"
+                  value={contact.email}
+                  onChange={(e) => handleContactChange(index, 'email', e.target.value)}
+                />
+              </div>
+
+              <div className="col-span-3">
                 <TextInput
                   placeholder="Contact Number"
                   value={contact.number}
@@ -289,7 +366,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
               </div>
 
               <div className="col-span-2 flex gap-2">
-                <Button color="primary" size="xs" onClick={addContact}>
+                <Button type="button" color="primary" size="xs" onClick={addContact}>
                   +
                 </Button>
 
@@ -309,15 +386,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
           </div>
 
           {formData.addresses.map((addr, index) => (
-            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
-              <div className="col-span-3">
-                <TextInput
-                  placeholder="Company Address"
-                  value={addr.company_address}
-                  onChange={(e) => handleAddressChange(index, 'company_address', e.target.value)}
-                />
-              </div>
-
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={`address-${index}`}>
               <div className="col-span-3">
                 <TextInput
                   placeholder="Factory Address"
@@ -363,7 +432,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
           </div>
 
           {formData.products.map((item, index) => (
-            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={`product-${index}`}>
               <div className="col-span-5">
                 <TextInput
                   placeholder="Product"

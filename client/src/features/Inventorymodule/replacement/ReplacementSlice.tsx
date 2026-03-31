@@ -6,8 +6,8 @@ const initialState = {
   error: null,
   replacement: [],
   addreplacement: null,
-  updateResult: null,
-  deleteResult: null,
+  update: null,
+  delete: null,
 };
 
 export const addReplacement = createAsyncThunk('replacement/add', async (data: any, thunkAPI) => {
@@ -20,6 +20,34 @@ export const addReplacement = createAsyncThunk('replacement/add', async (data: a
     );
   }
 });
+
+export const updateReplacement = createAsyncThunk(
+  'replacement/update',
+  async (data: any, thunkAPI) => {
+    try {
+      const response = await axiosInstance.put(`/update-replacement`, data);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
+export const deleteReplacement = createAsyncThunk(
+  'replacement/delete',
+  async (id: Number, thunkAPI) => {
+    try {
+      const response = await axiosInstance.delete(`/delete-replacement/${id}`);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
 
 export const getReplacement = createAsyncThunk('replacement/find', async (_, thunkAPI) => {
   try {
@@ -56,6 +84,19 @@ const ReplacementSlice = createSlice({
         state.addreplacement = action.payload;
       })
       .addCase(addReplacement.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(updateReplacement.fulfilled, (state, action) => {
+        state.update = action.payload;
+      })
+      .addCase(updateReplacement.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(deleteReplacement.fulfilled, (state, action) => {
+        state.delete = action.payload;
+      })
+      .addCase(deleteReplacement.rejected, (state, action) => {
         state.error = action.error.message;
       });
   },

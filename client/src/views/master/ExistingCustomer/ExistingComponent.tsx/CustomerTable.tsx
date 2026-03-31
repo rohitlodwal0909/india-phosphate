@@ -13,12 +13,14 @@ import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import NotPermission from 'src/utils/NotPermission';
 import ViewCustomerModal from './ViewCustomerModal';
+import EditCustomerModal from '../../Customer/CustomerComponent.tsx/EditCustomerModal';
 
 const CustomerTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
   const { existscustomer, loading } = useSelector((state: any) => state.customer);
 
+  const [editmodal, setEditmodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [selectedrow, setSelectedRow] = useState<any>();
@@ -33,6 +35,11 @@ const CustomerTable = () => {
   useEffect(() => {
     dispatch(GetExistingCustomer());
   }, [dispatch]);
+
+  const handleEdit = (entry: any) => {
+    setEditmodal(true);
+    setSelectedRow(entry);
+  };
 
   const handleDelete = async (userToDelete: any) => {
     if (!userToDelete) return;
@@ -121,16 +128,29 @@ const CustomerTable = () => {
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         <div className="flex justify-start gap-2">
                           <>
-                            <Button
-                              size="sm"
-                              color={'lightsecondary'}
-                              className="p-0"
-                              onClick={() => {
-                                (setViewModal(true), setSelectedRow(item));
-                              }}
-                            >
-                              <Icon icon="hugeicons:view" height={18} />
-                            </Button>
+                            {permissions?.view && (
+                              <Button
+                                size="sm"
+                                color={'lightsecondary'}
+                                className="p-0"
+                                onClick={() => {
+                                  (setViewModal(true), setSelectedRow(item));
+                                }}
+                              >
+                                <Icon icon="hugeicons:view" height={18} />
+                              </Button>
+                            )}
+                            {permissions?.edit && (
+                              <Tooltip content="Edit" placement="bottom">
+                                <Button
+                                  size="sm"
+                                  className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
+                                  onClick={() => handleEdit(item)}
+                                >
+                                  <Icon icon="solar:pen-outline" height={18} />
+                                </Button>
+                              </Tooltip>
+                            )}
 
                             {permissions?.del && (
                               <Tooltip content="Delete" placement="bottom">
@@ -189,6 +209,7 @@ const CustomerTable = () => {
         selectedRow={selectedrow}
         placeModal={viewModal}
       />
+      <EditCustomerModal show={editmodal} setShowmodal={setEditmodal} CustomerData={selectedrow} />
     </div>
   );
 };

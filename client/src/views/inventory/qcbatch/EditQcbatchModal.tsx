@@ -22,6 +22,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
     exp_date: '',
     grade: '',
     size: '',
+    work_order_no: '',
   });
 
   const [manualGrade, setManualGrade] = useState('');
@@ -39,6 +40,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: row?.product_name || '',
           mfg_date: row?.mfg_date || '',
           exp_date: row?.exp_date || '',
+          work_order_no: row?.work_order_no || '',
           grade: existingGrade,
           size: row?.size || '',
         });
@@ -51,6 +53,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: row?.product_name || '',
           mfg_date: row?.mfg_date || '',
           exp_date: row?.exp_date || '',
+          work_order_no: row?.work_order_no || '',
           grade: 'Manual',
           size: row?.size || '',
         });
@@ -89,6 +92,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: form.product_name,
           mfg_date: form.mfg_date,
           exp_date: form.exp_date,
+          work_order_no: form?.work_order_no || '',
           grade: finalGrade, // ✅ correct grade send
           size: form.size,
           user_id: logindata?.admin?.id,
@@ -154,6 +158,11 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
             <Field>
               <Label className="mb-2 block font-medium">Size</Label>
               <TextInput name="size" value={form.size} onChange={handleChange} />
+            </Field>
+
+            <Field>
+              <Label className="mb-2 block font-medium">Work order no.</Label>
+              <TextInput name="work_order_no" value={form.work_order_no} onChange={handleChange} />
             </Field>
 
             <Field>

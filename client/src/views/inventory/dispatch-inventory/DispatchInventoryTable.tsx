@@ -35,10 +35,8 @@ interface DispatchDataType {
   vehicle_number: string;
   driver_details: string;
   product_name: string;
-  quantity: string;
-  unit: string;
+  booking_date: string;
   delivery_location: string;
-  batch_numbers: string | { label: string }[];
   delivered_by: string;
   invoice_number: string;
   remarks: string;
@@ -134,40 +132,11 @@ const DispatchInventoryTable = () => {
           </div>
         ),
       }),
+      columnHelper.accessor('product_name', { header: 'Product Name' }),
       columnHelper.accessor('vehicle_number', { header: 'Vehicle Number' }),
+      columnHelper.accessor('booking_date', { header: 'Booking Date' }),
       columnHelper.accessor('driver_details', { header: 'Driver' }),
-      columnHelper.accessor('quantity', {
-        header: 'Quantity',
-        cell: (info) => (
-          <span>
-            {info.getValue()} {info.row.original.unit || ''}
-          </span>
-        ),
-      }),
-      columnHelper.accessor('batch_numbers', {
-        header: 'Batch Numbers',
-        cell: (info) => {
-          let val = info.row.original.batch_numbers;
 
-          if (typeof val === 'string') {
-            try {
-              val = JSON.parse(val);
-            } catch {
-              val = [];
-            }
-          }
-
-          if (!Array.isArray(val)) return '';
-
-          return val
-            .map((id: any) => {
-              const batch = filteredProductionData?.find((b: any) => Number(b.id) === Number(id));
-              return batch?.qc_batch_number || '';
-            })
-            .filter(Boolean)
-            .join(', ');
-        },
-      }),
       columnHelper.display({
         id: 'actions',
         header: 'Actions',
@@ -294,7 +263,6 @@ const DispatchInventoryTable = () => {
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
-            StoreDatas={filteredProductionData}
             modalPlacement="center"
           />
         </Portal>

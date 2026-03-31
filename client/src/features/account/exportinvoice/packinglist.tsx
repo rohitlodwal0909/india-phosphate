@@ -147,11 +147,6 @@ const PackingListSlice = createSlice({
         state.update = action.payload;
 
         // 👉 update list without reload
-        const index = state.lists.findIndex((item: any) => item.id === action.payload.id);
-
-        if (index !== -1) {
-          state.lists[index] = action.payload;
-        }
       })
       .addCase(updatePackingList.rejected, (state, action: any) => {
         state.loading = false;
@@ -165,7 +160,6 @@ const PackingListSlice = createSlice({
       .addCase(deletePackingList.fulfilled, (state, action) => {
         state.loading = false;
         state.deleteResult = action.payload;
-
         // 👉 remove from list instantly
         state.lists = state.lists.filter((item: any) => item.id !== action.payload.id);
       })

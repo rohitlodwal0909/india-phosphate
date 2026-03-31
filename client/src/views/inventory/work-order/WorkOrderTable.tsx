@@ -27,6 +27,7 @@ import AddWorkOrder from './AddWorkOrder';
 import Remark from './Remark';
 import { toast } from 'react-toastify';
 import { Badge } from 'flowbite-react';
+import PasswordVerifyModal from './PasswordVerifyModal';
 
 interface PurchaseOrderDataType {
   id: number;
@@ -65,6 +66,8 @@ const ViewWorkOrderTable = () => {
     view: false,
     remark: false,
   });
+
+  const [passwordModal, setPasswordModal] = useState(false);
 
   const [selectedRow, setSelectedRow] = useState<PurchaseOrderDataType | null>(null);
 
@@ -121,6 +124,10 @@ const ViewWorkOrderTable = () => {
     }
   };
 
+  const handlePasswordSuccess = () => {
+    handleModal('view', true, selectedRow || undefined);
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -137,12 +144,6 @@ const ViewWorkOrderTable = () => {
         id: 'work_order_no',
         header: 'Work Order No.',
         cell: (info) => info.row.original.workNo?.work_order_no || '-',
-      }),
-
-      columnHelper.display({
-        id: 'customers',
-        header: 'Company Name',
-        cell: (info) => info.row.original.customers?.company_name || '-',
       }),
 
       columnHelper.display({
@@ -208,7 +209,10 @@ const ViewWorkOrderTable = () => {
                     size="xs"
                     color="primary"
                     outline
-                    onClick={() => handleModal('view', true, row)}
+                    onClick={() => {
+                      setSelectedRow(row);
+                      setPasswordModal(true);
+                    }}
                   >
                     <Icon icon="solar:eye-outline" height={18} />
                   </Button>
@@ -315,6 +319,12 @@ const ViewWorkOrderTable = () => {
           />
         </Portal>
       )}
+
+      <PasswordVerifyModal
+        open={passwordModal}
+        setOpen={setPasswordModal}
+        onSuccess={handlePasswordSuccess}
+      />
     </div>
   );
 };

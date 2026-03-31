@@ -27,12 +27,13 @@ import {
   getBmrReport,
 } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import FilterClothRecord from './FilterClothRecord';
+import Spinner from 'src/views/spinner/Spinner';
 
 const BmrProcess = () => {
   const dispatch = useDispatch<AppDispatch>();
   const users = useSelector((state: any) => state.usermanagement.userdata);
   const bmr = useSelector((state: any) => state.bmrReport.data);
-  const { bmrreport } = useSelector((state: any) => state.bmrReport);
+  const { bmrreport, loading } = useSelector((state: any) => state.bmrReport);
   const componentRef = useRef<HTMLDivElement>(null);
   const { id } = useParams();
 
@@ -52,11 +53,13 @@ const BmrProcess = () => {
       <Button size="sm" className="m-3" color="success" onClick={() => handlePrint()}>
         Print Report
       </Button>
+      {loading && <Spinner />}
+
       <BreadcrumbComp items={[{ title: 'BMR Process', to: '/' }]} title="BMR Process" />
 
       <div ref={componentRef}>
         <CardBox>
-          <LineClearanceAccordionDesign bmr={bmr} data={bmrreport?.lineClearance} users={users} />
+          <LineClearanceAccordionDesign data={bmrreport?.lineClearance} users={users} />
           <DispensingRawMaterial
             bmr={bmr}
             users={users}
@@ -72,6 +75,7 @@ const BmrProcess = () => {
             bmr={bmr}
             users={users}
             data={bmrreport?.lineClearanceProcessing}
+            equipments={bmrreport?.equipmentno}
             isReadOnly={Boolean(bmrreport?.equipmentno?.length > 0)}
           />
           <ManufacturingProcedure

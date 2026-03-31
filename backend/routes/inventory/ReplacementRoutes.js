@@ -4,5 +4,7 @@ const ReplacementController = require("../../controllers/inventory/replacement/R
 
 router.get("/get-replacement", ReplacementController.index);
 router.post("/add-replacement", ReplacementController.store);
+router.put("/update-replacement", ReplacementController.update);
+router.delete("/delete-replacement/:id", ReplacementController.delete);
 
 module.exports = router;

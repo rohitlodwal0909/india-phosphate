@@ -19,21 +19,27 @@ import ComonDeletemodal from 'src/utils/deletemodal/ComonDeletemodal';
 import Portal from 'src/utils/Portal';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
-import { deleteDispatch } from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import ReplacementModal from './ReplacementModal';
-import { getReplacement } from 'src/features/Inventorymodule/replacement/ReplacementSlice';
+import {
+  deleteReplacement,
+  getReplacement,
+} from 'src/features/Inventorymodule/replacement/ReplacementSlice';
+import ReplacementEditModal from './ReplacementEditModal';
+import Spinner from 'src/views/spinner/Spinner';
+import InvoiceViewModel from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceComponent/InvoiceViewModel';
 
 interface DispatchDataType {
   id: number;
   invoices?: {
     invoice_no?: string;
   };
+  product_name: string;
   replacement_type: string;
   quantity: string;
   replacement_choice: string;
-  credit_note: string;
+  remarks: string;
   created_at: string;
 }
 
@@ -42,13 +48,14 @@ const columnHelper = createColumnHelper<DispatchDataType>();
 const ReplacementTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
-  const replacements = useSelector((state: any) => state.replacements.replacement);
+  const { replacement, loading } = useSelector((state: any) => state.replacements);
 
   const [searchText, setSearchText] = useState('');
   const [modals, setModals] = useState({ add: false, edit: false, view: false, delete: false });
   const [selectedRow, setSelectedRow] = useState<DispatchDataType | null>(null);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 12);
   }, [logindata, selectedIconId]);
@@ -66,8 +73,9 @@ const ReplacementTable = () => {
   const handleConfirmDelete = async () => {
     if (!selectedRow?.id) return toast.error('No entry selected.');
     try {
-      await dispatch(deleteDispatch(selectedRow.id)).unwrap();
-      toast.success('Dispatch entry deleted successfully!');
+      await dispatch(deleteReplacement(selectedRow.id)).unwrap();
+      toast.success('Replacement entry deleted successfully!');
+      dispatch(getReplacement());
     } catch (err: any) {
       toast.error(err.message || 'Delete failed');
     } finally {
@@ -75,20 +83,8 @@ const ReplacementTable = () => {
     }
   };
 
-  // const handleUpdate = async (rowdata: DispatchDataType) => {
-  //   try {
-  //     await dispatch(updateDispatch(rowdata)).unwrap();
-  //     toast.success('Dispatch entry updated successfully.');
-  //     dispatch(GetFetchDispatch());
-  //   } catch (err: any) {
-  //     toast.error(err.message || 'Failed to update entry');
-  //   } finally {
-  //     handleModal('edit', false);
-  //   }
-  // };
-
   const filteredData = useMemo(() => {
-    return replacements.filter((item: any) => {
+    return replacement.filter((item: any) => {
       const search = searchText.toLowerCase();
 
       return (
@@ -104,7 +100,10 @@ const ReplacementTable = () => {
         String(item.replacement_choice || '')
           .toLowerCase()
           .includes(search) ||
-        String(item.credit_note || '')
+        String(item.product_name || '')
+          .toLowerCase()
+          .includes(search) ||
+        String(item.remarks || '')
           .toLowerCase()
           .includes(search) ||
         String(item.created_at || '')
@@ -116,7 +115,7 @@ const ReplacementTable = () => {
           .includes(search)
       );
     });
-  }, [replacements, searchText]);
+  }, [replacement, searchText]);
 
   const columns = useMemo(
     () => [
@@ -137,10 +136,11 @@ const ReplacementTable = () => {
           </div>
         ),
       }),
+      columnHelper.accessor('product_name', { header: 'Product Name' }),
       columnHelper.accessor('replacement_type', { header: 'Replacement type' }),
       columnHelper.accessor('quantity', { header: 'Quantity (Unit)' }),
       columnHelper.accessor('replacement_choice', { header: 'Replacement Choice' }),
-      columnHelper.accessor('credit_note', { header: 'Note' }),
+      columnHelper.accessor('remarks', { header: 'Note' }),
       columnHelper.accessor('created_at', {
         header: 'Date',
         cell: (info) => (
@@ -166,6 +166,18 @@ const ReplacementTable = () => {
                   </Button>
                 </Tooltip>
               )}
+              {permissions.view && (
+                <Tooltip content="View Invoice">
+                  <Button
+                    size="sm"
+                    className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
+                    onClick={() => handleModal('view', true, row)}
+                  >
+                    <Icon icon="mdi:file-document-outline" height={18} />{' '}
+                  </Button>
+                </Tooltip>
+              )}
+
               {permissions.del && (
                 <Tooltip content="Delete">
                   <Button
@@ -183,7 +195,7 @@ const ReplacementTable = () => {
         },
       }),
     ],
-    [permissions, replacements],
+    [permissions, replacement],
   );
 
   const table = useReactTable({
@@ -198,6 +210,7 @@ const ReplacementTable = () => {
 
   return (
     <div className="p-1">
+      {loading && <Spinner />}
       <div className="flex justify-end mb-2">
         {permissions.view && (
           <input
@@ -252,7 +265,7 @@ const ReplacementTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Dispatch Entry ?"
+            title="Are you sure you want to Delete this Replacement  ?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
@@ -261,6 +274,24 @@ const ReplacementTable = () => {
       {modals.add && (
         <Portal>
           <ReplacementModal openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
+        </Portal>
+      )}
+      {modals.view && (
+        <Portal>
+          <InvoiceViewModel
+            placeModal={modals.view}
+            setPlaceModal={() => handleModal('view', false)}
+            selectedRow={selectedRow}
+          />
+        </Portal>
+      )}
+      {modals.edit && (
+        <Portal>
+          <ReplacementEditModal
+            openModal={modals.edit}
+            setOpenModal={() => handleModal('edit', false)}
+            data={selectedRow}
+          />
         </Portal>
       )}
     </div>

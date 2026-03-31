@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER
       },
       done_by: {
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
       },
 
       ph: {

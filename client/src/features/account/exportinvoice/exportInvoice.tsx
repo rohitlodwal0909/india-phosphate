@@ -106,9 +106,6 @@ const ExportInvoiceSlice = createSlice({
       .addCase(createExcelInvoice.fulfilled, (state, action) => {
         state.loading = false;
         state.upload = action.payload;
-
-        // 👉 auto add in list (no refetch needed)
-        state.excels.unshift(action.payload);
       })
       .addCase(createExcelInvoice.rejected, (state, action: any) => {
         state.loading = false;
@@ -146,13 +143,6 @@ const ExportInvoiceSlice = createSlice({
       .addCase(updateExcelInvoice.fulfilled, (state, action) => {
         state.loading = false;
         state.update = action.payload;
-
-        // 👉 update list without reload
-        const index = state.excels.findIndex((item: any) => item.id === action.payload.id);
-
-        if (index !== -1) {
-          state.excels[index] = action.payload;
-        }
       })
       .addCase(updateExcelInvoice.rejected, (state, action: any) => {
         state.loading = false;

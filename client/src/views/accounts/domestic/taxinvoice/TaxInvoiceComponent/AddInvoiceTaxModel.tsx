@@ -27,30 +27,56 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
         ...invoice,
       }));
 
-      // ✅ Products set
+      /* ================= PRODUCTS ================= */
       if (invoice?.InvoiceItems?.length) {
-        setProducts(
-          invoice.InvoiceItems.map((item) => ({
+        const formattedProducts = invoice.InvoiceItems.map((item) => {
+          // ✅ Parse batch JSON per item
+          let batches = [];
+
+          try {
+            batches = item.batch_no ? JSON.parse(item.batch_no) : [];
+          } catch (e) {
+            batches = [];
+          }
+
+          return {
             kind_of_pkgs: item.kind_of_pkgs || '',
             product_name: item.product_id || '',
             hsn: item.hsn || '',
-            qty: item.qty || '',
             rate: item.rate || '',
             per: item.per || 'kg',
-            amount: item.amount || 0,
-            batch_no: item.batch_no || '',
-            mfg: item.mfg || '',
-            exp: item.exp || '',
-          })),
-        );
+
+            // ✅ Correct batches structure
+            batches:
+              batches.length > 0
+                ? batches.map((b) => ({
+                    batch_no: b.batch_no || '',
+                    mfg: b.mfg || '',
+                    exp: b.exp || '',
+                    qty: b.qty || '',
+                    amount: Number(b.qty || 0) * Number(item.rate || 0),
+                  }))
+                : [
+                    {
+                      batch_no: '',
+                      mfg: '',
+                      exp: '',
+                      qty: '',
+                      amount: 0,
+                    },
+                  ],
+          };
+        });
+
+        setProducts(formattedProducts);
       }
 
-      // ✅ Charges set
+      /* ================= CHARGES ================= */
       setCharges({
-        insurance: invoice.insurance || '0.10%',
+        insurance: invoice.insurance || '',
         freight: invoice.freight || '',
         round_off: invoice.round_off || '',
-        gst_rate: invoice.gst_rate || '18',
+        gst: Array.isArray(invoice.gst) ? invoice.gst : invoice.gst ? JSON.parse(invoice.gst) : [],
       });
     }
   }, [invoice]);
@@ -64,7 +90,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
     eway_bill: '',
     delivery_note: '',
     delivery_note_date: '',
-
+    oq_upload: '',
     // IRN
     irn: '',
     ack_no: '',
@@ -107,24 +133,29 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       kind_of_pkgs: '',
       product_name: '',
       hsn: '',
-      qty: '',
       rate: '',
       per: 'kg',
-      amount: 0,
-      batch_no: '',
-      mfg: '',
-      exp: '',
+      batches: [
+        {
+          batch_no: '',
+          mfg: '',
+          exp: '',
+          qty: '',
+          amount: 0,
+        },
+      ],
     },
   ]);
 
   const [charges, setCharges] = useState({
-    insurance: '0.10%',
+    insurance: '0.10',
     freight: '',
     round_off: '',
-    gst_rate: '18',
+    gst: [], // ✅ must exist
   });
 
   const handleSubmit = async () => {
+    // ✅ Validation
     if (!formData.invoice_no || !formData.invoice_date) {
       toast.error('Please fill invoice details');
       setActiveTab('invoice');
@@ -137,7 +168,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       return;
     }
 
-    const invalidProduct = products.find((p) => !p.product_name || !p.qty || !p.rate);
+    const invalidProduct = products.find((p) => !p.product_name || !p.rate);
 
     if (invalidProduct) {
       toast.error('Complete product fields');
@@ -145,21 +176,40 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       return;
     }
 
-    const payload = {
-      invoiceData: {
+    /* ================= FORM DATA ================= */
+
+    const form = new FormData();
+
+    // ✅ invoice json
+    form.append(
+      'invoiceData',
+      JSON.stringify({
         ...formData,
         ...charges,
-      },
-      products,
-    };
+      }),
+    );
+
+    // ✅ products json
+    form.append('products', JSON.stringify(products));
+
+    // ✅ file upload (IMPORTANT FIX)
+    if (formData.oq_upload) {
+      form.append('oq_upload', formData.oq_upload);
+    }
 
     try {
-      // 🔥 UPDATE or CREATE
       if (invoice?.id) {
-        await dispatch(updateInvoice({ id: invoice.id, data: payload })).unwrap();
+        await dispatch(
+          updateInvoice({
+            id: invoice.id,
+            data: form,
+          }),
+        ).unwrap();
+
         toast.success('Invoice updated successfully');
       } else {
-        await dispatch(createInvoice(payload)).unwrap();
+        await dispatch(createInvoice(form)).unwrap();
+
         toast.success('Invoice created successfully');
       }
 
@@ -170,7 +220,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   };
 
   return (
-    <Modal show={show} onClose={setShowmodal} size="7xl">
+    <Modal show={show} onClose={setShowmodal} size="8xl">
       <ModalHeader className="text-xl font-semibold text-gray-800">
         {invoice?.id ? 'Update Tax Invoice' : 'Create Tax Invoice'}
       </ModalHeader>

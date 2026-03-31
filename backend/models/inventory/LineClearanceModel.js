@@ -23,6 +23,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
 
+      batch_no: {
+        type: DataTypes.STRING
+      },
       previous_product: {
         type: DataTypes.STRING
       },

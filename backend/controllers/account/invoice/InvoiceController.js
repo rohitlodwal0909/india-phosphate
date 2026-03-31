@@ -6,9 +6,12 @@ const {
   User,
   DispatchVehicle,
   Invoice,
-  InvoiceItem
+  InvoiceItem,
+  Product
 } = db;
 const sequelize = db.sequelize;
+const fs = require("fs");
+const path = require("path");
 
 exports.getEntryInvoice = async (req, res) => {
   try {
@@ -53,9 +56,21 @@ exports.createInvoice = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    const { invoiceData, products } = req.body;
+    /* ================= PARSE FORM DATA ================= */
 
-    // ✅ BASIC VALIDATION
+    // when sent via FormData → comes as string
+    const invoiceData =
+      typeof req.body.invoiceData === "string"
+        ? JSON.parse(req.body.invoiceData)
+        : req.body.invoiceData;
+
+    const products =
+      typeof req.body.products === "string"
+        ? JSON.parse(req.body.products)
+        : req.body.products;
+
+    /* ================= VALIDATION ================= */
+
     if (!invoiceData?.invoice_no || !invoiceData?.invoice_date) {
       return res.status(400).json({
         success: false,
@@ -70,7 +85,20 @@ exports.createInvoice = async (req, res) => {
       });
     }
 
-    // 🔹 Create Invoice
+    /* ================= FILE HANDLE ================= */
+
+    const oq_upload = req.file ? req.file.filename : null;
+
+    /* ================= CREATE INVOICE ================= */
+
+    /* ================= GST FIX ================= */
+
+    let gstValue = [];
+
+    if (invoiceData.gst) {
+      gstValue = JSON.stringify(invoiceData.gst);
+    }
+
     const invoice = await Invoice.create(
       {
         dispatch_id: invoiceData.dispatch_id,
@@ -80,6 +108,8 @@ exports.createInvoice = async (req, res) => {
         eway_bill: invoiceData.eway_bill,
         delivery_note: invoiceData.delivery_note,
         delivery_note_date: invoiceData.delivery_note_date,
+
+        oq_upload, // ✅ SAFE
 
         irn: invoiceData.irn,
         ack_no: invoiceData.ack_no,
@@ -105,7 +135,7 @@ exports.createInvoice = async (req, res) => {
         lut_no: invoiceData.lut_no,
         from_to: invoiceData.from_to,
 
-        gst_rate: invoiceData.gst_rate,
+        gst: gstValue,
         freight: invoiceData.freight,
         round_off: invoiceData.round_off,
         insurance: invoiceData.insurance,
@@ -116,7 +146,8 @@ exports.createInvoice = async (req, res) => {
       { transaction }
     );
 
-    // 🔹 Prepare Items
+    /* ================= ITEMS ================= */
+
     const items = products.map((item) => {
       if (!item.product_name || !item.qty || !item.rate) {
         throw new Error("Invalid product data");
@@ -126,21 +157,17 @@ exports.createInvoice = async (req, res) => {
         invoice_id: invoice.id,
         product_id: item.product_name,
         kind_of_pkgs: item.kind_of_pkgs,
-        batch_no: item.batch_no,
-        mfg: item.mfg,
-        exp: item.exp,
+        batch_no: JSON.stringify(item.batches),
         hsn: item.hsn,
-        qty: item.qty,
         rate: item.rate,
-        per: item.per,
-        amount: item.amount
+        per: item.per
       };
     });
 
-    // 🔹 Insert Items
     await InvoiceItem.bulkCreate(items, { transaction });
 
-    // ✅ COMMIT
+    /* ================= COMMIT ================= */
+
     await transaction.commit();
 
     return res.status(201).json({
@@ -150,6 +177,8 @@ exports.createInvoice = async (req, res) => {
     });
   } catch (error) {
     await transaction.rollback();
+
+    console.error(error);
 
     return res.status(500).json({
       success: false,
@@ -163,39 +192,35 @@ exports.updateInvoice = async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { invoiceData, products } = req.body;
+
+    const invoiceData = JSON.parse(req.body.invoiceData);
+    const products = JSON.parse(req.body.products);
+
+    if (invoiceData.gst) {
+      invoiceData.gst = JSON.stringify(invoiceData.gst);
+    }
+
+    if (req.file) {
+      invoiceData.oq_upload = req.file.filename;
+    }
 
     const invoice = await Invoice.findByPk(id);
 
-    if (!invoice) {
-      return res.status(404).json({
-        success: false,
-        message: "Invoice not found"
-      });
-    }
-
-    // 🔹 Update Invoice
     await invoice.update(invoiceData, { transaction });
 
-    // 🔹 Delete old items
     await InvoiceItem.destroy({
       where: { invoice_id: id },
       transaction
     });
 
-    // 🔹 Insert new items
     const items = products.map((item) => ({
       invoice_id: id,
       product_id: item.product_name,
       kind_of_pkgs: item.kind_of_pkgs,
-      batch_no: item.batch_no,
-      mfg: item.mfg,
-      exp: item.exp,
+      batch_no: JSON.stringify(item.batches),
       hsn: item.hsn,
-      qty: item.qty,
       rate: item.rate,
-      per: item.per,
-      amount: item.amount
+      per: item.per
     }));
 
     await InvoiceItem.bulkCreate(items, { transaction });
@@ -208,11 +233,7 @@ exports.updateInvoice = async (req, res) => {
     });
   } catch (error) {
     await transaction.rollback();
-
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -226,7 +247,12 @@ exports.getInvoice = async (req, res) => {
       },
       include: [
         {
-          model: InvoiceItem
+          model: InvoiceItem,
+          include: [
+            {
+              model: Product
+            }
+          ]
         }
       ]
     });

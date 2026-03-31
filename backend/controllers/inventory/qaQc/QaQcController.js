@@ -402,9 +402,6 @@ exports.report = async (req, res, next) => {
 exports.getQcReport = async (req, res, next) => {
   const { id } = req.params;
   try {
-    console.log(id);
-    return;
-
     const grnEntry = await GrnEntry.findByPk(id);
 
     if (!grnEntry) {
@@ -472,6 +469,7 @@ exports.addQcBatch = async (req, res, next) => {
     exp_date,
     grade,
     size,
+    work_order_no,
     user_id
   } = req.body;
 
@@ -499,6 +497,7 @@ exports.addQcBatch = async (req, res, next) => {
       mfg_date,
       exp_date,
       grade,
+      work_order_no,
       size,
       user_id
     });
@@ -538,6 +537,7 @@ exports.updateQcBatch = async (req, res, next) => {
     product_name,
     mfg_date,
     exp_date,
+    work_order_no,
     grade,
     size,
     user_id
@@ -558,6 +558,7 @@ exports.updateQcBatch = async (req, res, next) => {
       product_name,
       mfg_date,
       exp_date,
+      work_order_no,
       grade,
       size,
       user_id

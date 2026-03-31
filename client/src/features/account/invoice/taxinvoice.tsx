@@ -29,7 +29,9 @@ export const createInvoice = createAsyncThunk<any, any, { rejectValue: any }>(
   'refrensenumber/add',
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/create-invoice`, payload);
+      const response = await axiosInstance.post(`/create-invoice`, payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data;
     } catch (error: any) {
       if (error.response)
@@ -49,7 +51,9 @@ export const updateInvoice = createAsyncThunk<any, UpdateInvoicePayload>(
   'invoice/update',
   async ({ id, data }, thunkAPI) => {
     try {
-      const response = await axiosInstance.put(`/update-invoice/${id}`, data);
+      const response = await axiosInstance.put(`/update-invoice/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to update invoice.';

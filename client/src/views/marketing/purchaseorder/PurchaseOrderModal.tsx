@@ -492,10 +492,13 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               </label>
             </div>
           </div>
-          <div className="col-span-4">
-            <Label value="Commission" />
-            <TextInput name="commission" placeholder="Enter Commission" onChange={handleChange} />
-          </div>
+          {formData.company_type !== 'end customer' && (
+            <div className="col-span-4">
+              <Label value="Commission" />
+              <TextInput name="commission" placeholder="Enter Commission" onChange={handleChange} />
+            </div>
+          )}
+
           <div className="col-span-6">
             <Label value="Insurance" />
             <select

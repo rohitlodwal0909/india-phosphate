@@ -13,23 +13,22 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { updateFormula, GetFormula } from 'src/features/master/Formula/FormulaSlice';
-import { allUnits } from 'src/utils/AllUnit';
+// import { allUnits } from 'src/utils/AllUnit';
 
-const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
+const EditFormulaModal = ({ show, setShowmodal, FormulaData }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState({
     id: '',
     formula_name: '',
-    product_type: '',
-    ingredients: '',
-    quantity_per_batch_or_unit: '',
-    uom: '',
     mol_wt: '', // ✅ reset
-    batch_size: '',
-    manufacturing_instructions: '',
-    remarks: '',
-    created_by: logindata?.admin?.id,
+    product_type: '',
+    // ingredients: '',
+    // quantity_per_batch_or_unit: '',
+    // uom: '',
+    // batch_size: '',
+    // manufacturing_instructions: '',
+    // remarks: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -39,15 +38,14 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
       setFormData({
         id: FormulaData?.id || '',
         formula_name: FormulaData?.formula_name || '',
-        product_type: FormulaData?.product_type || '',
-        ingredients: FormulaData?.ingredients || '',
-        quantity_per_batch_or_unit: FormulaData?.quantity_per_batch_or_unit || '',
-        uom: FormulaData?.uom || '',
         mol_wt: FormulaData?.mol_wt || '',
-        batch_size: FormulaData?.batch_size || '',
-        manufacturing_instructions: FormulaData?.manufacturing_instructions || '',
-        remarks: FormulaData?.remarks || '',
-        created_by: logindata?.admin?.id,
+        product_type: FormulaData?.product_type || '',
+        // ingredients: FormulaData?.ingredients || '',
+        // quantity_per_batch_or_unit: FormulaData?.quantity_per_batch_or_unit || '',
+        // uom: FormulaData?.uom || '',
+        // batch_size: FormulaData?.batch_size || '',
+        // manufacturing_instructions: FormulaData?.manufacturing_instructions || '',
+        // remarks: FormulaData?.remarks || '',
       });
     }
   }, [FormulaData]);
@@ -60,12 +58,12 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
   const validateForm = () => {
     const required = [
       'formula_name',
-      'product_type',
-      'ingredients',
-      'quantity_per_batch_or_unit',
-      'uom',
       'mol_wt',
-      'batch_size',
+      'product_type',
+      // 'ingredients',
+      // 'quantity_per_batch_or_unit',
+      // 'uom',
+      // 'batch_size',
     ];
     const newErrors: any = {};
     required.forEach((field) => {
@@ -115,26 +113,26 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
     </div>
   );
 
-  const renderSelect = (id: string, label: string, options: any) => (
-    <div className="col-span-12 md:col-span-6">
-      <Label htmlFor={id} value={label} />
-      <span className="text-red-700 ps-1">*</span>
-      <select
-        id={id}
-        value={formData[id]}
-        onChange={(e) => handleChange(id, e.target.value)}
-        className="w-full mt-1 rounded-md border border-gray-300 dark:bg-gray-800 dark:text-white p-2"
-      >
-        <option value="">Select {label}</option>
-        {options.map((option) => (
-          <option key={option?.value} value={option?.value}>
-            {option?.value}
-          </option>
-        ))}
-      </select>
-      {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
-    </div>
-  );
+  // const renderSelect = (id: string, label: string, options: any) => (
+  //   <div className="col-span-12 md:col-span-6">
+  //     <Label htmlFor={id} value={label} />
+  //     <span className="text-red-700 ps-1">*</span>
+  //     <select
+  //       id={id}
+  //       value={formData[id]}
+  //       onChange={(e) => handleChange(id, e.target.value)}
+  //       className="w-full mt-1 rounded-md border border-gray-300 dark:bg-gray-800 dark:text-white p-2"
+  //     >
+  //       <option value="">Select {label}</option>
+  //       {options.map((option) => (
+  //         <option key={option?.value} value={option?.value}>
+  //           {option?.value}
+  //         </option>
+  //       ))}
+  //     </select>
+  //     {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
+  //   </div>
+  // );
 
   return (
     <Modal show={show} onClose={() => setShowmodal(false)} size="3xl">
@@ -143,13 +141,13 @@ const EditFormulaModal = ({ show, setShowmodal, FormulaData, logindata }) => {
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {renderInput('formula_name', 'Formula Name')}
           {renderInput('product_type', 'Product Type')}
-          {renderInput('ingredients', 'Ingredients')}
+          {renderInput('mol_wt', 'Molecular Weight (mol.wt)', 'number')}
+          {/* {renderInput('ingredients', 'Ingredients')}
           {renderInput('quantity_per_batch_or_unit', 'Quantity per batch/unit')}
           {renderSelect('uom', 'Unit of Measure', allUnits)}
           {renderInput('batch_size', 'Batch Size')}
-          {renderInput('mol_wt', 'Molecular Weight (mol.wt)', 'number')}
           {renderInput('manufacturing_instructions', 'Manufacturing Instructions', 'text', true)}
-          {renderInput('remarks', 'Remarks', 'text', true)}
+          {renderInput('remarks', 'Remarks', 'text', true)} */}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

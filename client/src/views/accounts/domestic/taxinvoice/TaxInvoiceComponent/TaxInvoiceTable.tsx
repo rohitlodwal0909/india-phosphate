@@ -222,7 +222,6 @@ const TaxInvoiceTable = () => {
           placeModal={dispatchModal}
           setPlaceModal={() => setDispatchModal(false)}
           selectedRow={selectedrow}
-          StoreDatas={[]}
           modalPlacement="center"
         />
       )}

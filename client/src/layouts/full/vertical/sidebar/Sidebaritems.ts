@@ -189,6 +189,43 @@ const SidebarContent: MenuItem[] = [
       ],
     },
   ],
+  },
+
+   {
+  id: 6,
+  name: "Purchase Department",
+  items: [
+    {
+      heading: "Purchase Department",
+      children: [
+
+        {
+          name: "PO Requisition",
+          icon: "tabler:clipboard-list",
+          id: uniqueId(),
+          url: "/purchase/po-requisition",
+          subId: 1,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+        },
+
+        {
+          name: "Quotation",
+          icon: "tabler:file-text",
+          id: uniqueId(),
+          url: "/purchase/quotation",
+          subId: 2,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+        },
+
+      ],
+    },
+  ],
 },
 
    {
@@ -222,7 +259,7 @@ const SidebarContent: MenuItem[] = [
           },
 
           {
-            subId: 10,
+            subId: 13,
             name: "BMR",
             icon: "carbon:ibm-gcm",
             id: uniqueId(),
@@ -236,7 +273,7 @@ const SidebarContent: MenuItem[] = [
         children: 
         [
           {
-            subId: 11,
+            subId: 13,
             name: "BMR Creation",
             icon: "carbon:document-add",
             id: uniqueId(),

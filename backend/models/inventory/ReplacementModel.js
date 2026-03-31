@@ -8,6 +8,15 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true
       },
 
+      product_name: {
+        type: DataTypes.STRING, // PO ID
+        allowNull: false
+      },
+      user_id: {
+        type: DataTypes.INTEGER, // PO ID
+        allowNull: false
+      },
+
       invoice_no: {
         type: DataTypes.INTEGER, // PO ID
         allowNull: false
@@ -53,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   ReplacementModel.associate = (models) => {
-    ReplacementModel.belongsTo(models.DispatchVehicle, {
+    ReplacementModel.belongsTo(models.Invoice, {
       foreignKey: "invoice_no",
       as: "invoices"
     });

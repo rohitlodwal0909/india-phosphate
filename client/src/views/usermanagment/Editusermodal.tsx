@@ -164,7 +164,7 @@ const Editusermodal = ({ setEditModal, modalPlacement, editModal, selectedUser }
             {/* Existing signature preview */}
             {!signatureFile && existingSignature && (
               <img
-                src={`${ImageUrl}/uploads/signatures/${existingSignature}`}
+                src={`${ImageUrl}uploads/signatures/${existingSignature}`}
                 alt="existing-signature"
                 className="mt-2 h-20 border rounded"
               />
@@ -176,7 +176,9 @@ const Editusermodal = ({ setEditModal, modalPlacement, editModal, selectedUser }
             <Button color="gray" onClick={() => setEditModal(false)}>
               Cancel
             </Button>
-            <Button type="submit">Update</Button>
+            <Button color="primary" type="submit">
+              Update
+            </Button>
           </div>
         </form>
       </ModalBody>

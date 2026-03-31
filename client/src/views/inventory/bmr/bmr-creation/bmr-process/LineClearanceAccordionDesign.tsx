@@ -23,13 +23,14 @@ const defaultKeyPoints = {
   calibration_balance: { cleaning: null, checked: null },
 };
 
-const LineClearanceAccordionDesign = ({ bmr, data, users }: any) => {
+const LineClearanceAccordionDesign = ({ data, users }: any) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
 
   const [form, setForm] = useState<any>({
     id: null,
     bmr_id: id,
+    batch_no: '',
     clearance_date: '',
     previous_product: '',
     cleaning_done_by: '',
@@ -59,6 +60,7 @@ const LineClearanceAccordionDesign = ({ bmr, data, users }: any) => {
     setForm({
       id: data.id,
       bmr_id: data.bmr_id,
+      batch_no: data.batch_no,
       clearance_date: data.clearance_date || '',
       previous_product: data.previous_product || '',
       cleaning_done_by: data.cleaning_by || '',
@@ -126,6 +128,7 @@ const LineClearanceAccordionDesign = ({ bmr, data, users }: any) => {
     const payload = {
       id: form.id,
       bmr_id: form.bmr_id,
+      batch_no: form.batch_no,
       clearance_date: form.clearance_date,
       previous_product: form.previous_product,
       cleaning_done_by: form.cleaning_done_by,
@@ -172,7 +175,12 @@ const LineClearanceAccordionDesign = ({ bmr, data, users }: any) => {
 
             <div className="col-span-12 sm:col-span-6">
               <Label value="Batch No" />
-              <TextInput value={bmr?.records?.qc_batch_number || ''} readOnly />
+              {/* <TextInput value={bmr?.records?.qc_batch_number || ''} readOnly /> */}
+              <TextInput
+                value={form.batch_no}
+                placeholder="Enter batch no."
+                onChange={(e) => setForm({ ...form, batch_no: e.target.value })}
+              />
             </div>
           </div>
 

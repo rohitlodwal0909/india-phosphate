@@ -483,16 +483,18 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               </label>
             </div>
           </div>
+          {formData.company_type !== 'end customer' && (
+            <div className="col-span-4">
+              <Label value="Commission" />
+              <TextInput
+                name="commission"
+                value={formData.commission}
+                placeholder="Enter Commission"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
-          <div className="col-span-4">
-            <Label value="Commission" />
-            <TextInput
-              name="commission"
-              value={formData.commission}
-              placeholder="Enter Commission"
-              onChange={handleChange}
-            />
-          </div>
           <div className="col-span-6">
             <Label value="Insurance" />
             <select

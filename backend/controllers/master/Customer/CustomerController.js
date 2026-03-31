@@ -9,6 +9,8 @@ exports.createCustomer = async (req, res) => {
     const customer = await Customer.create({
       company_name: req.body.company_name,
       application: req.body.application,
+      company_hq: req.body.company_hq,
+      company_address: req.body.company_address,
       customer_type: req.body.customer_type,
       trader_names: req.body.trader_names,
       open_field: req.body.open_field,
@@ -177,6 +179,8 @@ exports.updateCustomer = async (req, res) => {
       customer_type,
       trader_names,
       open_field,
+      company_hq,
+      company_address,
       contacts,
       addresses,
       products
@@ -195,6 +199,8 @@ exports.updateCustomer = async (req, res) => {
       company_name: company_name || "",
       application: application || "",
       customer_type: customer_type || "",
+      company_hq: company_hq || "",
+      company_address: company_address || "",
       trader_names: JSON.stringify(trader_names || []),
       open_field: open_field || "",
       contacts: JSON.stringify(contacts || []),

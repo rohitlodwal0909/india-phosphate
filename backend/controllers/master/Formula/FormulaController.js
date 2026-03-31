@@ -6,13 +6,25 @@ const { Formula, User, ProductFormulaSpecification } = db;
 // Create
 exports.createFormula = async (req, res, next) => {
   try {
-    const data = await Formula.create(req.body);
+    const created_by = req?.admin?.id;
 
-    // Step 4: Create log
+    // add created_by into payload
+    const payload = {
+      ...req.body,
+      created_by: created_by
+    };
+
+    const data = await Formula.create(payload);
+
+    // Create log
     const { entry_date, entry_time } = getISTDateTime();
 
     const logMessage = `Formula name '${data?.formula_name}' was created by '${req?.admin?.username}' on ${entry_date} at ${entry_time}.`;
-    await createLogEntry({ user_id: user_id, message: logMessage });
+
+    await createLogEntry({
+      user_id: req?.admin?.id,
+      message: logMessage
+    });
 
     return res.status(201).json({
       success: true,

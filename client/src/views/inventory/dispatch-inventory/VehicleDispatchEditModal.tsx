@@ -24,7 +24,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
-    batch_numbers: [],
+    batches: [{ batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
   });
 
   const purchaseOrder = useSelector(
@@ -55,23 +55,23 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
   // Selected row load
   useEffect(() => {
     if (selectedRow) {
-      let batches: any[] = [];
-
-      try {
-        batches =
-          typeof selectedRow.batch_numbers === 'string'
-            ? JSON.parse(selectedRow.batch_numbers)
-            : selectedRow.batch_numbers || [];
-      } catch {
-        batches = [];
-      }
-
       setFormData({
         ...selectedRow,
-        batch_numbers: batches || [],
+        batches: selectedRow.batches?.map((b: any) => ({
+          batch_no: b.batch_id || b.batch_no,
+          quantity: b.quantity,
+          unit: b.unit,
+          max_quantity: batchMap[b.batch_id]?.finishing?.finish_quantity || 0,
+        })) || [{ batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
       });
     }
-  }, [selectedRow]);
+  }, [selectedRow, StoreDatas]);
+
+  const batchMap =
+    StoreDatas?.reduce((acc: any, item: any) => {
+      acc[item.id] = item;
+      return acc;
+    }, {}) || {};
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -87,14 +87,46 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log();
-
     handleupdated({
       ...formData,
-      batch_numbers: formData.batch_numbers,
+      batches: formData.batches,
     });
 
     setOpenModal(false);
+  };
+
+  const addBatchRow = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      batches: [...prev.batches, { batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
+    }));
+  };
+
+  const removeBatchRow = (index: number) => {
+    const updated = [...formData.batches];
+    updated.splice(index, 1);
+    setFormData({ ...formData, batches: updated });
+  };
+  const handleBatchChange = (index: number, field: string, value: any) => {
+    const updated = [...formData.batches];
+
+    updated[index][field] = value;
+
+    if (field === 'batch_no') {
+      const batch = batchMap[value];
+      updated[index].max_quantity = batch?.finishing?.finish_quantity || 0;
+    }
+
+    if (field === 'batch_no') {
+      const exists = updated.some((b, i) => b.batch_no === value && i !== index);
+
+      if (exists) {
+        alert('Batch already selected');
+        return;
+      }
+    }
+
+    setFormData({ ...formData, batches: updated });
   };
 
   return (
@@ -144,6 +176,25 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
           </div>
 
           <div className="sm:col-span-6 col-span-12">
+            <Label value="Product Name" />
+            <TextInput
+              name="product_name"
+              placeholder="Enter Product Name"
+              value={formData.product_name}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="LR No." />
+            <TextInput
+              name="lr_no"
+              placeholder="Enter LR No."
+              value={formData.lr_no}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
             <Label value="Date of booking" />
 
             <input
@@ -167,50 +218,70 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
           </div>
 
           {/* Batch */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Batch Numbers" />
+          <div className="col-span-12">
+            <Label value="Batch Dispatch Details" />
 
-            <Select
-              isMulti
-              options={batchOptions}
-              value={batchOptions.filter((opt: any) => formData.batch_numbers?.includes(opt.value))}
-              onChange={(selected: any) =>
-                setFormData({
-                  ...formData,
-                  batch_numbers: selected ? selected.map((s: any) => s.value) : [],
-                })
-              }
-            />
-          </div>
+            {formData?.batches.map((batch: any, index: number) => (
+              <div key={index} className="grid grid-cols-12 gap-3 mb-3 items-end">
+                {/* Batch */}
+                <div className="col-span-6">
+                  <Select
+                    options={batchOptions}
+                    value={batchOptions.find((opt) => opt.value === batch.batch_no)}
+                    onChange={(selected: any) =>
+                      handleBatchChange(index, 'batch_no', selected?.value)
+                    }
+                  />
+                </div>
 
-          {/* Quantity */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Quantity" />
+                <div className="sm:col-span-5 col-span-12">
+                  {' '}
+                  <Label value="Quantity" />{' '}
+                  <div className="flex">
+                    {' '}
+                    <input
+                      type="number"
+                      placeholder="Quantity"
+                      value={batch.quantity}
+                      max={batch.max_quantity}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
 
-            <div className="flex">
-              <input
-                type="text"
-                name="quantity"
-                value={formData.quantity || ''}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded-l-md"
-              />
+                        if (val > batch.max_quantity) return;
 
-              <select
-                name="unit"
-                value={formData.unit || ''}
-                onChange={handleChange}
-                className="border border-l-0 px-2 rounded-r-md"
-              >
-                <option value="">Unit</option>
+                        handleBatchChange(index, 'quantity', val);
+                      }}
+                      className="w-full border px-3 py-2 rounded-l-md"
+                    />
+                    <select
+                      value={batch.unit}
+                      onChange={(e) => handleBatchChange(index, 'unit', e.target.value)}
+                      className="border border-l-0 px-2 rounded-r-md"
+                    >
+                      <option value="">Unit</option>
+                      {allUnits.map((unit) => (
+                        <option key={unit.value} value={unit.value}>
+                          {unit.value}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-                {allUnits.map((unit) => (
-                  <option key={unit.value} value={unit.value}>
-                    {unit.value}
-                  </option>
-                ))}
-              </select>
-            </div>
+                {/* Add Remove */}
+                <div className="col-span-1 flex gap-2">
+                  <Button color="primary" size="xs" onClick={addBatchRow}>
+                    +
+                  </Button>
+
+                  {formData.batches.length > 1 && (
+                    <Button size="xs" color="failure" onClick={() => removeBatchRow(index)}>
+                      -
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Delivery */}

@@ -16,10 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       vehicle_number: DataTypes.STRING,
       driver_details: DataTypes.STRING,
       product_name: DataTypes.STRING,
-      quantity: DataTypes.STRING,
-      unit: DataTypes.STRING,
+      lr_no: DataTypes.STRING,
       delivery_location: DataTypes.STRING,
-      batch_numbers: DataTypes.JSON,
       delivered_by: DataTypes.STRING,
       invoice_no: DataTypes.STRING,
       remarks: DataTypes.TEXT,
@@ -51,6 +49,11 @@ module.exports = (sequelize, DataTypes) => {
     DispatchVehicle.belongsTo(models.PurchaseOrderModel, {
       foreignKey: "po_id",
       as: "poentry"
+    });
+    DispatchVehicle.hasMany(models.DispatchBatch, {
+      foreignKey: "dispatch_id",
+      as: "batches",
+      onDelete: "CASCADE"
     });
   };
 

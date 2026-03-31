@@ -38,6 +38,12 @@ const Miniicons: MiniiconsType[] = [
     tooltip: "Account Department",
   },
 
+{
+  id: 6,
+  icon: "mdi:cart-outline",
+  tooltip: "Purchase Department",
+}
+
 ];
 
 export default Miniicons;
