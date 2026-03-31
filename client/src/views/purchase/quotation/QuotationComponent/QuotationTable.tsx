@@ -9,7 +9,7 @@ import { getPermissions } from 'src/utils/getPermissions';
 import NotPermission from 'src/utils/NotPermission';
 import CommonPagination from 'src/utils/CommonPagination';
 import CreateModel from './AddQuotation';
-import { deleteQuotation, getQuotation } from 'src/features/purchase/quotation/quotationSlice';
+import { deleteQuotation, getQuotation } from 'src/features/purchase/quotation/QuotationSlice';
 import EditModel from './EditQuotation';
 import ViewModal from './ViewQuotation';
 import ComonDeletemodal from '../../../../utils/deletemodal/ComonDeletemodal';

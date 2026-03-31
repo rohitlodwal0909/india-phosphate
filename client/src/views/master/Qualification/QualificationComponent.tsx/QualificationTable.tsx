@@ -204,6 +204,7 @@ const QualificationTable = () => {
       />
 
       <AddQualificationModal setShowmodal={setAddmodal} show={addmodal} logindata={logindata} />
+
       <EditQualificationModal
         show={editmodal}
         setShowmodal={setEditmodal}

@@ -13,7 +13,7 @@ import { Icon } from '@iconify/react';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
-import { updateQuotation } from 'src/features/purchase/quotation/quotationSlice';
+import { updateQuotation } from 'src/features/purchase/quotation/QuotationSlice';
 
 type Props = {
   editModal: boolean;

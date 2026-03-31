@@ -59,7 +59,7 @@ import SampleInvoiceSlice from '../src/features/account/exportinvoice/sampleinvo
 import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
 // Puchase
 
-import QuotationSlice from '../src/features/purchase/quotation/quotationSlice';
+import QuotationSlice from '../src/features/purchase/quotation/QuotationSlice';
 
 export const store = configureStore({
   reducer: {
