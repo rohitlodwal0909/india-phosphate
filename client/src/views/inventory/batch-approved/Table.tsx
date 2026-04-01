@@ -69,7 +69,11 @@ function Table() {
 
   // ✅ Sync redux state → local data
   useEffect(() => {
-    setData(Array.isArray(batchrecord?.data) ? batchrecord.data : []);
+    const records = Array.isArray(batchrecord?.data)
+      ? batchrecord.data.filter((item: any) => item?.finshing != null)
+      : [];
+
+    setData(records);
   }, [batchrecord]);
 
   const permissions = useMemo(() => {
