@@ -880,6 +880,12 @@ exports.saveProductRelease = async (req, res) => {
       savedData.push(data);
     }
 
+    const update = await BmrRecordsModel.findByPk({ where: { id: bmr_id } });
+
+    update.update({
+      status: "approved"
+    });
+
     return res.status(201).json({
       success: true,
       message: "Product Release saved successfully",

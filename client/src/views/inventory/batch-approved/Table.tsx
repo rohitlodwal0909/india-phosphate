@@ -70,7 +70,7 @@ function Table() {
   // ✅ Sync redux state → local data
   useEffect(() => {
     const records = Array.isArray(batchrecord?.data)
-      ? batchrecord.data.filter((item: any) => item?.finshing != null)
+      ? batchrecord.data.filter((item: any) => item?.finishing != null)
       : [];
 
     setData(records);

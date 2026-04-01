@@ -8,7 +8,7 @@ import {
   useReactTable,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { Button, Tooltip } from 'flowbite-react';
+import { Badge, Button, Tooltip } from 'flowbite-react';
 import { Icon } from '@iconify/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -164,11 +164,21 @@ const BmrCreateTable = () => {
 
       columnHelper.accessor('status', {
         header: 'Status',
-        cell: (info) => (
-          <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 capitalize">
-            {info.getValue()}
-          </span>
-        ),
+        cell: (info) => {
+          const status = info.getValue()?.toLowerCase();
+          const colors: Record<string, string> = {
+            NEW: 'secondary',
+            PENDING: 'warning',
+            APPROVED: 'primary',
+            REJECTED: 'error',
+            HOLD: 'success',
+          };
+          return (
+            <Badge color={colors[status.toUpperCase()] || 'secondary'} className="capitalize">
+              {status}
+            </Badge>
+          );
+        },
       }),
 
       columnHelper.display({
@@ -259,7 +269,7 @@ const BmrCreateTable = () => {
         )}
 
         {permissions.add && (
-          <Button size="sm" onClick={() => handleModal('add', true)}>
+          <Button color="primary" size="sm" onClick={() => handleModal('add', true)}>
             Add BMR
           </Button>
         )}

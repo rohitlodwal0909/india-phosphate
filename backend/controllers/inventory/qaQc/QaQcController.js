@@ -192,8 +192,7 @@ exports.createQcReport = async (req, res, next) => {
   const transaction = await Qcbatch.sequelize.transaction();
 
   try {
-    const { qc_id, batch_number, mfg_date, exp_date, mol_weight, data } =
-      req.body;
+    const { qc_id, mol_weight, data } = req.body;
     const id = qc_id;
     // 🔹 1️⃣ Check batch exists
     const batch = await Qcbatch.findByPk(id, { transaction });
@@ -230,7 +229,7 @@ exports.createQcReport = async (req, res, next) => {
       test: item.test,
       specification: item.specification,
       result: item.result,
-      user_id: req.admin?.id || 0
+      user_id: req.admin.id
     }));
 
     await QcReportItem.bulkCreate(items, { transaction });

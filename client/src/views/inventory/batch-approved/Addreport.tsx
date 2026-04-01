@@ -29,8 +29,10 @@ const AddReport = () => {
     }
   }, [dispatch, id]);
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
   useEffect(() => {
-    // 🔹 Edit Mode (Already Saved Data)
+    if (isInitialized) return;
     if (batch?.items?.length > 0) {
       setSpecification(
         batch.items.map((item: any) => ({
@@ -40,10 +42,8 @@ const AddReport = () => {
           isNew: false,
         })),
       );
-    }
-
-    // 🔹 New Mode (Fresh from Formula)
-    else if (formula?.specification?.length > 0) {
+      setIsInitialized(true);
+    } else if (formula?.specification?.length > 0) {
       setSpecification(
         formula.specification.map((item: any) => ({
           test: item.test,
@@ -52,8 +52,10 @@ const AddReport = () => {
           isNew: false,
         })),
       );
+
+      setIsInitialized(true);
     }
-  }, [batch, formula]);
+  }, [batch, formula, isInitialized]);
 
   useEffect(() => {
     if (batch) {

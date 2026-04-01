@@ -69,7 +69,7 @@ router.use("/api", BmrRoutes);
 router.use("/api", userRoutes);
 router.use("/api", guardRoutes);
 router.use("/api", grnRoutes);
-router.use("/api", qaQcRoutes);
+router.use("/api", authMiddleware, qaQcRoutes);
 router.use("/api", authMiddleware, dispatchRoutes);
 router.use("/api", authMiddleware, ProductRoutes);
 router.use("/api", productionRoutes);

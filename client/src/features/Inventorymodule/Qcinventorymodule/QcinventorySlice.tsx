@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant';
 import axiosInstance from 'src/constants/axiosInstance';
 
 // --------------------
@@ -51,7 +49,7 @@ export const GetrawMaterial = createAsyncThunk<any, GetRawMaterialPayload, { rej
   'qcs/fetch',
   async ({ id, qc_id, status }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/raw-material/${id}/${qc_id}/${status}`);
+      const response = await axiosInstance.get(`/raw-material/${id}/${qc_id}/${status}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -65,7 +63,7 @@ export const GetAllrowmaterial = createAsyncThunk<any, void, { rejectValue: any 
   'GetAllrowmaterial/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/all-raw-material`);
+      const response = await axiosInstance.get(`/all-raw-material`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -79,7 +77,7 @@ export const GetAllQcbatch = createAsyncThunk<any, void, { rejectValue: any }>(
   'GetAllQcbatch/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/all-qc-batch`);
+      const response = await axiosInstance.get(`/all-qc-batch`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -95,7 +93,7 @@ export const Approvemodule = createAsyncThunk<
   { rejectValue: any }
 >('qcs/approve', async ({ id, remark, user_id }, { rejectWithValue }) => {
   try {
-    const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
+    const response = await axiosInstance.put(`/approvedOrRejected/${id}`, {
       status: 'APPROVED',
       remark,
       user_id,
@@ -142,7 +140,7 @@ export const Rejectmodule = createAsyncThunk<
   { rejectValue: any }
 >('qcs/reject', async ({ id, remark, user_id }, { rejectWithValue }) => {
   try {
-    const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
+    const response = await axiosInstance.put(`/approvedOrRejected/${id}`, {
       status: 'REJECTED',
       remark,
       user_id,
@@ -161,7 +159,7 @@ export const Holdmodule = createAsyncThunk<
   { rejectValue: any }
 >('qcs/hold', async ({ id, remark, user_id }, { rejectWithValue }) => {
   try {
-    const response = await axios.put(`${apiUrl}/approvedOrRejected/${id}`, {
+    const response = await axiosInstance.put(`/approvedOrRejected/${id}`, {
       status: 'HOLD',
       remark,
       user_id,
@@ -178,7 +176,7 @@ export const deleteQc = createAsyncThunk<string, string, { rejectValue: any }>(
   'qcs/delete',
   async (QcId, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/qc/${QcId}`);
+      await axiosInstance.delete(`/qc/${QcId}`);
       return QcId;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -192,7 +190,7 @@ export const RawMaterialResult = createAsyncThunk<any, any, { rejectValue: any }
   'RawMaterialResult/add',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/save-report-result`, data);
+      const response = await axiosInstance.post(`/save-report-result`, data);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
@@ -206,7 +204,7 @@ export const qcBatchadd = createAsyncThunk<any, any, { rejectValue: any }>(
   'qcBatchadd/add',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/qc-batch-number`, data);
+      const response = await axiosInstance.post(`/qc-batch-number`, data);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
@@ -220,7 +218,7 @@ export const qcBatchUpdate = createAsyncThunk<any, any, { rejectValue: any }>(
   'qcBatchupdate/update',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/qc-batch-update`, data);
+      const response = await axiosInstance.post(`/qc-batch-update`, data);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
@@ -234,8 +232,8 @@ export const batchStatusChange = createAsyncThunk<any, string, { rejectValue: an
   'batchStatus/change',
   async (id, { rejectWithValue }) => {
     try {
-      // If backend expects PUT/PATCH, replace axios.get with axios.put
-      const response = await axios.get(`${apiUrl}/qc-batch-status/${id}`);
+      // If backend expects PUT/PATCH, replace axiosInstance.get with axios.put
+      const response = await axiosInstance.get(`/qc-batch-status/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
@@ -249,7 +247,7 @@ export const addRefrenceNumber = createAsyncThunk<any, any, { rejectValue: any }
   'refrensenumber/add',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/qc-add-refrensenumber`, data);
+      const response = await axiosInstance.post(`/qc-add-refrensenumber`, data);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
@@ -263,7 +261,7 @@ export const Getresult = createAsyncThunk<any, string, { rejectValue: any }>(
   'get/fetch',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/report/${id}`);
+      const response = await axiosInstance.get(`/report/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -277,7 +275,7 @@ export const getQcreport = createAsyncThunk<any, string, { rejectValue: any }>(
   'get/qcreport',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-qc-report/${id}`);
+      const response = await axiosInstance.get(`/get-qc-report/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -293,7 +291,7 @@ export const Deleteqcbatch = createAsyncThunk<
   { rejectValue: any }
 >('Deleteqcbatch/fetch', async ({ id, user_id }, { rejectWithValue }) => {
   try {
-    const response = await axios.delete(`${apiUrl}/qc-batch/${id}`, {
+    const response = await axiosInstance.delete(`/qc-batch/${id}`, {
       data: { user_id },
     });
     return response.data;

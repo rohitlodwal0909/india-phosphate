@@ -100,7 +100,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
       'po_id',
       'vehicle_number',
       'driver_details',
-      'quantity',
       'delivery_location',
       'product_name',
       'lr_no',
@@ -122,8 +121,9 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
         newErrors[`batch_${i}`] = 'Batch, Quantity & Unit required';
       }
 
-      if (b.quantity > b.max_quantity) {
+      if (Number(b.quantity) > Number(b.max_quantity)) {
         toast.error(`Batch ${i + 1} exceeds max quantity`);
+        return;
       }
     });
 
@@ -151,11 +151,14 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
               max_quantity: 0,
             },
           ],
+          delivery_location: '',
           product_name: '',
           lr_no: '',
-          delivery_location: '',
           delivered_by: '',
           remarks: '',
+          invoice_no: '',
+          booking_date: '',
+          arrived_booking: '',
         });
 
         setOpenModal(false);
