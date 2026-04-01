@@ -61,7 +61,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
           batch_no: b.batch_id || b.batch_no,
           quantity: b.quantity,
           unit: b.unit,
-          max_quantity: batchMap[b.batch_id]?.finishing?.finish_quantity || 0,
+          max_quantity: batchMap[b.batch_id]?.total_issued_qty || 0,
         })) || [{ batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
       });
     }

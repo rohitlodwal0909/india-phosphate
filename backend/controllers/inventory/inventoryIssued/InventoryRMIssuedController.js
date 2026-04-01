@@ -15,7 +15,7 @@ exports.getStoreRM = async (req, res, next) => {
           model: GrnEntry,
           as: "rmcodes",
           attributes: ["quantity", "unit"],
-          where: { type: "material" },
+          where: { type: "material", qa_qc_status: "APPROVED" },
           required: true
         },
         {

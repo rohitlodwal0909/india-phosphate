@@ -5,7 +5,14 @@ const {
 const db = require("../../../models");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
-const { Qcbatch, Finishing, FinishQty, PMIssueModel, FMIssuedModel } = db;
+const {
+  Qcbatch,
+  Finishing,
+  FinishQty,
+  PMIssueModel,
+  FMIssuedModel,
+  BatchReleaseModel
+} = db;
 
 exports.getBatches = async (req, res, next) => {
   try {
@@ -25,6 +32,11 @@ exports.getBatches = async (req, res, next) => {
               required: false
             }
           ]
+        },
+        {
+          model: BatchReleaseModel,
+          as: "batch_releases",
+          required: true
         }
       ],
       order: [["created_at", "DESC"]]

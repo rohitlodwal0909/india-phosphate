@@ -15,7 +15,7 @@ exports.getStorePM = async (req, res, next) => {
           model: GrnEntry,
           as: "pmcodes",
           attributes: ["quantity", "unit"],
-          where: { type: "pm" },
+          where: { type: "pm", qa_qc_status: "APPROVED" },
           required: true
         },
         {

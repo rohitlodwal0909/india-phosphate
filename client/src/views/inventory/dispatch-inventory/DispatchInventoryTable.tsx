@@ -28,7 +28,7 @@ import {
 } from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import { getApprovedBatch } from 'src/features/Inventorymodule/FPR/FprSlice';
+import { getIssuedFM } from 'src/features/Inventorymodule/InventoryIssued/FMIssuedSlice';
 
 interface DispatchDataType {
   id: number;
@@ -49,7 +49,7 @@ const DispatchInventoryTable = () => {
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
   const vehicledata = useSelector((state: RootState) => state.dispatchData.dispatchdata) as any;
-  const approvedBatch = useSelector((state: any) => state.fpr.data);
+  const { issuedFMList } = useSelector((state: RootState) => state.issuedFM) as any;
 
   const [data, setData] = useState<DispatchDataType[]>([]);
   const [filteredProductionData, setFilteredProductionData] = useState<any[]>([]);
@@ -67,15 +67,15 @@ const DispatchInventoryTable = () => {
   }, [vehicledata?.data]);
 
   useEffect(() => {
-    if (!Array.isArray(approvedBatch?.data) || !Array.isArray(approvedBatch?.data)) {
+    if (!Array.isArray(issuedFMList) || !Array.isArray(issuedFMList)) {
       setFilteredProductionData([]);
       return;
     }
-    setFilteredProductionData(approvedBatch?.data || []);
-  }, [approvedBatch]);
+    setFilteredProductionData(issuedFMList || []);
+  }, [issuedFMList]);
 
   useEffect(() => {
-    dispatch(getApprovedBatch());
+    dispatch(getIssuedFM());
     dispatch(GetFetchDispatch());
   }, [dispatch]);
 

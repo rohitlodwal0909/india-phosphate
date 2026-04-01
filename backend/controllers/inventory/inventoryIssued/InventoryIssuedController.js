@@ -15,7 +15,7 @@ exports.getStoreEquipment = async (req, res, next) => {
           model: GrnEntry,
           as: "grnEntries",
           attributes: ["quantity", "unit"],
-          where: { type: "equipment" },
+          where: { type: "equipment", qa_qc_status: "APPROVED" },
           required: true
         },
         {

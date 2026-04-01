@@ -184,7 +184,7 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
 
     if (field === 'batch_no') {
       const batch = batchMap[value];
-      updated[index].max_quantity = batch?.finishing?.finish_quantity || 0;
+      updated[index].max_quantity = batch?.total_issued_qty || 0;
     }
 
     setFormData({ ...formData, batches: updated });

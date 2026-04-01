@@ -17,6 +17,7 @@ const {
   Formula,
   ProductFormulaSpecification,
   Finishing,
+  FMIssuedModel,
   User,
   QcReportItem
 } = db;
@@ -598,7 +599,8 @@ exports.getAllQcBatches = async (req, res, next) => {
       include: [
         {
           model: Finishing,
-          as: "finishing"
+          as: "finishing",
+          required: true
         }
       ]
     });
