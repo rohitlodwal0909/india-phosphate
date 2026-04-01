@@ -173,6 +173,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       payload.append('po_no', formData.po_no);
       payload.append('company_id', formData.company_id);
       payload.append('company_address', formData.company_address);
+      payload.append('customer_name', formData.customer_name);
       payload.append('delivery_address', formData.delivery_address);
       payload.append('freight', formData.freight);
       payload.append('payment_terms', formData.payment_terms);
@@ -250,6 +251,18 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               onChange={handleChange}
             />
           </div>
+
+          {formData.company_type == 'Trader' && (
+            <div className="col-span-4">
+              <Label value="End Customer name" />
+              <TextInput
+                name="customer_name"
+                value={formData.customer_name}
+                placeholder="Enter End Customer name"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           {/* Delivery Address */}
           <div className="col-span-12">

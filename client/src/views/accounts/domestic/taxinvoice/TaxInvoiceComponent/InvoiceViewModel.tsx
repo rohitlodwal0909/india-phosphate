@@ -10,8 +10,10 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
   const invoice = useSelector((state: RootState) => state.taxinvoices.singleinvoice) as any;
 
   useEffect(() => {
-    dispatch(getInvoice(selectedRow?.id));
-  }, [dispatch]);
+    if (selectedRow?.id) {
+      dispatch(getInvoice(selectedRow.id));
+    }
+  }, [dispatch, selectedRow?.id]);
 
   const getProductQty = (batch_no) => {
     try {
@@ -21,9 +23,18 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
       return 0;
     }
   };
+
+  const parseJSON = (value: any) => {
+    try {
+      return JSON.parse(value || '[]');
+    } catch {
+      return [];
+    }
+  };
+
   const getProductAmount = (batch_no, rate) => {
     try {
-      const batches = JSON.parse(batch_no || '[]');
+      const batches = parseJSON(batch_no);
 
       return batches.reduce((sum, b) => sum + Number(b.qty || 0) * Number(rate || 0), 0);
     } catch {
@@ -31,25 +42,77 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
     }
   };
 
-  const products = invoice?.InvoiceItems;
+  const products = invoice?.InvoiceItems || [];
 
-  const subtotal = products.reduce((sum, p) => sum + getProductAmount(p.batch_no, p.rate), 0);
+  const subtotal = products?.reduce((sum, p) => sum + getProductAmount(p.batch_no, p.rate), 0);
 
-  const totalqty = products.reduce((sum, p) => sum + getProductQty(p.batch_no), 0);
+  const totalqty = products?.reduce((sum, p) => sum + getProductQty(p.batch_no), 0);
 
   const insurancePercent = Number(invoice?.insurance || 0);
   const insuranceAmount = (subtotal * insurancePercent) / 100;
 
   const freight = Number(invoice?.freight || 0);
 
-  const gstPercent = Number(invoice?.gst_rate || 0);
-
   const gstList = JSON.parse(invoice?.gst || '[]');
+
+  const gstPercent = gstList.reduce((sum, g) => sum + Number(g?.rate || 0), 0);
 
   const gstAmount = gstList.reduce(
     (sum, g) => sum + ((subtotal + insuranceAmount + freight) * g.rate) / 100,
     0,
   );
+
+  const hsnTotals = (products || []).reduce((acc: any, item: any) => {
+    const hsn = item?.hsn || 'N/A';
+
+    // ✅ Safe batch parse
+    let batches: any[] = [];
+    try {
+      batches = item?.batch_no ? JSON.parse(item.batch_no) : [];
+    } catch (e) {
+      batches = [];
+    }
+
+    // ✅ Taxable Amount from batches
+    const totalBatchAmount = batches.reduce(
+      (sum: number, batch: any) => sum + Number(batch?.amount || 0),
+      0,
+    );
+
+    // ✅ GST should come from item GST (NOT global)
+    const gstRate = Number(item?.gstPercent || gstPercent || 0);
+
+    const igstAmount = (totalBatchAmount * gstRate) / 100;
+    const totalAmount = totalBatchAmount + igstAmount;
+
+    // ✅ Initialize HSN group
+    if (!acc[hsn]) {
+      acc[hsn] = {
+        taxableAmount: 0,
+        igstAmount: 0,
+        totalAmount: 0,
+      };
+    }
+
+    // ✅ Add values
+    acc[hsn].taxableAmount += totalBatchAmount;
+    acc[hsn].igstAmount += igstAmount;
+    acc[hsn].totalAmount += totalAmount;
+
+    return acc;
+  }, {});
+
+  // ✅ Final Result Array
+  const result = Object?.entries(hsnTotals)?.map(([hsn, value]: any) => ({
+    hsn,
+    taxableAmount: Number(value.taxableAmount.toFixed(2)),
+    igstAmount: Number(value.igstAmount.toFixed(2)),
+    totalAmount: Number(value.totalAmount.toFixed(2)),
+  }));
+
+  const taxableAmount = result?.reduce((sum, batch) => sum + Number(batch?.taxableAmount || 0), 0);
+  const totalAmount = result?.reduce((sum, batch) => sum + Number(batch.totalAmount || 0), 0);
+
   // const roundOff = Number(invoice?.round_off || 0);
 
   const grandTotal =
@@ -218,22 +281,27 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
                     </tr>
 
                     {/* ROW 7 */}
-                    <tr>
-                      <td colSpan={3} className="border p-2">
-                        <p className="text-gray-600">Country</p>
-                        <p className="font-semibold">{invoice?.country || '-'}</p>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colSpan={3} className="border p-2">
-                        <p className="text-gray-600">
-                          LUT/Bond No.: <span>{invoice?.lut_no || '-'}</span>
-                        </p>
-                        <p className="text-gray-600">
-                          From : <span>{invoice?.from_to || '-'}</span>
-                        </p>
-                      </td>
-                    </tr>
+                    {invoice?.invoice_type !== 'domestic' && (
+                      <tr>
+                        <td colSpan={3} className="border p-2">
+                          <p className="text-gray-600">Country</p>
+                          <p className="font-semibold">{invoice?.country || '-'}</p>
+                        </td>
+                      </tr>
+                    )}
+
+                    {invoice?.invoice_type !== 'domestic' && (
+                      <tr>
+                        <td colSpan={3} className="border p-2">
+                          <p className="text-gray-600">
+                            LUT/Bond No.: <span>{invoice?.lut_no || '-'}</span>
+                          </p>
+                          <p className="text-gray-600">
+                            From : <span>{invoice?.from_to || '-'}</span>
+                          </p>
+                        </td>
+                      </tr>
+                    )}
                     <tr>
                       <td colSpan={3} className="border p-2">
                         <p className="text-gray-600">Terms of Delivery</p>
@@ -414,19 +482,25 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
               </tr>
             </thead>
             <tbody>
-              {products?.map((p) => (
+              {result?.map((p) => (
                 <tr>
                   <td className="border px-2 py-1">{p?.hsn || '-'}</td>
 
                   <td className="border px-2 py-1 text-right">
-                    {selectedRow?.taxable_value || '-'}
+                    {Number(p?.taxableAmount)?.toLocaleString()}
                   </td>
 
                   <td className="border px-2 py-1 text-center">{gstPercent || '0'} %</td>
 
-                  <td className="border px-2 py-1 text-right">{selectedRow?.igst_amount || '-'}</td>
+                  <td className="border px-2 py-1 text-right">
+                    {' '}
+                    {Number(p?.igstAmount)?.toLocaleString()}
+                  </td>
 
-                  <td className="border px-2 py-1 text-right">{selectedRow?.total_tax || '-'}</td>
+                  <td className="border px-2 py-1 text-right">
+                    {' '}
+                    {Number(p?.totalAmount)?.toLocaleString()}
+                  </td>
                 </tr>
               ))}
 
@@ -434,12 +508,17 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
               <tr className="font-semibold">
                 <td className="border px-2 py-1 text-right">Total</td>
 
-                <td className="border px-2 py-1 text-right">{selectedRow?.taxable_value || '-'}</td>
+                <td className="border px-2 py-1 text-right">
+                  {Number(taxableAmount)?.toLocaleString() || '-'}
+                </td>
 
                 <td className="border"></td>
                 <td className="border"></td>
 
-                <td className="border px-2 py-1 text-right">{selectedRow?.total_tax || '-'}</td>
+                <td className="border px-2 py-1 text-right">
+                  {' '}
+                  {Number(totalAmount)?.toLocaleString() || '-'}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -455,10 +534,12 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
               </p>
 
               {/* Remarks */}
-              <div>
-                <p className="font-semibold underline">Remarks:</p>
-                <p>BEING 1$ = 90.8 INR, MATERIAL RATE IS 1.58 USD PER KGS, TOTAL USD 13114</p>
-              </div>
+              {invoice?.invoice_type !== 'domestic' && (
+                <div>
+                  <p className="font-semibold underline">Remarks:</p>
+                  <p>{invoice?.payment_remark}</p>
+                </div>
+              )}
 
               {/* PAN / IEC */}
               <p>
@@ -486,35 +567,37 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
             {/* RIGHT SIDE */}
             <div className="p-3 flex flex-col justify-between">
               {/* Bank Details */}
-              <div>
-                <p className="font-semibold mb-2">Company's Bank Details</p>
+              {invoice?.invoice_type !== 'domestic' && (
+                <div>
+                  <p className="font-semibold mb-2">Company's Bank Details</p>
 
-                <div className="space-y-1">
-                  <p>
-                    <b>A/c Holder:</b> {selectedRow?.account_holder || '-'}
-                  </p>
+                  <div className="space-y-1">
+                    <p>
+                      <b>A/c Holder:</b> India Phosphate and Allied Industries Pvt.Ltd
+                    </p>
 
-                  <p>
-                    <b>Bank Name:</b> {selectedRow?.bank_name || '-'}
-                  </p>
+                    <p>
+                      <b>Bank Name:</b> Axis Bank Ltd (IPAIPL CC)
+                    </p>
 
-                  <p>
-                    <b>A/c No:</b> {selectedRow?.account_no || '-'}
-                  </p>
+                    <p>
+                      <b>A/c No:</b> 924030028364980
+                    </p>
 
-                  <p>
-                    <b>Branch & IFSC:</b> {selectedRow?.branch_ifsc || '-'}
-                  </p>
+                    <p>
+                      <b>Branch & IFSC:</b> Ujjain & UTIB0000329
+                    </p>
 
-                  <p>
-                    <b>SWIFT Code:</b> {selectedRow?.swift_code || '-'}
-                  </p>
+                    <p>
+                      <b>SWIFT Code:</b>
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Signature */}
               <div className="text-right mt-10">
-                <p>For {selectedRow?.company_name || 'Company Name'}</p>
+                <p>For India Phosphate and Allied Industries Pvt.Ltd</p>
 
                 <div className="h-14"></div>
 

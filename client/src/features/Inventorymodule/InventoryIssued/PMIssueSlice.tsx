@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
 import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
@@ -16,7 +14,7 @@ const initialState = {
 
 export const getStorePM = createAsyncThunk('issue/store-pm', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-store-pm`);
+    const response = await axiosInstance.get(`/get-store-pm`);
     return response.data;
   } catch (error) {
     const message =
@@ -30,7 +28,7 @@ export const getStorePM = createAsyncThunk('issue/store-pm', async (_, { rejectW
 
 export const issuedPM = createAsyncThunk('issue/issued-pm', async (data, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/issued-pm`, data);
+    const response = await axiosInstance.post(`/issued-pm`, data);
     return response.data;
   } catch (error) {
     const message =
@@ -44,7 +42,7 @@ export const issuedPM = createAsyncThunk('issue/issued-pm', async (data, { rejec
 
 export const getIssuedPM = createAsyncThunk('issue/pm', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-issued-pm`);
+    const response = await axiosInstance.get(`/get-issued-pm`);
     return response.data;
   } catch (error) {
     const message =
@@ -60,7 +58,7 @@ export const deleteIssuedPM = createAsyncThunk(
   'issue/delete-pm',
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${apiUrl}/issued-delete-pm/${id}`);
+      const response = await axiosInstance.delete(`/issued-delete-pm/${id}`);
       return response.data;
     } catch (error) {
       const message =
@@ -77,7 +75,7 @@ export const updateIssuedPM = createAsyncThunk(
   'issue/update-issued-pm',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/update-issued-pm`, data);
+      const response = await axiosInstance.post(`/update-issued-pm`, data);
       return response.data;
     } catch (error) {
       const message =

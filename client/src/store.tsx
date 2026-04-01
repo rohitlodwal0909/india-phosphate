@@ -46,6 +46,8 @@ import BmrRecordSlice from '../src/features/Inventorymodule/BMR/BmrCreation/BmrC
 import IssueEquipmentSlice from '../src/features/Inventorymodule/InventoryIssued/IssueEquipmentSlice';
 import RMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/RMIssueSlice';
 import PMIssueSlice from '../src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
+import FMIssuedSlice from '../src/features/Inventorymodule/InventoryIssued/FMIssuedSlice';
+
 import BmrReportSlices from '../src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import ProcedureSlice from '../src/features/master/ManufacturingProcedure/ManufacturingProcedureSlice';
 import GRNSlice from '../src/features/master/Grn/GRNSlice';
@@ -71,6 +73,8 @@ export const store = configureStore({
     issueEquipment: IssueEquipmentSlice,
     rmissue: RMIssueSlice,
     pmissue: PMIssueSlice,
+    issuedFM: FMIssuedSlice,
+
     rolepermission: PermissionSlice,
     dispatchData: DispatchSlice,
     productionData: ProdutionSlice,

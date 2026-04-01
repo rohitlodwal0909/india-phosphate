@@ -6,7 +6,6 @@ interface VehicleDispatchModalProps {
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
   handlesubmit: (data: any) => void;
-  logindata: any;
 }
 
 const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
@@ -14,100 +13,114 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
   setOpenModal,
   selectedRow,
   handlesubmit,
-  logindata,
 }) => {
-  const [formData, setFormData] = useState({
-    finish_quantity: '',
-    unfinish_quantity: '',
-    batch_number: '',
-    user_id: logindata?.admin?.id,
-  });
+  const [batchNumber, setBatchNumber] = useState('');
 
-  // Load batch number when modal opens / row changes
+  const [rows, setRows] = useState([{ finish_quantity: '', unfinish_quantity: '' }]);
+
+  // Set batch number
   useEffect(() => {
     if (selectedRow?.batch_id) {
-      setFormData((prev) => ({
-        ...prev,
-        batch_number: selectedRow.batch_id,
-      }));
+      setBatchNumber(selectedRow.batch_id);
     }
   }, [selectedRow]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Change
+  const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Prevent negative values
     if (Number(value) < 0) return;
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const updated = [...rows];
+    updated[index][name] = value;
+    setRows(updated);
+  };
+
+  // Add Row
+  const addRow = () => {
+    setRows([...rows, { finish_quantity: '', unfinish_quantity: '' }]);
+  };
+
+  // Remove Row
+  const removeRow = (index: number) => {
+    setRows(rows.filter((_, i) => i !== index));
   };
 
   const closeModal = () => {
     setOpenModal(false);
-    setFormData({
-      finish_quantity: '',
-      unfinish_quantity: '',
-      batch_number: '',
-      user_id: logindata?.admin?.id,
-    });
+    setRows([{ finish_quantity: '', unfinish_quantity: '' }]);
+    setBatchNumber('');
   };
 
+  // Submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!formData.finish_quantity || !formData.unfinish_quantity) {
-      alert('Please enter both quantities');
+    const invalid = rows.some((r) => !r.finish_quantity || !r.unfinish_quantity);
+
+    if (invalid) {
+      alert('Fill all quantities');
       return;
     }
 
-    handlesubmit(formData);
+    handlesubmit({
+      batch_number: batchNumber,
+      finishing: rows,
+    });
+
     closeModal();
   };
 
   return (
-    <Modal show={openModal} onClose={closeModal}>
+    <Modal show={openModal} onClose={closeModal} size="2xl">
       <Modal.Header>Check Finishing</Modal.Header>
 
       <Modal.Body>
-        <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-          {/* Finish Quantity */}
-          <div className="col-span-6">
-            <Label htmlFor="finish_quantity" value="Finish Quantity" />
-            <TextInput
-              id="finish_quantity"
-              name="finish_quantity"
-              type="number"
-              className="form-rounded-md"
-              placeholder="Enter Quantity"
-              value={formData.finish_quantity}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Multiple Rows */}
+          {rows.map((row, index) => (
+            <div key={index} className="grid grid-cols-12 gap-4 border p-3 rounded">
+              <div className="col-span-5">
+                <Label value="Finish Quantity" />
+                <TextInput
+                  type="number"
+                  name="finish_quantity"
+                  value={row.finish_quantity}
+                  onChange={(e) => handleChange(index, e)}
+                  required
+                />
+              </div>
 
-          {/* Unfinish Quantity */}
-          <div className="col-span-6">
-            <Label htmlFor="unfinish_quantity" value="Unfinish Quantity" />
-            <TextInput
-              id="unfinish_quantity"
-              name="unfinish_quantity"
-              type="number"
-              className="form-rounded-md"
-              placeholder="Enter Quantity"
-              value={formData.unfinish_quantity}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <div className="col-span-5">
+                <Label value="Unfinish Quantity" />
+                <TextInput
+                  type="number"
+                  name="unfinish_quantity"
+                  value={row.unfinish_quantity}
+                  onChange={(e) => handleChange(index, e)}
+                  required
+                />
+              </div>
 
-          <div className="flex justify-end gap-2 col-span-12">
+              <div className="col-span-2 flex items-end">
+                {rows.length > 1 && (
+                  <Button color="failure" type="button" onClick={() => removeRow(index)}>
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+
+          <Button type="button" color="success" onClick={addRow}>
+            + Add More
+          </Button>
+
+          <div className="flex justify-end gap-2">
             <Button type="button" color="gray" onClick={closeModal}>
               Cancel
             </Button>
-            <Button type="submit" color="primary">
-              Submit
-            </Button>
+            <Button type="submit">Submit</Button>
           </div>
         </form>
       </Modal.Body>

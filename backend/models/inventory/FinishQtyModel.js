@@ -1,16 +1,26 @@
 module.exports = (sequelize, DataTypes) => {
-  const Finishing = sequelize.define(
-    "Finishing",
+  const FinishQty = sequelize.define(
+    "FinishQty",
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
       },
-      user_id: {
+      finish_id: {
         type: DataTypes.INTEGER
       },
-      batch_number: {
+
+      finishing_qty: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      unfinishing_qty: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+
+      time: {
         type: DataTypes.STRING,
         allowNull: false
       },
@@ -25,30 +35,17 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: "finishing",
+      tableName: "finish_quantities",
       underscored: true,
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at"
     }
   );
-  Finishing.associate = (models) => {
-    Finishing.belongsTo(models.ProductionResult, {
-      foreignKey: "batch_number",
-      targetKey: "batch_id",
-      as: "production_entry"
-    });
-    Finishing.belongsTo(models.Qcbatch, {
-      foreignKey: "batch_number",
-      targetKey: "id",
-      as: "finish_batch"
-    });
-    Finishing.hasMany(models.FinishQty, {
-      foreignKey: "finish_id"
-    });
-    Finishing.hasMany(models.FMIssuedModel, {
+  FinishQty.associate = (models) => {
+    FinishQty.belongsTo(models.Finishing, {
       foreignKey: "finish_id"
     });
   };
-  return Finishing;
+  return FinishQty;
 };

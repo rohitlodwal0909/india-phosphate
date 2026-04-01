@@ -109,6 +109,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     po_no: '',
     company_id: '',
     company_address: '',
+    customer_name: '',
     delivery_address: '',
     freight: '',
     payment_terms: '',
@@ -159,6 +160,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       payload.append('company_id', formData.company_id);
       payload.append('company_address', formData.company_address);
       payload.append('delivery_address', formData.delivery_address);
+      payload.append('customer_name', formData.customer_name);
       payload.append('freight', formData.freight);
       payload.append('payment_terms', formData.payment_terms);
       payload.append('expected_delivery_date', formData.expected_delivery_date);
@@ -254,6 +256,17 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               placeholder="Enter company address"
             />
           </div>
+
+          {formData.company_type == 'Trader' && (
+            <div className="col-span-4">
+              <Label value="End Customer name" />
+              <TextInput
+                name="customer_name"
+                placeholder="Enter End Customer name"
+                onChange={handleChange}
+              />
+            </div>
+          )}
 
           {/* Delivery Address */}
           <div className="col-span-12">

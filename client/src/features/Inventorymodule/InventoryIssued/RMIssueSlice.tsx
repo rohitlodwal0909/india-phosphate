@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
@@ -15,7 +14,7 @@ const initialState = {
 
 export const getStoreRM = createAsyncThunk('issue/store-rm', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-store-rm`);
+    const response = await axiosInstance.get(`/get-store-rm`);
     return response.data;
   } catch (error) {
     const message =
@@ -31,7 +30,7 @@ export const issuedRawMaterial = createAsyncThunk(
   'issue/issued-raw-material',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/issued-raw-material`, data);
+      const response = await axiosInstance.post(`/issued-raw-material`, data);
       return response.data;
     } catch (error) {
       const message =
@@ -48,7 +47,7 @@ export const getIssuedRawMaterial = createAsyncThunk(
   'issue/rawmaterial',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-issued-raw-material`);
+      const response = await axiosInstance.get(`/get-issued-raw-material`);
       return response.data;
     } catch (error) {
       const message =
@@ -65,7 +64,7 @@ export const deleteIssuedRawMaterial = createAsyncThunk(
   'issue/delete-raw-material',
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${apiUrl}/issued-delete-rm/${id}`);
+      const response = await axiosInstance.delete(`/issued-delete-rm/${id}`);
       return response.data;
     } catch (error) {
       const message =
@@ -82,7 +81,7 @@ export const updateIssuedRawMaterial = createAsyncThunk(
   'issue/update-issued-rm',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/update-issued-rm`, data);
+      const response = await axiosInstance.post(`/update-issued-rm`, data);
       return response.data;
     } catch (error) {
       const message =

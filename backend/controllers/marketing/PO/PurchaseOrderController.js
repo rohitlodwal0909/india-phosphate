@@ -229,6 +229,7 @@ exports.updatePurchaseOrder = async (req, res) => {
       company_type: req.body.company_type,
       company_address: req.body.company_address,
       delivery_address: req.body.delivery_address,
+      customer_name: req.body.customer_name,
 
       // ✅ Products
       products: JSON.stringify(products),

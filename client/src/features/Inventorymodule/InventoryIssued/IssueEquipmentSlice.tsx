@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
 import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
@@ -19,7 +17,7 @@ export const getStoreEquipment = createAsyncThunk(
   'issue/store-equipment',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-store-equipment`);
+      const response = await axiosInstance.get(`/get-store-equipment`);
       return response.data;
     } catch (error) {
       const message =
@@ -36,7 +34,7 @@ export const issuedEquipment = createAsyncThunk(
   'issue/issued-equipment',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/issued-equipment`, data);
+      const response = await axiosInstance.post(`/issued-equipment`, data);
       return response.data;
     } catch (error) {
       const message =
@@ -53,7 +51,7 @@ export const getIssuedEquipment = createAsyncThunk(
   'issue/equipment',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-issued-equipment`);
+      const response = await axiosInstance.get(`/get-issued-equipment`);
       return response.data;
     } catch (error) {
       const message =
@@ -70,7 +68,7 @@ export const deleteIssuedEquipment = createAsyncThunk(
   'issue/delete-equipment',
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${apiUrl}/issued-delete-equipment/${id}`);
+      const response = await axiosInstance.delete(`/issued-delete-equipment/${id}`);
       return response.data;
     } catch (error) {
       const message =
@@ -87,7 +85,7 @@ export const updateIssuedEquipment = createAsyncThunk(
   'issue/update-issued-equipment',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/update-issued-equipment`, data);
+      const response = await axiosInstance.post(`/update-issued-equipment`, data);
       return response.data;
     } catch (error) {
       const message =

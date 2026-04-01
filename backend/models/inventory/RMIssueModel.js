@@ -56,6 +56,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "rm_id",
       as: "issueRm"
     });
+    RMIssueModel.belongsTo(models.Qcbatch, {
+      foreignKey: "batch_no",
+      targetKey: "id"
+    });
   };
 
   return RMIssueModel;

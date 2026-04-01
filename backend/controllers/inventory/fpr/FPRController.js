@@ -1,9 +1,5 @@
-const {
-  createNotificationByRoleId
-} = require("../../../helper/SendNotification");
-const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Qcbatch, BatchReleaseModel, Finishing } = db;
+const { Qcbatch, BatchReleaseModel, Finishing, FinishQty } = db;
 
 exports.index = async (req, res, next) => {
   try {
@@ -21,7 +17,13 @@ exports.index = async (req, res, next) => {
         {
           model: Finishing,
           as: "finishing",
-          required: false
+          required: false,
+          include: [
+            {
+              model: FinishQty,
+              required: false
+            }
+          ]
         }
       ]
     });

@@ -68,10 +68,13 @@ function FinishingTable() {
     return getPermissions(logindata, selectedIconId, 6);
   }, [logindata, selectedIconId]);
 
-  useEffect(
-    () => setData(Array.isArray(ProductionAlldata?.data) ? ProductionAlldata.data : []),
-    [ProductionAlldata],
-  );
+  useEffect(() => {
+    if (Array.isArray(ProductionAlldata?.data)) {
+      setData(ProductionAlldata.data);
+    } else {
+      setData([]);
+    }
+  }, [ProductionAlldata]);
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -218,7 +221,7 @@ function FinishingTable() {
         const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-            {entry?.unfinish_quantity ?? '-'}
+            {entry?.total_finishing_qty ?? '-'}
           </span>
         );
       },
@@ -231,7 +234,7 @@ function FinishingTable() {
         const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-            {entry?.finish_quantity ?? '-'}
+            {entry?.total_unfinishing_qty ?? '-'}
           </span>
         );
       },
@@ -246,7 +249,7 @@ function FinishingTable() {
         return (
           <div className="flex gap-2">
             {entry
-              ? permissions?.edit && (
+              ? permissions?.add && (
                   <Button
                     color="secondary"
                     onClick={() => {
@@ -324,20 +327,23 @@ function FinishingTable() {
           </p>
         </div>
       )}
-      <FinishingModal
-        openModal={addmodal}
-        setOpenModal={setaddmodal}
-        selectedRow={selectedRow}
-        handlesubmit={handlesubmit}
-        logindata={logindata}
-      />
-      <EditFinishingModal
-        openModal={editmodal}
-        setOpenModal={setEditModal}
-        selectedRow={selectedRow}
-        handleupdatedentry={handleupdatedentry}
-        logindata={logindata}
-      />
+      {addmodal && (
+        <FinishingModal
+          openModal={addmodal}
+          setOpenModal={setaddmodal}
+          selectedRow={selectedRow}
+          handlesubmit={handlesubmit}
+        />
+      )}
+      {editmodal && (
+        <EditFinishingModal
+          openModal={editmodal}
+          setOpenModal={setEditModal}
+          selectedRow={selectedRow}
+          handleupdatedentry={handleupdatedentry}
+          permissions={permissions}
+        />
+      )}
     </>
   );
 }

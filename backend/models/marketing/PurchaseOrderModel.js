@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
       company_address: {
         type: DataTypes.TEXT
       },
+      customer_name: {
+        type: DataTypes.STRING
+      },
       products: {
         type: DataTypes.TEXT
       },

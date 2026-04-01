@@ -345,6 +345,17 @@ const SidebarContent: MenuItem[] = [
             view: false,
             edit: false,
             delete: false,
+          },  
+           {
+            subId: 114,
+            name: "FM",
+            icon: "mdi:package-variant-closed", 
+            id: uniqueId(),
+            url: "/inventory/finish-material",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
           },         
         ]
           },
@@ -372,7 +383,6 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
-
            {
             subId:5,
             name: "Production",
@@ -384,7 +394,6 @@ const SidebarContent: MenuItem[] = [
               edit: false,
               delete: false,
           },
-
           {
             subId:6,
             name: "Finish",
@@ -396,7 +405,7 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
-              {
+            {
             subId:7,
             name: "QA/QC Approval",
             icon: "material-symbols:batch-prediction-outline-sharp",
@@ -796,9 +805,9 @@ const SidebarContent: MenuItem[] = [
             url: "/master/finish-good",
             subId:28,
              add: false,
-        view: false,
-        edit: false,
-        delete: false,
+              view: false,
+              edit: false,
+              delete: false,
           },
           {
             name: "Formula",
@@ -807,9 +816,9 @@ const SidebarContent: MenuItem[] = [
             url: "/master/formula",
             subId:29,
              add: false,
-        view: false,
-        edit: false,
-        delete: false,
+              view: false,
+              edit: false,
+              delete: false,
           },
            {
             name: "Export Document",
@@ -818,9 +827,9 @@ const SidebarContent: MenuItem[] = [
             url: "/master/document",
             subId:30,
              add: false,
-        view: false,
-        edit: false,
-        delete: false,
+            view: false,
+            edit: false,
+            delete: false,
           },
            {
             name: "Manufacturing Procedure",

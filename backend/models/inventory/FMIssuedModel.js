@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const PMIssueModel = sequelize.define(
-    "PMIssueModel",
+  const FMIssuedModel = sequelize.define(
+    "FMIssuedModel",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -10,37 +10,20 @@ module.exports = (sequelize, DataTypes) => {
       user_id: {
         type: DataTypes.INTEGER
       },
-      pm_id: {
-        type: DataTypes.INTEGER
-      },
       quantity: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      issued_bag: {
+      finish_id: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      person_name: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      batch_no: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      ref_no: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      return_bag: {
-        type: DataTypes.STRING
-      },
-      returned_by: {
-        type: DataTypes.STRING
-      },
       date: {
         type: DataTypes.STRING,
+        allowNull: false
+      },
+      remark: {
+        type: DataTypes.TEXT,
         allowNull: false
       },
       created_at: {
@@ -53,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: "pm_issue_records",
+      tableName: "fm_issued",
       underscored: true,
       timestamps: true,
       paranoid: true,
@@ -63,17 +46,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  PMIssueModel.associate = (models) => {
-    PMIssueModel.belongsTo(models.PmCode, {
-      foreignKey: "pm_id",
-      as: "issuePM"
-    });
-
-    PMIssueModel.belongsTo(models.Qcbatch, {
-      foreignKey: "batch_no", // The field in ProductionResult
-      targetKey: "id" // The field in Qcbatch
+  FMIssuedModel.associate = (models) => {
+    FMIssuedModel.belongsTo(models.Finishing, {
+      foreignKey: "finish_id" // The field in ProductionResult
     });
   };
 
-  return PMIssueModel;
+  return FMIssuedModel;
 };

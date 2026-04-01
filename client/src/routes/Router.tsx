@@ -28,6 +28,7 @@ import PackingList from 'src/views/accounts/export/packinglist/PackingList';
 import DraftList from 'src/views/accounts/export/draft/Draft';
 import SampleInvoice from 'src/views/accounts/export/sampleinvoice/SampleInvoice';
 import Quotation from 'src/views/purchase/quotation/Quotation';
+import FmIssuedInventory from 'src/views/inventory/inventory-issued/fm-issued/FmIssuedInventory';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -132,6 +133,8 @@ const fullLayoutChildren = [
   { path: '/inventory/inventory-pm', element: <PmIssuedInventory /> },
   { path: '/inventory/inventory-equipment', element: <EquipementIssuedInventory /> },
   { path: '/inventory/inventory-rm', element: <RmIssuedInventory /> },
+  { path: '/inventory/finish-material', element: <FmIssuedInventory /> },
+
   { path: '/inventory/work-order', element: <WorkOrder /> },
   { path: '/inventory/replacement', element: <Replacement /> },
 

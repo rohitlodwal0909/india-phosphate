@@ -3,184 +3,21 @@ const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
-const { convertUnit } = require("../../../helper/unitConverter");
 const db = require("../../../models");
-const { Op, where } = require("sequelize");
 const {
   ProductionResult,
   Qcbatch,
   Finishing,
-  RoleModel,
   User,
   PmCode,
   RmCode,
-  Equipment
+  Equipment,
+  PMIssueModel,
+  RMIssueModel,
+  FinishQty
 } = db;
 
-// exports.ProductionaddResult = async (req, res, next) => {
-//   try {
-//     const {
-//       rm_code = [],
-//       quantity = [],
-//       unit = [],
-//       user_id,
-//       batch_id,
-//       ...rest
-//     } = req.body;
-
-//     // Validation: Check available stock across entries
-//     for (let i = 0; i < rm_code.length; i++) {
-//       const code = rm_code[i];
-//       const reqQty = parseFloat(quantity[i] ?? 0);
-//       const reqUnit = unit[i];
-
-//       const grnEntries = await GrnEntry.findAll({
-//         where: { store_rm_code: code },
-//         order: [["id", "ASC"]]
-//       });
-
-//       if (!grnEntries.length) {
-//         const error = new Error(`${code} is not available in the store.`);
-//         error.status = 400;
-//         return next(error);
-//       }
-
-//       let totalAvailable = 0;
-//       let anyUnitMatched = false;
-
-//       for (const entry of grnEntries) {
-//         const containerQty = parseFloat(
-//           entry.pending_quantity ?? entry.quantity ?? 0
-//         );
-//         const containerUnit = entry.unit;
-
-//         try {
-//           const converted = convertUnit(containerQty, containerUnit, reqUnit);
-//           totalAvailable += converted;
-//           anyUnitMatched = true;
-//         } catch (err) {
-//           continue; // Try other entries
-//         }
-//       }
-
-//       if (!anyUnitMatched) {
-//         const error = new Error(
-//           `Unit mismatch for ${code}. No matching  unit found in store.`
-//         );
-//         error.status = 400;
-//         return next(error);
-//       }
-
-//       if (totalAvailable < reqQty) {
-//         const error = new Error(
-//           `Insufficient quantity for ${code}. Available: ${totalAvailable} ${reqUnit}, required: ${reqQty}.`
-//         );
-//         error.status = 400;
-//         return next(error);
-//       }
-//     }
-
-//     // Create production entry
-//     const newEntry = await ProductionResult.create(req.body);
-
-//     // Deduction logic
-//     for (let i = 0; i < rm_code.length; i++) {
-//       const code = rm_code[i];
-//       let remainingQty = parseFloat(quantity[i] ?? 0);
-//       const reqUnit = unit[i];
-
-//       const grnEntries = await GrnEntry.findAll({
-//         where: { store_rm_code: code },
-//         order: [["id", "ASC"]]
-//       });
-
-//       for (const entry of grnEntries) {
-//         if (remainingQty <= 0) break;
-
-//         const containerQty = parseFloat(
-//           entry.pending_quantity ?? entry.quantity ?? 0
-//         );
-//         const containerUnit = entry.unit;
-
-//         let availableInReqUnit;
-//         try {
-//           availableInReqUnit = convertUnit(
-//             containerQty,
-//             containerUnit,
-//             reqUnit
-//           );
-//         } catch (err) {
-//           continue; // skip this entry if unit mismatch
-//         }
-
-//         if (availableInReqUnit <= 0) continue;
-
-//         const usedQty = Math.min(availableInReqUnit, remainingQty);
-//         const usedInContainerUnit = convertUnit(
-//           usedQty,
-//           reqUnit,
-//           containerUnit
-//         );
-//         const newPending = containerQty - usedInContainerUnit;
-
-//         await entry.update({
-//           pending_quantity: newPending,
-//           production_status: "ISSUE"
-//         });
-
-//         remainingQty -= usedQty;
-//       }
-//     }
-//     const data = await Qcbatch.findByPk(batch_id);
-
-//     const user = await User.findByPk(user_id);
-//     const username = user ? user.username : "Unknown User";
-//     const now = new Date();
-//     const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-//     const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
-//     const logMessage = `Production entry for  Batch Number ${data?.qc_batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
-//     await createLogEntry({
-//       user_id,
-//       message: logMessage
-//     });
-//     const productionRole = await RoleModel.findOne({
-//       where: { name: { [Op.like]: "%Production%" } }
-//     });
-//     const storeRole = await RoleModel.findOne({
-//       where: { name: { [Op.like]: "%Inventory Manager%" } }
-//     });
-
-//     if (productionRole) {
-//       await createNotificationByRoleId({
-//         title: "New Production",
-//         message: "Production has been successfully created.",
-//         role_id: productionRole.id
-//       });
-//     }
-
-//     if (storeRole) {
-//       await createNotificationByRoleId({
-//         title: "Store Request",
-//         message: "Store request has been successfully submitted by production.",
-//         role_id: storeRole.id
-//       });
-//     }
-
-//     await createNotificationByRoleId({
-//       title: "Finishing Request",
-//       message:
-//         "A request has been submitted by the production team with RM code details.",
-//       role_id: 7
-//     });
-
-//     return res.status(201).json({
-//       message: "Production Entry created successfully",
-//       data: newEntry
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+const sequelize = db.sequelize;
 
 exports.ProductionaddResult = async (req, res, next) => {
   try {
@@ -268,7 +105,6 @@ exports.ProductionUpdateResult = async (req, res, next) => {
   try {
     const {
       batch_id,
-      user_id,
 
       rm_code = [],
       rm_quantity = [],
@@ -390,21 +226,66 @@ exports.getAllProductionResults = async (req, res, next) => {
             {
               model: Finishing,
               as: "finishing_entries",
-              required: false
+              required: false,
+              include: [
+                {
+                  model: FinishQty
+                }
+              ]
             },
             {
               model: RmCode,
               as: "rmcodes"
             }
           ]
+        },
+        {
+          model: PMIssueModel,
+          required: true
+        },
+        {
+          model: RMIssueModel,
+          required: true
         }
       ],
-      order: [["created_at", "DESC"]] // optional: newest first
+      order: [["created_at", "DESC"]]
+    });
+
+    // ✅ ADD TOTALS
+    const formattedData = data.map((batch) => {
+      const batchJSON = batch.toJSON();
+
+      batchJSON.production_results = batchJSON.production_results.map(
+        (prod) => {
+          prod.finishing_entries =
+            prod.finishing_entries?.map((finish) => {
+              const total_finish = finish.FinishQties?.reduce(
+                (sum, f) => sum + Number(f.finishing_qty || 0),
+                0
+              );
+
+              const total_unfinish = finish.FinishQties?.reduce(
+                (sum, f) => sum + Number(f.unfinishing_qty || 0),
+                0
+              );
+
+              return {
+                ...finish,
+                total_finishing_qty: total_finish,
+                total_unfinishing_qty: total_unfinish
+              };
+            }) || [];
+
+          return prod;
+        }
+      );
+
+      return batchJSON;
     });
 
     res.status(200).json({
       message: "Production results fetched successfully.",
-      data: data
+      data: formattedData
     });
   } catch (error) {
     next(error);
@@ -412,54 +293,101 @@ exports.getAllProductionResults = async (req, res, next) => {
 };
 
 exports.createFinishingEntry = async (req, res, next) => {
-  try {
-    const { finish_quantity, unfinish_quantity, batch_number, user_id } =
-      req.body;
+  const transaction = await sequelize.transaction();
 
-    if (!finish_quantity || !unfinish_quantity || !batch_number) {
-      const error = new Error("All fields are required.");
+  try {
+    const { batch_number, finishing } = req.body;
+
+    // Validation
+    if (!batch_number || !finishing?.length) {
+      const error = new Error("Batch number and finishing data are required.");
       error.status = 400;
       return next(error);
     }
-    const user = await User.findByPk(user_id);
-    const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
-    const logMessage = `finish entry  ${batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
-    await createLogEntry({
-      user_id,
-      message: logMessage
-    });
-    const newEntry = await Finishing.create({
-      finish_quantity,
-      unfinish_quantity,
-      batch_number,
-      user_id
-    });
 
-    await createNotificationByRoleId({
-      title: "Dispatch Request",
-      message:
-        "Finishing team has completed . Batch number is now ready for dispatch.",
-      role_id: 8
-    });
+    const { entry_date, entry_time } = getISTDateTime();
+
+    const dateTime = `${entry_date} ${entry_time}`;
+
+    // Main Entry
+    const finishingEntry = await Finishing.create(
+      {
+        batch_number,
+        user_id: req.admin.id
+      },
+      { transaction }
+    );
+
+    // Multiple Rows Insert
+    const finishRecords = await Promise.all(
+      finishing.map((f) =>
+        FinishQty.create(
+          {
+            finish_id: finishingEntry.id,
+            finishing_qty: Number(f.finish_quantity),
+            unfinishing_qty: Number(f.unfinish_quantity),
+            time: dateTime
+          },
+          { transaction }
+        )
+      )
+    );
+
+    // Log
+    const logMessage = `Finish entry ${batch_number} was created by ${req.admin.username} on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry(
+      {
+        user_id: req.admin.id,
+        message: logMessage
+      },
+      { transaction }
+    );
+
+    // Notification
+    await createNotificationByRoleId(
+      {
+        title: "Dispatch Request",
+        message: `Finishing team has completed batch ${batch_number}. Ready for dispatch.`,
+        role_id: 8
+      },
+      { transaction }
+    );
+
+    // ✅ Commit all
+    await transaction.commit();
 
     return res.status(201).json({
       message: "Finishing entry created successfully.",
-      data: newEntry
+      data: {
+        finishingEntry,
+        finishRecords
+      }
     });
   } catch (error) {
+    await transaction.rollback(); // 🔥 rollback safety
     next(error);
   }
 };
 
 exports.updateFinishingEntry = async (req, res, next) => {
-  const { id } = req.params;
+  const transaction = await sequelize.transaction();
 
   try {
+    const { id } = req.params;
+    const { batch_number, finishing } = req.body;
+
+    if (!batch_number || !finishing?.length) {
+      const error = new Error("Batch number and finishing data are required.");
+      error.status = 400;
+      return next(error);
+    }
+
+    // FIND EXISTING
     const existing = await Finishing.findOne({
-      where: { batch_number: id }
+      where: { batch_number: id },
+      include: [{ model: FinishQty, as: "FinishQties" }],
+      transaction
     });
 
     if (!existing) {
@@ -467,24 +395,81 @@ exports.updateFinishingEntry = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    const user_id = req?.body?.user || existing?.user_id;
-    const user = await User.findByPk(user_id);
-    const username = user ? user.username : "Unknown User";
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
-    const logMessage = `finish entry  ${existing?.finishing} was updated by ${username} on ${entry_date} at ${entry_time}.`;
-    await createLogEntry({
-      user_id,
-      message: logMessage
-    });
-    await existing.update(req.body);
+
+    // UPDATE MAIN ENTRY
+    await existing.update(
+      {
+        batch_number,
+        user_id: req.admin.id
+      },
+      { transaction }
+    );
+
+    // EXISTING IDS
+    const existingIds = existing.FinishQties?.map((f) => f.id) || [];
+
+    const incomingIds = finishing.filter((f) => f.id).map((f) => f.id);
+
+    // DELETE REMOVED ROWS
+    const deleteIds = existingIds.filter((id) => !incomingIds.includes(id));
+
+    if (deleteIds.length) {
+      await FinishQty.destroy({
+        where: { id: deleteIds },
+        transaction
+      });
+    }
+
+    // CURRENT TIME
+    const { entry_date, entry_time } = getISTDateTime();
+    const dateTime = `${entry_date} ${entry_time}`;
+
+    // INSERT / UPDATE LOOP
+    for (const f of finishing) {
+      if (f.id) {
+        // UPDATE
+        await FinishQty.update(
+          {
+            finishing_qty: Number(f.finish_quantity),
+            unfinishing_qty: Number(f.unfinish_quantity)
+          },
+          {
+            where: { id: f.id },
+            transaction
+          }
+        );
+      } else {
+        // CREATE NEW ROW
+        await FinishQty.create(
+          {
+            finish_id: existing.id,
+            finishing_qty: Number(f.finish_quantity),
+            unfinishing_qty: Number(f.unfinish_quantity),
+            time: dateTime
+          },
+          { transaction }
+        );
+      }
+    }
+
+    // LOG ENTRY
+    const logMessage = `Finish entry ${batch_number} was updated by ${req.admin.username} on ${entry_date} at ${entry_time}.`;
+
+    await createLogEntry(
+      {
+        user_id: req.admin.id,
+        message: logMessage
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
 
     res.status(200).json({
-      message: "Finishing entry updated successfully.",
-      data: existing
+      message: "Finishing entry updated successfully."
     });
   } catch (error) {
+    await transaction.rollback();
     next(error);
   }
 };
