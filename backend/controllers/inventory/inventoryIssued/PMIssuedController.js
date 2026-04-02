@@ -5,7 +5,7 @@ const {
 const db = require("../../../models");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
-const { GrnEntry, PmCode, PMIssueModel } = db;
+const { GrnEntry, PmCode, PMIssueModel, Qcbatch, ProductionResult } = db;
 
 exports.getStorePM = async (req, res, next) => {
   try {
@@ -66,12 +66,38 @@ exports.saveIssuedPM = async (req, res, next) => {
 
     const data = await PMIssueModel.create({
       ...req.body,
+      user_id: req.admin.id,
       date: entry_date + entry_time
     });
     res.status(201).json({
       message: "PM issue successfully",
       data
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getBatches = async (req, res, next) => {
+  try {
+    const batches = await Qcbatch.findAll({
+      attributes: ["id", "qc_batch_number"],
+      include: [
+        {
+          model: ProductionResult,
+          as: "production_results",
+          required: true,
+          include: [
+            {
+              model: PmCode,
+              as: "pmcodes"
+            }
+          ]
+        }
+      ]
+    });
+
+    res.status(200).json({ message: "Issued PM Fetched", data: batches });
   } catch (error) {
     next(error);
   }
@@ -84,6 +110,9 @@ exports.getIssuePM = async (req, res, next) => {
         {
           model: PmCode,
           as: "issuePM"
+        },
+        {
+          model: Qcbatch
         }
       ]
     });

@@ -37,12 +37,15 @@ interface BmrDataType {
   id: number;
   quantity: string;
   person_name: string;
-  batch_no: string;
   date: string;
   issueRm?: {
     id: number;
     name: string;
     rm_code: string;
+  };
+  Qcbatch?: {
+    id: number;
+    qc_batch_number: string;
   };
 }
 
@@ -50,10 +53,6 @@ const columnHelper = createColumnHelper<BmrDataType>();
 
 const RmIssuedTable = () => {
   const dispatch = useDispatch<AppDispatch>();
-
-  const storeRawMaterial = useSelector(
-    (state: RootState) => state.rmissue.storerm,
-  ) as BmrDataType[];
 
   const issueRawMaterial = useSelector(
     (state: RootState) => state.rmissue.issueRawmaterial,
@@ -84,7 +83,6 @@ const RmIssuedTable = () => {
   ======================= */
   useEffect(() => {
     dispatch(getIssuedRawMaterial());
-    dispatch(getStoreRM());
   }, [dispatch]);
 
   /* =======================
@@ -147,9 +145,13 @@ const RmIssuedTable = () => {
       columnHelper.accessor('person_name', {
         header: 'Name of person',
       }),
-      columnHelper.accessor('batch_no', {
-        header: 'Batch',
+
+      columnHelper.accessor((row) => row.Qcbatch?.qc_batch_number, {
+        id: 'batch_id',
+        header: 'Batch No.',
+        cell: (info) => info.getValue() || '-',
       }),
+
       columnHelper.accessor('date', {
         header: 'Date',
       }),
@@ -260,12 +262,7 @@ const RmIssuedTable = () => {
 
       {modals.add && (
         <Portal>
-          <RmIssuedAdd
-            openModal={modals.add}
-            setOpenModal={() => handleModal('add', false)}
-            storeRawMaterial={storeRawMaterial}
-            logindata={logindata}
-          />
+          <RmIssuedAdd openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
         </Portal>
       )}
       {modals.edit && selectedRow && (
@@ -274,19 +271,13 @@ const RmIssuedTable = () => {
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
-            storeRawMaterial={storeRawMaterial}
-            logindata={logindata}
           />
         </Portal>
       )}
 
       {modals.view && (
         <Portal>
-          <CurrentStocks
-            openModal={modals.view}
-            setOpenModal={() => handleModal('view', false)}
-            storeRawMaterial={storeRawMaterial}
-          />
+          <CurrentStocks openModal={modals.view} setOpenModal={() => handleModal('view', false)} />
         </Portal>
       )}
     </div>

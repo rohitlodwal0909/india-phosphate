@@ -73,12 +73,10 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Qcbatch.hasOne(models.PMIssueModel, {
-      foreignKey: "batch_no",
-      sourceKey: "qc_batch_number"
+      foreignKey: "batch_id"
     });
     Qcbatch.hasOne(models.RMIssueModel, {
-      foreignKey: "batch_no",
-      sourceKey: "qc_batch_number"
+      foreignKey: "batch_id"
     });
   };
 

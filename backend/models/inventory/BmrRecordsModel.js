@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       mfg_start: DataTypes.STRING,
       mfg_complete: DataTypes.STRING,
       status: DataTypes.STRING,
+      remarks: DataTypes.STRING,
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

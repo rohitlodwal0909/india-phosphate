@@ -25,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      batch_no: {
-        type: DataTypes.STRING,
+      batch_id: {
+        type: DataTypes.INTEGER,
         allowNull: false
       },
       ref_no: {
@@ -70,8 +70,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     PMIssueModel.belongsTo(models.Qcbatch, {
-      foreignKey: "batch_no", // The field in ProductionResult
-      targetKey: "id" // The field in Qcbatch
+      foreignKey: "batch_id" // The field in ProductionResult
     });
   };
 

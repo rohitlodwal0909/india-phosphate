@@ -54,7 +54,7 @@ const BmrCreateTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+  const { logindata } = useSelector((state: RootState) => state.authentication) as any;
 
   /* ✅ Redux se direct array aa raha hai */
   const bmrRecords = useSelector((state: RootState) => state.bmrRecords.data) as BmrDataType[];
@@ -306,7 +306,6 @@ const BmrCreateTable = () => {
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
             StoreData={allBatch}
-            logindata={logindata}
           />
         </Portal>
       )}
@@ -317,7 +316,6 @@ const BmrCreateTable = () => {
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
             StoreData={allBatch}
-            logindata={logindata}
           />
         </Portal>
       )}

@@ -22,8 +22,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      batch_no: {
-        type: DataTypes.STRING,
+      batch_id: {
+        type: DataTypes.INTEGER,
         allowNull: false
       },
       date: {
@@ -57,8 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       as: "issueRm"
     });
     RMIssueModel.belongsTo(models.Qcbatch, {
-      foreignKey: "batch_no",
-      targetKey: "id"
+      foreignKey: "batch_id"
     });
   };
 

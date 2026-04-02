@@ -65,7 +65,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const QuotationRoutes = require("../routes/purchase/QuotationRoutes");
 
 router.use("/api", authRoutes);
-router.use("/api", BmrRoutes);
+router.use("/api", authMiddleware, BmrRoutes);
 router.use("/api", userRoutes);
 router.use("/api", guardRoutes);
 router.use("/api", grnRoutes);

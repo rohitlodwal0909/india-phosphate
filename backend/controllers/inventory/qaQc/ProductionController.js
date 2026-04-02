@@ -229,7 +229,8 @@ exports.getAllProductionResults = async (req, res, next) => {
               required: false,
               include: [
                 {
-                  model: FinishQty
+                  model: FinishQty,
+                  required: false
                 }
               ]
             },

@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       checked_status: {
-        type: DataTypes.ENUM("Yes", "No", "NA")
+        type: DataTypes.INTEGER
       }
     },
     {

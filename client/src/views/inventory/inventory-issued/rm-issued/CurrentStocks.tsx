@@ -1,12 +1,22 @@
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getStoreRM } from 'src/features/Inventorymodule/InventoryIssued/RMIssueSlice';
+import { AppDispatch, RootState } from 'src/store';
 
 type Props = {
   openModal: boolean;
   setOpenModal: (value: boolean) => void;
-  storeRawMaterial: any[];
 };
 
-const CurrentStocks = ({ openModal, setOpenModal, storeRawMaterial }: Props) => {
+const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const storeRawMaterial = useSelector((state: RootState) => state.rmissue.storerm) as any;
+
+  useEffect(() => {
+    dispatch(getStoreRM());
+  }, [dispatch]);
   return (
     <Modal size="3xl" show={openModal} position="center" onClose={() => setOpenModal(false)}>
       <ModalHeader className="pb-0 text-center mb-2 font-semibold text-gray-800">

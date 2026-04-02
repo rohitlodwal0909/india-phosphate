@@ -12,21 +12,13 @@ interface BmrEditProps {
   data: any; // selected row
   setOpenModal: (val: boolean) => void;
   StoreData: any;
-  logindata: any;
 }
 
-const BmrEdit: React.FC<BmrEditProps> = ({
-  openModal,
-  data,
-  setOpenModal,
-  StoreData,
-  logindata,
-}) => {
+const BmrEdit: React.FC<BmrEditProps> = ({ openModal, data, setOpenModal, StoreData }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
     id: '',
-    user_id: logindata?.admin?.id,
     bmr_product_id: '',
     batch_no: '',
     mfg_date: '',
@@ -45,9 +37,8 @@ const BmrEdit: React.FC<BmrEditProps> = ({
     if (data) {
       setFormData({
         id: data.id,
-        user_id: logindata?.admin?.id,
-        bmr_product_id: data.bmr_product_id,
-        batch_no: data.batch_no,
+        product_name: data.product_name,
+        batch_id: data.batch_id,
         mfg_date: data.mfg_date,
         exp_date: data.exp_date,
         mfg_start: data.mfg_start,
@@ -55,8 +46,9 @@ const BmrEdit: React.FC<BmrEditProps> = ({
         remarks: data.remarks || '',
       });
     }
-  }, [data, logindata]);
+  }, [data]);
 
+  console.log(data);
   /* =======================
      INPUT HANDLER
   ======================= */
@@ -69,10 +61,13 @@ const BmrEdit: React.FC<BmrEditProps> = ({
   /* =======================
      PRODUCT OPTIONS
   ======================= */
-  const productOptions =
+  const batchOptions =
     StoreData?.map((item: any) => ({
-      value: item.id,
-      label: item.product_name,
+      value: item.id, // product / batch id
+      label: item.qc_batch_number, // Batch No
+      product_name: item.product_name,
+      mfg_date: item.mfg_date,
+      exp_date: item.exp_date,
     })) || [];
 
   /* =======================
@@ -98,23 +93,27 @@ const BmrEdit: React.FC<BmrEditProps> = ({
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* PRODUCT */}
           <div className="col-span-6">
-            <Label value="Product Name" />
+            <Label value="Batch No" />
             <Select
-              options={productOptions}
-              value={productOptions.find((opt: any) => opt.value === formData.bmr_product_id)}
-              onChange={(selected: any) =>
+              options={batchOptions}
+              value={batchOptions.find((opt: any) => opt.value === formData.batch_id) || null}
+              onChange={(selected: any) => {
                 setFormData({
                   ...formData,
-                  bmr_product_id: selected?.value,
-                })
-              }
+                  batch_id: selected?.value,
+                  product_name: selected?.product_name,
+                  mfg_date: selected?.mfg_date,
+                  exp_date: selected?.exp_date,
+                });
+                setErrors({ ...errors, batch_id: '' });
+              }}
             />
           </div>
 
           {/* BATCH NO */}
           <div className="col-span-6">
-            <Label value="Batch No" />
-            <TextInput name="batch_no" value={formData.batch_no} onChange={handleChange} />
+            <Label value="Product Name" />
+            <TextInput name="product_name" value={formData.product_name} onChange={handleChange} />
           </div>
 
           {/* MFG DATE */}

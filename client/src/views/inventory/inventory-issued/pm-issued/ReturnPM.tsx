@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Label, TextInput } from 'flowbite-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { AppDispatch } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 
 import {
   getIssuedPM,
@@ -14,11 +14,16 @@ interface IssuedEditProps {
   openModal: boolean;
   data: any; // selected row
   setOpenModal: (val: boolean) => void;
-  StoreData: any;
 }
 
-const ReturnPM: React.FC<IssuedEditProps> = ({ openModal, data, setOpenModal, StoreData }) => {
+const ReturnPM: React.FC<IssuedEditProps> = ({ openModal, data, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const StoreData = useSelector((state: RootState) => state.pmissue.storepm) as any;
+
+  useEffect(() => {
+    dispatch(getStorePM());
+  }, [dispatch]);
 
   const [formData, setFormData] = useState<any>({
     id: '',

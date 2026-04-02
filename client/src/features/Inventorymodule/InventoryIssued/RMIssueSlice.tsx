@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   storerm: [],
   issueRawmaterial: [],
+  batches: [],
   data: null,
   addResult: null,
   update: null,
@@ -15,6 +16,20 @@ const initialState = {
 export const getStoreRM = createAsyncThunk('issue/store-rm', async (_, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.get(`/get-store-rm`);
+    return response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Something went wrong while fetching check-ins.';
+    return rejectWithValue(message);
+  }
+});
+
+export const getIssuedBatch = createAsyncThunk('issue/batches', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get(`/get-issued-batches`);
     return response.data;
   } catch (error) {
     const message =
@@ -110,6 +125,19 @@ const RMIssueSlice = createSlice({
         state.storerm = action.payload.data;
       })
       .addCase(getStoreRM.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(getIssuedBatch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getIssuedBatch.fulfilled, (state, action) => {
+        state.loading = false;
+        state.batches = action.payload.data;
+      })
+      .addCase(getIssuedBatch.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

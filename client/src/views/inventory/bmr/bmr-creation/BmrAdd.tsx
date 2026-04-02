@@ -5,19 +5,18 @@ import { AppDispatch } from 'src/store';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 import { saveBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import { GetAllQcbatch } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 interface BmrAddProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   StoreData: any[];
-  logindata: any;
 }
 
-const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, logindata }) => {
+const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
-    user_id: logindata?.admin?.id,
     batch_id: '',
     product_name: '',
     mfg_date: '',
@@ -67,9 +66,8 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData, log
       const res = await dispatch(saveBmrRecord(formData)).unwrap();
       if (res) {
         toast.success('BMR Added Successfully');
-
+        dispatch(GetAllQcbatch());
         setFormData({
-          user_id: logindata?.admin?.id,
           batch_id: '',
           product_name: '',
           mfg_date: '',

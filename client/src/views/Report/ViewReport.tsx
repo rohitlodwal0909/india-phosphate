@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetrawMaterial } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import html2pdf from 'html2pdf.js';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
+// import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
 import { Icon } from '@iconify/react';
 import { AppDispatch } from 'src/store';
 const ViewReport = () => {
@@ -13,7 +13,7 @@ const ViewReport = () => {
   const location = useLocation();
 
   const qcentry = location.state || [];
-  const isPM = qcentry?.type === 'pm';
+  const isPM = qcentry?.type == 'pm';
 
   const dispatch = useDispatch<AppDispatch>();
   const reportRef = useRef(null);
@@ -21,10 +21,13 @@ const ViewReport = () => {
 
   const type1Tests = Rawmaterialrmcode?.filter((item) => item.type == 1);
 
+  console.log(type1Tests);
+
   const type2Tests = Rawmaterialrmcode?.filter((item) => item.type == 2);
 
   const getResultValue = (item: any) => {
     const results = isPM ? item?.pmresult : item?.qc_results;
+
     if (!Array.isArray(results) || !results.length) return 'fail';
 
     return qcentry?.qa_qc_status === 'APPROVED' ? results[0]?.result_value : 'fail';
@@ -47,15 +50,15 @@ const ViewReport = () => {
       }
     };
     fetchStoreData();
-    const fetchData = async () => {
-      try {
-        dispatch(GetStoremodule());
-      } catch (error) {
-        console.error('Unexpected Error:', error);
-      }
-    };
+    // const fetchData = async () => {
+    //   try {
+    //     dispatch(GetStoremodule());
+    //   } catch (error) {
+    //     console.error('Unexpected Error:', error);
+    //   }
+    // };
 
-    fetchData();
+    // fetchData();
   }, [dispatch, id]);
 
   return (

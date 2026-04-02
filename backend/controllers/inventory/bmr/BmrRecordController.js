@@ -28,7 +28,8 @@ exports.index = async (req, res, next) => {
 exports.store = async (req, res, next) => {
   try {
     const data = await BmrRecordsModel.create({
-      ...req.body
+      ...req.body,
+      user_id: req.admin.id
     });
 
     res.status(201).json({

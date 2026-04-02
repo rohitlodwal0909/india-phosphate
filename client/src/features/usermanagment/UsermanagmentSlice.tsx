@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
@@ -14,7 +15,7 @@ const initialState = {
 
 export const GetUsermodule = createAsyncThunk('users/fetch', async (_, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/user/all`);
+    const response = await axiosInstance.get(`/user/all`);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';

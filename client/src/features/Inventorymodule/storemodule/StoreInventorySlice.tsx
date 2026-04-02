@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
@@ -13,7 +12,7 @@ const initialState = {
 
 export const GetStoremodule = createAsyncThunk('stores/fetch', async (_, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/grn-entries`);
+    const response = await axiosInstance.get(`/grn-entries`);
     return response.data;
   } catch (error) {
     // error.response?.data ya error.message ko rejectWithValue karo
@@ -26,7 +25,7 @@ export const GetStoremodule = createAsyncThunk('stores/fetch', async (_, thunkAP
 export const addStore = createAsyncThunk('stores/add', async (newStore: any, thunkAPI) => {
   try {
     console.log(newStore);
-    const response = await axios.post(`${apiUrl}/grn-entries`, newStore);
+    const response = await axiosInstance.post(`/grn-entries`, newStore);
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(
@@ -37,7 +36,7 @@ export const addStore = createAsyncThunk('stores/add', async (newStore: any, thu
 
 export const ShowStore = createAsyncThunk('stores/update', async (ShowStore, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/grn-entries/${ShowStore}`);
+    const response = await axiosInstance.get(`/grn-entries/${ShowStore}`);
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(
@@ -52,7 +51,7 @@ export const deleteStore = createAsyncThunk<
   { rejectValue: any }
 >('stores/delete', async ({ id, user_id }, thunkAPI) => {
   try {
-    await axios.delete(`${apiUrl}/grn-entries/${id}`, {
+    await axiosInstance.delete(`/grn-entries/${id}`, {
       data: { user_id },
     });
     return id;

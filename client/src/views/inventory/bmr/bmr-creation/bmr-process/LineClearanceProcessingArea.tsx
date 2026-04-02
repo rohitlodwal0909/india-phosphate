@@ -108,14 +108,6 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly, equipm
 
   /* ================= INITIAL ROWS ================= */
   const initialEquipmentRows = useMemo(() => {
-    const middleRows = equipmentsFromBmr.map((eq) => ({
-      equipmentId: eq.id || eq,
-      equipmentName: eq.name || eq,
-      date: '',
-      doneBy: null,
-      production: null,
-      qa: null,
-    }));
     const statics = joinedEquipments.map((eq) => ({
       equipmentId: eq.equipment_id,
       equipmentName: eq.equipmentName,
@@ -136,7 +128,6 @@ const LineClearanceProcessingArea = ({ bmr, users = [], data, isReadOnly, equipm
         qa: null,
       },
 
-      ...middleRows,
       ...statics,
 
       {

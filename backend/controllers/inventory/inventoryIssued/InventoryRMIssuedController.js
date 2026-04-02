@@ -5,7 +5,7 @@ const {
 const db = require("../../../models");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
-const { GrnEntry, RmCode, RMIssueModel } = db;
+const { GrnEntry, RmCode, RMIssueModel, Qcbatch, ProductionResult } = db;
 
 exports.getStoreRM = async (req, res, next) => {
   try {
@@ -61,6 +61,7 @@ exports.saveIssuedRM = async (req, res, next) => {
 
     const data = await RMIssueModel.create({
       ...req.body,
+      user_id: req.admin.id,
       date: entry_date + entry_time
     });
 
@@ -80,6 +81,10 @@ exports.getIssuedRM = async (req, res, next) => {
         {
           model: RmCode,
           as: "issueRm"
+        },
+        {
+          model: Qcbatch,
+          attributes: ["id", "qc_batch_number"]
         }
       ]
     });
@@ -87,6 +92,31 @@ exports.getIssuedRM = async (req, res, next) => {
     res
       .status(200)
       .json({ message: "Issued Raw Material Fetched", data: data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getBatches = async (req, res, next) => {
+  try {
+    const batches = await Qcbatch.findAll({
+      attributes: ["id", "qc_batch_number"],
+      include: [
+        {
+          model: ProductionResult,
+          as: "production_results",
+          required: true,
+          include: [
+            {
+              model: RmCode,
+              as: "rmcodes"
+            }
+          ]
+        }
+      ]
+    });
+
+    res.status(200).json({ message: "Issued PM Fetched", data: batches });
   } catch (error) {
     next(error);
   }

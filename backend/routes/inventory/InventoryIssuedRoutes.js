@@ -27,11 +27,13 @@ router.post("/issued-raw-material", IssuedRMController.saveIssuedRM);
 router.get("/get-issued-raw-material", IssuedRMController.getIssuedRM);
 router.delete("/issued-delete-rm/:id", IssuedRMController.deleteIssuedRM);
 router.post("/update-issued-rm", IssuedRMController.updateIssuedRM);
+router.get("/get-issued-batches", IssuedRMController.getBatches);
 
 // PM Issued Routes
 
 router.get("/get-store-pm", PMController.getStorePM);
 router.post("/issued-pm", PMController.saveIssuedPM);
+router.get("/get-production-batches", PMController.getBatches);
 router.get("/get-issued-pm", PMController.getIssuePM);
 router.delete("/issued-delete-pm/:id", PMController.deleteIssuedPM);
 router.post("/update-issued-pm", PMController.updateIssuedPM);

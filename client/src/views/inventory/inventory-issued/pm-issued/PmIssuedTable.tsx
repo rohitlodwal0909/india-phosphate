@@ -21,8 +21,8 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import RmIssuedAdd from './PmIssuedAdd';
-import RmIssuedEdit from './PmIssuedEdit';
+import PmIssuedAdd from './PmIssuedAdd';
+import PmIssuedEdit from './PmIssuedEdit';
 import {
   deleteIssuedPM,
   getIssuedPM,
@@ -38,7 +38,6 @@ interface BmrDataType {
   id: number;
   quantity: string;
   person_name: string;
-  batch_no: string;
   ref_no: string;
   issued_bag: string;
   return_bag: number;
@@ -47,16 +46,16 @@ interface BmrDataType {
     id: number;
     name: string;
   };
+  Qcbatch?: {
+    id: number;
+    qc_batch_number: string;
+  };
 }
 
 const columnHelper = createColumnHelper<BmrDataType>();
 
-const RmIssuedTable = () => {
+const PmIssuedTable = () => {
   const dispatch = useDispatch<AppDispatch>();
-
-  const storeRawMaterial = useSelector(
-    (state: RootState) => state.pmissue.storepm,
-  ) as BmrDataType[];
 
   const issueRawMaterial = useSelector(
     (state: RootState) => state.pmissue.issuePM,
@@ -88,7 +87,6 @@ const RmIssuedTable = () => {
   ======================= */
   useEffect(() => {
     dispatch(getIssuedPM());
-    dispatch(getStorePM());
   }, [dispatch]);
 
   /* =======================
@@ -140,6 +138,11 @@ const RmIssuedTable = () => {
       columnHelper.accessor('date', {
         header: 'Date',
       }),
+      columnHelper.accessor((row) => row.Qcbatch?.qc_batch_number, {
+        id: 'batch_id',
+        header: 'Batch No.',
+        cell: (info) => info.getValue() || '-',
+      }),
 
       columnHelper.accessor((row) => row.issuePM?.name, {
         id: 'product_name',
@@ -149,9 +152,7 @@ const RmIssuedTable = () => {
       columnHelper.accessor('ref_no', {
         header: 'Reference No.',
       }),
-      columnHelper.accessor('batch_no', {
-        header: 'Batch',
-      }),
+
       columnHelper.accessor('quantity', {
         header: 'Total Printed bag',
       }),
@@ -292,22 +293,15 @@ const RmIssuedTable = () => {
 
       {modals.add && (
         <Portal>
-          <RmIssuedAdd
-            openModal={modals.add}
-            setOpenModal={() => handleModal('add', false)}
-            storeRawMaterial={storeRawMaterial}
-            logindata={logindata}
-          />
+          <PmIssuedAdd openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
         </Portal>
       )}
       {modals.edit && selectedRow && (
         <Portal>
-          <RmIssuedEdit
+          <PmIssuedEdit
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
-            storeRawMaterial={storeRawMaterial}
-            logindata={logindata}
           />
         </Portal>
       )}
@@ -318,22 +312,17 @@ const RmIssuedTable = () => {
             openModal={modals.return}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('return', false)}
-            StoreData={storeRawMaterial}
           />
         </Portal>
       )}
 
       {modals.view && (
         <Portal>
-          <CurrentStocks
-            openModal={modals.view}
-            setOpenModal={() => handleModal('view', false)}
-            storeRawMaterial={storeRawMaterial}
-          />
+          <CurrentStocks openModal={modals.view} setOpenModal={() => handleModal('view', false)} />
         </Portal>
       )}
     </div>
   );
 };
 
-export default RmIssuedTable;
+export default PmIssuedTable;

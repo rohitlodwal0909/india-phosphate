@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../../constants/contant.tsx';
+import axiosInstance from 'src/constants/axiosInstance.tsx';
 
 const initialState = {
   loading: false,
@@ -15,7 +14,7 @@ export const GetCheckinmodule = createAsyncThunk(
   'checkins/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/guard-entries`);
+      const response = await axiosInstance.get(`/guard-entries`);
       return response.data;
     } catch (error) {
       const message =
@@ -32,7 +31,7 @@ export const addCheckin = createAsyncThunk(
   'checkins/add',
   async (newCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/guard-entries`, newCheckin);
+      const response = await axiosInstance.post(`/guard-entries`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
@@ -54,8 +53,8 @@ export const updateCheckin = createAsyncThunk(
   'checkins/update',
   async (updatedCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/guard-entries/${updatedCheckin.id}`,
+      const response = await axiosInstance.put(
+        `/guard-entries/${updatedCheckin.id}`,
         updatedCheckin,
       );
       return response.data;
@@ -71,7 +70,7 @@ export const deleteCheckin = createAsyncThunk<
   { rejectValue: any }
 >('checkins/delete', async ({ id, user_id }, { rejectWithValue }) => {
   try {
-    await axios.delete(`${apiUrl}/guard-entries/${id}`, {
+    await axiosInstance.delete(`/guard-entries/${id}`, {
       data: { user_id },
     });
     return id;

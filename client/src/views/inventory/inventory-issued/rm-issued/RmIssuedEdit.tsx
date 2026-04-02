@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Label, TextInput } from 'flowbite-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 
-import { AppDispatch } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 import {
+  getIssuedBatch,
   getIssuedRawMaterial,
   getStoreRM,
   updateIssuedRawMaterial, // 👈 agar separate update action ho to use replace karein
@@ -15,50 +16,71 @@ interface PmIssuedEditProps {
   openModal: boolean;
   data: any; // selected row
   setOpenModal: (val: boolean) => void;
-  storeRawMaterial: any[];
-  logindata: any;
 }
 
-const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
-  openModal,
-  data,
-  setOpenModal,
-  storeRawMaterial,
-  logindata,
-}) => {
+const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({ openModal, data, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const batches = useSelector((state: RootState) => state.rmissue.batches) as any;
 
   const [formData, setFormData] = useState<any>({
     id: '',
-    user_id: logindata?.admin?.id,
     rm_id: '',
     quantity: '',
     person_name: '',
-    batch_no: '',
+    batch_id: '',
   });
 
   const [errors, setErrors] = useState<any>({});
   const [maxQuantity, setMaxQuantity] = useState<number>(0);
+  const [rmList, setRmList] = useState<any[]>([]);
 
   /* =======================
      PREFILL FORM
   ======================= */
+
   useEffect(() => {
-    if (data) {
+    if (data && batches?.length) {
+      const selectedBatch = batches.find((b: any) => b.id === data.batch_id);
+
+      const production = selectedBatch?.production_results || [];
+
+      setRmList(production);
+
+      const selectedRM = production.find((p: any) => p.rm_code == data.rm_id);
+
       setFormData({
         id: data.id,
-        user_id: logindata?.admin?.id,
+        batch_id: data.batch_id,
         rm_id: data.rm_id,
         quantity: data.quantity,
         person_name: data.person_name,
-        batch_no: data.batch_no,
       });
 
-      const storeItem = storeRawMaterial?.find((i: any) => i.id === data.issueRm?.id);
+      // ✅ EDIT SAFE MAX
+      const producedQty = Number(selectedRM?.rm_quantity || 0);
+      // const alreadyIssued = Number(data.quantity || 0);
 
-      setMaxQuantity((storeItem?.total_quantity || 0) + Number(data.quantity));
+      setMaxQuantity(producedQty);
     }
-  }, [data, storeRawMaterial, logindata]);
+  }, [data, batches]);
+
+  useEffect(() => {
+    dispatch(getIssuedBatch());
+  }, [dispatch]);
+
+  const BatchOptions =
+    batches?.map((item) => ({
+      value: item.id,
+      label: item.qc_batch_number,
+      production_results: item.production_results,
+    })) || [];
+
+  const pmOptions =
+    rmList?.map((item) => ({
+      value: item.rm_code,
+      label: item.rmcodes?.rm_code,
+      maxQty: Number(item.rm_quantity),
+    })) || [];
 
   /* =======================
      INPUT CHANGE
@@ -69,16 +91,9 @@ const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
     setErrors({ ...errors, [name]: '' });
   };
 
-  console.log(storeRawMaterial);
   /* =======================
      RM OPTIONS
   ======================= */
-  const rmOptions =
-    storeRawMaterial?.map((item) => ({
-      value: item.id,
-      label: item.name,
-      total_quantity: item.total_quantity,
-    })) || [];
 
   /* =======================
      UPDATE SUBMIT
@@ -86,7 +101,7 @@ const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = ['rm_id', 'quantity', 'person_name', 'batch_no'];
+    const requiredFields = ['rm_id', 'quantity', 'person_name', 'batch_id'];
     const newErrors: any = {};
 
     requiredFields.forEach((field) => {
@@ -129,29 +144,38 @@ const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* RM */}
           <div className="sm:col-span-6 col-span-12">
+            <Label value="Batch No." />
+            <Select
+              options={BatchOptions}
+              value={BatchOptions.find((opt) => opt.value === formData.batch_id) || null}
+              onChange={(selected: any) => {
+                // Batch set
+                setFormData({
+                  ...formData,
+                  batch_id: selected?.value,
+                  rm_id: '',
+                });
+                setRmList(selected?.production_results || []);
+                setMaxQuantity(0);
+                setErrors({ ...errors, batch_id: '' });
+              }}
+            />
+            {errors.batch_id && <span className="text-red-500 text-sm">{errors.batch_id}</span>}
+          </div>
+
+          {/* PRODUCT */}
+          <div className="sm:col-span-6 col-span-12">
             <Label value="Product Name" />
             <Select
-              options={rmOptions}
-              value={rmOptions.find((opt) => opt.value === formData.rm_id) || null}
+              options={pmOptions}
+              value={pmOptions.find((opt) => opt.value == formData.rm_id) || null}
               onChange={(selected: any) => {
                 setFormData({ ...formData, rm_id: selected?.value });
-                setMaxQuantity(selected?.total_quantity || 0);
+                setMaxQuantity(selected?.maxQty || 0);
                 setErrors({ ...errors, rm_id: '' });
               }}
             />
             {errors.rm_id && <span className="text-red-500 text-sm">{errors.rm_id}</span>}
-          </div>
-
-          {/* QUANTITY */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value={`Quantity (Max ${maxQuantity})`} />
-            <TextInput
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-            />
-            {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
           </div>
 
           {/* PERSON */}
@@ -165,9 +189,9 @@ const PmIssuedEdit: React.FC<PmIssuedEditProps> = ({
 
           {/* BATCH */}
           <div className="sm:col-span-6 col-span-12">
-            <Label value="Batch No." />
-            <TextInput name="batch_no" value={formData.batch_no} onChange={handleChange} />
-            {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
+            <Label value={`Quantity (Max ${maxQuantity})`} />
+            <TextInput name="quantity" value={formData.quantity} onChange={handleChange} />
+            {errors.quantity && <span className="text-red-500 text-sm">{errors.quantity}</span>}
           </div>
 
           {/* ACTIONS */}

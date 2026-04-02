@@ -1,43 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Label, TextInput } from 'flowbite-react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from 'src/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 import {
   getIssuedPM,
-  getStorePM,
+  getProductionBatch,
   issuedPM,
 } from 'src/features/Inventorymodule/InventoryIssued/PMIssueSlice';
 
 interface PmIssuedAddProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-  storeRawMaterial: any[];
-  logindata: any;
 }
 
-const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
-  openModal,
-  setOpenModal,
-  storeRawMaterial,
-  logindata,
-}) => {
+const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const batches = useSelector((state: RootState) => state.pmissue.batches) as any;
+
   const [formData, setFormData] = useState<any>({
-    user_id: logindata?.admin?.id,
     pm_id: '',
     quantity: '',
     issued_bag: '',
     ref_no: '',
     person_name: '',
-    batch_no: '',
-    date: '',
+    batch_id: '',
   });
 
   const [errors, setErrors] = useState<any>({});
   const [maxQuantity, setMaxQuantity] = useState<number>(0);
+  const [pmList, setPmList] = useState<any[]>([]);
+
+  useEffect(() => {
+    dispatch(getProductionBatch());
+  }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,17 +49,24 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
     setErrors({ ...errors, [name]: '' });
   };
 
-  const rmOptions =
-    storeRawMaterial?.map((item) => ({
+  const BatchOptions =
+    batches?.map((item) => ({
       value: item.id,
-      label: item.name,
-      total_quantity: item.total_quantity,
+      label: item.qc_batch_number,
+      production_results: item.production_results,
+    })) || [];
+
+  const pmOptions =
+    pmList?.map((item) => ({
+      value: item.pm_code,
+      label: item.pmcodes?.name,
+      maxQty: Number(item.pm_quantity),
     })) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = ['pm_id', 'quantity', 'issued_bag', 'person_name', 'ref_no', 'batch_no'];
+    const requiredFields = ['pm_id', 'quantity', 'issued_bag', 'person_name', 'ref_no', 'batch_id'];
 
     const newErrors: any = {};
 
@@ -95,13 +100,12 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
       toast.success('PM issued successfully');
 
       setFormData({
-        user_id: logindata?.admin?.id,
         pm_id: '',
         quantity: '',
         issued_bag: '',
         ref_no: '',
         person_name: '',
-        batch_no: '',
+        batch_id: '',
         date: '',
       });
 
@@ -109,12 +113,12 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
       setOpenModal(false);
 
       dispatch(getIssuedPM());
-      dispatch(getStorePM());
     } catch (err: any) {
       toast.error(err?.message || 'Failed to issue PM');
     }
   };
 
+  console.log(BatchOptions);
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
       <Modal.Header>PM Issued</Modal.Header>
@@ -122,14 +126,35 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* PRODUCT */}
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Batch No." />
+            <Select
+              options={BatchOptions}
+              value={BatchOptions.find((opt) => opt.value === formData.batch_id) || null}
+              onChange={(selected: any) => {
+                // Batch set
+                setFormData({
+                  ...formData,
+                  batch_id: selected?.value,
+                  pm_id: '',
+                });
+                setPmList(selected?.production_results || []);
+                setMaxQuantity(0);
+                setErrors({ ...errors, batch_id: '' });
+              }}
+            />
+            {errors.batch_id && <span className="text-red-500 text-sm">{errors.batch_id}</span>}
+          </div>
+
           <div className="sm:col-span-6 col-span-12">
             <Label value="Product Name" />
             <Select
-              options={rmOptions}
-              value={rmOptions.find((opt) => opt.value === formData.pm_id) || null}
+              options={pmOptions}
+              value={pmOptions.find((opt) => opt.value === formData.pm_id) || null}
               onChange={(selected: any) => {
                 setFormData({ ...formData, pm_id: selected?.value });
-                setMaxQuantity(selected?.total_quantity || 0);
+                setMaxQuantity(selected?.maxQty || 0);
                 setErrors({ ...errors, pm_id: '' });
               }}
             />
@@ -174,18 +199,6 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({
             {errors.person_name && (
               <span className="text-red-500 text-sm">{errors.person_name}</span>
             )}
-          </div>
-
-          {/* BATCH */}
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Batch No." />
-            <TextInput
-              name="batch_no"
-              placeholder="Enter Batch No."
-              value={formData.batch_no}
-              onChange={handleChange}
-            />
-            {errors.batch_no && <span className="text-red-500 text-sm">{errors.batch_no}</span>}
           </div>
 
           {/* QC REF */}

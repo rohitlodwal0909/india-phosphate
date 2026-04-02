@@ -1,26 +1,14 @@
 import { Accordion, Button, TextInput, Table, Select } from 'flowbite-react';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { saveEquipmentList } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import { toast } from 'react-toastify';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
-const Listofequipement = ({ bmr, data, isReadOnly }) => {
+const Listofequipement = ({ data, isReadOnly }) => {
   const { id } = useParams();
   const dispatch = useDispatch<any>();
-
-  /* ================= DEFAULT EQUIPMENTS FROM BMR ================= */
-  const equipments = useMemo(() => {
-    return (
-      bmr?.records?.production_results
-        ?.filter((item) => item?.equipment)
-        ?.map((item) => ({
-          id: item.equipment.id,
-          name: item.equipment.name,
-        })) || []
-    );
-  }, [bmr]);
 
   /* ================= ADDITIONAL EQUIPMENTS ================= */
   const additionalEquipmentsNames = [
@@ -60,22 +48,20 @@ const Listofequipement = ({ bmr, data, isReadOnly }) => {
     if (data?.length) {
       const mapped = data.map((item) => ({
         id: item?.id || null,
-        equipment_id: item?.equipment_id,
+        equipment_id: item?.equipment_id || '',
         equipment_no: item?.equipment_no || '',
-        isDefault: equipments.some((eq) => String(eq.id) === String(item?.equipment_id)),
       }));
       setRows(mapped);
-    } else if (equipments.length) {
-      // Auto create rows from default equipments
-      const defaultRows = equipments.map((eq) => ({
-        id: null,
-        equipment_id: eq.id,
-        equipment_no: '',
-        isDefault: true,
-      }));
-      setRows(defaultRows);
+    } else {
+      setRows([
+        {
+          id: null,
+          equipment_id: '',
+          equipment_no: '',
+        },
+      ]);
     }
-  }, [data, equipments]);
+  }, [data]);
 
   /* ================= HANDLE CHANGE ================= */
   const handleChange = (index: number, field: string, value: string) => {
@@ -92,15 +78,12 @@ const Listofequipement = ({ bmr, data, isReadOnly }) => {
         id: null,
         equipment_id: '',
         equipment_no: '',
-        isDefault: false,
       },
     ]);
   };
 
   /* ================= DELETE ROW ================= */
   const handleDeleteRow = (index: number) => {
-    if (rows[index].isDefault) return; // default row delete nahi hoga
-
     const updated = [...rows];
     updated.splice(index, 1);
     setRows(updated);
@@ -151,26 +134,15 @@ const Listofequipement = ({ bmr, data, isReadOnly }) => {
                         <Table.Cell>
                           <Select
                             value={row?.equipment_id}
-                            disabled={row?.isDefault} // default change nahi hoga
                             onChange={(e) => handleChange(index, 'equipment_id', e.target.value)}
                           >
                             <option value="">Select Equipment</option>
 
-                            {/* Default Equipment (show but fixed) */}
-                            {row?.isDefault &&
-                              equipments.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                  {item.name}
-                                </option>
-                              ))}
-
-                            {/* Additional Equipment for new rows */}
-                            {!row?.isDefault &&
-                              additionalEquipments.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                  {item.name}
-                                </option>
-                              ))}
+                            {additionalEquipments.map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))}
                           </Select>
                         </Table.Cell>
 
@@ -185,15 +157,9 @@ const Listofequipement = ({ bmr, data, isReadOnly }) => {
 
                         {/* Delete */}
                         <Table.Cell>
-                          {!row?.isDefault && (
-                            <Button
-                              size="xs"
-                              color="failure"
-                              onClick={() => handleDeleteRow(index)}
-                            >
-                              <Icon icon="material-symbols:delete-outline" />
-                            </Button>
-                          )}
+                          <Button size="xs" color="failure" onClick={() => handleDeleteRow(index)}>
+                            <Icon icon="material-symbols:delete-outline" />
+                          </Button>
                         </Table.Cell>
                       </Table.Row>
                     ))}
@@ -201,14 +167,12 @@ const Listofequipement = ({ bmr, data, isReadOnly }) => {
                 </Table>
               </div>
 
-              {/* Add Button */}
               <div className="mt-4">
                 <Button color="success" onClick={handleAddRow}>
                   + Add New Row
                 </Button>
               </div>
 
-              {/* Footer */}
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                 <Button color="gray">Cancel</Button>
                 <Button color="primary" onClick={handleSubmit}>

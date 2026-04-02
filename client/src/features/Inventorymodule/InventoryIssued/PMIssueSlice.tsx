@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   storepm: [],
   issuePM: [],
+  batches: [],
   data: null,
   addResult: null,
   update: null,
@@ -53,6 +54,23 @@ export const getIssuedPM = createAsyncThunk('issue/pm', async (_, { rejectWithVa
     return rejectWithValue(message);
   }
 });
+
+export const getProductionBatch = createAsyncThunk(
+  'issue/batches',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/get-production-batches`);
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        'Something went wrong while fetching check-ins.';
+      return rejectWithValue(message);
+    }
+  },
+);
 
 export const deleteIssuedPM = createAsyncThunk(
   'issue/delete-pm',
@@ -147,6 +165,20 @@ const PMIssueSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+
+      .addCase(getProductionBatch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProductionBatch.fulfilled, (state, action) => {
+        state.loading = false;
+        state.batches = action.payload.data;
+      })
+      .addCase(getProductionBatch.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
       .addCase(deleteIssuedPM.pending, (state) => {
         state.loading = true;
         state.error = null;

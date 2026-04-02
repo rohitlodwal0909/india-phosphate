@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from 'src/constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
@@ -13,7 +12,7 @@ const initialState = {
 
 export const GetBmrRecords = createAsyncThunk('Bmr/record', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get(`${apiUrl}/get-bmr-records`);
+    const response = await axiosInstance.get(`/get-bmr-records`);
     return response.data;
   } catch (error) {
     const message =
@@ -29,7 +28,7 @@ export const saveBmrRecord = createAsyncThunk(
   'Bmr/save',
   async (newCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/save-bmr-record`, newCheckin);
+      const response = await axiosInstance.post(`/save-bmr-record`, newCheckin);
       return response.data;
     } catch (error) {
       // Optional: Log for debugging
@@ -51,7 +50,7 @@ export const updateLineClearance = createAsyncThunk(
   'Bmr/lineUpdate',
   async ({ id, payload }: { id: number; payload: any }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${apiUrl}/update-bmr-line-clearance/${id}`, payload);
+      const response = await axiosInstance.put(`/update-bmr-line-clearance/${id}`, payload);
 
       return response.data;
     } catch (error: any) {
@@ -68,7 +67,7 @@ export const getLineClearance = createAsyncThunk(
   'Bmr/line',
   async (recordId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/get-line-clearance/` + recordId);
+      const response = await axiosInstance.get(`/get-line-clearance/` + recordId);
       return response.data;
     } catch (error) {
       const message =
@@ -85,8 +84,8 @@ export const updateBmrRecord = createAsyncThunk(
   'Bmr/update',
   async (updatedCheckin: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/update-bmr-record/${updatedCheckin.id}`,
+      const response = await axiosInstance.put(
+        `/update-bmr-record/${updatedCheckin.id}`,
         updatedCheckin,
       );
       return response.data;
@@ -100,7 +99,7 @@ export const deleteBmrRecord = createAsyncThunk(
   'Bmr/delete',
   async (checkinId: any, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/delete-bmr-record/${checkinId}`);
+      await axiosInstance.delete(`/delete-bmr-record/${checkinId}`);
       return checkinId;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
