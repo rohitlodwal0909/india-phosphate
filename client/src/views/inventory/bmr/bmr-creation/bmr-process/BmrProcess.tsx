@@ -67,7 +67,6 @@ const BmrProcess = () => {
             isReadOnly={Boolean(bmrreport?.lineClearance)}
           />
           <Listofequipement
-            bmr={bmr}
             data={bmrreport?.equipmentno}
             isReadOnly={Boolean(bmrreport?.dispensingRm?.length > 0)}
           />
