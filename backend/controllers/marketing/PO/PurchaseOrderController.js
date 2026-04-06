@@ -140,6 +140,57 @@ exports.updateWorkOrderStatus = async (req, res) => {
   }
 };
 
+exports.paymentApproved = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Find Purchase Order
+    const po = await PurchaseOrderModel.findByPk(id);
+
+    if (!po) {
+      return res.status(404).json({
+        success: false,
+        message: "Purchase Order not found"
+      });
+    }
+
+    // Update Status
+    await po.update({ payment_status: status });
+
+    // Notification Message
+    let title = "Purchase Order Payment Status";
+    let message = "";
+
+    if (status === "Approved") {
+      message = `Purchase Order ${po.po_no} Payment has been approved.`;
+    } else if (status === "Rejected") {
+      message = `Purchase Order ${po.po_no} Payment has been rejected.`;
+    } else {
+      message = `Purchase Order ${po.po_no} Payment status updated to ${status}.`;
+    }
+
+    // Create Notification
+    await createNotificationByRoleId({
+      title,
+      message,
+      role_id: 11
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Purchase Order Payment ${status} successfully`
+    });
+  } catch (error) {
+    console.error("paymentApproved Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 exports.addRemark = async (req, res) => {
   try {
     const { remark, po_id, id } = req.body;
@@ -197,6 +248,7 @@ exports.addRemark = async (req, res) => {
     });
   }
 };
+
 exports.updatePurchaseOrder = async (req, res) => {
   try {
     const { id } = req.params;

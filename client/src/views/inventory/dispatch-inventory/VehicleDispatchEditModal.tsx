@@ -166,16 +166,6 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
           </div>
 
           <div className="sm:col-span-6 col-span-12">
-            <Label value="Invoice no." />
-            <TextInput
-              name="invoice_no"
-              placeholder="Enter Invoice no."
-              value={formData.invoice_no}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="sm:col-span-6 col-span-12">
             <Label value="Product Name" />
             <TextInput
               name="product_name"

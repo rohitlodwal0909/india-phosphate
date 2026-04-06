@@ -66,7 +66,6 @@ const ViewDispatchModal = ({ placeModal, modalPlacement, setPlaceModal, selected
           {/* ===== TOP SUMMARY ===== */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Info label="Vehicle Number" value={selectedRow?.vehicle_number} highlight />
-            <Info label="Invoice No." value={selectedRow?.invoice_no} highlight />
             <Info label="Total Quantity" value={totalQty} highlight />
             <Info label="Dispatch Date" value={formatDate(selectedRow?.dispatch_date)} highlight />
           </div>

@@ -19,7 +19,6 @@ module.exports = (sequelize, DataTypes) => {
       lr_no: DataTypes.STRING,
       delivery_location: DataTypes.STRING,
       delivered_by: DataTypes.STRING,
-      invoice_no: DataTypes.STRING,
       remarks: DataTypes.TEXT,
       dispatch_date: DataTypes.DATE,
       arrived_booking: DataTypes.DATE,

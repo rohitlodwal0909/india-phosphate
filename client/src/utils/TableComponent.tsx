@@ -36,7 +36,7 @@ const TableComponent = ({ table, flexRender, columns }) => {
           ))
         ) : (
           <tr>
-            <td colSpan={columns.length} className="text-center py-8 px-4">
+            <td colSpan={columns?.length} className="text-center py-8 px-4">
               <div className="flex flex-col items-center">
                 <img src={noData} alt="No data" height={100} width={100} className="mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">No data available</p>

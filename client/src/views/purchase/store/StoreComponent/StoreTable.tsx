@@ -8,39 +8,29 @@ import {
   useReactTable,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { Button, Tooltip } from 'flowbite-react';
+import { Button } from 'flowbite-react';
 import { Icon } from '@iconify/react';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
 import TableComponent from 'src/utils/TableComponent';
 import PaginationComponent from 'src/utils/PaginationComponent';
-import ComonDeletemodal from 'src/utils/deletemodal/ComonDeletemodal';
 import Portal from 'src/utils/Portal';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import PurchaseOrderEditModal from './PurchaseOrderEditModal';
-import PurchaseOrderModal from './PurchaseOrderModal';
-import ViewPurchaseOrderModal from './ViewPurchaseOrderModal';
-import {
-  deletePurchaseOrder,
-  getPurchaseOrders,
-  updatePurchaseOrder,
-} from 'src/features/marketing/PurchaseOrderSlice';
+import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
+// import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
+import AddModel from './AddModel';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
+  payment_status?: string; // ✅ ADD THIS
   customers?: {
     id: number;
     company_name: string;
   };
-  delivery_address: string;
-  product_name: string;
-  quantity: string;
-  total: string;
   expected_delivery_date: string;
   users?: {
     id: number;
@@ -50,7 +40,7 @@ interface PurchaseOrderDataType {
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 
-const PurchaseOrderTable = () => {
+const StoreTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
@@ -80,36 +70,6 @@ const PurchaseOrderTable = () => {
     setSelectedRow(row || null);
     setModals((prev) => ({ ...prev, [type]: value }));
     setTimeout(triggerGoogleTranslateRescan, 200);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!selectedRow?.id) {
-      return toast.error('No entry selected.');
-    }
-    try {
-      const id = selectedRow.id;
-
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase Order Entry deleted!');
-      dispatch(getPurchaseOrders());
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (err: any) {
-      toast.error(err || 'Delete failed');
-    } finally {
-      handleModal('delete', false);
-    }
-  };
-
-  const handleUpdate = async (rowdata: PurchaseOrderDataType) => {
-    try {
-      await dispatch(updatePurchaseOrder(rowdata)).unwrap();
-      toast.success('Update Purchase Order Successfully');
-      dispatch(getPurchaseOrders());
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update entry');
-    } finally {
-      handleModal('edit', false);
-    }
   };
 
   const filteredData = useMemo(
@@ -145,24 +105,8 @@ const PurchaseOrderTable = () => {
         ),
       }),
 
-      columnHelper.accessor('delivery_address', {
-        header: 'Delivery Address',
-        cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
-      }),
-
       columnHelper.accessor('expected_delivery_date', {
         header: 'Delivery Date',
-      }),
-
-      columnHelper.accessor('user_id', {
-        header: 'Submitted by',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
-          </div>
-        ),
       }),
 
       columnHelper.display({
@@ -172,7 +116,7 @@ const PurchaseOrderTable = () => {
           const row = info.row.original;
           return (
             <div className="flex flex-wrap gap-2 justify-center notranslate" translate="no">
-              {permissions.view && (
+              {/* {permissions.view && (
                 <Tooltip content="View">
                   <Button
                     onClick={() => handleModal('view', true, row)}
@@ -184,29 +128,15 @@ const PurchaseOrderTable = () => {
                     <Icon icon="solar:eye-outline" height={18} />
                   </Button>
                 </Tooltip>
-              )}
-              {permissions.edit && (
-                <Tooltip content="Edit">
-                  <Button
-                    size="sm"
-                    className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
-                    onClick={() => handleModal('edit', true, row)}
-                  >
-                    <Icon icon="solar:pen-outline" height={18} />
-                  </Button>
-                </Tooltip>
-              )}
-              {permissions.del && (
-                <Tooltip content="Delete">
-                  <Button
-                    size="sm"
-                    color="lighterror"
-                    className="p-0"
-                    onClick={() => handleModal('delete', true, row)}
-                  >
-                    <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
-                  </Button>
-                </Tooltip>
+              )} */}
+              {permissions.add && (
+                <Button
+                  size="sm"
+                  className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
+                  onClick={() => handleModal('add', true, row)}
+                >
+                  <Icon icon="material-symbols:add-rounded" height={18} />
+                </Button>
               )}
             </div>
           );
@@ -239,17 +169,6 @@ const PurchaseOrderTable = () => {
             className="me-2 p-2 border rounded-md border-gray-300"
           />
         )}
-        {permissions.add && (
-          <Button
-            onClick={() => handleModal('add', true)}
-            color="primary"
-            outline
-            size="sm"
-            className="border border-primary bg-primary text-white rounded-md"
-          >
-            Create Purchase Order
-          </Button>
-        )}
       </div>
       {permissions.view ? (
         <>
@@ -277,18 +196,7 @@ const PurchaseOrderTable = () => {
         </div>
       )}
 
-      {modals.delete && (
-        <Portal>
-          <ComonDeletemodal
-            isOpen={modals.delete}
-            setIsOpen={() => handleModal('delete', false)}
-            selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Purchase Order ?"
-            handleConfirmDelete={handleConfirmDelete}
-          />
-        </Portal>
-      )}
-      {modals.view && (
+      {/* {modals.view && (
         <Portal>
           <ViewPurchaseOrderModal
             placeModal={modals.view}
@@ -297,22 +205,13 @@ const PurchaseOrderTable = () => {
             modalPlacement="center"
           />
         </Portal>
-      )}
+      )} */}
       {modals.add && (
         <Portal>
-          <PurchaseOrderModal
+          <AddModel
             openModal={modals.add}
             setOpenModal={() => handleModal('add', false)}
-          />
-        </Portal>
-      )}
-      {modals.edit && (
-        <Portal>
-          <PurchaseOrderEditModal
-            openModal={modals.edit}
-            setOpenModal={() => handleModal('edit', false)}
-            selectedRow={selectedRow}
-            handleupdated={handleUpdate}
+            po_id={selectedRow?.id}
           />
         </Portal>
       )}
@@ -320,4 +219,4 @@ const PurchaseOrderTable = () => {
   );
 };
 
-export default PurchaseOrderTable;
+export default StoreTable;

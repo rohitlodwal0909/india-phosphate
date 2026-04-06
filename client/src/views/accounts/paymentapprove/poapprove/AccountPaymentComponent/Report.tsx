@@ -1,4 +1,4 @@
-import CardBox from '../../components/shared/CardBox';
+import CardBox from '../../../../../components/shared/CardBox';
 import logoimg from '../../assets/logoimg.png';
 import { useParams } from 'react-router';
 import { useEffect, useRef } from 'react';

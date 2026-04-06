@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const db = require("../../../models");
@@ -52,6 +53,7 @@ exports.getAllRmCode = async (req, res, next) => {
   try {
     const rmcode = await RmCode.findAll({
       order: [["created_at", "DESC"]],
+      where: { deleted_at: null },
       include: [
         {
           model: RawMaterial,

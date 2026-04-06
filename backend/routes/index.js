@@ -63,6 +63,8 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 // Purchase
 const QuotationRoutes = require("../routes/purchase/QuotationRoutes");
+const PurchaseStoreRoutes = require("../routes/purchase/PurchaseStoreRoutes");
+const PoRequisitionRoutes = require("../routes/purchase/PoRequisitionRoutes");
 
 router.use("/api", authRoutes);
 router.use("/api", authMiddleware, BmrRoutes);
@@ -80,7 +82,7 @@ router.use("/api", RmCodeRoutes);
 router.use("/api", PmCodeRoutes);
 router.use("/api", authMiddleware, customerRoutes);
 router.use("/api", permissionRoutes);
-router.use("/api", NotificationRouter);
+router.use("/api", authMiddleware, NotificationRouter);
 router.use("/api", StaffMasterRoutes);
 router.use("/api", DesignationRoutes);
 router.use("/api", InwardRoutes);
@@ -124,5 +126,7 @@ router.use("/api", authMiddleware, SampleInvoiceRoutes);
 
 // Purchase
 router.use("/api", authMiddleware, QuotationRoutes);
+router.use("/api", authMiddleware, PurchaseStoreRoutes);
+router.use("/api", authMiddleware, PoRequisitionRoutes);
 
 module.exports = router;

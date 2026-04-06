@@ -37,6 +37,7 @@ router.put(
   purchaseOrderController.updatePurchaseOrder
 );
 
+router.put("/payment-approve/:id", purchaseOrderController.paymentApproved);
 // Delete Purchase Order
 router.delete(
   "/delete-purchase-order/:id",

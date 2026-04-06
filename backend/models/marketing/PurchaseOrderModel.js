@@ -102,6 +102,11 @@ module.exports = (sequelize, DataTypes) => {
       customise_labels: {
         type: DataTypes.TEXT
       },
+      payment_status: {
+        type: DataTypes.ENUM("Pending", "Approved", "Rejected"),
+        allowNull: false,
+        defaultValue: "Pending"
+      },
 
       expected_delivery_date: {
         type: DataTypes.DATEONLY

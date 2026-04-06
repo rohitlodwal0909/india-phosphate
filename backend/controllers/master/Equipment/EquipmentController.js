@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
 const { Equipment, User } = db;
@@ -23,7 +24,11 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const data = await Equipment.findAll();
+    const data = await Equipment.findAll({
+      where: {
+        deleted_at: null
+      }
+    });
     res.status(200).json(data);
   } catch (err) {
     next(err);

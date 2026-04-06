@@ -46,7 +46,7 @@ const columnHelper = createColumnHelper<DispatchDataType>();
 
 const DispatchInventoryTable = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+  const { logindata } = useSelector((state: RootState) => state.authentication) as any;
 
   const vehicledata = useSelector((state: RootState) => state.dispatchData.dispatchdata) as any;
   const { issuedFMList } = useSelector((state: RootState) => state.issuedFM) as any;

@@ -9,6 +9,7 @@ const initialState = {
   addResult: null,
   remark: null,
   status: null,
+  change: null,
   addWorkOrder: null,
   updateResult: null,
   deleteResult: null,
@@ -64,6 +65,18 @@ export const updatePurchaseOrder = createAsyncThunk(
         'Content-Type': 'multipart/form-data',
       },
     });
+    return response.data;
+  },
+);
+
+export const paymentApprove = createAsyncThunk(
+  'purchaseOrder/paymentApprove',
+  async ({ id, status }: { id: number; status: string }) => {
+    const response = await axiosInstance.put(
+      `/payment-approve/${id}`,
+      { status }, // ✅ send object
+    );
+
     return response.data;
   },
 );
@@ -166,6 +179,13 @@ const PurchaseOrderSlice = createSlice({
         state.updateResult = action.payload;
       })
       .addCase(updatePurchaseOrder.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      .addCase(paymentApprove.fulfilled, (state, action) => {
+        state.change = action.payload;
+      })
+      .addCase(paymentApprove.rejected, (state, action: any) => {
         state.error = action.payload;
       })
 

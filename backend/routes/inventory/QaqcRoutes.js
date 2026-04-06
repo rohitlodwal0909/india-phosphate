@@ -7,6 +7,7 @@ router.put("/approvedOrRejected/:id", qaQcController.approveOrRejectGrnEntry);
 router.get("/raw-material/:id/:qcId/:status", qaQcController.getRawmaterial);
 router.get("/all-raw-material", qaQcController.getAllRawMaterials);
 router.get("/get-qc-report/:id", qaQcController.getQcReport);
+router.get("/get-test-report/:id", qaQcController.getTestReport);
 
 router.post("/save-report-result", qaQcController.saveReportresult);
 router.post("/qc-batch-number", qaQcController.addQcBatch);

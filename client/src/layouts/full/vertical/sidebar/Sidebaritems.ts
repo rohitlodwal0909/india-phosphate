@@ -186,6 +186,18 @@ const SidebarContent: MenuItem[] = [
             },
           ],
         },
+        {
+          name: "Account Payment",
+          icon: "tabler:building-bank",
+          id: uniqueId(),
+          url: "/accounts/payment",
+          subId: 3,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+
+        },
       ],
     },
   ],
@@ -217,6 +229,18 @@ const SidebarContent: MenuItem[] = [
           id: uniqueId(),
           url: "/purchase/quotation",
           subId: 2,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+        },
+
+         {
+          name: "Store",
+          icon: "tabler:clipboard-list",
+          id: uniqueId(),
+          url: "/purchase/store",
+          subId: 3,
           add: false,
           view: false,
           edit: false,
@@ -257,45 +281,16 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
-
           {
-            subId: 13,
-            name: "BMR",
-            icon: "carbon:ibm-gcm",
+            subId:3,
+            name: "QA/QC Inspection",
+            icon: "token:qrdo",
             id: uniqueId(),
-            url: "/inventory/bmr",
+            url: "/inventory/qc",
             add: false,
             view: false,
             edit: false,
             delete: false,
-
-      
-        children: 
-        [
-          {
-            subId: 13,
-            name: "BMR Creation",
-            icon: "carbon:document-add",
-            id: uniqueId(),
-            url: "/inventory/bmr/create",
-            add: false,
-            view: false,
-            edit: false,
-            delete: false,
-          },  
-          // {
-          //   subId: 2,
-          //   name: "Line Clearance Dispensing",
-          //   icon: "carbon:task-complete",
-          //   id: uniqueId(),
-          //   url: "/inventory/bmr/line-clearance",
-          //   add: false,
-
-          //   view: false,
-          //   edit: false,
-          //   delete: false,
-          // },          
-        ]
           },
           {
             subId: 11,
@@ -360,17 +355,10 @@ const SidebarContent: MenuItem[] = [
         ]
           },
 
-          {
-            subId:3,
-            name: "QA/QC Inspection",
-            icon: "token:qrdo",
-            id: uniqueId(),
-            url: "/inventory/qc",
-            add: false,
-            view: false,
-            edit: false,
-            delete: false,
-          },
+         
+          
+
+          
 
            {
             subId:4,
@@ -394,17 +382,35 @@ const SidebarContent: MenuItem[] = [
               edit: false,
               delete: false,
           },
-          {
-            subId:6,
-            name: "Finish",
-            icon: "fluent:check-20-filled",
+           {
+            subId: 13,
+            name: "BMR",
+            icon: "carbon:ibm-gcm",
             id: uniqueId(),
-            url: "/inventory/finishing",
-             add: false,
+            url: "/inventory/bmr",
+            add: false,
             view: false,
             edit: false,
             delete: false,
+
+      
+        children: 
+        [
+          {
+            subId: 13,
+            name: "BMR Creation",
+            icon: "carbon:document-add",
+            id: uniqueId(),
+            url: "/inventory/bmr/create",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },  
+          
+        ]
           },
+         
             {
             subId:7,
             name: "QA/QC Approval",
@@ -426,6 +432,17 @@ const SidebarContent: MenuItem[] = [
               view: false,
               edit: false,
               delete: false,
+          },
+           {
+            subId:6,
+            name: "Finish",
+            icon: "fluent:check-20-filled",
+            id: uniqueId(),
+            url: "/inventory/finishing",
+             add: false,
+            view: false,
+            edit: false,
+            delete: false,
           },
            {
             subId:10,

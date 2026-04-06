@@ -1,33 +1,65 @@
 import CardBox from '../../components/shared/CardBox';
 import logoimg from '../../assets/logoimg.png';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { Button } from 'flowbite-react';
 import {
-  GetrawMaterial,
+  getTestReport,
   RawMaterialResult,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 import { toast } from 'react-toastify';
 import { AppDispatch } from 'src/store';
+import Spinner from '../spinner/Spinner';
+
+import { clearTestReport } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 const SubmitReport = () => {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
-  const location = useLocation();
-  const qcentry = location.state || [];
-  const [qcRef, setQcRef] = useState('');
 
-  // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
-  const logindata = useSelector((state: any) => state.authentication?.logindata);
+  const { testReports, loading } = useSelector((state: any) => state.qcinventory);
+
+  const grn = testReports?.grn ?? null;
+  const tests = testReports?.tests ?? [];
+
+  useEffect(() => {
+    dispatch(clearTestReport());
+
+    setType1Rows([]);
+    setType2Rows([]);
+    setAddedType1Rows([]);
+    setAddedType2Rows([]);
+    setQcRef('');
+
+    if (id) {
+      dispatch(getTestReport(id));
+    }
+  }, [id, dispatch]);
+
+  // useEffect(() => {
+  //   if (!Array.isArray(tests) || tests.length === 0) return;
+
+  //   const type1 = tests
+  //     .filter((row) => Number(row.type) === 1)
+  //     .map((row) => ({ ...row, source: 'api' }));
+
+  //   const type2 = tests
+  //     .filter((row) => Number(row.type) === 2)
+  //     .map((row) => ({ ...row, source: 'api' }));
+
+  //   setType1Rows(type1);
+  //   setType2Rows(type2);
+  // }, [tests]);
+
+  const [qcRef, setQcRef] = useState('');
 
   const navigate = useNavigate();
 
-  const Rawmaterial = useSelector((state: any) => state.qcinventory.qcdata);
-
   const [type1Rows, setType1Rows] = useState([]);
   const [type2Rows, setType2Rows] = useState([]);
+
   const [addedType1Rows, setAddedType1Rows] = useState([]);
   const [addedType2Rows, setAddedType2Rows] = useState([]);
 
@@ -59,36 +91,38 @@ const SubmitReport = () => {
   };
 
   useEffect(() => {
-    if (!id || !qcentry?.id) return;
-    dispatch(GetrawMaterial({ id, qc_id: qcentry.id, status: qcentry.type }));
-  }, [dispatch, id, qcentry?.id]);
+    // ignore empty resets
+    if (!Array.isArray(tests) || tests.length === 0) return;
 
-  useEffect(() => {
-    if (Rawmaterial?.length > 0) {
-      const type1 = Rawmaterial.filter((row) => row.type === '1').map((row) => ({
-        ...row,
-        source: 'api',
-      }));
-      const type2 = Rawmaterial.filter((row) => row.type === '2').map((row) => ({
-        ...row,
-        source: 'api',
-      }));
-      setType1Rows(type1);
-      setType2Rows(type2);
-    }
-  }, [id, Rawmaterial, qcentry]);
+    const type1 = tests
+      .filter((row) => Number(row.type) === 1)
+      .map((row) => ({ ...row, source: 'api' }));
+
+    const type2 = tests
+      .filter((row) => Number(row.type) === 2)
+      .map((row) => ({ ...row, source: 'api' }));
+
+    setType1Rows(type1);
+    setType2Rows(type2);
+  }, [tests]);
 
   const handleSubmit = async () => {
-    if (!qcentry?.id) return;
+    if (!grn?.id) return;
     const allRows = [...type1Rows, ...addedType1Rows, ...type2Rows, ...addedType2Rows];
     const isValid = allRows.every((row) => row.result && row.result.trim() !== '');
+
     if (!isValid) {
       toast.error("Please fill the 'Result' field for all rows before submitting.");
       return;
     }
 
+    if (type1Rows?.length === 0 && type2Rows?.length === 0) {
+      toast.error('Please create specification and test in master');
+      return;
+    }
+
     const formattedData = allRows.map((row) => ({
-      raw_material_id: row.id || '', // only API rows will have an id
+      raw_material_id: row.id || '',
       test: row.test,
       limit: row.limit,
       result: row.result,
@@ -96,11 +130,10 @@ const SubmitReport = () => {
     }));
 
     const submissionPayload = {
-      tested_by: logindata?.admin?.id,
-      qc_id: qcentry?.id,
+      qc_id: grn?.id,
       data: formattedData,
-      code: qcentry?.type == 'pm' ? qcentry?.store_pm_code : qcentry?.store_rm_code,
-      type: qcentry?.type,
+      code: grn?.type == 'pm' ? grn?.store_pm_code : grn?.store_rm_code,
+      type: grn?.type,
       qcRef: qcRef,
     };
 
@@ -123,6 +156,7 @@ const SubmitReport = () => {
 
   return (
     <CardBox>
+      {loading && <Spinner />}
       <div className="w-full mx-auto border border-black p-7 px-14 font-serif text-sm text-black">
         <div className="flex justify-between items-start">
           <div className="text-black text-xs">
@@ -137,7 +171,7 @@ const SubmitReport = () => {
 
             <h2 className="font-bold text-base mt-4 underline">
               {' '}
-              {qcentry?.type == 'pm' ? 'PACKING' : 'RAW'} MATERIAL TEST REPORT
+              {grn?.type == 'pm' ? 'PACKING' : 'RAW'} MATERIAL TEST REPORT
             </h2>
           </div>
           <div className="text-right text-xs text-black">
@@ -150,24 +184,24 @@ const SubmitReport = () => {
           <div className="grid grid-cols-12 border border-black">
             {/* Row 1 */}
             <div className="col-span-2 font-semibold border-r border-black p-1">
-              {qcentry?.type == 'pm' ? 'PM' : 'RM'} CODE
+              {grn?.type == 'pm' ? 'PM' : 'RM'} CODE
             </div>
             <div className="col-span-2 border-r border-black p-1">
-              {qcentry?.type == 'pm' ? qcentry?.pm_code?.name : qcentry?.rmcode?.rm_code}
+              {grn?.type == 'pm' ? grn?.pm_code?.name : grn?.rmcode?.rm_code}
             </div>
             <div className="col-span-2 font-semibold border-r border-black p-1">
               Date of Receipt
             </div>
-            <div className="col-span-2 border-r border-black p-1">{qcentry?.grn_date}</div>
+            <div className="col-span-2 border-r border-black p-1">{grn?.grn_date}</div>
             <div className="col-span-2 font-semibold border-r border-black p-1">G.R.N. No.</div>
-            <div className="col-span-2 p-1">{qcentry?.grn_number}</div>
+            <div className="col-span-2 p-1">{grn?.grn_number}</div>
             {/* Row 2 */}
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
               Quantity
             </div>
             <div className="col-span-2 border-r border-black border-t border-black p-1">
               {' '}
-              {qcentry?.quantity} <span className="ms-2">{qcentry?.unit} </span>
+              {grn?.quantity} <span className="ms-2">{grn?.unit} </span>
             </div>
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
               QC Reference No.
@@ -185,7 +219,7 @@ const SubmitReport = () => {
               Truck No.
             </div>
             <div className="col-span-2 border-t border-black p-1">
-              {qcentry?.guard_entry?.vehicle_number || ''}
+              {grn?.guard_entry?.vehicle_number || ''}
             </div>{' '}
             {/* No right border for the last cell in the grid row */}
           </div>

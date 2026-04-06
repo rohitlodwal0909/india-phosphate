@@ -6,23 +6,30 @@ import axiosInstance from 'src/constants/axiosInstance';
 const initialState = {
   loading: false,
   error: null,
+  total_notification: null,
   notificationData: [],
   addResult: null,
 };
 
-export const GetNotification = createAsyncThunk(
-  'GetNotification/fetch',
-  async (user_id, thunkAPI) => {
-    try {
-      const response = await axiosInstance.get(`/get-all-notification/${user_id}`);
-      return response.data;
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to fetch leads.';
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
-  },
-);
+export const GetNotification = createAsyncThunk('GetNotification/fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-all-notification`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch leads.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
 
+export const TotalNotification = createAsyncThunk('Total/Notification', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/total-notification`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch leads.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
 export const ReadNotification = createAsyncThunk(
   'ReadNotifications/add',
   async (id: any, { rejectWithValue }) => {
@@ -54,6 +61,19 @@ const NotificationSlice = createSlice({
         state.notificationData = action.payload;
       })
       .addCase(GetNotification.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(TotalNotification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(TotalNotification.fulfilled, (state, action) => {
+        state.loading = false;
+        state.total_notification = action.payload;
+      })
+      .addCase(TotalNotification.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

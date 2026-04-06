@@ -244,3 +244,70 @@ exports.destroy = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.QcInpesction = async (req, res, next) => {
+  try {
+    const entries = await GrnEntry.findAll({
+      order: [["created_at", "DESC"]],
+      attributes: [
+        "id",
+        "grn_number",
+        "pm_approve_by",
+        "store_rm_code",
+        "store_pm_code",
+        "qa_qc_status",
+        "grn_date",
+        "grn_time",
+        "type"
+      ],
+
+      include: [
+        {
+          model: RawMaterialQcResult,
+          as: "qc_result",
+          required: false,
+          attributes: ["tested_by"],
+          include: [
+            {
+              model: User,
+              as: "testedBy",
+              required: false
+            }
+          ]
+        },
+        {
+          model: PmQcResult,
+          as: "pmresult",
+          required: false,
+          attributes: ["tested_by"]
+        },
+
+        {
+          model: GuardEntry,
+          attributes: ["inward_number"],
+          as: "guard_entry",
+          required: true
+        },
+        {
+          model: RmCode,
+          as: "rmcode",
+          required: false
+        },
+        {
+          model: PmCode,
+          as: "pm_code",
+          required: false
+        },
+        {
+          model: User,
+          as: "pmapproveBy",
+          required: false
+        }
+      ]
+    });
+
+    res.status(200).json({ message: "GRN Entries fetched", data: entries });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -23,6 +23,8 @@ const RmCodeTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { rmcodedata, loading } = useSelector((state: any) => state.rmcodes);
 
+  console.log(rmcodedata);
+
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
   const [materialaddmodal, setMaterialaddmodal] = useState(false);

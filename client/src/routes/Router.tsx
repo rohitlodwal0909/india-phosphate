@@ -29,6 +29,9 @@ import DraftList from 'src/views/accounts/export/draft/Draft';
 import SampleInvoice from 'src/views/accounts/export/sampleinvoice/SampleInvoice';
 import Quotation from 'src/views/purchase/quotation/Quotation';
 import FmIssuedInventory from 'src/views/inventory/inventory-issued/fm-issued/FmIssuedInventory';
+import AccountPayment from 'src/views/accounts/paymentapprove/poapprove/AccountPayment';
+import PurchaseStore from 'src/views/purchase/store/Store';
+import PoRequisition from 'src/views/purchase/po-requisition/PoRequisition';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -148,6 +151,7 @@ const fullLayoutChildren = [
   { path: '/accounts/export/packing-list', element: <PackingList /> },
   { path: '/accounts/export/draft-packing-list', element: <DraftList /> },
   { path: '/accounts/export/sample-invoice', element: <SampleInvoice /> },
+  { path: '/accounts/payment', element: <AccountPayment /> },
 
   // Marketing
 
@@ -156,6 +160,8 @@ const fullLayoutChildren = [
   // Purchase Department
 
   { path: '/purchase/quotation', element: <Quotation /> },
+  { path: '/purchase/store', element: <PurchaseStore /> },
+  { path: '/purchase/po-requisition', element: <PoRequisition /> },
 
   { path: '/inventory/report/:id', element: <SubmitReport /> },
   { path: '/master/company', element: <Company /> },

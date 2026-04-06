@@ -7,154 +7,116 @@ import {
   useReactTable,
   createColumnHelper,
 } from '@tanstack/react-table';
+
 import { Badge, Button } from 'flowbite-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { Icon } from '@iconify/react';
+import { toast } from 'react-toastify';
+
+import TableComponent from 'src/utils/TableComponent';
+import PaginationComponent from 'src/utils/PaginationComponent';
+
 import Approvemodal from './Approvemodal';
 import Rejectmodal from './Rejectmodal';
 import Holdmodal from './Holdmodal';
-import TableComponent from 'src/utils/TableComponent';
-import { useDispatch, useSelector } from 'react-redux';
+import Remarkmodal from './Remarkmodal';
+
 import {
   Approvemodule,
   Holdmodule,
   Rejectmodule,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
-import { GetStoremodule } from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
-import { toast } from 'react-toastify';
-import PaginationComponent from 'src/utils/PaginationComponent';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { Icon } from '@iconify/react';
+
+import {
+  getQcInspection,
+  GetStoremodule,
+} from 'src/features/Inventorymodule/storemodule/StoreInventorySlice';
+
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
-import { Link, useNavigate } from 'react-router';
-import { AppDispatch } from 'src/store';
-import { CustomizerContext } from 'src/context/CustomizerContext';
-import { getPermissions } from 'src/utils/getPermissions';
 import { formatDate, formatTime } from 'src/utils/Datetimeformate';
-import Remarkmodal from './Remarkmodal';
+import { getPermissions } from 'src/utils/getPermissions';
+import { CustomizerContext } from 'src/context/CustomizerContext';
+import { AppDispatch } from 'src/store';
+
+// --------------------
+// TYPES
+// --------------------
 
 export interface PaginationTableType {
   id: number;
-  supplier_name: string;
+  guard_entry: any;
+  type: string;
+  rmcode: any;
+  pm_code: any;
   grn_date: string;
   grn_time: string;
   grn_number: string;
-  manufacturer_name: string;
-  invoice_number: string;
-  guard_entry_id: number;
-  batch_number: string;
-  store_rm_code: string;
-  container_count: number;
-  quantity: string;
-  unit: string;
   qa_qc_status: string;
-  type: string;
-  remarks: string | null;
-  store_location: string | null;
-  mfg_date: string | null;
-  exp_date: string | null;
-  createdAt: string;
-  status: any;
-  tested_by: any;
+  qc_result: any[];
+  pmresult: any[];
   pmapproveBy: any;
-  qc_result: any;
-  pmresult: any;
-  actions: any;
 }
 
 const columnHelper = createColumnHelper<PaginationTableType>();
+
 const Statuses = ['PENDING', 'APPROVED', 'REJECT', 'HOLD'];
 
+// ========================
+// COMPONENT
+// ========================
+
 function QcInventoryTable() {
-  const [holdOpen, setholdOpen] = useState(false);
-  const [rejectmodal, setRejectmodal] = useState(false);
-  const [approvemodal, setApprovemodal] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<PaginationTableType | null>(null);
-
-  const [filters, setFilters] = useState<{ [key: string]: string }>({ status: '' });
-
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const StoreData = useSelector((state: any) => state.storeinventory.storedata);
+
+  const { qcinsepection } = useSelector((state: any) => state.storeinventory);
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
-  const [data, setData] = useState<PaginationTableType[]>(StoreData?.data || []);
-  const [searchText, setSearchText] = useState('');
-
   const { selectedIconId } = useContext(CustomizerContext) || {};
-  const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 3);
-  }, [logindata, selectedIconId]);
+
+  const permissions = useMemo(
+    () => getPermissions(logindata, selectedIconId, 3),
+    [logindata, selectedIconId],
+  );
+
+  // ---------------- STATES ----------------
+
+  const [data, setData] = useState<PaginationTableType[]>([]);
+  const [searchText, setSearchText] = useState('');
+  const [filters, setFilters] = useState({ status: '' });
+
+  const [selectedRow, setSelectedRow] = useState<PaginationTableType | null>(null);
+
+  const [approvemodal, setApprovemodal] = useState(false);
+  const [rejectmodal, setRejectmodal] = useState(false);
+  const [holdOpen, setholdOpen] = useState(false);
+  const [remarkModal, setremarkModal] = useState(false);
+
+  // ---------------- FETCH DATA ----------------
 
   useEffect(() => {
-    if (StoreData?.data) {
-      const materialData = StoreData.data.filter(
-        (item) => item.type == 'material' || item.type == 'pm',
-      );
-      setData(materialData);
-    }
-  }, [StoreData]);
-
-  useEffect(() => {
-    const fetchStoreData = async () => {
-      try {
-        const result = await dispatch(GetStoremodule());
-        if (GetStoremodule.rejected.match(result))
-          return console.error('Store Module Error:', result.payload || result.error.message);
-      } catch (error) {
-        console.error('Unexpected error:', error);
-      }
-    };
-
-    fetchStoreData();
+    dispatch(getQcInspection());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!qcinsepection) return;
+
+    const materialData = qcinsepection.filter(
+      (item: any) => item.type === 'material' || item.type === 'pm',
+    );
+
+    setData(materialData);
+  }, [qcinsepection]);
+
+  // ---------------- ACTION HANDLERS ----------------
 
   const handleApprove = (row: PaginationTableType) => {
     triggerGoogleTranslateRescan();
     setSelectedRow(row);
     setApprovemodal(true);
-  };
-
-  const handleConfirmApprove = async (data) => {
-    try {
-      const result = await dispatch(
-        Approvemodule({
-          ...data,
-          userid: logindata?.admin?.id, // make sure this is the correct path
-        }),
-      ).unwrap();
-      dispatch(GetStoremodule());
-      toast.success(result?.message);
-    } catch (error) {
-      toast.error('Error occurred while dispatching approve module:', error);
-    }
-  };
-
-  const handleConfirmReject = async (data, remark) => {
-    try {
-      if (remark && data) {
-        const result = await dispatch(
-          Rejectmodule({ id: data, remark, user_id: logindata?.admin?.id }),
-        ).unwrap();
-        dispatch(GetStoremodule());
-        toast.success(result?.message);
-      }
-    } catch (error) {
-      toast.error('Error occurred while dispatching reject module:', error);
-    }
-  };
-
-  const handleConfirmHold = async (data, remark) => {
-    try {
-      if (remark && data) {
-        const result = await dispatch(
-          Holdmodule({ id: data, remark, user_id: logindata?.admin?.id }),
-        ).unwrap();
-        dispatch(GetStoremodule());
-        toast.success(result?.message);
-      }
-    } catch (error) {
-      toast.error('Error occurred while dispatching hold module:', error);
-    }
   };
 
   const handleReject = (row: PaginationTableType) => {
@@ -163,225 +125,195 @@ function QcInventoryTable() {
     setRejectmodal(true);
   };
 
-  const handlereportsubmit = (data, status) => {
-    const id = data?.type === 'pm' ? data?.store_pm_code : data?.store_rm_code;
+  const handlereportsubmit = (data: any, status: string) => {
+    const id = data.id;
 
-    status == 'pending'
-      ? navigate(`/inventory/report/${id}`, { state: data })
-      : navigate(`/view-report/${id}`, { state: data });
+    status === 'pending' ? navigate(`/inventory/report/${id}`) : navigate(`/view-report/${id}`);
   };
 
-  const [remarkModal, setremarkModal] = useState(null);
+  // ---------------- CONFIRM ACTIONS ----------------
+
+  const handleConfirmApprove = async (data: any) => {
+    try {
+      const res = await dispatch(
+        Approvemodule({
+          ...data,
+          userid: logindata?.admin?.id,
+        }),
+      ).unwrap();
+
+      dispatch(GetStoremodule());
+      toast.success(res?.message);
+    } catch {
+      toast.error('Approve failed');
+    }
+  };
+
+  const handleConfirmReject = async (id: number, remark: string) => {
+    const res = await dispatch(
+      Rejectmodule({
+        id,
+        remark,
+      }),
+    ).unwrap();
+
+    dispatch(GetStoremodule());
+    toast.success(res?.message);
+  };
+
+  const handleConfirmHold = async (id: number, remark: string) => {
+    const res = await dispatch(
+      Holdmodule({
+        id,
+        remark,
+      }),
+    ).unwrap();
+
+    dispatch(GetStoremodule());
+
+    toast.success(res?.message);
+  };
+
+  // ---------------- FILTER ----------------
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       const status = item.qa_qc_status || 'New';
-      const byType = !filters.status || status.includes(filters.status);
+
+      const byStatus = !filters.status || status.includes(filters.status);
+
       const bySearch =
         !searchText ||
-        Object.values(item).some((v) => String(v).toLowerCase().includes(searchText.toLowerCase()));
-      return byType && bySearch;
+        Object.values(item).join(' ').toLowerCase().includes(searchText.toLowerCase());
+
+      return byStatus && bySearch;
     });
   }, [data, filters, searchText]);
 
-  const columns = [
-    columnHelper.accessor('guard_entry_id', {
-      cell: (info: any) => {
-        const rowData = info.row.original?.guard_entry;
-        // const storeItem = guardData?.data?.find(item => item.id === rowData.guard_entry_id);
-        return (
-          <div className="truncate max-w-56">
-            <h6 className="text-base">{rowData?.inward_number}</h6>
-          </div>
-        );
-      },
-      header: () => <span className="text-base">Inward Number</span>,
-    }),
+  // ---------------- TABLE COLUMNS ----------------
 
-    columnHelper.accessor('guard_entry_id', {
-      cell: (info: any) => {
-        const rowData = info.row.original;
-        // const storeItem = guardData?.data?.find(item => item.id === rowData.guard_entry_id);
-        return (
-          <div className="truncate max-w-56">
-            <p>
-              {rowData?.type === 'material' ? rowData?.rmcode?.rm_code : rowData?.pm_code?.name}
-            </p>
-          </div>
-        );
-      },
-      header: () => <span className="text-base">RM / PM Code</span>,
-    }),
+  const columns = useMemo(
+    () => [
+      columnHelper.display({
+        id: 'inward',
+        header: 'Inward Number',
+        cell: (info) => info.row.original.guard_entry?.inward_number || '-',
+      }),
 
-    columnHelper.accessor('grn_number', {
-      cell: (info) => <p>{info.getValue() || 'N0 Nmber'}</p>,
-      header: () => <span>GRN Number</span>,
-    }),
+      columnHelper.display({
+        id: 'rm_pm',
+        header: 'RM / PM Code',
+        cell: (info) => {
+          const row = info.row.original;
+          return row.type === 'material' ? row.rmcode?.rm_code : row.pm_code?.name;
+        },
+      }),
 
-    columnHelper.display({
-      id: 'entry_date_time',
-      header: 'Entry Date Time',
-      cell: (info) => {
-        const data = info?.row?.original;
-        const formattedDate = data?.grn_date ? formatDate(data?.grn_date) : '-';
-        const formattedTime = data?.grn_time ? formatTime(data?.grn_time) : '-';
-        return (
-          <div>
-            <p>{formattedDate}</p>
-            <span>{formattedTime}</span>
-          </div>
-        );
-      },
-    }),
+      columnHelper.accessor('grn_number', {
+        header: 'GRN Number',
+        cell: (info) => info.getValue() || '-',
+      }),
 
-    columnHelper.accessor('qa_qc_status', {
-      cell: (info) => {
-        const status = info.getValue() || 'New';
-        const color =
-          status === 'PENDING'
-            ? 'warning'
-            : status === 'APPROVED'
-              ? 'primary'
-              : status === 'HOLD'
-                ? 'secondary'
-                : 'error';
-        return (
-          <Badge color={color} className="capitalize">
-            {status}
-          </Badge>
-        );
-      },
-      header: () => <span>Status</span>,
-    }),
-    columnHelper.accessor('tested_by', {
-      header: () => <span>Tested By</span>,
-      cell: (info) => {
-        const row = info.row.original as {
-          type?: string;
-          qc_result?: { testedBy?: { username?: string } }[];
-          pmapproveBy?: { username?: string };
-        };
+      columnHelper.display({
+        id: 'date_time',
+        header: 'Entry Date Time',
+        cell: (info) => {
+          const row = info.row.original;
 
-        if (row.type === 'pm') {
-          return <p>{row.pmapproveBy?.username || 'Unknown'}</p>;
-        }
-        return <p>{row.qc_result?.[0]?.testedBy?.username || 'Unknown'}</p>;
-      },
-    }),
-    columnHelper.accessor('actions', {
-      cell: (info) => {
-        const rowData = info.row.original;
+          return (
+            <>
+              <p>{formatDate(row.grn_date)}</p>
+              <span>{formatTime(row.grn_time)}</span>
+            </>
+          );
+        },
+      }),
 
-        const isPm = rowData.type === 'pm';
+      columnHelper.accessor('qa_qc_status', {
+        header: 'Status',
+        cell: (info) => {
+          const status = info.getValue();
 
-        const hasResult = isPm ? !!rowData?.pmresult?.length : !!rowData?.qc_result?.length;
+          const color =
+            status === 'PENDING'
+              ? 'warning'
+              : status === 'APPROVED'
+                ? 'primary'
+                : status === 'HOLD'
+                  ? 'secondary'
+                  : 'error';
 
-        const status = rowData.qa_qc_status;
-        const idStr = String(rowData.id);
+          return <Badge color={color}>{status}</Badge>;
+        },
+      }),
 
-        const isFinalStatus = ['APPROVED', 'HOLD', 'REJECTED'].includes(status);
+      columnHelper.display({
+        id: 'tested_by',
+        header: 'Tested By',
+        cell: (info) => {
+          const row = info.row.original;
 
-        return (
-          <div className="flex gap-2">
-            {/* REJECTED → VIEW */}
-            {status === 'REJECTED' && (
-              <Link to={`/view-report/${idStr}`}>
-                <Button
-                  color="error"
-                  outline
-                  size="xs"
-                  className="border border-error text-error hover:bg-error hover:text-white rounded-md"
-                >
+          return row.type === 'pm'
+            ? row.pmapproveBy?.username || '-'
+            : row.qc_result?.[0]?.testedBy?.username || '-';
+        },
+      }),
+
+      columnHelper.display({
+        id: 'actions',
+        header: 'Actions',
+        cell: (info) => {
+          const row = info.row.original;
+
+          const hasResult = row.type === 'pm' ? !!row.pmresult?.length : !!row.qc_result?.length;
+
+          const status = row.qa_qc_status;
+
+          const isFinal = ['APPROVED', 'HOLD', 'REJECTED'].includes(status);
+
+          return (
+            <div className="flex gap-2">
+              {status === 'APPROVED' && (
+                <Button size="xs" outline onClick={() => handlereportsubmit(row, 'view')}>
                   <Icon icon="solar:eye-outline" height={18} />
                 </Button>
-              </Link>
-            )}
-
-            {/* HOLD */}
-            {status === 'HOLD' && (
-              <Button
-                color="secondary"
-                outline
-                size="xs"
-                className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md"
-              >
-                <Icon icon="mdi:gesture-tap-hold" height={20} />
-              </Button>
-            )}
-
-            {/* APPROVED → VIEW */}
-            {status === 'APPROVED' && (
-              <Button
-                onClick={() => handlereportsubmit(rowData, 'view')}
-                color="secondary"
-                outline
-                size="xs"
-                className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-              >
-                <Icon icon="solar:eye-outline" height={18} />
-              </Button>
-            )}
-
-            {/* RESULT AVAILABLE → ACTIONS */}
-            {hasResult && !isFinalStatus && (
-              <>
-                <Button
-                  onClick={() => handleApprove(rowData)}
-                  color="secondary"
-                  outline
-                  size="xs"
-                  className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                >
-                  APPROVE
+              )}
+              {status === 'PENDING' && !hasResult && (
+                <Button size="xs" outline onClick={() => handlereportsubmit(row, 'pending')}>
+                  <Icon icon="tabler:report" height={18} />{' '}
                 </Button>
+              )}
 
-                <Button
-                  onClick={() => {
-                    triggerGoogleTranslateRescan();
-                    setholdOpen(true);
-                    setSelectedRow(rowData);
-                  }}
-                  color="secondary"
-                  outline
-                  size="xs"
-                  className="border border-secondary text-secondary hover:bg-secondary hover:text-white rounded-md"
-                >
-                  HOLD
-                </Button>
+              {hasResult && !isFinal && (
+                <>
+                  <Button size="xs" onClick={() => handleApprove(row)}>
+                    APPROVE
+                  </Button>
 
-                <Button
-                  onClick={() => {
-                    triggerGoogleTranslateRescan();
-                    handleReject(rowData);
-                  }}
-                  color="error"
-                  outline
-                  size="xs"
-                  className="border border-error text-error hover:bg-error hover:text-white rounded-md"
-                >
-                  REJECT
-                </Button>
-              </>
-            )}
+                  <Button
+                    size="xs"
+                    onClick={() => {
+                      setSelectedRow(row);
+                      setholdOpen(true);
+                    }}
+                  >
+                    HOLD
+                  </Button>
 
-            {/* PENDING & NO RESULT */}
-            {status === 'PENDING' && !hasResult && (
-              <Button
-                color="secondary"
-                onClick={() => handlereportsubmit(rowData, 'pending')}
-                outline
-                size="xs"
-                className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-              >
-                <Icon icon="tabler:report" height={18} />
-              </Button>
-            )}
-          </div>
-        );
-      },
-      header: () => <span>Actions</span>,
-    }),
-  ];
+                  <Button size="xs" color="error" onClick={() => handleReject(row)}>
+                    REJECT
+                  </Button>
+                </>
+              )}
+            </div>
+          );
+        },
+      }),
+    ],
+    [data],
+  );
+
+  // ---------------- TABLE ----------------
 
   const table = useReactTable({
     data: filteredData,
@@ -392,79 +324,67 @@ function QcInventoryTable() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  // ======================== UI ========================
+
+  if (!permissions?.view) {
+    return <div className="text-center text-red-500 my-20">No Permission</div>;
+  }
+
   return (
     <>
-      {permissions?.view ? (
-        <>
-          <div className="p-4">
-            <div className="flex justify-end">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                className="me-2 p-2 border rounded-md border-gray-300"
-              />
-              <select
-                id="status"
-                value={filters.status}
-                className=" border border-pink-200 focus:border-gray-300 focus:ring-0 rounded-md"
-                onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
-              >
-                <option value="">Filter Status</option>
-                {Statuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="w-full overflow-x-auto">
-            <TableComponent table={table} flexRender={flexRender} columns={columns} />
-          </div>
-          <PaginationComponent table={table} />
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center my-20 space-y-4">
-          <Icon
-            icon="fluent:person-prohibited-20-filled"
-            className="text-red-500"
-            width="60"
-            height="60"
-          />
-          <div className="text-red-600 text-xl font-bold text-center px-4">
-            You do not have permission to view this table.
-          </div>
-          <p className="text-sm text-gray-500 text-center px-6">
-            Please contact your administrator if you believe this is an error.
-          </p>
-        </div>
-      )}
+      {/* SEARCH + FILTER */}
+      <div className="p-4 flex justify-end gap-2">
+        <input
+          placeholder="Search..."
+          className="p-2 border rounded"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+
+        <select
+          value={filters.status}
+          onChange={(e) => setFilters({ status: e.target.value })}
+          className="border rounded p-2"
+        >
+          <option value="">Filter Status</option>
+          {Statuses.map((s) => (
+            <option key={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* TABLE */}
+      <TableComponent table={table} flexRender={flexRender} columns={columns} />
+
+      <PaginationComponent table={table} />
+
+      {/* MODALS */}
       <Approvemodal
-        handleConfirmDelete={handleConfirmApprove}
         isOpen={approvemodal}
         setIsOpen={setApprovemodal}
         selectedUser={selectedRow}
+        handleConfirmDelete={handleConfirmApprove}
       />
+
       <Rejectmodal
-        handleConfirmDelete={handleConfirmReject}
         isOpen={rejectmodal}
         setIsOpen={setRejectmodal}
         selectedUser={selectedRow}
+        handleConfirmDelete={handleConfirmReject}
       />
+
       <Holdmodal
-        handleConfirmDelete={handleConfirmHold}
         isOpen={holdOpen}
         setIsOpen={setholdOpen}
         selectedUser={selectedRow}
+        handleConfirmDelete={handleConfirmHold}
       />
 
       <Remarkmodal
         isOpen={remarkModal}
-        onSubmit={handleConfirmReject}
         setIsOpen={setremarkModal}
         selectedRow={selectedRow}
+        onSubmit={handleConfirmReject}
       />
     </>
   );

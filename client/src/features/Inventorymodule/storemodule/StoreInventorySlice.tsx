@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   storedata: [],
   addResult: null,
+  qcinsepection: [],
   updateResult: null,
   deleteResult: null,
 };
@@ -14,6 +15,18 @@ export const GetStoremodule = createAsyncThunk('stores/fetch', async (_, thunkAP
   try {
     const response = await axiosInstance.get(`/grn-entries`);
     return response.data;
+  } catch (error) {
+    // error.response?.data ya error.message ko rejectWithValue karo
+    return thunkAPI.rejectWithValue(
+      error.response?.data || error.message || 'Something went wrong',
+    );
+  }
+});
+
+export const getQcInspection = createAsyncThunk('stores/qcinpection', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/qc-inspection`);
+    return response.data.data;
   } catch (error) {
     // error.response?.data ya error.message ko rejectWithValue karo
     return thunkAPI.rejectWithValue(
@@ -78,6 +91,19 @@ const StoreInventorySlice = createSlice({
         state.storedata = action.payload;
       })
       .addCase(GetStoremodule.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(getQcInspection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getQcInspection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.qcinsepection = action.payload;
+      })
+      .addCase(getQcInspection.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

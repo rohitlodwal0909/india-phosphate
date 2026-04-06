@@ -17,4 +17,8 @@ router.delete("/grn-entries/:id", grnController.destroy);
 // Show
 router.get("/grn-entries/:id", grnController.show); // Get by ID
 
+// Qc INpection
+
+router.get("/qc-inspection", grnController.QcInpesction);
+
 module.exports = router;

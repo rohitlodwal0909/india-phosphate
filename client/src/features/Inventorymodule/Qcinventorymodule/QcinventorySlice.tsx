@@ -18,6 +18,8 @@ type QCState = {
   finalresult: any;
   rowmaterial: any;
   qcReport: any;
+  testReports: any;
+  currentRequestId: string | null;
 };
 
 const initialState: QCState = {
@@ -34,6 +36,8 @@ const initialState: QCState = {
   createReport: null,
   rowmaterial: [],
   qcReport: [],
+  testReports: null,
+  currentRequestId: null,
 };
 
 interface GetRawMaterialPayload {
@@ -72,6 +76,11 @@ export const GetAllrowmaterial = createAsyncThunk<any, void, { rejectValue: any 
     }
   },
 );
+
+export const getTestReport = createAsyncThunk('qcinventory/getTestReport', async (id: string) => {
+  const response = await axiosInstance.get(`/get-test-report/${id}`);
+  return response.data;
+});
 
 export const GetAllQcbatch = createAsyncThunk<any, void, { rejectValue: any }>(
   'GetAllQcbatch/fetch',
@@ -136,14 +145,13 @@ export const createQcReport = createAsyncThunk<any, any, { rejectValue: any }>(
 
 export const Rejectmodule = createAsyncThunk<
   any,
-  { id: string; remark: string; user_id: any },
+  { id: number; remark: string },
   { rejectValue: any }
->('qcs/reject', async ({ id, remark, user_id }, { rejectWithValue }) => {
+>('qcs/reject', async ({ id, remark }, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.put(`/approvedOrRejected/${id}`, {
       status: 'REJECTED',
       remark,
-      user_id,
     });
     return response.data;
   } catch (error: any) {
@@ -155,14 +163,13 @@ export const Rejectmodule = createAsyncThunk<
 
 export const Holdmodule = createAsyncThunk<
   any,
-  { id: string; remark: string; user_id: any },
+  { id: number; remark: string }, // ✅ FIX
   { rejectValue: any }
->('qcs/hold', async ({ id, remark, user_id }, { rejectWithValue }) => {
+>('qcs/hold', async ({ id, remark }, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.put(`/approvedOrRejected/${id}`, {
       status: 'HOLD',
       remark,
-      user_id,
     });
     return response.data;
   } catch (error: any) {
@@ -308,7 +315,13 @@ export const Deleteqcbatch = createAsyncThunk<
 const QcinventorySlice = createSlice({
   name: 'qcinventory',
   initialState,
-  reducers: {},
+  reducers: {
+    clearTestReport: (state) => {
+      state.testReports = null;
+      state.loading = false;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Raw Material
@@ -361,6 +374,27 @@ const QcinventorySlice = createSlice({
       .addCase(getQcreport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message || null;
+      })
+
+      .addCase(getTestReport.pending, (state, action) => {
+        state.loading = true;
+        state.currentRequestId = action.meta.requestId;
+        state.testReports = null; // clear instantly
+      })
+
+      .addCase(getTestReport.fulfilled, (state, action) => {
+        // ✅ Ignore OLD API responses
+        if (state.currentRequestId !== action.meta.requestId) return;
+
+        state.loading = false;
+        state.testReports = action.payload;
+      })
+
+      .addCase(getTestReport.rejected, (state, action) => {
+        if (state.currentRequestId !== action.meta.requestId) return;
+
+        state.loading = false;
+        state.error = action.error.message || 'Error';
       })
 
       // QC Batch
@@ -466,4 +500,5 @@ const QcinventorySlice = createSlice({
   },
 });
 
+export const { clearTestReport } = QcinventorySlice.actions;
 export default QcinventorySlice.reducer;

@@ -41,7 +41,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     lr_no: '',
     delivered_by: '',
     remarks: '',
-    invoice_no: '',
     booking_date: '',
     arrived_booking: '', // ✅ NEW FIELD
     max_quantity: 0,
@@ -104,7 +103,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
       'product_name',
       'lr_no',
       'delivered_by',
-      'invoice_no',
       'booking_date',
       'remarks',
       'arrived_booking', // ✅ added
@@ -156,7 +154,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
           lr_no: '',
           delivered_by: '',
           remarks: '',
-          invoice_no: '',
           booking_date: '',
           arrived_booking: '',
         });
@@ -236,17 +233,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
             {errors.driver_details && (
               <span className="text-red-500 text-sm">{errors.driver_details}</span>
             )}
-          </div>
-
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Invoice no." />
-            <TextInput
-              name="invoice_no"
-              placeholder="Enter Invoice no."
-              value={formData.invoice_no}
-              onChange={handleChange}
-            />
-            {errors.invoice_no && <span className="text-red-500 text-sm">{errors.invoice_no}</span>}
           </div>
 
           <div className="sm:col-span-6 col-span-12">

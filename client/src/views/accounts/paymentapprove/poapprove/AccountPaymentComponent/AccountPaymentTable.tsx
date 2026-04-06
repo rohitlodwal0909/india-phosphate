@@ -14,33 +14,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import TableComponent from 'src/utils/TableComponent';
 import PaginationComponent from 'src/utils/PaginationComponent';
-import ComonDeletemodal from 'src/utils/deletemodal/ComonDeletemodal';
 import Portal from 'src/utils/Portal';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import PurchaseOrderEditModal from './PurchaseOrderEditModal';
-import PurchaseOrderModal from './PurchaseOrderModal';
-import ViewPurchaseOrderModal from './ViewPurchaseOrderModal';
-import {
-  deletePurchaseOrder,
-  getPurchaseOrders,
-  updatePurchaseOrder,
-} from 'src/features/marketing/PurchaseOrderSlice';
+import { getPurchaseOrders, paymentApprove } from 'src/features/marketing/PurchaseOrderSlice';
+import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
+  payment_status?: string; // ✅ ADD THIS
   customers?: {
     id: number;
     company_name: string;
   };
-  delivery_address: string;
-  product_name: string;
-  quantity: string;
-  total: string;
   expected_delivery_date: string;
   users?: {
     id: number;
@@ -50,7 +40,7 @@ interface PurchaseOrderDataType {
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 
-const PurchaseOrderTable = () => {
+const AccountPaymentTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
@@ -82,33 +72,18 @@ const PurchaseOrderTable = () => {
     setTimeout(triggerGoogleTranslateRescan, 200);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!selectedRow?.id) {
-      return toast.error('No entry selected.');
-    }
+  const handlePayment = async (id: number, status: string) => {
     try {
-      const id = selectedRow.id;
+      const res = await dispatch(paymentApprove({ id, status })).unwrap();
 
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase Order Entry deleted!');
-      dispatch(getPurchaseOrders());
-      setData((prev) => prev.filter((item) => item.id !== id));
-    } catch (err: any) {
-      toast.error(err || 'Delete failed');
-    } finally {
-      handleModal('delete', false);
-    }
-  };
+      toast.success(res?.message || `Payment ${status}`);
 
-  const handleUpdate = async (rowdata: PurchaseOrderDataType) => {
-    try {
-      await dispatch(updatePurchaseOrder(rowdata)).unwrap();
-      toast.success('Update Purchase Order Successfully');
-      dispatch(getPurchaseOrders());
+      // ✅ UI instant update
+      setData((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, payment_status: status } : item)),
+      );
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update entry');
-    } finally {
-      handleModal('edit', false);
+      toast.error(err?.message || 'Payment update failed');
     }
   };
 
@@ -145,24 +120,47 @@ const PurchaseOrderTable = () => {
         ),
       }),
 
-      columnHelper.accessor('delivery_address', {
-        header: 'Delivery Address',
-        cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
-      }),
-
       columnHelper.accessor('expected_delivery_date', {
         header: 'Delivery Date',
       }),
 
-      columnHelper.accessor('user_id', {
-        header: 'Submitted by',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
-          </div>
-        ),
+      columnHelper.display({
+        id: 'actions',
+        header: 'Payment Status',
+        cell: (info) => {
+          const row = info.row.original;
+
+          // ✅ Approved
+          if (row.payment_status === 'Approved') {
+            return (
+              <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
+                Approved
+              </span>
+            );
+          }
+
+          // ✅ Rejected
+          if (row.payment_status === 'Rejected') {
+            return (
+              <span className="px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
+                Rejected
+              </span>
+            );
+          }
+
+          // ✅ Pending → show buttons
+          return (
+            <div className="flex flex-wrap gap-2">
+              <Button size="xs" color="success" onClick={() => handlePayment(row.id, 'Approved')}>
+                Approve
+              </Button>
+
+              <Button size="xs" color="error" onClick={() => handlePayment(row.id, 'Rejected')}>
+                Reject
+              </Button>
+            </div>
+          );
+        },
       }),
 
       columnHelper.display({
@@ -185,26 +183,16 @@ const PurchaseOrderTable = () => {
                   </Button>
                 </Tooltip>
               )}
-              {permissions.edit && (
-                <Tooltip content="Edit">
+              {permissions.view && (
+                <Tooltip content="Report">
                   <Button
-                    size="sm"
-                    className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
-                    onClick={() => handleModal('edit', true, row)}
+                    onClick={() => handleModal('add', true, row)}
+                    color="primary"
+                    outline
+                    size="xs"
+                    className="text-primary bg-lightprimary hover:text-white"
                   >
-                    <Icon icon="solar:pen-outline" height={18} />
-                  </Button>
-                </Tooltip>
-              )}
-              {permissions.del && (
-                <Tooltip content="Delete">
-                  <Button
-                    size="sm"
-                    color="lighterror"
-                    className="p-0"
-                    onClick={() => handleModal('delete', true, row)}
-                  >
-                    <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                    <Icon icon="mdi:file-document-outline" height={18} />{' '}
                   </Button>
                 </Tooltip>
               )}
@@ -239,17 +227,6 @@ const PurchaseOrderTable = () => {
             className="me-2 p-2 border rounded-md border-gray-300"
           />
         )}
-        {permissions.add && (
-          <Button
-            onClick={() => handleModal('add', true)}
-            color="primary"
-            outline
-            size="sm"
-            className="border border-primary bg-primary text-white rounded-md"
-          >
-            Create Purchase Order
-          </Button>
-        )}
       </div>
       {permissions.view ? (
         <>
@@ -277,17 +254,6 @@ const PurchaseOrderTable = () => {
         </div>
       )}
 
-      {modals.delete && (
-        <Portal>
-          <ComonDeletemodal
-            isOpen={modals.delete}
-            setIsOpen={() => handleModal('delete', false)}
-            selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Purchase Order ?"
-            handleConfirmDelete={handleConfirmDelete}
-          />
-        </Portal>
-      )}
       {modals.view && (
         <Portal>
           <ViewPurchaseOrderModal
@@ -300,19 +266,11 @@ const PurchaseOrderTable = () => {
       )}
       {modals.add && (
         <Portal>
-          <PurchaseOrderModal
-            openModal={modals.add}
-            setOpenModal={() => handleModal('add', false)}
-          />
-        </Portal>
-      )}
-      {modals.edit && (
-        <Portal>
-          <PurchaseOrderEditModal
-            openModal={modals.edit}
-            setOpenModal={() => handleModal('edit', false)}
+          <ViewPurchaseOrderModal
+            placeModal={modals.view}
+            setPlaceModal={() => handleModal('add', false)}
             selectedRow={selectedRow}
-            handleupdated={handleUpdate}
+            modalPlacement="center"
           />
         </Portal>
       )}
@@ -320,4 +278,4 @@ const PurchaseOrderTable = () => {
   );
 };
 
-export default PurchaseOrderTable;
+export default AccountPaymentTable;

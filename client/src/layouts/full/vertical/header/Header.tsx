@@ -10,7 +10,6 @@ import { CustomizerContext } from 'src/context/CustomizerContext';
 import Notifications from './Notifications';
 import Profile from './Profile';
 import ReactFlagsSelect from 'react-flags-select';
-import { useSelector } from 'react-redux';
 
 interface HeaderPropsType {
   layoutType: string;
@@ -19,7 +18,6 @@ interface HeaderPropsType {
 const Header = ({ layoutType }: HeaderPropsType) => {
   const [isSticky, setIsSticky] = useState(false);
   const [selected, setSelected] = useState('US');
-  const logindata = useSelector((state: any) => state.authentication?.logindata);
   const FlagsSelect = ReactFlagsSelect as unknown as React.ComponentType<any>;
   const languageMap: Record<string, string> = {
     US: 'en',
@@ -195,7 +193,7 @@ const Header = ({ layoutType }: HeaderPropsType) => {
                 />
               </div>
 
-              <Notifications logindata={logindata} />
+              <Notifications />
               <Profile />
             </div>
           </Navbar.Collapse>

@@ -18,13 +18,18 @@ const {
   ProductFormulaSpecification,
   Finishing,
   User,
-  QcReportItem
+  QcReportItem,
+  RmCode,
+  PmCode,
+  GuardEntry
 } = db;
 // Update Guard Entry
 
 exports.approveOrRejectGrnEntry = async (req, res, next) => {
   const { id } = req.params;
-  const { status, remark = "", user_id } = req.body;
+  const { status, remark = "" } = req.body;
+
+  const user_id = req.admin.id;
 
   try {
     const entry = await GrnEntry.findByPk(id);
@@ -48,6 +53,7 @@ exports.approveOrRejectGrnEntry = async (req, res, next) => {
 
     /* ---------------- LOG ---------------- */
     const { entry_date, entry_time } = getISTDateTime();
+
     await createLogEntry({
       user_id,
       message: `QA/QC status set to "${finalStatus}" by ${username} on ${entry_date} at ${entry_time}.`
@@ -264,7 +270,7 @@ exports.getAllRawMaterials = async (req, res, next) => {
 };
 
 exports.saveReportresult = async (req, res, next) => {
-  const { data, qc_id, tested_by, code, qcRef, type } = req.body;
+  const { data, qc_id, code, qcRef, type } = req.body;
 
   try {
     const { entry_date } = getISTDateTime();
@@ -314,7 +320,7 @@ exports.saveReportresult = async (req, res, next) => {
         qc_id,
         test_date: entry_date,
         result_value: item.result,
-        tested_by,
+        tested_by: req.admin.id,
         type: item.type
       };
 
@@ -460,6 +466,112 @@ exports.getQcReport = async (req, res, next) => {
   }
 };
 
+exports.getTestReport = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // 🔥 Get GRN Entry
+    const grn = await GrnEntry.findOne({
+      where: { id },
+      attributes: [
+        "id",
+        "grn_number",
+        "pm_approve_by",
+        "store_rm_code",
+        "store_pm_code",
+        "qa_qc_status",
+        "grn_date",
+        "grn_time",
+        "type",
+        "quantity",
+        "unit"
+      ],
+
+      include: [
+        {
+          model: RmCode,
+          as: "rmcode",
+          required: false
+        },
+        {
+          model: RmCode,
+          as: "rmcode",
+          required: false
+        },
+        {
+          model: PmCode,
+          as: "pm_code",
+          required: false
+        },
+        {
+          model: GuardEntry,
+          attributes: ["vehicle_number"],
+          as: "guard_entry",
+          required: true
+        }
+      ]
+    });
+
+    if (!grn) {
+      return res.status(404).json({ message: "GRN not found" });
+    }
+
+    let materialData = [];
+
+    if (grn.type === "pm") {
+      materialData = await PmRawMaterial.findAll({
+        where: {
+          pm_id: grn.store_pm_code
+        },
+        include: [
+          {
+            model: PmQcResult,
+            as: "pmresult",
+            required: false,
+            where: { qc_id: id },
+            include: [
+              {
+                model: User,
+                as: "testedBy",
+                required: false
+              }
+            ]
+          }
+        ]
+      });
+    } else {
+      materialData = await RawMaterial.findAll({
+        where: {
+          rm_code: grn.store_rm_code
+        },
+        include: [
+          {
+            model: RawMaterialQcResult,
+            as: "qc_results",
+            required: false,
+            where: { qc_id: id },
+            include: [
+              {
+                model: User,
+                as: "testedBy",
+                required: false
+              }
+            ]
+          }
+        ]
+      });
+    }
+
+    // ✅ Return FULL REPORT DATA
+    res.status(200).json({
+      grn,
+      tests: materialData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.addQcBatch = async (req, res, next) => {
   const {
     qc_batch_number,
@@ -505,10 +617,12 @@ exports.addQcBatch = async (req, res, next) => {
     const { entry_date, entry_time } = getISTDateTime();
 
     const logMessage = `QA Batch  entry for Batch Number  ${qc_batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
+
     await createLogEntry({
       user_id,
       message: logMessage
     });
+
     await createNotificationByRoleId({
       title: "New Batch Number",
       message: "A new batch number has been successfully created.",
