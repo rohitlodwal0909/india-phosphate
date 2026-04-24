@@ -1,4 +1,3 @@
-import CardBox from '../../../../../components/shared/CardBox';
 import logoimg from '../../../../../assets/logoimg.png';
 import { useParams } from 'react-router';
 import { useEffect, useRef } from 'react';
@@ -9,6 +8,7 @@ import { AppDispatch, RootState } from 'src/store';
 import { getPOById } from 'src/features/marketing/PurchaseOrderSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { numberToWordsIndian } from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceComponent/numberToWordsIndian';
+import CardBox from 'src/components/shared/CardBox';
 const PuchaseReport = () => {
   const { id } = useParams();
 
