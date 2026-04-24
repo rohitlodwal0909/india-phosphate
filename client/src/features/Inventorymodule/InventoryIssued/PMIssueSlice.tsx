@@ -59,7 +59,7 @@ export const getProductionBatch = createAsyncThunk(
   'issue/batches',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/get-production-batches`);
+      const response = await axiosInstance.get(`/get-production-batch`);
       return response.data;
     } catch (error) {
       const message =

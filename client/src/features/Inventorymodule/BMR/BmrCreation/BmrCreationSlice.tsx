@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   data: [],
   addResult: null,
+  batches: [],
   updateResult: null,
   deleteResult: null,
 };
@@ -13,6 +14,20 @@ const initialState = {
 export const GetBmrRecords = createAsyncThunk('Bmr/record', async (_, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.get(`/get-bmr-records`);
+    return response.data;
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Something went wrong while fetching check-ins.';
+    return rejectWithValue(message);
+  }
+});
+
+export const getBatches = createAsyncThunk('Bmr/batches', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get(`/get-production-batches`);
     return response.data;
   } catch (error) {
     const message =
@@ -122,6 +137,19 @@ const BmrRecordSlice = createSlice({
         state.data = action.payload.data;
       })
       .addCase(GetBmrRecords.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(getBatches.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBatches.fulfilled, (state, action) => {
+        state.loading = false;
+        state.batches = action.payload.data;
+      })
+      .addCase(getBatches.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

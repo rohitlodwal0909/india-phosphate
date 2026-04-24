@@ -19,6 +19,7 @@ const FmIssuedAdd: React.FC<FmIssuedAddProps> = ({ openModal, setOpenModal }) =>
   const [formData, setFormData] = useState({
     finish_id: '',
     issued_qty: '',
+    work_order_no: '',
     remark: '',
   });
 
@@ -36,7 +37,6 @@ const FmIssuedAdd: React.FC<FmIssuedAddProps> = ({ openModal, setOpenModal }) =>
      BATCH OPTIONS (USE remaining_qty)
   =============================== */
 
-  console.log(batches);
   const batchOptions =
     batches?.map((item: any) => ({
       value: item.finishing?.id,
@@ -87,6 +87,7 @@ const FmIssuedAdd: React.FC<FmIssuedAddProps> = ({ openModal, setOpenModal }) =>
       setFormData({
         finish_id: '',
         issued_qty: '',
+        work_order_no: '',
         remark: '',
       });
 
@@ -140,6 +141,22 @@ const FmIssuedAdd: React.FC<FmIssuedAddProps> = ({ openModal, setOpenModal }) =>
             />
 
             {errors.issued_qty && <span className="text-red-500 text-sm">{errors.issued_qty}</span>}
+          </div>
+
+          <div className="col-span-6">
+            <Label value={'Work Order No.'} />
+
+            <TextInput
+              type="text"
+              name="work_order_no"
+              placeholder="Enter Work order no."
+              value={formData.work_order_no}
+              onChange={handleChange}
+            />
+
+            {errors.work_order_no && (
+              <span className="text-red-500 text-sm">{errors.work_order_no}</span>
+            )}
           </div>
 
           {/* REMARK */}

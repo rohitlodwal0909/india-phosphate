@@ -6,6 +6,7 @@ import { getAllCustomers, updatePurchaseOrder } from 'src/features/marketing/Pur
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
+import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 
 interface PurchaseOrderEditModalProps {
   openModal: boolean;
@@ -63,6 +64,13 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
   const customers = useSelector((state: RootState) => state.purchaseOrder.customers) as any;
   const { productdata } = useSelector((state: any) => state.products);
 
+  const { pmcodedata } = useSelector((state: any) => state.pmcodes);
+
+  const packingOptions = pmcodedata?.map((p: any) => ({
+    label: p.name, // ya jo bhi field ho
+    value: p.name,
+  }));
+
   const productOptions = productdata?.map((p: any) => ({
     label: `${p.product_name} (${p.grade || ''})`,
     value: p.id,
@@ -71,25 +79,25 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
   }));
 
   const customerOptions = customers?.map((c: any) => {
-    let address = '';
+    // let address = '';
 
-    if (c.addresses) {
-      try {
-        const parsed = typeof c.addresses === 'string' ? JSON.parse(c.addresses) : c.addresses;
+    // if (c.addresses) {
+    //   try {
+    //     const parsed = typeof c.addresses === 'string' ? JSON.parse(c.addresses) : c.addresses;
 
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const addr = parsed[0];
-          address = `${addr.company_address || ''}, ${addr.factory_address || ''}, ${addr.city || ''}, ${addr.country || ''}`;
-        }
-      } catch (err) {
-        address = '';
-      }
-    }
+    //     if (Array.isArray(parsed) && parsed.length > 0) {
+    //       const addr = parsed[0];
+    //       address = `${addr.company_address || ''}, ${addr.factory_address || ''}, ${addr.city || ''}, ${addr.country || ''}`;
+    //     }
+    //   } catch (err) {
+    //     address = '';
+    //   }
+    // }
 
     return {
       label: c.company_name,
       value: c.id,
-      address: address,
+      address: c.company_address,
     };
   });
 
@@ -154,6 +162,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
   useEffect(() => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
+    dispatch(GetPmCode());
   }, []);
 
   const handleChange = (e: any) => {
@@ -178,6 +187,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       payload.append('freight', formData.freight);
       payload.append('payment_terms', formData.payment_terms);
       payload.append('expected_delivery_date', formData.expected_delivery_date);
+
       payload.append('company_type', formData.company_type || '');
       payload.append('remark', formData.remark || '');
       payload.append('commission', formData.commission || '');
@@ -185,6 +195,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       payload.append('insurance_remark', formData.insurance_remark || '');
       payload.append('customise_labels', formData.customise_labels || '');
       payload.append('type', formData.export ? 'export' : 'domestic');
+
       payload.append('products', JSON.stringify(products));
 
       products.forEach((p, index) => {
@@ -193,20 +204,24 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
         }
       });
 
-      await dispatch(
+      /* ✅ IMPORTANT FIX */
+      const res = await dispatch(
         updatePurchaseOrder({
           id: formData.id,
           data: payload,
         }),
-      );
+      ).unwrap();
 
-      toast.success('Purchase Order Updated Successfully ✅');
+      toast.success(res.message || 'Purchase Order Updated Successfully ✅');
+
       setOpenModal(false);
-    } catch (error) {
+    } catch (error: any) {
+      // ✅ Backend error show (PO duplicate etc)
+      toast.error(error?.message || 'Update failed ❌');
+
       console.error('Error submitting purchase order:', error);
     }
   };
-
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)} size="5xl">
       <Modal.Header>Edit Purchase Order</Modal.Header>
@@ -339,10 +354,12 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               {/* Packing */}
               <div className="col-span-3">
                 <Label value="Packing" />
-                <TextInput
-                  placeholder="Packing"
-                  value={product.packing}
-                  onChange={(e) => handleProductChange(index, 'packing', e.target.value)}
+                <Select
+                  options={packingOptions}
+                  value={packingOptions.find((opt: any) => opt.value === product.packing)}
+                  onChange={(selected: any) => {
+                    handleProductChange(index, 'packing', selected.value);
+                  }}
                 />
               </div>
 

@@ -17,7 +17,6 @@ interface AddModalProps {
   placeModal: boolean;
   modalPlacement: string;
   setPlaceModal: (value: boolean) => void;
-  logindata: any;
   rowData: any;
   setOnreload: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -26,7 +25,6 @@ const Addmodal: React.FC<AddModalProps> = ({
   placeModal,
   modalPlacement,
   setPlaceModal,
-  logindata,
   rowData,
   setOnreload,
 }) => {
@@ -51,7 +49,6 @@ const Addmodal: React.FC<AddModalProps> = ({
 
     try {
       const payload = {
-        user_id: logindata?.admin?.id || '',
         batch_id: rowData?.id || '',
         release_no: releaseNo,
         release_date: releaseDate,

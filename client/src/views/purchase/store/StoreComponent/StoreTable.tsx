@@ -18,20 +18,16 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
 // import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 import AddModel from './AddModel';
+import { getPurchasePo } from 'src/features/purchase/po/PurchasePoSlice';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
-  payment_status?: string; // ✅ ADD THIS
-  customers?: {
-    id: number;
-    company_name: string;
-  };
-  expected_delivery_date: string;
+  bill_to?: string; // ✅ ADD THIS
+  expected_arrival_date: string;
   users?: {
     id: number;
     username: string;
@@ -44,9 +40,7 @@ const StoreTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const purchaseOrders = useSelector(
-    (state: RootState) => state.purchaseOrder.purchaseOrders,
-  ) as any;
+  const { purchasepos } = useSelector((state: RootState) => state.purchasepo) as any;
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -59,11 +53,11 @@ const StoreTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(purchaseOrders) ? purchaseOrders : []);
-  }, [purchaseOrders]);
+    setData(Array.isArray(purchasepos) ? purchasepos : []);
+  }, [purchasepos]);
 
   useEffect(() => {
-    dispatch(getPurchaseOrders());
+    dispatch(getPurchasePo());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: PurchaseOrderDataType) => {
@@ -96,17 +90,17 @@ const StoreTable = () => {
       }),
       columnHelper.accessor('po_no', { header: 'PO No.' }),
 
-      columnHelper.accessor('customers', {
-        header: 'Company Name',
+      columnHelper.accessor('bill_to', {
+        header: 'Bill To',
         cell: (info) => (
           <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.customers?.company_name}</p>
+            <p>{info.row.original.bill_to}</p>
           </div>
         ),
       }),
 
-      columnHelper.accessor('expected_delivery_date', {
-        header: 'Delivery Date',
+      columnHelper.accessor('expected_arrival_date', {
+        header: 'Expected Arrival Date',
       }),
 
       columnHelper.display({

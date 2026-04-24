@@ -16,6 +16,7 @@ const Profile = () => {
   // const { setIsCollapse, isCollapse } = useContext(CustomizerContext);
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
   const logindata = useSelector((state: any) => state.authentication?.logindata);
+
   const [isOpen, setIsOpen] = useState(false);
   const handlelogout = () => {
     localStorage.removeItem('logincheck');
@@ -39,15 +40,13 @@ const Profile = () => {
             <img
               src={
                 logindata?.admin?.profile_image
-                  ? `${ImageUrl}${logindata.admin.profile_image}?t=${
-                      logindata.admin.updated_at || Date.now()
-                    }`
+                  ? `${ImageUrl}${logindata.admin.profile_image}`
                   : user1
               }
               alt="logo"
               height="80"
               width="80"
-              className="rounded-full "
+              className="rounded-full"
             />
           </span>
         )}

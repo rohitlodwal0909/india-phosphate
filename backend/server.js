@@ -6,6 +6,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const sequelize = require("./config/db");
 const router = require("./routes");
+const startPaymentReminder = require("./cron/paymentReminder");
 const app = express();
 const server = http.createServer(app);
 //  Body parser middleware
@@ -24,9 +25,9 @@ const io = new Server(server, {
 // Make io available globally
 global.io = io;
 
-// io.on("connection", (socket) => {
-//   console.log("User connected:", socket.id);
-// });
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+});
 
 app.use("/", router);
 
@@ -53,6 +54,8 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("DB connected");
+    startPaymentReminder();
+
     server.listen(process.env.PORT || 5000, () =>
       console.log("Backend server running on port 5000")
     );

@@ -1,87 +1,74 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
   loading: false,
   error: null,
-  Transportdata: [],         
-  addResult: null,  
+  Transportdata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
-export const GetTransport= createAsyncThunk(
-  "GetTransport /fetch",
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(`${apiUrl}/get-transport`);
-      return response.data;
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch user modules.";
-      return thunkAPI.rejectWithValue(errorMessage);
-    }
+export const GetTransport = createAsyncThunk('GetTransport /fetch', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-transport`);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
   }
-);
+});
 
 export const addTransport = createAsyncThunk(
-  "Transport/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'Transport/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-transport`,
-        formdata);
+      const response = await axiosInstance.post(`/store-transport`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
- 
 export const updateTransport = createAsyncThunk(
-  "Transport/update",
+  'Transport/update',
   async (updatedUser: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/update-transport/${updatedUser?.id}`,
-        updatedUser
-      );
+      const response = await axiosInstance.put(`/update-transport/${updatedUser?.id}`, updatedUser);
       return response.data;
     } catch (error: any) {
       // Check if the error is an axios error with a response
       if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data.message || "Update failed");
+        return rejectWithValue(error.response.data.message || 'Update failed');
       } else {
-        return rejectWithValue(error.message || "Network error");
+        return rejectWithValue(error.message || 'Network error');
       }
     }
-  }
+  },
 );
 
-export const deleteTransport = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deleteTransport/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${apiUrl}/delete-transport/${id}`,{
-      data: { user_id }
+export const deleteTransport = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('deleteTransport/delete', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    await axiosInstance.delete(`/delete-transport/${id}`, {
+      data: { user_id },
     });
-      return id;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
-    }
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
   }
-);
-
-
+});
 
 const TransportSlice = createSlice({
-  name: "transport",
+  name: 'transport',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -127,4 +114,3 @@ const TransportSlice = createSlice({
 });
 
 export default TransportSlice.reducer;
-

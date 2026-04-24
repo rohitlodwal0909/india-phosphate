@@ -20,7 +20,7 @@ const unitMap = {
 
   // Count (no conversion)
   pcs: { factor: 1, type: "count" },
-  bag: { factor: 1, type: "count" },
+  bag: { factor: 1, type: "count" }
 };
 
 function convertUnit(value, fromUnit, toUnit) {

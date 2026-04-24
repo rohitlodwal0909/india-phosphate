@@ -60,7 +60,7 @@ exports.getBatches = async (req, res, next) => {
         ===================== */
         const totalIssuedQty =
           batchJSON?.finishing?.FMIssuedModels?.reduce(
-            (sum, item) => sum + Number(item.issued_qty || 0),
+            (sum, item) => sum + Number(item.quantity || 0),
             0
           ) || 0;
 
@@ -86,14 +86,84 @@ exports.getBatches = async (req, res, next) => {
   }
 };
 
+exports.getFinishedStock = async (req, res, next) => {
+  try {
+    const data = await Qcbatch.findAll({
+      attributes: ["id", "product_name"],
+      include: [
+        {
+          model: Finishing,
+          as: "finishing",
+          attributes: ["id"],
+          required: true,
+          include: [
+            {
+              model: FinishQty,
+              attributes: [
+                "id",
+                "finish_id",
+                "finishing_qty",
+                "unfinishing_qty"
+              ],
+              required: false
+            },
+            {
+              model: FMIssuedModel,
+              attributes: ["id", "quantity", "finish_id"],
+              required: false
+            }
+          ]
+        }
+      ],
+      order: [["created_at", "DESC"]]
+    });
+
+    // ✅ STEP 1: Batch-wise calculation
+    const formattedData = data.map((batch) => {
+      const batchJSON = batch.toJSON();
+
+      const totalFinishQty =
+        batchJSON?.finishing?.FinishQties?.reduce(
+          (sum, item) => sum + Number(item.finishing_qty || 0),
+          0
+        ) || 0;
+
+      const totalIssuedQty =
+        batchJSON?.finishing?.FMIssuedModels?.reduce(
+          (sum, item) => sum + Number(item.quantity || 0),
+          0
+        ) || 0;
+
+      const remainingQty = totalFinishQty - totalIssuedQty;
+
+      return {
+        product_name: batchJSON.product_name,
+        remaining_qty: remainingQty
+      };
+    });
+
+    const finalData = formattedData.filter((item) => item.remaining_qty > 0);
+
+    // ✅ STEP 2: Group by product_name
+
+    res.status(200).json({
+      message: "Product-wise Stock Fetched",
+      data: finalData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.saveIssuedFM = async (req, res, next) => {
   try {
-    const { finish_id, issued_qty, remark } = req.body;
+    const { finish_id, issued_qty, work_order_no, remark } = req.body;
     const { entry_date, entry_time } = getISTDateTime();
 
     const data = await FMIssuedModel.create({
       finish_id: finish_id,
       quantity: issued_qty,
+      work_order_no: work_order_no,
       remark: remark,
       date: entry_date + entry_time,
       user_id: req.admin.id
@@ -175,15 +245,21 @@ exports.getIssueFM = async (req, res, next) => {
 
 exports.deleteIssuedFM = async (req, res, next) => {
   try {
-    const entry = await FMIssuedModel.findByPk(req.params.id);
-    if (!entry) {
-      const error = new Error("PM Entry not found");
-      error.status = 400;
-      return next(error);
+    const finish_id = req.params.id;
+
+    const deletedCount = await FMIssuedModel.destroy({
+      where: { finish_id: finish_id } // ✅ match all
+    });
+
+    if (deletedCount === 0) {
+      return res.status(404).json({
+        message: "No FM Issued records found for this finish_id"
+      });
     }
 
-    await entry.destroy();
-    res.status(200).json({ message: "PM Entry deleted" });
+    res.status(200).json({
+      message: `${deletedCount} record(s) deleted successfully`
+    });
   } catch (error) {
     next(error);
   }

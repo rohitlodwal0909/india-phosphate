@@ -5,6 +5,8 @@ import { allUnits } from 'src/utils/AllUnit';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
+import { useNavigate } from 'react-router';
+import { GetTransport } from 'src/features/master/Transport/TransportSlice';
 
 interface VehicleDispatchEditModalProps {
   openModal: boolean;
@@ -31,11 +33,14 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
     (state: RootState) => state.purchaseOrder.purchaseOrders,
   ) as any[];
 
+  const transport = useSelector((state: RootState) => state.transport.Transportdata) as any[];
+
   const purchaseOrders = purchaseOrder.filter(
     (d) => d.workNo !== null && d.workNo.status == 'Approved',
   );
   useEffect(() => {
     dispatch(getPurchaseOrders());
+    dispatch(GetTransport());
   }, [dispatch]);
 
   // Batch options
@@ -83,6 +88,19 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
       [name]: value,
     }));
   };
+
+  const transports =
+    transport?.map((po: any) => ({
+      value: po.id,
+      label: po.transporter_name,
+    })) || [];
+
+  const navigate = useNavigate();
+
+  const transporterOptions = [
+    ...transports,
+    { label: '+ Add Transporter', value: 'add_transporter' },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -286,11 +304,23 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
 
           {/* Delivered By */}
           <div className="sm:col-span-6 col-span-12">
-            <Label value="Delivered By" />
-            <TextInput
-              name="delivered_by"
-              value={formData.delivered_by || ''}
-              onChange={handleChange}
+            <Label value="Transporter" />
+
+            <Select
+              options={transporterOptions}
+              value={transporterOptions.find((opt) => opt.value == formData.transport_id) || null}
+              onChange={(selected: any) => {
+                // ✅ Redirect to Transporter Master
+                if (selected?.value === 'add_transporter') {
+                  navigate('/master/transport');
+                  return;
+                }
+
+                setFormData({
+                  ...formData,
+                  transport_id: selected?.value,
+                });
+              }}
             />
           </div>
 

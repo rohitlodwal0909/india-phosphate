@@ -31,7 +31,6 @@ import BmrAdd from './BmrAdd';
 import BmrEdit from './BmrEdit';
 import BmrView from './BmrView';
 import { useNavigate } from 'react-router';
-import { GetAllQcbatch } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 /* =======================
    BMR DATA TYPE
@@ -58,8 +57,6 @@ const BmrCreateTable = () => {
 
   /* ✅ Redux se direct array aa raha hai */
   const bmrRecords = useSelector((state: RootState) => state.bmrRecords.data) as BmrDataType[];
-
-  const allBatch = useSelector((state: any) => state.qcinventory.qcbatchdata.data);
 
   const [data, setData] = useState<BmrDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -88,7 +85,6 @@ const BmrCreateTable = () => {
   ======================= */
   useEffect(() => {
     dispatch(GetBmrRecords());
-    dispatch(GetAllQcbatch());
   }, [dispatch]);
 
   /* =======================
@@ -302,11 +298,7 @@ const BmrCreateTable = () => {
 
       {modals.add && (
         <Portal>
-          <BmrAdd
-            openModal={modals.add}
-            setOpenModal={() => handleModal('add', false)}
-            StoreData={allBatch}
-          />
+          <BmrAdd openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
         </Portal>
       )}
       {modals.edit && selectedRow && (
@@ -315,7 +307,6 @@ const BmrCreateTable = () => {
             openModal={modals.edit}
             data={selectedRow} // ✅ SINGLE ROW
             setOpenModal={() => handleModal('edit', false)}
-            StoreData={allBatch}
           />
         </Portal>
       )}

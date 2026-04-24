@@ -7,6 +7,48 @@ const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
 const { GrnEntry, RmCode, RMIssueModel, Qcbatch, ProductionResult } = db;
 
+const openingStock = {
+  RM1: 4000,
+  RM2: 0,
+  RM3: 0,
+  RM4: 10000,
+  RM5: 33000,
+  RM6: 500,
+  RM7: 0,
+  RM8: 20,
+  RM9: 57000,
+  RM9A: 108200,
+  RM10: 0,
+  RM11: 39400,
+  RM12: 6300,
+  RM15: 500,
+  RM16: 3,
+  RM17: 1,
+  RM18: 215,
+  RM19: 2500,
+  RM21: 7,
+  RM22: 2000,
+  RM25: 33800,
+  RM25A: 12000,
+  RM26: 35500,
+  RM26A: 30800,
+  RM27: 475,
+  RM30: 20000,
+  RM42: 250,
+  RM50: 51750,
+  RM53: 2500,
+  RM57: 100,
+  RM58: 1,
+  RM59: 0.5,
+  RM60: 50,
+  RM63: 1,
+  RM65: 2000,
+  RM68: 3000,
+  RM74: 25,
+  RM90: 25,
+  RM97: 100000
+};
+
 exports.getStoreRM = async (req, res, next) => {
   try {
     const equipments = await RmCode.findAll({
@@ -16,7 +58,7 @@ exports.getStoreRM = async (req, res, next) => {
           as: "rmcodes",
           attributes: ["quantity", "unit"],
           where: { type: "material", qa_qc_status: "APPROVED" },
-          required: true
+          required: false
         },
         {
           model: RMIssueModel,
@@ -28,21 +70,28 @@ exports.getStoreRM = async (req, res, next) => {
     });
 
     const data = equipments.map((eq) => {
-      const grnTotal = eq.rmcodes.reduce(
-        (sum, g) => sum + Number(g.quantity),
-        0
-      );
+      const code = eq.rm_code;
 
-      const issuedTotal = eq.issuedRawMaterial.reduce(
-        (sum, i) => sum + Number(i.quantity),
-        0
-      );
+      // ✅ Opening
+      const openingQty = openingStock[code] || 0;
+
+      // ✅ GRN Total (IN)
+      const grnTotal =
+        eq.rmcodes?.reduce((sum, g) => sum + Number(g.quantity || 0), 0) || 0;
+
+      // ✅ Issued Total (OUT)
+      const issuedTotal =
+        eq.issuedRawMaterial?.reduce(
+          (sum, i) => sum + Number(i.quantity || 0),
+          0
+        ) || 0;
 
       return {
         id: eq.id,
-        name: eq.rm_code,
-        unit: eq.rmcodes[0]?.unit || null,
-        total_quantity: grnTotal - issuedTotal
+        code: code,
+        name: eq.rm_name || eq.rm_code,
+        unit: eq.rmcodes?.[0]?.unit || "KG",
+        total_quantity: openingQty + grnTotal - issuedTotal
       };
     });
 

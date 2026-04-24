@@ -21,12 +21,13 @@ import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import { getPurchaseOrders, paymentApprove } from 'src/features/marketing/PurchaseOrderSlice';
 import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
+import Remark from './AddRemark';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
-  payment_status?: string; // ✅ ADD THIS
+  payment_status?: string;
   customers?: {
     id: number;
     company_name: string;
@@ -131,19 +132,19 @@ const AccountPaymentTable = () => {
           const row = info.row.original;
 
           // ✅ Approved
-          if (row.payment_status === 'Approved') {
+          if (row.payment_status === 'Received') {
             return (
               <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-                Approved
+                Received
               </span>
             );
           }
 
           // ✅ Rejected
-          if (row.payment_status === 'Rejected') {
+          if (row.payment_status === 'Notreceived') {
             return (
               <span className="px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-                Rejected
+                Not received
               </span>
             );
           }
@@ -151,12 +152,12 @@ const AccountPaymentTable = () => {
           // ✅ Pending → show buttons
           return (
             <div className="flex flex-wrap gap-2">
-              <Button size="xs" color="success" onClick={() => handlePayment(row.id, 'Approved')}>
-                Approve
+              <Button size="xs" color="success" onClick={() => handlePayment(row.id, 'Received')}>
+                Received
               </Button>
 
-              <Button size="xs" color="error" onClick={() => handlePayment(row.id, 'Rejected')}>
-                Reject
+              <Button size="xs" color="error" onClick={() => handlePayment(row.id, 'Notreceived')}>
+                Not received
               </Button>
             </div>
           );
@@ -183,8 +184,8 @@ const AccountPaymentTable = () => {
                   </Button>
                 </Tooltip>
               )}
-              {permissions.view && (
-                <Tooltip content="Report">
+              {permissions.add && (
+                <Tooltip content="Add Remark">
                   <Button
                     onClick={() => handleModal('add', true, row)}
                     color="primary"
@@ -266,11 +267,10 @@ const AccountPaymentTable = () => {
       )}
       {modals.add && (
         <Portal>
-          <ViewPurchaseOrderModal
-            placeModal={modals.view}
+          <Remark
+            placeModal={modals.add}
             setPlaceModal={() => handleModal('add', false)}
             selectedRow={selectedRow}
-            modalPlacement="center"
           />
         </Portal>
       )}

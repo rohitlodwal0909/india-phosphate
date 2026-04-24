@@ -198,6 +198,18 @@ const SidebarContent: MenuItem[] = [
           delete: false,
 
         },
+
+         {
+          name: "Purchase Account",
+          icon: "tabler:receipt",
+          id: uniqueId(),
+          url: "/accounts/purchase",
+          subId: 4,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+        },
       ],
     },
   ],
@@ -210,6 +222,18 @@ const SidebarContent: MenuItem[] = [
     {
       heading: "Purchase Department",
       children: [
+
+        {
+          name: "Purchase PO",
+          icon: "tabler:clipboard-list",
+          id: uniqueId(),
+          url: "/purchase/po",
+          subId: 4,
+          add: false,
+          view: false,
+          edit: false,
+          delete: false,
+        },
 
         {
           name: "PO Requisition",

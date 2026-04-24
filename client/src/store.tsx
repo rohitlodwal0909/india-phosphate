@@ -64,6 +64,7 @@ import ReplacementSlice from '../src/features/Inventorymodule/replacement/Replac
 import QuotationSlice from '../src/features/purchase/quotation/QuotationSlice';
 import PurchaseStoreSlice from '../src/features/purchase/store/StoreSlice';
 import PoRequisitionSlice from '../src/features/purchase/porequisition/PoRequisitionSlice';
+import PurchasePoSlice from '../src/features/purchase/po/PurchasePoSlice';
 
 export const store = configureStore({
   reducer: {
@@ -130,6 +131,7 @@ export const store = configureStore({
     quotation: QuotationSlice,
     purchasestore: PurchaseStoreSlice,
     requisition: PoRequisitionSlice,
+    purchasepo: PurchasePoSlice,
   },
 });
 

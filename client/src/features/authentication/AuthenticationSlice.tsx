@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../constants/contant';
+import axiosInstance from 'src/constants/axiosInstance';
 
 // Initial state
 const initialState = {
@@ -47,9 +48,8 @@ export const Authenticationmodule = createAsyncThunk(
 export const AuthenticationUpdatemodule = createAsyncThunk(
   'AuthenticationUpdatemodule/authentication',
   async (formdata: any, { rejectWithValue }) => {
-    const stored = JSON.parse(localStorage.getItem('logincheck'));
     try {
-      const response = await axios.put(`${apiUrl}/update-profile/${stored?.admin?.id}`, formdata, {
+      const response = await axiosInstance.put(`/update-profile`, formdata, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

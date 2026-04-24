@@ -10,5 +10,9 @@ router.get("/view-pm-code/:id", PmCodeController.getPmCodeById);
 router.put("/update-pm-code/:id", PmCodeController.updatePmCode);
 router.delete("/delete-pm-code/:id", PmCodeController.deletePmCode);
 router.get("/get-pm-raw-material/:id", PmCodeController.getPmRawMaterial);
+router.delete(
+  "/delete-packing-material/:id",
+  PmCodeController.deletePmMaterail
+);
 
 module.exports = router;

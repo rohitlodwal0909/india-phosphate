@@ -65,6 +65,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const QuotationRoutes = require("../routes/purchase/QuotationRoutes");
 const PurchaseStoreRoutes = require("../routes/purchase/PurchaseStoreRoutes");
 const PoRequisitionRoutes = require("../routes/purchase/PoRequisitionRoutes");
+const PoPurchaseRoutes = require("../routes/purchase/PoPurchaseRoutes");
 
 router.use("/api", authRoutes);
 router.use("/api", authMiddleware, BmrRoutes);
@@ -109,7 +110,7 @@ router.use("/api", BmrMasterRoutes);
 router.use("/api", FinishGoodRoutes);
 router.use("/api", authMiddleware, FormulaRoutes);
 router.use("/api", DocumentRoutes);
-router.use("/api", FprRoutes);
+router.use("/api", authMiddleware, FprRoutes);
 router.use("/api", IssuedRoutes);
 router.use("/api", BmrReports);
 router.use("/api", ManufacturingProcedureRoutes);
@@ -128,5 +129,6 @@ router.use("/api", authMiddleware, SampleInvoiceRoutes);
 router.use("/api", authMiddleware, QuotationRoutes);
 router.use("/api", authMiddleware, PurchaseStoreRoutes);
 router.use("/api", authMiddleware, PoRequisitionRoutes);
+router.use("/api", authMiddleware, PoPurchaseRoutes);
 
 module.exports = router;

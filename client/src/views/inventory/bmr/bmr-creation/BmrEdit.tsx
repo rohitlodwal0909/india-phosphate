@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 
 import { AppDispatch } from 'src/store';
-import { updateBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import {
+  getBatches,
+  updateBmrRecord,
+} from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 
 interface BmrEditProps {
   openModal: boolean;
   data: any; // selected row
   setOpenModal: (val: boolean) => void;
-  StoreData: any;
 }
 
-const BmrEdit: React.FC<BmrEditProps> = ({ openModal, data, setOpenModal, StoreData }) => {
+const BmrEdit: React.FC<BmrEditProps> = ({ openModal, data, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const { batches } = useSelector((state: any) => state.bmrRecords);
+
+  useEffect(() => {
+    dispatch(getBatches());
+  }, [dispatch]);
 
   const [formData, setFormData] = useState<any>({
     id: '',
@@ -48,7 +56,6 @@ const BmrEdit: React.FC<BmrEditProps> = ({ openModal, data, setOpenModal, StoreD
     }
   }, [data]);
 
-  console.log(data);
   /* =======================
      INPUT HANDLER
   ======================= */
@@ -62,7 +69,7 @@ const BmrEdit: React.FC<BmrEditProps> = ({ openModal, data, setOpenModal, StoreD
      PRODUCT OPTIONS
   ======================= */
   const batchOptions =
-    StoreData?.map((item: any) => ({
+    batches?.map((item: any) => ({
       value: item.id, // product / batch id
       label: item.qc_batch_number, // Batch No
       product_name: item.product_name,

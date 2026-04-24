@@ -1,7 +1,7 @@
 const db = require("../../../models");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
-const { DispatchVehicle, DispatchBatch, User, Qcbatch } = db;
+const { DispatchVehicle, DispatchBatch, Qcbatch, Transport } = db;
 const { sequelize } = db;
 
 exports.dispatchvehicleEntry = async (req, res, next) => {
@@ -69,6 +69,9 @@ exports.getAllDispatchVehicles = async (req, res, next) => {
               as: "batch"
             }
           ]
+        },
+        {
+          model: Transport
         }
       ]
     });

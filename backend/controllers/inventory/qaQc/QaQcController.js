@@ -14,6 +14,7 @@ const {
   PmQcResult,
   Qcbatch,
   Notification,
+  BmrRecordsModel,
   Formula,
   ProductFormulaSpecification,
   Finishing,
@@ -23,6 +24,8 @@ const {
   PmCode,
   GuardEntry
 } = db;
+const { Op } = require("sequelize");
+
 // Update Guard Entry
 
 exports.approveOrRejectGrnEntry = async (req, res, next) => {
@@ -505,7 +508,7 @@ exports.getTestReport = async (req, res, next) => {
         },
         {
           model: GuardEntry,
-          attributes: ["vehicle_number"],
+          attributes: ["vehicle_number", "inward_number"],
           as: "guard_entry",
           required: true
         }
@@ -580,7 +583,6 @@ exports.addQcBatch = async (req, res, next) => {
     exp_date,
     grade,
     size,
-    work_order_no,
     user_id
   } = req.body;
 
@@ -608,7 +610,6 @@ exports.addQcBatch = async (req, res, next) => {
       mfg_date,
       exp_date,
       grade,
-      work_order_no,
       size,
       user_id
     });
@@ -650,7 +651,6 @@ exports.updateQcBatch = async (req, res, next) => {
     product_name,
     mfg_date,
     exp_date,
-    work_order_no,
     grade,
     size,
     user_id
@@ -671,7 +671,6 @@ exports.updateQcBatch = async (req, res, next) => {
       product_name,
       mfg_date,
       exp_date,
-      work_order_no,
       grade,
       size,
       user_id
@@ -706,14 +705,21 @@ exports.updateQcBatch = async (req, res, next) => {
 
 exports.getAllQcBatches = async (req, res, next) => {
   try {
+    const bmrRecords = await BmrRecordsModel.findAll({
+      attributes: ["batch_id"],
+      where: { status: "approved" }
+    });
+
+    // Step 2: Extract batch_ids
+    const batchIds = bmrRecords.map((item) => item.batch_id);
+
     const batches = await Qcbatch.findAll({
-      order: [["created_at", "DESC"]],
-      include: [
-        {
-          model: Finishing,
-          as: "finishing"
+      where: {
+        id: {
+          [Op.in]: batchIds
         }
-      ]
+      },
+      order: [["created_at", "DESC"]]
     });
     res.status(200).json({
       message: "QC Batches fetched successfully.",

@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
       exp_date: DataTypes.STRING,
       grade: DataTypes.STRING,
       size: DataTypes.STRING,
-      work_order_no: DataTypes.STRING,
       status: DataTypes.INTEGER,
       reference_number: DataTypes.STRING,
       mol_weight: DataTypes.STRING,

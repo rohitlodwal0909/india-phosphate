@@ -16,6 +16,7 @@ interface FMIssuedState {
   error: string | null;
   batches: any[];
   issuedFMList: any[];
+  finishedstock: any[];
   addResult: any;
   updateResult: any;
   deleteResult: any;
@@ -30,6 +31,7 @@ const initialState: FMIssuedState = {
   error: null,
   batches: [],
   issuedFMList: [],
+  finishedstock: [],
   addResult: null,
   updateResult: null,
   deleteResult: null,
@@ -52,6 +54,17 @@ export const getBatches = createAsyncThunk(
   },
 );
 
+export const getFinishedStock = createAsyncThunk(
+  'FM/currentstock',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get('/get-finished-stock');
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch batches');
+    }
+  },
+);
 /* ✅ ADD ISSUED FM */
 export const issuedFM = createAsyncThunk<any, IssuePayload>(
   'issuedFM/add',
@@ -80,7 +93,7 @@ export const deleteIssuedFM = createAsyncThunk(
   'issuedFM/delete',
   async (id: number, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.delete(`/issued-fm/${id}`);
+      const res = await axiosInstance.delete(`/delete-issued-fm/${id}`);
       return res.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Delete failed');
@@ -121,6 +134,18 @@ const FMIssuedSlice = createSlice({
         state.batches = action.payload.data;
       })
       .addCase(getBatches.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(getFinishedStock.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getFinishedStock.fulfilled, (state, action) => {
+        state.loading = false;
+        state.finishedstock = action.payload.data;
+      })
+      .addCase(getFinishedStock.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

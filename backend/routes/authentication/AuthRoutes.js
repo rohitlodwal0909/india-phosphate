@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const AuthController = require("../../controllers/authentication/AuthController");
+const authMiddleware = require("../../middleware/authMiddleware");
 
 // Setup multer
 const storage = multer.diskStorage({
@@ -18,8 +19,9 @@ const upload = multer({ storage });
 router.post("/login", AuthController.login);
 router.get("/get-profile/:id", AuthController.getProfileById);
 router.put(
-  "/update-profile/:id",
+  "/update-profile",
   upload.single("profile_image"),
+  authMiddleware,
   AuthController.updateProfile
 );
 router.put("/change-password/:id", AuthController.changePassword);

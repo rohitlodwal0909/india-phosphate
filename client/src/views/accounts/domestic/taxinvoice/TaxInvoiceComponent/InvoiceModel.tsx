@@ -60,7 +60,8 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
         <Label value="Invoice Date" />
         <TextInput
           type="date"
-          value={formData.invoice_date}
+          max={new Date().toISOString().split('T')[0]}
+          value={formData.invoice_date ? formData.invoice_date.split('T')[0] : ''}
           onChange={(e) => handleChange('invoice_date', e.target.value)}
         />
       </div>
@@ -95,7 +96,8 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
         <Label value="PO Date" />
         <TextInput
           type="date"
-          value={formData.from_to}
+          max={new Date().toISOString().split('T')[0]}
+          value={formData.from_to ? formData.from_to.split('T')[0] : ''}
           onChange={(e) => handleChange('from_to', e.target.value)}
         />
       </div>

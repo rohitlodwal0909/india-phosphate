@@ -265,9 +265,8 @@ exports.getAllProductionResults = async (req, res, next) => {
                 0
               );
 
-              const total_unfinish = finish.FinishQties?.reduce(
-                (sum, f) => sum + Number(f.unfinishing_qty || 0),
-                0
+              const total_unfinish = Number(
+                finish.FinishQties?.at(-1)?.unfinishing_qty || 0
               );
 
               return {

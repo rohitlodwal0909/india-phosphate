@@ -19,7 +19,6 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
     exp_date: '',
     grade: '',
     size: '',
-    work_order_no: '',
   });
 
   const [manualGrade, setManualGrade] = useState('');
@@ -51,7 +50,6 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
           exp_date: form.exp_date,
           grade: finalGrade,
           size: form.size,
-          work_order_no: form.work_order_no,
           user_id: logindata?.admin?.id,
         }),
       );
@@ -63,7 +61,6 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
           setForm({
             batch_no: '',
             product_name: '',
-            work_order_no: '',
             mfg_date: '',
             exp_date: '',
             grade: '',
@@ -151,16 +148,6 @@ const AddQcbatchModal = ({ placeModal, setPlaceModal, logindata }) => {
                 name="size"
                 placeholder="Enter Size"
                 value={form.size}
-                onChange={handleChange}
-              />
-            </Field>
-            <Field>
-              <Label className="mb-2 block font-medium">Work order no.</Label>
-              <TextInput
-                type="text"
-                name="work_order_no"
-                placeholder="Enter Work order no."
-                value={form.work_order_no}
                 onChange={handleChange}
               />
             </Field>

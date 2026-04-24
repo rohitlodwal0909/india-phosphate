@@ -2,8 +2,15 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
-const { BmrRecordsModel, LineClearance, LineClearanceKeyPoint, Qcbatch } = db;
+const {
+  BmrRecordsModel,
+  LineClearance,
+  LineClearanceKeyPoint,
+  Qcbatch,
+  ProductionResult
+} = db;
 const sequelize = db.sequelize; // ✅ THIS WAS MISSING
+const { Op } = require("sequelize");
 
 exports.index = async (req, res, next) => {
   try {
@@ -19,6 +26,42 @@ exports.index = async (req, res, next) => {
     });
 
     res.status(200).json({ message: "BMR Fetched", data: data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getProductionBatches = async (req, res, next) => {
+  try {
+    // Step 1: Get all batch_ids from BMR
+    const bmrRecords = await BmrRecordsModel.findAll({
+      attributes: ["batch_id"]
+    });
+
+    // Step 2: Extract batch_ids
+    const batchIds = bmrRecords.map((item) => item.batch_id);
+
+    // Step 3: Get Qcbatch where id NOT IN batchIds
+    const data = await Qcbatch.findAll({
+      where: {
+        id: {
+          [Op.notIn]: batchIds
+        }
+      },
+      include: [
+        {
+          model: ProductionResult,
+          as: "production_results",
+          required: true
+        }
+      ],
+      order: [["created_at", "DESC"]]
+    });
+
+    res.status(200).json({
+      message: "QCBatches fetched (excluding BMR batches)",
+      data: data
+    });
   } catch (error) {
     next(error);
   }

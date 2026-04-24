@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import { GetPmRawMaterial } from 'src/features/master/PmCode/PmCodeSlice';
+import { deletePackingMaterial, GetPmRawMaterial } from 'src/features/master/PmCode/PmCodeSlice';
 type Props = {
   placeModal: boolean;
   modalPlacement: string;
@@ -42,6 +42,12 @@ const RawMaterialViewModal = ({
     };
     fetchrawmaterial();
   }, [selectedRow?.id]);
+
+  const handleOndelete = async (id: number) => {
+    await dispatch(deletePackingMaterial(id));
+    setShowFollowup((prev) => prev.filter((item) => item.id !== id));
+    toast.success('Packing Material entry deleted');
+  };
 
   return (
     <Modal
@@ -85,6 +91,18 @@ const RawMaterialViewModal = ({
                           </td>
                           <td className="px-4 py-2 border">{item?.test || '-'}</td>
                           <td className="px-4 py-2 border capitalize">{item?.limit}</td>
+                          <td className="px-4 py-2 border capitalize">
+                            <Button
+                              size="sm"
+                              color="lighterror"
+                              className="p-0"
+                              onClick={() => {
+                                handleOndelete(item?.id);
+                              }}
+                            >
+                              <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

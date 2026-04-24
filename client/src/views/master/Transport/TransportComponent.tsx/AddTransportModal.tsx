@@ -12,10 +12,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  addTransport,
-  GetTransport,
-} from 'src/features/master/Transport/TransportSlice';
+import { addTransport, GetTransport } from 'src/features/master/Transport/TransportSlice';
 
 const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +35,6 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
     payment_terms: '',
     is_active: true,
     created_by: logindata?.admin?.id || '',
-
   });
 
   const [cityOptions, setCityOptions] = useState<string[]>([]);
@@ -67,22 +63,20 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
   const validateForm = () => {
     const required = [
       'transporter_name',
-    'contact_person',
-  'contact_number',
-    'alternate_number',
-    'email',
-   'address',
-    'city',
-    'state',
-    'pincode',
-    'gst_number',
-    'pan_number',
-    'vehicle_types',
-    // 'preferred_routes',
-    'freight_rate_type',
-    'payment_terms',
-    'created_by' ,
-    
+      'contact_person',
+      'contact_number',
+      'alternate_number',
+      'email',
+      'address',
+      'state',
+      'pincode',
+      'gst_number',
+      'pan_number',
+      'vehicle_types',
+      // 'preferred_routes',
+      'freight_rate_type',
+      'payment_terms',
+      'created_by',
     ];
     const newErrors: any = {};
     required.forEach((field) => {
@@ -123,7 +117,6 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
         payment_terms: '',
         is_active: true,
         created_by: logindata?.admin?.id || '',
-       
       });
       setShowmodal(false);
     } catch (err: any) {
@@ -152,32 +145,32 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           ].map(({ id, label, type }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
-               <span className="text-red-700 ps-1">{ id === 'preferred_routes'? "":"*"}</span>
-              { id === 'vehicle_types' ? (
-      <select
-        id={id}
-        value={formData[id]}
-        onChange={(e) => handleChange("vehicle_types", e.target.value)}
-        className="w-full rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
-      >
-        <option value="">Select Vehicle Type</option>
-        <option value="Truck">Truck</option>
-        <option value="Tanker">Tanker</option>
-        <option value="Trailer">Trailer</option>
-        <option value="Pickup">Pickup</option>
-        <option value="Other">Other</option>
-      </select>
-    ) : (
-              <TextInput
-                id={id}
-                type={type}
-                value={formData[id]}
-                placeholder={`Enter ${label}`}
-                onChange={(e) => handleChange(id, e.target.value)}
-                color={errors[id] ? 'failure' : 'gray'}
-                className='form-rounded-md'
-              />
-    )}
+              <span className="text-red-700 ps-1">{id === 'preferred_routes' ? '' : '*'}</span>
+              {id === 'vehicle_types' ? (
+                <select
+                  id={id}
+                  value={formData[id]}
+                  onChange={(e) => handleChange('vehicle_types', e.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
+                >
+                  <option value="">Select Vehicle Type</option>
+                  <option value="Truck">Truck</option>
+                  <option value="Tanker">Tanker</option>
+                  <option value="Trailer">Trailer</option>
+                  <option value="Pickup">Pickup</option>
+                  <option value="Other">Other</option>
+                </select>
+              ) : (
+                <TextInput
+                  id={id}
+                  type={type}
+                  value={formData[id]}
+                  placeholder={`Enter ${label}`}
+                  onChange={(e) => handleChange(id, e.target.value)}
+                  color={errors[id] ? 'failure' : 'gray'}
+                  className="form-rounded-md"
+                />
+              )}
               {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
             </div>
           ))}
@@ -185,7 +178,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           {/* State Dropdown */}
           <div className="col-span-6">
             <Label htmlFor="state" value="State" />
-               <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
 
             <select
               id="state"
@@ -206,7 +199,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
           {/* City Dropdown */}
           <div className="col-span-6">
             <Label htmlFor="city" value="City" />
-               <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
 
             <select
               id="city"
@@ -221,7 +214,6 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
                 </option>
               ))}
             </select>
-            {errors.city && <p className="text-red-500 text-xs">{errors.city}</p>}
           </div>
 
           {/* Toggle is_active */}
@@ -235,11 +227,11 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
               />
             </div>
           </div> */}
-   
+
           {/* Address */}
           <div className="col-span-12">
             <Label htmlFor="address" value="Address" />
-               <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
 
             <textarea
               id="address"
@@ -253,8 +245,6 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
             />
             {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
           </div>
-
-          
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

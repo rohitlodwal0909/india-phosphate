@@ -20,6 +20,7 @@ const upload = multer({
 
 // Get All Purchase Orders
 router.get("/get-purchase-orders", purchaseOrderController.getPurchaseOrders);
+router.get("/get-po-report/:id", purchaseOrderController.getPoReport);
 
 router.get("/get-all-customers", purchaseOrderController.getCustomers);
 
@@ -38,6 +39,8 @@ router.put(
 );
 
 router.put("/payment-approve/:id", purchaseOrderController.paymentApproved);
+router.put("/payment-remark/:id", purchaseOrderController.paymentRemark);
+
 // Delete Purchase Order
 router.delete(
   "/delete-purchase-order/:id",

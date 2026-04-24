@@ -28,7 +28,7 @@ const ViewPurchaseOrderModal = ({
 
   useEffect(() => {
     dispatch(GetProduct());
-  });
+  }, [dispatch]);
 
   const getProductName = (id: any) => {
     const product = productdata?.find((p: any) => p.id == id);

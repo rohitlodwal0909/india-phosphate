@@ -15,7 +15,6 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
   const handleChange = (field: string, value: any) => {
     setCharges((prev) => ({ ...prev, [field]: value }));
   };
-  console.log(charges);
   const addBatch = (productIndex) => {
     const updated = [...products];
 
@@ -256,7 +255,12 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
                     <TextInput
                       type="number"
                       value={batch.qty}
-                      onChange={(e) => handleBatchChange(pIndex, bIndex, 'qty', e.target.value)}
+                      onChange={(e) => {
+                        let value = Number(e.target.value);
+                        if (value < 0) value = 0;
+
+                        handleBatchChange(pIndex, bIndex, 'qty', value);
+                      }}
                     />
                   </td>
 

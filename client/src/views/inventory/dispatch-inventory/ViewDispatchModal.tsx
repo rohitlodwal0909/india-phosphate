@@ -89,7 +89,7 @@ const ViewDispatchModal = ({ placeModal, modalPlacement, setPlaceModal, selected
               <h3 className="text-sm font-semibold text-gray-600 uppercase">Delivery Details</h3>
 
               <Info label="Delivery Location" value={selectedRow?.delivery_location} />
-              <Info label="Transporter" value={selectedRow?.delivered_by} />
+              <Info label="Transporter" value={selectedRow?.Transport?.transporter_name} />
               <Info label="Arrived Date" value={formatDate(selectedRow?.arrived_booking)} />
               <Info label="Remarks" value={selectedRow?.remarks} multiline />
             </div>

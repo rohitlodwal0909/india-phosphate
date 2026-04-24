@@ -3,17 +3,14 @@ import TransportTable from './TransportComponent.tsx/TransportTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const Transport = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Transport ", to: "/" }]}
-        title="Transport Mode"/>
-         <CardBox>
-       
-         <TransportTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'Transport ', to: '/' }]} title="Transport Mode" />
+      <CardBox>
+        <TransportTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default Transport
+export default Transport;

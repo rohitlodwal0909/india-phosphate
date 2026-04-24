@@ -5,6 +5,12 @@ const BmrRecordsController = require("../../controllers/inventory/bmr/BmrRecordC
 // List by user_id
 router.post("/save-bmr-record", BmrRecordsController.store);
 router.get("/get-bmr-records", BmrRecordsController.index);
+
+router.get(
+  "/get-production-batches",
+  BmrRecordsController.getProductionBatches
+);
+
 router.delete("/delete-bmr-record/:id", BmrRecordsController.destroy);
 router.put("/update-bmr-record/:id", BmrRecordsController.update);
 router.get(

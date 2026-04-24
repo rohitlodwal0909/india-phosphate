@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      work_order_no: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       remark: {
         type: DataTypes.TEXT,
         allowNull: false

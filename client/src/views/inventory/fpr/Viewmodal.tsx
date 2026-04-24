@@ -90,7 +90,7 @@ const ViewModal: React.FC<AddModalProps> = ({
               Batch Number: <span style={lineValue}>{rowData?.qc_batch_number || '—'}</span>
             </p>
             <p style={lineText}>
-              Quantity: <span style={lineValue}>{rowData?.finishing?.finish_quantity || '—'}</span>
+              Quantity: <span style={lineValue}>{rowData?.size || '—'}</span>
             </p>
             <p style={lineText}>
               Manufacturing Date: <span style={lineValue}>{rowData?.mfg_date || '—'}</span>

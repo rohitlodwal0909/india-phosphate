@@ -8,7 +8,9 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true
       },
       po_no: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       },
       user_id: {
         type: DataTypes.INTEGER
@@ -106,6 +108,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("Pending", "Approved", "Rejected"),
         allowNull: false,
         defaultValue: "Pending"
+      },
+
+      payment_remark: {
+        type: DataTypes.STRING
       },
 
       expected_delivery_date: {

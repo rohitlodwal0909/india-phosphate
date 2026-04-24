@@ -19,7 +19,9 @@ const ViewReport = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(getTestReport(id));
+    if (id) {
+      dispatch(getTestReport({ id: Number(id) }));
+    }
   }, [dispatch, id]);
 
   const isPM = testReports?.type == 'pm';
@@ -166,7 +168,9 @@ const ViewReport = () => {
                 QC Reference No.
               </div>
               <div className="col-span-2 border-r border-black border-t border-black p-1">
-                {grn?.qc_ref || '---'}
+                {`IPH/QC/${new Date().getFullYear().toString().slice(-2)}/${
+                  grn?.type === 'pm' ? grn?.pm_code?.name : grn?.rmcode?.rm_code
+                }/${grn?.guard_entry?.inward_number?.slice(-2) || '00'}`}
               </div>
               <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
                 Truck No.

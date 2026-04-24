@@ -21,37 +21,40 @@ const SubmitReport = () => {
 
   const { testReports, loading } = useSelector((state: any) => state.qcinventory);
 
-  const grn = testReports?.grn ?? null;
-  const tests = testReports?.tests ?? [];
+  const [grn, setGrn] = useState(null);
+  const [tests, setTests] = useState([]);
 
   useEffect(() => {
-    dispatch(clearTestReport());
+    if (!id) return;
 
-    setType1Rows([]);
-    setType2Rows([]);
-    setAddedType1Rows([]);
-    setAddedType2Rows([]);
-    setQcRef('');
+    dispatch(getTestReport({ id: Number(id) }));
 
-    if (id) {
-      dispatch(getTestReport(id));
-    }
-  }, [id, dispatch]);
+    return () => {
+      dispatch(clearTestReport());
+    };
+  }, [dispatch, id]);
 
-  // useEffect(() => {
-  //   if (!Array.isArray(tests) || tests.length === 0) return;
+  useEffect(() => {
+    const grn = testReports?.grn ?? null;
+    const tests = testReports?.tests ?? [];
+    setGrn(grn);
+    setTests(tests);
+  }, [testReports]);
 
-  //   const type1 = tests
-  //     .filter((row) => Number(row.type) === 1)
-  //     .map((row) => ({ ...row, source: 'api' }));
+  useEffect(() => {
+    if (!tests?.length) return;
 
-  //   const type2 = tests
-  //     .filter((row) => Number(row.type) === 2)
-  //     .map((row) => ({ ...row, source: 'api' }));
+    const type1 = tests
+      .filter((row) => Number(row.type) === 1)
+      .map((row) => ({ ...row, source: 'api' }));
 
-  //   setType1Rows(type1);
-  //   setType2Rows(type2);
-  // }, [tests]);
+    const type2 = tests
+      .filter((row) => Number(row.type) === 2)
+      .map((row) => ({ ...row, source: 'api' }));
+
+    setType1Rows(type1);
+    setType2Rows(type2);
+  }, [tests]);
 
   const [qcRef, setQcRef] = useState('');
 
@@ -207,13 +210,17 @@ const SubmitReport = () => {
               QC Reference No.
             </div>
             <div className="col-span-2 border-r border-black border-t border-black p-1">
-              <input
+              {`IPH/QC/${new Date().getFullYear().toString().slice(-2)}/${
+                grn?.type === 'pm' ? grn?.pm_code?.name : grn?.rmcode?.rm_code
+              }/${grn?.guard_entry?.inward_number?.slice(-2) || '00'}`}
+
+              {/* <input
                 type="text"
                 value={qcRef}
                 onChange={(e) => setQcRef(e.target.value)}
                 className="w-full outline-none"
                 placeholder="Enter QC Ref No."
-              />
+              /> */}
             </div>
             <div className="col-span-2 font-semibold border-r border-black border-t border-black p-1">
               Truck No.

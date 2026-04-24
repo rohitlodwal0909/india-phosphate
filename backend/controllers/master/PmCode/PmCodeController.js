@@ -77,6 +77,19 @@ exports.getPmRawMaterial = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deletePmMaterail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const pmRawMaterial = await PmRawMaterial.findByPk(id);
+    await pmRawMaterial.destroy();
+    res.json({ message: "PM Raw Material entry deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Update
 exports.updatePmCode = async (req, res, next) => {
   try {

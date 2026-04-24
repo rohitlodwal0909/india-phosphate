@@ -86,7 +86,7 @@ exports.getProfileById = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    const userId = req.params.id; // Assuming user ID is set by auth middleware
+    const userId = req.admin.id; // Assuming user ID is set by auth middleware
     if (!userId) {
       const error = new Error("Unauthorized");
       error.status = 401;
@@ -104,7 +104,7 @@ exports.updateProfile = async (req, res, next) => {
     const profileImageFile = req.file;
 
     const profileImagePath = profileImageFile
-      ? `/uploads/${profileImageFile.filename}`
+      ? `uploads/${profileImageFile.filename}`
       : admin.profile_image;
 
     // Optional: check for duplicate email if updating

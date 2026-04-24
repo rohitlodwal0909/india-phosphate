@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
-import { saveBmrRecord } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
+import {
+  getBatches,
+  saveBmrRecord,
+} from 'src/features/Inventorymodule/BMR/BmrCreation/BmrCreationSlice';
 import { GetAllQcbatch } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 
 interface BmrAddProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-  StoreData: any[];
 }
 
-const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData }) => {
+const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const { batches } = useSelector((state: any) => state.bmrRecords);
+
+  useEffect(() => {
+    dispatch(getBatches());
+  }, [dispatch]);
 
   const [formData, setFormData] = useState<any>({
     batch_id: '',
@@ -36,7 +44,7 @@ const BmrAdd: React.FC<BmrAddProps> = ({ openModal, setOpenModal, StoreData }) =
 
   // ------------------ BATCH OPTIONS ------------------
   const batchOptions =
-    StoreData?.map((item: any) => ({
+    batches?.map((item: any) => ({
       value: item.id, // product / batch id
       label: item.qc_batch_number, // Batch No
       product_name: item.product_name,

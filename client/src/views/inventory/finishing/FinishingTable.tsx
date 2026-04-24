@@ -152,6 +152,8 @@ function FinishingTable() {
     });
   }, [data, searchText]);
 
+  console.log(filteredData);
+
   const columns = [
     columnHelper.accessor('id', {
       header: 'S. No.',
@@ -214,10 +216,11 @@ function FinishingTable() {
       header: () => <span>RM Code / Quantity</span>,
     }),
 
-    columnHelper.accessor('unfinish_quantity', {
+    columnHelper.accessor('finish_quantity', {
       cell: (info) => {
         const rowData = info?.row?.original;
         const data = rowData?.production_results?.[0];
+
         const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
@@ -225,9 +228,10 @@ function FinishingTable() {
           </span>
         );
       },
-      header: () => <span>Unfinish Quantity</span>,
+      header: () => <span>Finish Quantity</span>,
     }),
-    columnHelper.accessor('finish_quantity', {
+
+    columnHelper.accessor('unfinish_quantity', {
       cell: (info) => {
         const rowData = info?.row?.original;
         const data = rowData?.production_results?.[0];
@@ -238,7 +242,7 @@ function FinishingTable() {
           </span>
         );
       },
-      header: () => <span>Finish Quantity</span>,
+      header: () => <span>Unfinish Quantity</span>,
     }),
 
     columnHelper.accessor('actions', {

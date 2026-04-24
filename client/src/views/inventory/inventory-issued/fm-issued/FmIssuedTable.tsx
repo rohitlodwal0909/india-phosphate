@@ -22,14 +22,13 @@ import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 
-import {
-  deleteIssuedRawMaterial,
-  getIssuedRawMaterial,
-} from 'src/features/Inventorymodule/InventoryIssued/RMIssueSlice';
 import CurrentStocks from './CurrentStocks';
 import FmIssuedAdd from './FmIssuedAdd';
 import FmIssuedEdit from './FmIssuedEdit';
-import { getIssuedFM } from 'src/features/Inventorymodule/InventoryIssued/FMIssuedSlice';
+import {
+  getIssuedFM,
+  deleteIssuedFM,
+} from 'src/features/Inventorymodule/InventoryIssued/FMIssuedSlice';
 
 /* =======================
    BMR DATA TYPE
@@ -69,7 +68,7 @@ const FmIssuedTable = () => {
     delete: false,
   });
 
-  const [selectedRow, setSelectedRow] = useState<BmrDataType | null>(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
@@ -98,12 +97,12 @@ const FmIssuedTable = () => {
      DELETE
   ======================= */
   const handleConfirmDelete = async () => {
-    if (!selectedRow?.id) return toast.error('No entry selected');
+    const id = selectedRow?.finishing?.id;
 
     try {
-      await dispatch(deleteIssuedRawMaterial(selectedRow.id)).unwrap();
-      toast.success('Issued rm deleted successfully');
-      dispatch(getIssuedRawMaterial());
+      await dispatch(deleteIssuedFM(id)).unwrap();
+      toast.success('Finished Material deleted successfully');
+      dispatch(getIssuedFM());
     } catch (err: any) {
       toast.error(err.message || 'Delete failed');
     } finally {
@@ -120,6 +119,7 @@ const FmIssuedTable = () => {
     );
   }, [issuedFMList, searchText]);
 
+  console.log(filteredData);
   /* =======================
      TABLE COLUMNS
   ======================= */
@@ -215,11 +215,11 @@ const FmIssuedTable = () => {
           />
         )}
 
-        {/* {permissions.view && (
+        {permissions.view && (
           <Button size="sm" color="success" onClick={() => handleModal('view', true)}>
             Current Stocks
           </Button>
-        )} */}
+        )}
 
         {permissions.add && (
           <Button size="sm" color="primary" onClick={() => handleModal('add', true)}>
@@ -247,7 +247,7 @@ const FmIssuedTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to delete this Issued RM Entry?"
+            title="Are you sure you want to delete this Finish Material Issued?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
@@ -272,11 +272,7 @@ const FmIssuedTable = () => {
 
       {modals.view && (
         <Portal>
-          <CurrentStocks
-            openModal={modals.view}
-            setOpenModal={() => handleModal('view', false)}
-            storeRawMaterial={storeRawMaterial}
-          />
+          <CurrentStocks openModal={modals.view} setOpenModal={() => handleModal('view', false)} />
         </Portal>
       )}
     </div>

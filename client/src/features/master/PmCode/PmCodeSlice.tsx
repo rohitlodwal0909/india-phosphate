@@ -9,6 +9,7 @@ const initialState = {
   addResult: null,
   updateResult: null,
   deleteResult: null,
+  delete: null,
 };
 
 export const GetPmCode = createAsyncThunk('GetPmCode/fetch', async (_, thunkAPI) => {
@@ -24,6 +25,16 @@ export const GetPmCode = createAsyncThunk('GetPmCode/fetch', async (_, thunkAPI)
 export const GetPmRawMaterial = createAsyncThunk('GetPmRaw/fetch', async (id, thunkAPI) => {
   try {
     const response = await axiosInstance.get(`/get-pm-raw-material/` + id);
+    return response.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
+export const deletePackingMaterial = createAsyncThunk('delete/pm', async (id: number, thunkAPI) => {
+  try {
+    const response = await axiosInstance.delete(`/delete-packing-material/` + id);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
@@ -97,6 +108,19 @@ const PmCodeSlice = createSlice({
         state.pmcodedata = action.payload;
       })
       .addCase(GetPmCode.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(deletePackingMaterial.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletePackingMaterial.fulfilled, (state, action) => {
+        state.loading = false;
+        state.delete = action.payload;
+      })
+      .addCase(deletePackingMaterial.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

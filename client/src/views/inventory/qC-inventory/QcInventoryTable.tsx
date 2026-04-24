@@ -25,6 +25,7 @@ import Remarkmodal from './Remarkmodal';
 
 import {
   Approvemodule,
+  clearTestReport,
   Holdmodule,
   Rejectmodule,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
@@ -127,7 +128,7 @@ function QcInventoryTable() {
 
   const handlereportsubmit = (data: any, status: string) => {
     const id = data.id;
-
+    dispatch(clearTestReport());
     status === 'pending' ? navigate(`/inventory/report/${id}`) : navigate(`/view-report/${id}`);
   };
 

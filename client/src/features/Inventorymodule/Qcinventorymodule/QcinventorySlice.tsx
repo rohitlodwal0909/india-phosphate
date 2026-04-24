@@ -77,10 +77,21 @@ export const GetAllrowmaterial = createAsyncThunk<any, void, { rejectValue: any 
   },
 );
 
-export const getTestReport = createAsyncThunk('qcinventory/getTestReport', async (id: string) => {
-  const response = await axiosInstance.get(`/get-test-report/${id}`);
-  return response.data;
-});
+export const getTestReport = createAsyncThunk<any, { id: number }, { rejectValue: any }>(
+  'qcinventory/getTestReport',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/get-test-report/${id}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) return rejectWithValue(error.response.data?.message || 'Server Error');
+
+      if (error.request) return rejectWithValue('No response from server');
+
+      return rejectWithValue('An unexpected error occurred');
+    }
+  },
+);
 
 export const GetAllQcbatch = createAsyncThunk<any, void, { rejectValue: any }>(
   'GetAllQcbatch/fetch',
@@ -376,25 +387,20 @@ const QcinventorySlice = createSlice({
         state.error = action.payload || action.error.message || null;
       })
 
-      .addCase(getTestReport.pending, (state, action) => {
+      .addCase(getTestReport.pending, (state) => {
         state.loading = true;
-        state.currentRequestId = action.meta.requestId;
-        state.testReports = null; // clear instantly
+        state.error = null;
       })
 
       .addCase(getTestReport.fulfilled, (state, action) => {
         // ✅ Ignore OLD API responses
-        if (state.currentRequestId !== action.meta.requestId) return;
-
         state.loading = false;
         state.testReports = action.payload;
       })
 
       .addCase(getTestReport.rejected, (state, action) => {
-        if (state.currentRequestId !== action.meta.requestId) return;
-
         state.loading = false;
-        state.error = action.error.message || 'Error';
+        state.error = action.payload || action.error.message || null;
       })
 
       // QC Batch

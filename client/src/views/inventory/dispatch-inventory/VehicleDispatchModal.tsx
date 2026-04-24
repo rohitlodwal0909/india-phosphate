@@ -10,6 +10,8 @@ import {
 } from 'src/features/Inventorymodule/dispatchmodule/DispatchSlice';
 import { toast } from 'react-toastify';
 import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
+import { GetTransport } from 'src/features/master/Transport/TransportSlice';
+import { useNavigate } from 'react-router';
 
 interface VehicleDispatchModalProps {
   openModal: boolean;
@@ -39,7 +41,7 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     delivery_location: '',
     product_name: '',
     lr_no: '',
-    delivered_by: '',
+    transport_id: '',
     remarks: '',
     booking_date: '',
     arrived_booking: '', // ✅ NEW FIELD
@@ -54,12 +56,15 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     (state: RootState) => state.purchaseOrder.purchaseOrders,
   ) as any[];
 
+  const transport = useSelector((state: RootState) => state.transport.Transportdata) as any[];
+
   const purchaseOrders = purchaseOrder.filter(
     (d) => d.workNo !== null && d.workNo.status == 'Approved',
   );
 
   useEffect(() => {
     dispatch(getPurchaseOrders());
+    dispatch(GetTransport());
   }, [dispatch]);
 
   const handleChange = (
@@ -90,6 +95,19 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
       label: po.po_no,
     })) || [];
 
+  const transports =
+    transport?.map((po: any) => ({
+      value: po.id,
+      label: po.transporter_name,
+    })) || [];
+
+  const navigate = useNavigate();
+
+  const transporterOptions = [
+    ...transports,
+    { label: '+ Add Transporter', value: 'add_transporter' },
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -102,14 +120,16 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
       'delivery_location',
       'product_name',
       'lr_no',
-      'delivered_by',
+      'transport_id',
       'booking_date',
       'remarks',
-      'arrived_booking', // ✅ added
+      'arrived_booking',
     ];
 
     requiredFields.forEach((field) => {
-      if (!formData[field] || (Array.isArray(formData[field]) && formData[field].length === 0)) {
+      const value = formData[field];
+
+      if (value === null || value === undefined || value === '') {
         newErrors[field] = 'This field is required';
       }
     });
@@ -136,7 +156,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
       if (res) {
         toast.success('Dispatch entry created successfully');
         dispatch(GetFetchDispatch());
-
         setFormData({
           po_id: '',
           vehicle_number: '',
@@ -152,7 +171,7 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
           delivery_location: '',
           product_name: '',
           lr_no: '',
-          delivered_by: '',
+          transport_id: '',
           remarks: '',
           booking_date: '',
           arrived_booking: '',
@@ -365,14 +384,33 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
           {/* Transporter */}
           <div className="sm:col-span-6 col-span-12">
             <Label value="Transporter" />
-            <TextInput
-              name="delivered_by"
-              placeholder="Enter Transporter"
-              value={formData.delivered_by}
-              onChange={handleChange}
+
+            <Select
+              options={transporterOptions}
+              value={transporterOptions.find((opt) => opt.value === formData.transport_id) || null}
+              onChange={(selected: any) => {
+                // ✅ Add Transporter Click
+                if (selected?.value === 'add_transporter') {
+                  // CLEAR VALUE (NOT NUMBER)
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    transport_id: '',
+                  }));
+
+                  navigate('/master/transport');
+                  return;
+                }
+
+                // ✅ Normal Selection
+                setFormData((prev: any) => ({
+                  ...prev,
+                  transport_id: Number(selected?.value),
+                }));
+              }}
             />
-            {errors.delivered_by && (
-              <span className="text-red-500 text-sm">{errors.delivered_by}</span>
+
+            {errors.transport_id && (
+              <span className="text-red-500 text-sm">{errors.transport_id}</span>
             )}
           </div>
 

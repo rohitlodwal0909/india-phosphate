@@ -5,9 +5,11 @@ const initialState = {
   loading: false,
   error: null,
   purchaseOrders: [],
+  poReport: [],
   customers: [],
   addResult: null,
   remark: null,
+  paymentremark: null,
   status: null,
   change: null,
   addWorkOrder: null,
@@ -18,6 +20,20 @@ const initialState = {
 export const getPurchaseOrders = createAsyncThunk('purchaseOrder/fetch', async (_, thunkAPI) => {
   try {
     const response = await axiosInstance.get(`/get-purchase-orders`);
+    return response.data;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch purchase orders.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
+export const getPOById = createAsyncThunk<
+  any, // response type
+  number, // argument type
+  { rejectValue: string }
+>('purchaseOrder/ById', async (id, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-po-report/${id}`);
     return response.data;
   } catch (error: any) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch purchase orders.';
@@ -75,6 +91,18 @@ export const paymentApprove = createAsyncThunk(
     const response = await axiosInstance.put(
       `/payment-approve/${id}`,
       { status }, // ✅ send object
+    );
+
+    return response.data;
+  },
+);
+
+export const addRemarkPO = createAsyncThunk(
+  'purchaseOrder/addRemarkPO',
+  async ({ id, remark }: { id: number; remark: string }) => {
+    const response = await axiosInstance.put(
+      `/payment-remark/${id}`,
+      { remark }, // ✅ send object
     );
 
     return response.data;
@@ -148,7 +176,21 @@ const PurchaseOrderSlice = createSlice({
         state.loading = false;
         state.purchaseOrders = action.payload;
       })
+
       .addCase(getPurchaseOrders.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getPOById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPOById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.poReport = action.payload;
+      })
+      .addCase(getPOById.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -186,6 +228,13 @@ const PurchaseOrderSlice = createSlice({
         state.change = action.payload;
       })
       .addCase(paymentApprove.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      .addCase(addRemarkPO.fulfilled, (state, action) => {
+        state.paymentremark = action.payload;
+      })
+      .addCase(addRemarkPO.rejected, (state, action: any) => {
         state.error = action.payload;
       })
 

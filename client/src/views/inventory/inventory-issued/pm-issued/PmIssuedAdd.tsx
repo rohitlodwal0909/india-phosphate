@@ -118,7 +118,6 @@ const PmIssuedAdd: React.FC<PmIssuedAddProps> = ({ openModal, setOpenModal }) =>
     }
   };
 
-  console.log(BatchOptions);
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)}>
       <Modal.Header>PM Issued</Modal.Header>

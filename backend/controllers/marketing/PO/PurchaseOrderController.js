@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
@@ -21,6 +22,24 @@ exports.getPurchaseOrders = async (req, res) => {
           model: WorkOrderModel,
           as: "workNo",
           required: false
+        }
+      ]
+    });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getPoReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await PurchaseOrderModel.findOne({
+      where: { id },
+      include: [
+        {
+          model: Customer,
+          as: "customers"
         }
       ]
     });
@@ -55,6 +74,18 @@ exports.storePurchaseOrder = async (req, res) => {
       }
       return p;
     });
+
+    const uniqepo = await PurchaseOrderModel.findOne({
+      where: {
+        po_no: req.body.po_no
+      }
+    });
+    if (uniqepo) {
+      return res.status(404).json({
+        success: false,
+        message: "PO Number already exists"
+      });
+    }
 
     const data = await PurchaseOrderModel.create({
       ...req.body,
@@ -174,12 +205,48 @@ exports.paymentApproved = async (req, res) => {
     await createNotificationByRoleId({
       title,
       message,
-      role_id: 11
+      role_id: 11,
+      module_id: 6,
+      submodule_id: 3
     });
 
     return res.status(200).json({
       success: true,
       message: `Purchase Order Payment ${status} successfully`
+    });
+  } catch (error) {
+    console.error("paymentApproved Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+exports.paymentRemark = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { remark } = req.body;
+
+    // Find Purchase Order
+    const po = await PurchaseOrderModel.findByPk(id);
+
+    if (!po) {
+      return res.status(404).json({
+        success: false,
+        message: "Purchase Order not found"
+      });
+    }
+
+    // Update Status
+    await po.update({ payment_remark: remark });
+
+    // Notification Message
+
+    return res.status(200).json({
+      success: true,
+      message: `Remark successfully added!`
     });
   } catch (error) {
     console.error("paymentApproved Error:", error);
@@ -273,6 +340,18 @@ exports.updatePurchaseOrder = async (req, res) => {
         return p;
       });
     }
+
+    // const uniqepo = await PurchaseOrderModel.findOne({
+    //   where: {
+    //     po_no: req.body.po_no
+    //   }
+    // });
+    // if (uniqepo) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "PO Number already exists"
+    //   });
+    // }
 
     const updateData = {
       // ✅ Basic

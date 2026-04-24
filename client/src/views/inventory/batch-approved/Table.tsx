@@ -33,11 +33,14 @@ const columnHelper = createColumnHelper<any>();
 function Table() {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const batchrecord = useSelector((state: any) => state.qcinventory.qcbatchdata);
 
   const [data, setData] = useState<any[]>([]);
+
   const [selectedRow, setSelectedRow] = useState<any | null>(null);
+
   const [searchText, setSearchText] = useState('');
   const [addModal, setAddmodal] = useState(false);
   const [onreload, setOnreload] = useState(false);
@@ -67,13 +70,10 @@ function Table() {
     setOnreload(false);
   }, [dispatch, onreload]);
 
-  // ✅ Sync redux state → local data
   useEffect(() => {
-    const records = Array.isArray(batchrecord?.data)
-      ? batchrecord.data.filter((item: any) => item?.finishing != null)
-      : [];
-
-    setData(records);
+    if (Array.isArray(batchrecord?.data)) {
+      setData(batchrecord.data);
+    }
   }, [batchrecord]);
 
   const permissions = useMemo(() => {
@@ -82,7 +82,7 @@ function Table() {
 
   // ✅ Search + filter
   const filteredData = useMemo(() => {
-    return data.filter((item) => {
+    return data?.filter((item) => {
       const searchMatch =
         !searchText ||
         Object.values(item).some((val) =>

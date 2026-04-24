@@ -10,6 +10,7 @@ import {
 import { toast } from 'react-toastify';
 import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
+import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 
 interface PurchaseOrderModalProps {
   openModal: boolean;
@@ -26,33 +27,41 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   const dispatch = useDispatch<any>();
 
   const customers = useSelector((state: RootState) => state.purchaseOrder.customers) as any;
+
   const { productdata } = useSelector((state: any) => state.products);
+
+  const { pmcodedata } = useSelector((state: any) => state.pmcodes);
 
   const productOptions = productdata?.map((p: any) => ({
     label: p.product_name, // ya jo bhi field ho
     value: p.id,
   }));
 
+  const packingOptions = pmcodedata?.map((p: any) => ({
+    label: p.name, // ya jo bhi field ho
+    value: p.name,
+  }));
+
   const customerOptions = customers?.map((c: any) => {
-    let address = '';
+    // let address = '';
 
-    if (c.addresses) {
-      try {
-        const parsed = typeof c.addresses === 'string' ? JSON.parse(c.addresses) : c.addresses;
+    // if (c.addresses) {
+    //   try {
+    //     const parsed = typeof c.addresses === 'string' ? JSON.parse(c.addresses) : c.addresses;
 
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const addr = parsed[0];
-          address = `${addr.company_address || ''}, ${addr.factory_address || ''}, ${addr.city || ''}, ${addr.country || ''}`;
-        }
-      } catch (err) {
-        address = '';
-      }
-    }
+    //     if (Array.isArray(parsed) && parsed.length > 0) {
+    //       const addr = parsed[0];
+    //       address = `${addr.company_address || ''}, ${addr.factory_address || ''}, ${addr.city || ''}, ${addr.country || ''}`;
+    //     }
+    //   } catch (err) {
+    //     address = '';
+    //   }
+    // }
 
     return {
       label: c.company_name,
       value: c.id,
-      address: address,
+      address: c.company_address,
     };
   });
 
@@ -134,6 +143,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   useEffect(() => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
+    dispatch(GetPmCode());
   }, []);
 
   const handleCustomerChange = (selected: any) => {
@@ -155,7 +165,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     try {
       const payload = new FormData();
 
-      // ✅ Basic Fields
+      /* ================= BASIC ================= */
       payload.append('po_no', formData.po_no);
       payload.append('company_id', formData.company_id);
       payload.append('company_address', formData.company_address);
@@ -165,7 +175,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       payload.append('payment_terms', formData.payment_terms);
       payload.append('expected_delivery_date', formData.expected_delivery_date);
 
-      // ✅ Extra Fields
+      /* ================= EXTRA ================= */
       payload.append('company_type', formData.company_type || '');
       payload.append('remark', formData.remark || '');
       payload.append('commission', formData.commission || '');
@@ -173,17 +183,16 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       payload.append('insurance_remark', formData.insurance_remark || '');
       payload.append('customise_labels', formData.customise_labels || '');
 
-      // ✅ Type
       payload.append('type', formData.export ? 'export' : 'domestic');
 
-      // ✅ Export Fields (only if export)
+      /* ================= EXPORT ================= */
       if (formData.export) {
         payload.append('country_name', formData.country_name || '');
         payload.append('inco_term', formData.inco_term || '');
         payload.append('discharge_port', formData.discharge_port || '');
       }
 
-      // ✅ Products Clean
+      /* ================= PRODUCTS ================= */
       const cleanProducts = products.map((p, index) => ({
         product_id: p.product_name,
         grade: p.grade,
@@ -197,25 +206,27 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
 
       payload.append('products', JSON.stringify(cleanProducts));
 
-      // ✅ Files
+      /* ================= FILES ================= */
       products.forEach((p, index) => {
         if (p.file) {
           payload.append(`file_${index}`, p.file);
         }
       });
 
-      // ✅ API Call
-      await dispatch(addPurchaseOrder(payload));
+      /* ================= API CALL ================= */
+      const res = await dispatch(addPurchaseOrder(payload)).unwrap();
 
-      toast.success('Purchase Order Created Successfully ✅');
+      toast.success(res.message || 'Purchase Order Created Successfully ✅');
+
       dispatch(getPurchaseOrders());
       setOpenModal(false);
-    } catch (error) {
-      console.error('Error submitting purchase order:', error);
-      toast.error('Something went wrong ❌');
+    } catch (error: any) {
+      // ✅ Backend message show
+      toast.error(error?.message || error?.response?.data?.message || 'Something went wrong ❌');
+
+      console.error(error);
     }
   };
-
   const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
 
   return (
@@ -313,9 +324,17 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                 <Label value="Qty" />
                 <TextInput
                   type="number"
+                  min={0}
                   placeholder="Qty"
                   value={product.quantity}
-                  onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    // ❌ minus block
+                    if (value.includes('-')) return;
+
+                    handleProductChange(index, 'quantity', value);
+                  }}
                 />
               </div>
               {/* Rate */}
@@ -323,9 +342,16 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                 <Label value="Rate" />
                 <TextInput
                   type="number"
+                  min={0}
                   placeholder="Rate"
                   value={product.rate}
-                  onChange={(e) => handleProductChange(index, 'rate', e.target.value)}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    if (value.includes('-')) return;
+
+                    handleProductChange(index, 'rate', value);
+                  }}
                 />
               </div>
               {/* GST */}
@@ -344,11 +370,20 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               {/* Packing */}
               <div className="col-span-3">
                 <Label value="Packing" />
-                <TextInput
+
+                <Select
+                  options={packingOptions}
+                  value={packingOptions.find((opt: any) => opt.value === product.packing)}
+                  onChange={(selected: any) => {
+                    handleProductChange(index, 'packing', selected.value);
+                  }}
+                />
+
+                {/* <TextInput
                   placeholder="Packing"
                   value={product.packing}
                   onChange={(e) => handleProductChange(index, 'packing', e.target.value)}
-                />
+                /> */}
               </div>
               {/* IHS File */}
               {product.grade === 'HIS' && (
