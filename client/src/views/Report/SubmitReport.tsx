@@ -56,8 +56,6 @@ const SubmitReport = () => {
     setType2Rows(type2);
   }, [tests]);
 
-  const [qcRef, setQcRef] = useState('');
-
   const navigate = useNavigate();
 
   const [type1Rows, setType1Rows] = useState([]);
@@ -137,7 +135,6 @@ const SubmitReport = () => {
       data: formattedData,
       code: grn?.type == 'pm' ? grn?.store_pm_code : grn?.store_rm_code,
       type: grn?.type,
-      qcRef: qcRef,
     };
 
     try {

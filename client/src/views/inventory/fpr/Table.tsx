@@ -217,7 +217,6 @@ function Table() {
             setPlaceModal={setAddmodal}
             modalPlacement="center"
             placeModal={addModal}
-            logindata={logindata}
             rowData={selectedRow}
             setOnreload={setOnreload}
           />
