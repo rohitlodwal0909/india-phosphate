@@ -10,12 +10,41 @@ import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { allUnits } from 'src/utils/AllUnit';
 import { numberToWordsIndian } from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceComponent/numberToWordsIndian';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { createPurchasePo } from 'src/features/purchase/po/PurchasePoSlice';
+import { createPurchasePo, getPurchasePo } from 'src/features/purchase/po/PurchasePoSlice';
+import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 
 interface Props {
   placeModal: boolean;
   setPlaceModal: (val: boolean) => void;
 }
+
+interface ProductRow {
+  packing: string;
+  product_name: string;
+  qty: number;
+  rate: number;
+  discount_rate: number;
+  gst: number;
+  amount: number;
+  unit: string;
+  currency: string;
+  gst_amount: number;
+  total: number;
+}
+
+const emptyProduct: ProductRow = {
+  packing: '',
+  product_name: '',
+  qty: 0,
+  rate: 0,
+  discount_rate: 0,
+  gst: 18,
+  amount: 0,
+  unit: '',
+  currency: '',
+  gst_amount: 0,
+  total: 0,
+};
 
 const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,67 +57,87 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
     payment_term: '',
     destination: '',
     bill_to: '',
+    delivery_address: '',
   });
 
   const product = useSelector((state: RootState) => state.products.productdata) as any[];
+  const packing = useSelector((state: RootState) => state.pmcodes.pmcodedata) as any[];
 
   useEffect(() => {
     dispatch(GetProduct());
+    dispatch(GetPmCode());
   }, [dispatch]);
 
   /* ================= OPTIONS ================= */
 
-  const [products, setProducts] = useState([
-    {
-      product_name: '',
-      qty: '',
-      rate: '',
-      gst: 18,
-      amount: 0,
-      unit: '',
-      gst_amount: 0,
-      total: 0,
-    },
-  ]);
+  const [products, setProducts] = useState<ProductRow[]>([emptyProduct]);
 
   const addProduct = () => {
-    setProducts([
-      ...products,
-      {
-        product_name: '',
-        qty: '',
-        rate: '',
-        gst: 18,
-        amount: 0,
-        unit: '',
-        gst_amount: 0,
-        total: 0,
-      },
-    ]);
+    setProducts((prev) => [...prev, { ...emptyProduct }]);
   };
+
   const removeProduct = (index: number) => {
-    const updated = [...products];
-    updated.splice(index, 1);
-    setProducts(updated);
+    setProducts(products.filter((_, i) => i !== index));
   };
-  const handleProductChange = (index: number, field: string, value: any) => {
+
+  const handleProductChange = (index, field, value) => {
     const updated = [...products];
 
-    updated[index][field] = value;
+    updated[index][field] =
+      field === 'qty' || field === 'rate' || field === 'discount_rate' || field === 'gst'
+        ? Number(value)
+        : value;
 
-    const qty = Number(updated[index].qty) || 0;
-    const rate = Number(updated[index].rate) || 0;
-    const gst = Number(updated[index].gst) || 0;
+    const { qty, rate, gst, discount_rate } = updated[index];
 
     const amount = qty * rate;
-    const gst_amount = (amount * gst) / 100;
-    const total = amount + gst_amount;
+    const discount = (amount * discount_rate) / 100;
+    const taxable = amount - discount;
+    const gst_amount = (taxable * gst) / 100;
+    const total = taxable + gst_amount;
 
-    updated[index].amount = amount;
+    updated[index].amount = taxable;
     updated[index].gst_amount = gst_amount;
     updated[index].total = total;
 
     setProducts(updated);
+  };
+
+  const validateForm = () => {
+    if (!formData.date) return 'Date required';
+    if (!formData.po_no) return 'PO No required';
+    if (!products.length) return 'Add product';
+
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+
+      if (!p.product_name) return `Product missing row ${i + 1}`;
+      if (p.qty <= 0) return `Qty invalid row ${i + 1}`;
+      if (p.rate <= 0) return `Rate invalid row ${i + 1}`;
+      if (!p.unit) return `Unit required row ${i + 1}`;
+    }
+
+    return null;
+  };
+
+  const handleSubmit = async () => {
+    const error = validateForm();
+    if (error) return toast.error(error);
+
+    try {
+      await dispatch(
+        createPurchasePo({
+          ...formData,
+          products,
+        }),
+      ).unwrap();
+
+      toast.success('PO Created Successfully');
+      setPlaceModal(false);
+      dispatch(getPurchasePo());
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed');
+    }
   };
 
   const productOptions = product?.map((i: any) => ({
@@ -96,60 +145,14 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
     label: i.product_name,
   }));
 
+  const packingOptions = packing?.map((i: any) => ({
+    value: i.id,
+    label: i.name,
+  }));
+
   const reportRef = useRef(null);
 
-  const validateForm = () => {
-    if (!formData.date) return 'Date is required';
-    if (!formData.po_no) return 'PO Number is required';
-    if (!formData.shipping_term) return 'Shipping term is required';
-    if (!formData.payment_term) return 'Payment term is required';
-    if (!formData.destination) return 'Destination is required';
-    if (!formData.expected_arrival_date) return 'Expected delivery date is required';
-    if (!formData.bill_to) return 'Bill To is required';
-
-    // ✅ Products validation
-    if (!products.length) return 'At least one product is required';
-
-    for (let i = 0; i < products.length; i++) {
-      const p = products[i];
-
-      if (!p.product_name) return `Product name required at row ${i + 1}`;
-      if (!p.qty || Number(p.qty) <= 0) return `Valid qty required at row ${i + 1}`;
-      if (!p.rate || Number(p.rate) <= 0) return `Valid rate required at row ${i + 1}`;
-      if (!p.unit) return `Unit required at row ${i + 1}`;
-    }
-
-    return null;
-  };
-
-  /* ================= SUBMIT ================= */
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-
-    try {
-      const errorMsg = validateForm();
-
-      if (errorMsg) {
-        toast.error(errorMsg); // ❌ stop if error
-        return;
-      }
-
-      const finalData = {
-        ...formData,
-        products: products,
-      };
-
-      await dispatch(createPurchasePo(finalData)).unwrap(); // ✅ important
-
-      toast.success('PO Purchase Created'); // ✅ only success पर
-      setPlaceModal(false);
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to create PO'); // ✅ error पर
-    }
-  };
-
-  const grandTotal = products.reduce((sum, item) => sum + item.total, 0);
+  const grandTotal = products.reduce((s, p) => s + p.total, 0);
 
   return (
     <Modal show={placeModal} onClose={() => setPlaceModal(false)} size="7xl">
@@ -172,8 +175,8 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
               <img src={logoimg} alt="India Phosphate Logo" className="h-17 mx-auto" />
             </div>
             <div className="text-right text-xs text-black">
-              <p>+91-9993622522</p>
-              <p>indiaphosphate@gmail.com</p>
+              <p>+91-9109250792</p>
+              <p>purchase@indiaphosphate.com</p>
             </div>
           </div>
 
@@ -184,9 +187,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                 <td className="w-1/2 align-top border-r border-black p-2">
                   {/* COMPANY */}
                   <b>India Phosphate & Allied Industries Pvt. Ltd.</b>
-                  <p>
-                    Formerly: India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010
-                  </p>
+                  <p>India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
                   <p>19C-D-E-F & Part of 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
 
                   <p>D.L. No. 25/25/2008</p>
@@ -213,7 +214,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                   <br />
 
                   {/* BILL TO */}
-                  <b>Buyer (Bill To)</b>
+                  <b>Supplier Address.</b>
                   <p>
                     <Textarea
                       value={formData.bill_to}
@@ -297,6 +298,17 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                           />
                         </td>
                       </tr>
+                      <tr>
+                        <td className="border p-2">
+                          <b className="text-gray-600">Delivery Address</b>:
+                          <Textarea
+                            value={formData.delivery_address}
+                            onChange={(e) =>
+                              setFormData({ ...formData, delivery_address: e.target.value })
+                            }
+                          ></Textarea>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </td>
@@ -309,12 +321,16 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
             <thead>
               <tr className="text-center font-semibold">
                 <th className="border border-black p-1 w-[40px]">Sl No.</th>
+                <th className="border border-black p-1 w-[280px]">Packing</th>
                 <th className="border border-black p-1 w-[280px]">Description of Goods</th>
                 <th className="border border-black p-1 w-[120px]">GST. Rate</th>
                 <th className="border border-black p-1 w-[140px]">Quantity</th>
                 <th className="border border-black p-1 w-[160px]">Rate</th>
                 <th className="border border-black p-1 w-[160px]">Unit</th>
-                <th className="border border-black p-1 w-[120px]">Amount</th>
+                <th className="border border-black p-1 w-[160px]">Discount Rate</th>
+                <th className="border border-black p-1 w-[120px]">
+                  Amount in (INR ₹ or USD $) we will right it by own
+                </th>
               </tr>
             </thead>
 
@@ -323,6 +339,13 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
               {products.map((p, i) => (
                 <tr key={i}>
                   <td className="border border-black text-center">{i + 1}</td>
+
+                  <td className="border border-black p-2">
+                    <Select
+                      options={packingOptions}
+                      onChange={(e) => handleProductChange(i, 'packing', e?.label)}
+                    />
+                  </td>
 
                   {/* PRODUCT */}
                   <td className="border border-black p-2">
@@ -358,6 +381,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                   <td className="border border-black">
                     <TextInput
                       type="number"
+                      min={0}
                       value={p.qty}
                       onChange={(e) => handleProductChange(i, 'qty', e.target.value)}
                     />
@@ -368,6 +392,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                     <TextInput
                       type="number"
                       value={p.rate}
+                      min={0}
                       onChange={(e) => handleProductChange(i, 'rate', e.target.value)}
                     />
                   </td>
@@ -380,8 +405,33 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                     />
                   </td>
 
+                  <td className="border border-black">
+                    <TextInput
+                      type="number"
+                      value={p.discount_rate}
+                      onChange={(e) => handleProductChange(i, 'discount_rate', e.target.value)}
+                    />
+                  </td>
+
                   {/* AMOUNT */}
-                  <td className="border border-black text-right">₹ {p.amount.toFixed(2)}</td>
+                  <td className="border border-black px-2 py-1">
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Currency Dropdown */}
+                      <select
+                        className="border rounded px-2 py-1 text-sm w-20"
+                        value={p.currency}
+                        onChange={(e) => handleProductChange(i, 'currency', e.target.value)}
+                      >
+                        <option value="INR">₹</option>
+                        <option value="USD">$</option>
+                      </select>
+
+                      {/* Amount */}
+                      <span className="text-right w-full font-semibold">
+                        {p.currency === 'INR' ? '₹' : '$'} {Number(p.amount || 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </td>
 
                   {/* GST AMOUNT */}
 
@@ -398,7 +448,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
               </Button>
 
               <tr>
-                <td colSpan={3} className="border border-black text-right p-2 font-semibold">
+                <td colSpan={5} className="border border-black text-right p-2 font-semibold">
                   Total
                 </td>
                 <td className="border border-black text-right p-2"></td>
@@ -436,7 +486,8 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                   <p className="font-semibold">Declaration</p>
 
                   <p className="leading-5">
-                    <b>GST</b> as per applicable government rates <b>Shelf Life </b>
+                    <b>GST</b> as per applicable government rates <br />
+                    <b>Shelf Life </b>
                     <b> Minimum 80% residual shelf life </b> required upon delivery.
                     <br />
                     PO number must appear on Invoice, D.C., and Packing Slip.
@@ -466,7 +517,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
               Cancel
             </Button>
 
-            <Button type="button" onClick={(e) => handleSubmit(e)} color="success">
+            <Button type="button" onClick={handleSubmit} color="success">
               Save
             </Button>
           </div>

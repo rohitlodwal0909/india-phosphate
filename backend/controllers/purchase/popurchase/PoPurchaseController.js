@@ -1,5 +1,8 @@
 const { where } = require("sequelize");
 const db = require("../../../models");
+const {
+  createNotificationByRoleId
+} = require("../../../helper/SendNotification");
 
 const {
   PmCode,
@@ -20,6 +23,7 @@ exports.createPoPurchase = async (req, res) => {
       user_id: req.admin.id,
       po_no: req.body.po_no,
       bill_to: req.body.bill_to,
+      delivery_address: req.body.delivery_address,
       date: req.body.date,
       expected_arrival_date: req.body.expected_arrival_date,
       shipping_term: req.body.shipping_term,
@@ -139,6 +143,91 @@ exports.deletePoRequisition = async (req, res) => {
     console.error(error);
 
     return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+exports.purchasePayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Find Purchase Order
+    const po = await PurchasePoModel.findByPk(id);
+
+    if (!po) {
+      return res.status(404).json({
+        success: false,
+        message: "Purchase PO not found"
+      });
+    }
+
+    // Update Status
+    await po.update({ payment_status: status });
+
+    // Notification Message
+    let title = "Purchase PO Payment Status";
+    let message = "";
+
+    if (status === "Paid") {
+      message = `Purchase ${po.po_no} Payment has been paid.`;
+    } else if (status === "Notpaid") {
+      message = `Purchase PO ${po.po_no} Payment has been not paid.`;
+    } else {
+      message = `Purchase PO ${po.po_no} Payment status updated to ${status}.`;
+    }
+
+    // Create Notification
+    await createNotificationByRoleId({
+      title,
+      message,
+      role_id: 11,
+      module_id: 6,
+      submodule_id: 3
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Purchase PO Payment ${status} successfully`
+    });
+  } catch (error) {
+    console.error("payment Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+exports.purchaseAddRemark = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { remark } = req.body;
+
+    // Find Purchase Order
+    const po = await PurchasePoModel.findByPk(id);
+
+    if (!po) {
+      return res.status(404).json({
+        success: false,
+        message: "Purchase PO not found"
+      });
+    }
+
+    // Update Status
+    await po.update({ purchase_remark: remark });
+
+    return res.status(200).json({
+      success: true,
+      message: `Purchase PO add remark successfully`
+    });
+  } catch (error) {
+    console.error("payment Error:", error);
+
+    return res.status(500).json({
+      success: false,
       message: error.message
     });
   }

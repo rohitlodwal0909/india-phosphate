@@ -48,6 +48,10 @@ module.exports = (sequelize, DataTypes) => {
       time_to: {
         type: DataTypes.STRING
       },
+      datetime: {
+        type: DataTypes.STRING
+      },
+
       value: {
         type: DataTypes.STRING
       }

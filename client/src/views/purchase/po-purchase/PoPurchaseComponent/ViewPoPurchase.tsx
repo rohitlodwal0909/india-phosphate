@@ -20,11 +20,14 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
 
   const [products, setProducts] = useState([
     {
+      packing: '',
       product_name: '',
       qty: '',
       rate: '',
       gst: 18,
       amount: 0,
+      discount_rate: 0,
+      currency: '',
       unit: '',
       gst_amount: 0,
       total: 0,
@@ -129,8 +132,8 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
               <img src={logoimg} alt="India Phosphate Logo" className="h-17 mx-auto" />
             </div>
             <div className="text-right text-xs text-black">
-              <p>+91-9993622522</p>
-              <p>indiaphosphate@gmail.com</p>
+              <p>+91-9109250792</p>
+              <p>purchase@indiaphosphate.com</p>
             </div>
           </div>
 
@@ -141,9 +144,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                 <td className="w-1/2 align-top border-r border-black p-2">
                   {/* COMPANY */}
                   <b>India Phosphate & Allied Industries Pvt. Ltd.</b>
-                  <p>
-                    Formerly: India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010
-                  </p>
+                  <p>India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
                   <p>19C-D-E-F & Part of 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
 
                   <p>D.L. No. 25/25/2008</p>
@@ -170,7 +171,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                   <br />
 
                   {/* BILL TO */}
-                  <b>Buyer (Bill To)</b>
+                  <b>Supplier Address</b>
                   <p>{selectedRow.bill_to}</p>
                 </td>
 
@@ -211,6 +212,13 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                           {selectedRow.expected_arrival_date}
                         </td>
                       </tr>
+                      <tr>
+                        <td className="border p-2">
+                          <b className="text-gray-600">Delivery Address</b>:
+                          <br />
+                          {selectedRow.delivery_address}
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </td>
@@ -223,11 +231,13 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
             <thead>
               <tr className="text-center font-semibold">
                 <th className="border border-black p-1 w-[40px]">Sl No.</th>
+                <th className="border border-black p-1 w-[280px]">Packing</th>
                 <th className="border border-black p-1 w-[280px]">Description of Goods</th>
                 <th className="border border-black p-1 w-[120px]">GST. Rate</th>
                 <th className="border border-black p-1 w-[140px]">Quantity</th>
                 <th className="border border-black p-1 w-[160px]">Rate</th>
                 <th className="border border-black p-1 w-[160px]">Unit</th>
+                <th className="border border-black p-1 w-[160px]">Discount Rate</th>
                 <th className="border border-black p-1 w-[120px]">Amount</th>
               </tr>
             </thead>
@@ -239,6 +249,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                   <td className="border border-black text-center">{i + 1}</td>
 
                   {/* PRODUCT */}
+                  <td className="border border-black p-2">{p.packing}</td>
                   <td className="border border-black p-2">{p.product_name}</td>
 
                   {/* DATE */}
@@ -252,14 +263,19 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
 
                   {/* GST % */}
                   <td className="border border-black">{p.unit}</td>
+                  <td className="border border-black">{p.discount_rate}</td>
 
                   {/* AMOUNT */}
-                  <td className="border border-black text-right">₹ {p.amount.toFixed(2)}</td>
+                  <td className="border border-black text-right">
+                    <span className="text-right w-full font-semibold">
+                      {p.currency === 'INR' ? '₹' : '$'} {Number(p.amount || 0).toFixed(2)}
+                    </span>{' '}
+                  </td>
                 </tr>
               ))}
 
               <tr>
-                <td colSpan={3} className="border border-black text-right p-2 font-semibold">
+                <td colSpan={5} className="border border-black text-right p-2 font-semibold">
                   Total
                 </td>
                 <td className="border border-black text-right p-2"></td>
@@ -282,7 +298,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
               <div className="border-r p-3 space-y-3">
                 {/* Tax Amount */}
                 <p>
-                  <b>Amount Chargeable (in words):</b> {numberToWordsIndian(grandTotal) || '-'}
+                  <b>Amount Chargeable (in words):</b> {numberToWordsIndian(grandTotal) || '-'}{' '}
                 </p>
 
                 {/* Remarks */}
@@ -297,7 +313,8 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                   <p className="font-semibold">Declaration</p>
 
                   <p className="leading-5">
-                    <b>GST</b> as per applicable government rates <b>Shelf Life </b>
+                    <b>GST</b> as per applicable government rates
+                    <br /> <b>Shelf Life </b>
                     <b> Minimum 80% residual shelf life </b> required upon delivery.
                     <br />
                     PO number must appear on Invoice, D.C., and Packing Slip.

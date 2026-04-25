@@ -8,6 +8,7 @@ const { PurchaseOrderModel, Customer, WorkOrderModel, User } = db;
 exports.getPurchaseOrders = async (req, res) => {
   try {
     const data = await PurchaseOrderModel.findAll({
+      order: [["id", "DESC"]],
       include: [
         {
           model: User,

@@ -34,6 +34,7 @@ function QcbatchTable() {
   const dispatch = useDispatch<AppDispatch>();
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
+
   const qcAlldata = useSelector((state: any) => state.qcinventory.qcbatchdata);
 
   const [data, setData] = useState<any[]>([]);
@@ -44,6 +45,7 @@ function QcbatchTable() {
   const [editModal, setEditModal] = useState(false);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(
     () => getPermissions(logindata, selectedIconId, 4),
     [logindata, selectedIconId],
@@ -115,10 +117,7 @@ function QcbatchTable() {
       header: 'Product Name',
       cell: (info) => info.getValue() || '-',
     }),
-    columnHelper.accessor('work_order_no', {
-      header: 'Work Order No.',
-      cell: (info) => info.getValue() || '-',
-    }),
+
     columnHelper.accessor('mfg_date', {
       header: 'Mfg Date',
       cell: (info) => info.getValue() || '-',

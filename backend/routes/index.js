@@ -48,6 +48,7 @@ const BmrRoutes = require("../routes/inventory/BmrRecordRoutes");
 const IssuedRoutes = require("../routes/inventory/InventoryIssuedRoutes");
 const BmrReports = require("../routes/inventory/BmrReportRoutes");
 const ReplacementRoutes = require("../routes/inventory/ReplacementRoutes");
+const ProductionPlaningRoutes = require("../routes/inventory/ProductionPlaningRoutes");
 
 const ManufacturingProcedureRoutes = require("../routes/master/ManufacturingProcedureRoutes");
 const GrnMasterRoutes = require("../routes/master/GrnMasterRoutes");
@@ -117,6 +118,7 @@ router.use("/api", ManufacturingProcedureRoutes);
 router.use("/api", authMiddleware, GrnMasterRoutes);
 router.use("/api", authMiddleware, PurchaseOrderRoutes);
 router.use("/api", authMiddleware, ReplacementRoutes);
+router.use("/api", authMiddleware, ProductionPlaningRoutes);
 
 // Account Routes
 router.use("/api", authMiddleware, InvoiceRoutes);

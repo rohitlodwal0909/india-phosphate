@@ -1,85 +1,80 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
-import {apiUrl  }from '../../../constants/contant'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { apiUrl } from '../../../constants/contant';
 
 const initialState = {
   loading: false,
   error: null,
-  PackingMaterialdata: [],         
-  addResult: null,  
+  PackingMaterialdata: [],
+  addResult: null,
   updateResult: null,
-  deleteResult: null 
+  deleteResult: null,
 };
 
 export const GetPackingMaterial = createAsyncThunk(
-  "GetPackingMaterial /fetch",
+  'GetPackingMaterial /fetch',
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(`${apiUrl}/get-packing-material`);
       return response.data;
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch user modules.";
+      const errorMessage = error.response?.data?.message || 'Failed to fetch user modules.';
       return thunkAPI.rejectWithValue(errorMessage);
     }
-  }
+  },
 );
 
 export const addPackingMaterial = createAsyncThunk(
-  "PackingMaterial/add",
-  async (formdata:any, { rejectWithValue }) => {
+  'PackingMaterial/add',
+  async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/store-packing-material`,
-        formdata);
+      const response = await axios.post(`${apiUrl}/store-packing-material`, formdata);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Something went wrong"
+        error.response?.data?.message || error.message || 'Something went wrong',
       );
     }
-  }
+  },
 );
 
- export const updatePackingMaterial = createAsyncThunk(
-  "PackingMaterial/update",
+export const updatePackingMaterial = createAsyncThunk(
+  'PackingMaterial/update',
   async (updatedUser: any, { rejectWithValue }) => {
     try {
       const response = await axios.put(
         `${apiUrl}/update-packing-material/${updatedUser?.id}`,
-        updatedUser
+        updatedUser,
       );
       return response.data;
     } catch (error: any) {
       if (error.response && error.response.data) {
         return rejectWithValue(error.response.data); // custom error message from backend
       } else {
-        return rejectWithValue({ message: "Something went wrong" }); // fallback error
+        return rejectWithValue({ message: 'Something went wrong' }); // fallback error
       }
     }
-  }
+  },
 );
 
-export const deletePackingMaterial = createAsyncThunk<any, {id:string,user_id:any}, { rejectValue: any }>(
-  "deletePackingMaterial/delete",
-  async ({id,user_id}, { rejectWithValue }) => {
-    try {
-      await axios.delete(`${apiUrl}/delete-packing-material/${id}`,{
-      data: { user_id }
+export const deletePackingMaterial = createAsyncThunk<
+  any,
+  { id: string; user_id: any },
+  { rejectValue: any }
+>('deletePackingMaterial/delete', async ({ id, user_id }, { rejectWithValue }) => {
+  try {
+    await axios.delete(`${apiUrl}/delete-packing-material/${id}`, {
+      data: { user_id },
     });
-      return id;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete checkin."
-      );
-    }
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete checkin.');
   }
-);
-
-
+});
 
 const PackingMaterialSlice = createSlice({
-  name: "packingmaterial",
+  name: 'packingmaterial',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -125,4 +120,3 @@ const PackingMaterialSlice = createSlice({
 });
 
 export default PackingMaterialSlice.reducer;
-

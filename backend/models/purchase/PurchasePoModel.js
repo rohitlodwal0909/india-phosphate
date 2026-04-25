@@ -48,6 +48,20 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
       },
 
+      delivery_address: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      payment_status: {
+        type: DataTypes.ENUM("Pending", "Paid", "Notpaid"),
+        allowNull: false,
+        defaultValue: "Pending"
+      },
+
+      purchase_remark: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
       expected_arrival_date: {
         type: DataTypes.DATEONLY,
         allowNull: true

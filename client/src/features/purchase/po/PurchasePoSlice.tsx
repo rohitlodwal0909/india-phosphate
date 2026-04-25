@@ -5,8 +5,10 @@ const initialState = {
   loading: false,
   error: null,
   purchasepos: [],
+  change: [],
   remaining: [],
   createResult: null,
+  remark: null,
   updateResult: null,
   deleteResult: null,
 };
@@ -71,6 +73,18 @@ export const updatePurchasePo = createAsyncThunk<any, { id: number; data: FormDa
   },
 );
 
+export const addRemarkPurchasePo = createAsyncThunk(
+  'purchaseOrder/remark',
+  async ({ id, remark }: { id: number; remark: string }) => {
+    const response = await axiosInstance.put(
+      `/purchase-account-remark/${id}`,
+      { remark }, // ✅ send object
+    );
+
+    return response.data;
+  },
+);
+
 /* ======================================================
    DELETE QUOTATION
 ====================================================== */
@@ -84,6 +98,18 @@ export const deletePurchasePo = createAsyncThunk<any, number>(
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || 'Delete failed');
     }
+  },
+);
+
+export const paymentPaid = createAsyncThunk(
+  'purchase/paymentPaid',
+  async ({ id, status }: { id: number; status: string }) => {
+    const response = await axiosInstance.put(
+      `/purchase-payment/${id}`,
+      { status }, // ✅ send object
+    );
+
+    return response.data;
   },
 );
 
@@ -113,6 +139,20 @@ const PurchasePoSlice = createSlice({
         state.error = action.payload;
       })
 
+      .addCase(addRemarkPurchasePo.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addRemarkPurchasePo.fulfilled, (state, action) => {
+        state.loading = false;
+        state.remark = action.payload;
+
+        state.purchasepos.unshift(action.payload);
+      })
+      .addCase(addRemarkPurchasePo.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       /* ================= GET ================= */
       .addCase(getPurchasePo.pending, (state) => {
         state.loading = true;
@@ -126,6 +166,12 @@ const PurchasePoSlice = createSlice({
         state.error = action.payload;
       })
 
+      .addCase(paymentPaid.fulfilled, (state, action) => {
+        state.change = action.payload;
+      })
+      .addCase(paymentPaid.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
       .addCase(getRemaningStock.pending, (state) => {
         state.loading = true;
       })

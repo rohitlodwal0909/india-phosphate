@@ -18,9 +18,9 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import { paymentApprove } from 'src/features/marketing/PurchaseOrderSlice';
-import { getPurchasePo } from 'src/features/purchase/po/PurchasePoSlice';
+import { getPurchasePo, paymentPaid } from 'src/features/purchase/po/PurchasePoSlice';
 import ViewModal from 'src/views/purchase/po-purchase/PoPurchaseComponent/ViewPoPurchase';
+import Remark from './AddRemark';
 
 const formatDate = (date: string) => {
   if (!date) return '-';
@@ -79,7 +79,7 @@ const AccountPurchaseTable = () => {
 
   const handlePayment = async (id: number, status: string) => {
     try {
-      const res = await dispatch(paymentApprove({ id, status })).unwrap();
+      const res = await dispatch(paymentPaid({ id, status })).unwrap();
 
       toast.success(res?.message || `Payment ${status}`);
 
@@ -141,19 +141,19 @@ const AccountPurchaseTable = () => {
           const row = info.row.original;
 
           // ✅ Approved
-          if (row.payment_status === 'Received') {
+          if (row.payment_status === 'Paid') {
             return (
               <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-                Received
+                Paid
               </span>
             );
           }
 
           // ✅ Rejected
-          if (row.payment_status === 'Notreceived') {
+          if (row.payment_status === 'Notpaid') {
             return (
               <span className="px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-                Not received
+                Not Paid
               </span>
             );
           }
@@ -161,12 +161,12 @@ const AccountPurchaseTable = () => {
           // ✅ Pending → show buttons
           return (
             <div className="flex flex-wrap gap-2">
-              <Button size="xs" color="success" onClick={() => handlePayment(row.id, 'accepted')}>
-                Accepted
+              <Button size="xs" color="success" onClick={() => handlePayment(row.id, 'Paid')}>
+                Paid
               </Button>
 
-              <Button size="xs" color="error" onClick={() => handlePayment(row.id, 'Notaccepted')}>
-                Not Accepted
+              <Button size="xs" color="error" onClick={() => handlePayment(row.id, 'Notpaid')}>
+                Not Paid
               </Button>
             </div>
           );
@@ -190,6 +190,19 @@ const AccountPurchaseTable = () => {
                     className="text-primary bg-lightprimary hover:text-white"
                   >
                     <Icon icon="solar:eye-outline" height={18} />
+                  </Button>
+                </Tooltip>
+              )}
+              {permissions.add && (
+                <Tooltip content="Add Remark">
+                  <Button
+                    onClick={() => handleModal('add', true, row)}
+                    color="primary"
+                    outline
+                    size="xs"
+                    className="text-primary bg-lightprimary hover:text-white"
+                  >
+                    <Icon icon="mdi:file-document-outline" height={18} />{' '}
                   </Button>
                 </Tooltip>
               )}
@@ -255,6 +268,13 @@ const AccountPurchaseTable = () => {
         <ViewModal
           placeModal={modals.view}
           setPlaceModal={() => handleModal('view', false)}
+          selectedRow={selectedRow}
+        />
+      )}
+      {modals.add && (
+        <Remark
+          placeModal={modals.add}
+          setPlaceModal={() => handleModal('add', false)}
           selectedRow={selectedRow}
         />
       )}

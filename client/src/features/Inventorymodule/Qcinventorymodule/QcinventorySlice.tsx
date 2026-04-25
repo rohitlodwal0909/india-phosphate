@@ -19,6 +19,7 @@ type QCState = {
   rowmaterial: any;
   qcReport: any;
   testReports: any;
+  completebmr: any;
   currentRequestId: string | null;
 };
 
@@ -37,6 +38,7 @@ const initialState: QCState = {
   rowmaterial: [],
   qcReport: [],
   testReports: null,
+  completebmr: null,
   currentRequestId: null,
 };
 
@@ -98,6 +100,20 @@ export const GetAllQcbatch = createAsyncThunk<any, void, { rejectValue: any }>(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/all-qc-batch`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) return rejectWithValue(error.response.data);
+      if (error.request) return rejectWithValue('No response from server');
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const getCompleteBmrFinish = createAsyncThunk<any, void, { rejectValue: any }>(
+  'getCompleteBmr/complete',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/get-complete-bmr-finish`);
       return response.data;
     } catch (error: any) {
       if (error.response) return rejectWithValue(error.response.data);
@@ -413,6 +429,19 @@ const QcinventorySlice = createSlice({
         state.qcbatchdata = action.payload;
       })
       .addCase(GetAllQcbatch.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || null;
+      })
+
+      .addCase(getCompleteBmrFinish.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getCompleteBmrFinish.fulfilled, (state, action) => {
+        state.loading = false;
+        state.completebmr = action.payload;
+      })
+      .addCase(getCompleteBmrFinish.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message || null;
       })

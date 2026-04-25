@@ -15,6 +15,7 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
   handlesubmit,
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
+  const qty = selectedRow?.rm_quantity;
 
   const [rows, setRows] = useState([{ finish_quantity: '', unfinish_quantity: '' }]);
 
@@ -34,6 +35,11 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
     const updated = [...rows];
     updated[index][name] = value;
     setRows(updated);
+
+    if (value > qty) {
+      alert(`Total finished cannot exceed ${qty}`);
+      return;
+    }
   };
 
   // Add Row

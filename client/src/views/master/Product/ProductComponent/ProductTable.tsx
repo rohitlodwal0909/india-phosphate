@@ -56,9 +56,21 @@ const ProductTable = () => {
   };
 
   const filteredItems = (productdata || []).filter((item: any) => {
-    const searchText = searchTerm.toLowerCase();
-    const supllier = item?.product || '';
-    return supllier.toString().toLowerCase().includes(searchText);
+    const keyword = searchTerm.toLowerCase();
+
+    const searchInObject = (obj: any): boolean => {
+      return Object.values(obj).some((value) => {
+        if (!value) return false;
+
+        if (typeof value === 'object') {
+          return searchInObject(value);
+        }
+
+        return String(value).toLowerCase().includes(keyword);
+      });
+    };
+
+    return searchInObject(item);
   });
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);

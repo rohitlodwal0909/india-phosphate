@@ -119,7 +119,6 @@ const FmIssuedTable = () => {
     );
   }, [issuedFMList, searchText]);
 
-  console.log(filteredData);
   /* =======================
      TABLE COLUMNS
   ======================= */

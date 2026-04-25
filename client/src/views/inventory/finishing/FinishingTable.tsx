@@ -152,8 +152,6 @@ function FinishingTable() {
     });
   }, [data, searchText]);
 
-  console.log(filteredData);
-
   const columns = [
     columnHelper.accessor('id', {
       header: 'S. No.',

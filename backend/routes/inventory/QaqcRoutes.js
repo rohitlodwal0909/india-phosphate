@@ -19,6 +19,7 @@ router.post("/create-qcReport", qaQcController.createQcReport);
 
 router.delete("/qc-batch/:id", qaQcController.deleteQcBatch);
 router.get("/all-qc-batch", qaQcController.getAllQcBatches);
+router.get("/get-complete-bmr-finish", qaQcController.getCompleteBmrandFinish);
 
 // QA / QC Approved
 

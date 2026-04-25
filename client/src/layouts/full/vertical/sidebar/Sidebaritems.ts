@@ -380,9 +380,19 @@ const SidebarContent: MenuItem[] = [
           },
 
          
-          
+        
+           {
+            subId: 14,
+            name: "Production Planing",
+           icon: "carbon:industry",
+            id: uniqueId(),
+            url: "/inventory/planing",
+            add: false,
+            view: false,
+            edit: false,
+            delete: false,
 
-          
+          },
 
            {
             subId:4,
@@ -434,6 +444,18 @@ const SidebarContent: MenuItem[] = [
           
         ]
           },
+          {
+            subId:6,
+            name: "Finish",
+            icon: "fluent:check-20-filled",
+            id: uniqueId(),
+            url: "/inventory/finishing",
+             add: false,
+            view: false,
+            edit: false,
+            delete: false,
+          },
+         
          
             {
             subId:7,
@@ -457,17 +479,7 @@ const SidebarContent: MenuItem[] = [
               edit: false,
               delete: false,
           },
-           {
-            subId:6,
-            name: "Finish",
-            icon: "fluent:check-20-filled",
-            id: uniqueId(),
-            url: "/inventory/finishing",
-             add: false,
-            view: false,
-            edit: false,
-            delete: false,
-          },
+           
            {
             subId:10,
             name: "Work Order",

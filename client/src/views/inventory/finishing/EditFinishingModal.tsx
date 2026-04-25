@@ -61,10 +61,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
     const updated = [...rows];
     updated[index][name] = value;
 
-    // 👉 Calculate total after change
-    const totalFinished = updated.reduce((sum, r) => sum + Number(r.finish_quantity || 0), 0);
-
-    if (totalFinished > qty) {
+    if (value > qty) {
       alert(`Total finished cannot exceed ${qty}`);
       return;
     }
@@ -107,7 +104,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
     setBatchNumber('');
   };
 
-  const totalFinished = rows.reduce((sum, r) => sum + Number(r.finish_quantity || 0), 0);
+  // const totalFinished = rows.reduce((sum, r) => sum + Number(r.finish_quantity || 0), 0);
 
   // SUBMIT
   const handleSubmit = (e: React.FormEvent) => {
@@ -120,12 +117,12 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
       return;
     }
 
-    const totalFinished = rows.reduce((sum, r) => sum + Number(r.finish_quantity || 0), 0);
+    // const totalFinished = rows.reduce((sum, r) => sum + Number(r.finish_quantity || 0), 0);
 
-    if (totalFinished > qty) {
-      alert(`Finished quantity cannot exceed ${qty}`);
-      return;
-    }
+    // if (totalFinished > qty) {
+    //   alert(`Finished quantity cannot exceed ${qty}`);
+    //   return;
+    // }
 
     handleupdatedentry({
       batch_number: batchNumber,
@@ -143,7 +140,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Batch Number */}
 
-          <p className="text-sm text-gray-600">Remaining: {qty - totalFinished}</p>
+          {/* <p className="text-sm text-gray-600">Remaining: {qty - totalFinished}</p> */}
 
           {rows.map((row, index) => (
             <div

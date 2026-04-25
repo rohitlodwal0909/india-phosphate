@@ -23,8 +23,8 @@ import { getPermissions } from 'src/utils/getPermissions';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import Addmodal from './Addmodal';
 import {
-  GetAllQcbatch,
   batchStatusChange,
+  getCompleteBmrFinish,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { Link } from 'react-router';
 
@@ -35,7 +35,7 @@ function Table() {
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
-  const batchrecord = useSelector((state: any) => state.qcinventory.qcbatchdata);
+  const batchrecord = useSelector((state: any) => state.qcinventory.completebmr);
 
   const [data, setData] = useState<any[]>([]);
 
@@ -62,7 +62,7 @@ function Table() {
 
   // ✅ Fetch QC batches (refetch on reload)
   useEffect(() => {
-    dispatch(GetAllQcbatch())
+    dispatch(getCompleteBmrFinish())
       .unwrap()
       .catch((error) => {
         console.error('Error fetching QC batches:', error);

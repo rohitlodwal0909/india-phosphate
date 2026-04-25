@@ -59,6 +59,7 @@ import DraftPackingListSlice from '../src/features/account/exportinvoice/draft';
 import SampleInvoiceSlice from '../src/features/account/exportinvoice/sampleinvoice';
 
 import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
+import ProdutionPlaningSlice from '../src/features/Inventorymodule/planing/ProdutionPlaningSlice';
 // Puchase
 
 import QuotationSlice from '../src/features/purchase/quotation/QuotationSlice';
@@ -126,6 +127,7 @@ export const store = configureStore({
     draftPackingList: DraftPackingListSlice,
     sampleInvoice: SampleInvoiceSlice,
     replacements: ReplacementSlice,
+    productionplanning: ProdutionPlaningSlice,
 
     // Purchase
     quotation: QuotationSlice,

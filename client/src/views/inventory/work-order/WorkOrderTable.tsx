@@ -322,6 +322,7 @@ const ViewWorkOrderTable = () => {
 
       <PasswordVerifyModal
         open={passwordModal}
+        logindata={logindata}
         setOpen={setPasswordModal}
         onSuccess={handlePasswordSuccess}
       />

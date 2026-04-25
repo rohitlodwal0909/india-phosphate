@@ -118,6 +118,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATEONLY
       },
 
+      priority: {
+        type: DataTypes.STRING
+      },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

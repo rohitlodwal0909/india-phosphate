@@ -239,14 +239,6 @@ exports.getAllProductionResults = async (req, res, next) => {
               as: "rmcodes"
             }
           ]
-        },
-        {
-          model: PMIssueModel,
-          required: true
-        },
-        {
-          model: RMIssueModel,
-          required: true
         }
       ],
       order: [["created_at", "DESC"]]
@@ -260,10 +252,14 @@ exports.getAllProductionResults = async (req, res, next) => {
         (prod) => {
           prod.finishing_entries =
             prod.finishing_entries?.map((finish) => {
-              const total_finish = finish.FinishQties?.reduce(
-                (sum, f) => sum + Number(f.finishing_qty || 0),
-                0
+              const total_finish = Number(
+                finish.FinishQties?.at(-1)?.finishing_qty || 0
               );
+
+              // const total_finish = finish.FinishQties?.reduce(
+              //   (sum, f) => sum + Number(f.finishing_qty || 0),
+              //   0
+              // );
 
               const total_unfinish = Number(
                 finish.FinishQties?.at(-1)?.unfinishing_qty || 0

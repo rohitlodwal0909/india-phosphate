@@ -25,6 +25,12 @@ router.put(
   AuthController.updateProfile
 );
 router.put("/change-password/:id", AuthController.changePassword);
+router.put(
+  "/change-po-password",
+  authMiddleware,
+  AuthController.changePOPassword
+);
+
 router.get("/get-log", AuthController.getAllLogs);
 router.post("/forgot-password", AuthController.forgotPassword);
 module.exports = router;

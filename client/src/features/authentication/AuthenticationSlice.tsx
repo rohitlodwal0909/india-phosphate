@@ -8,6 +8,7 @@ const initialState = {
   loading: false,
   error: null,
   logindata: [],
+  poPassword: [],
   logdata: [],
 };
 
@@ -84,6 +85,23 @@ export const Changepassword = createAsyncThunk(
   },
 );
 
+export const ChangePOViewPassword = createAsyncThunk(
+  'Changepassword/poPassword',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/change-po-password`, formdata, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      // Throw error data back to catch block
+      return rejectWithValue(error.response?.data || { message: 'Unknown error' });
+    }
+  },
+);
+
 export const GetallLogs = createAsyncThunk('GetallLogs/fetch', async (_, thunkAPI) => {
   try {
     const response = await axios.get(`${apiUrl}/get-log`);
@@ -126,7 +144,6 @@ const AuthenticationSlice = createSlice({
       })
       .addCase(Authenticationmodule.rejected, (state, action) => {
         state.loading = false;
-
         state.error = action.payload;
       })
       .addCase(GetAuthenticationmodule.pending, (state) => {
@@ -140,6 +157,19 @@ const AuthenticationSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      .addCase(ChangePOViewPassword.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(ChangePOViewPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.poPassword = action.payload;
+      })
+      .addCase(ChangePOViewPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       .addCase(GetallLogs.pending, (state) => {
         state.loading = true;
       })

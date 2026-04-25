@@ -17,6 +17,7 @@ const {
 exports.getBatches = async (req, res, next) => {
   try {
     const data = await Qcbatch.findAll({
+      where: { status: "Approved" },
       include: [
         {
           model: Finishing,

@@ -15,4 +15,10 @@ router.delete(
   PoPurchaseController.deletePoRequisition
 );
 
+router.put("/purchase-payment/:id", PoPurchaseController.purchasePayment);
+router.put(
+  "/purchase-account-remark/:id",
+  PoPurchaseController.purchaseAddRemark
+);
+
 module.exports = router;

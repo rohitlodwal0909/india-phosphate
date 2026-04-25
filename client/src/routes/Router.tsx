@@ -35,6 +35,7 @@ import PoRequisition from 'src/views/purchase/po-requisition/PoRequisition';
 import PuchaseReport from 'src/views/accounts/paymentapprove/poapprove/AccountPaymentComponent/Report';
 import PoPurchase from 'src/views/purchase/po-purchase/PoPurchase';
 import AccountPurchase from 'src/views/accounts/purchaseApprove/AccountPurchase';
+import ProductionPlaning from 'src/views/inventory/productionPlaning/ProductionPlaning';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -140,6 +141,7 @@ const fullLayoutChildren = [
   { path: '/inventory/inventory-equipment', element: <EquipementIssuedInventory /> },
   { path: '/inventory/inventory-rm', element: <RmIssuedInventory /> },
   { path: '/inventory/finish-material', element: <FmIssuedInventory /> },
+  { path: '/inventory/planing', element: <ProductionPlaning /> },
 
   { path: '/inventory/work-order', element: <WorkOrder /> },
   { path: '/inventory/replacement', element: <Replacement /> },

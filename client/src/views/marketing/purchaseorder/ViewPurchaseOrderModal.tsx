@@ -30,6 +30,19 @@ const ViewPurchaseOrderModal = ({
     dispatch(GetProduct());
   }, [dispatch]);
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return 'bg-red-500';
+      case 'Priority':
+        return 'bg-blue-500';
+      case 'Normal':
+        return 'bg-black';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
   const getProductName = (id: any) => {
     const product = productdata?.find((p: any) => p.id == id);
     return product?.product_name || id;
@@ -74,10 +87,18 @@ const ViewPurchaseOrderModal = ({
                 value: selectedRow?.expected_delivery_date,
               },
               { label: 'Submitted By', value: selectedRow?.users?.username },
+              { label: 'Priority', value: selectedRow?.priority },
             ].map((item, i) => (
               <div key={i}>
                 <p className="text-gray-500">{item.label}</p>
-                <p className="text-gray-900 font-medium mt-1">{item.value || '-'}</p>
+                {item.label === 'Priority' ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`w-3 h-3 rounded-full ${getPriorityColor(item.value)}`} />
+                    <p className="text-gray-900 font-medium">{item.value || '-'}</p>
+                  </div>
+                ) : (
+                  <p className="text-gray-900 font-medium mt-1">{item.value || '-'}</p>
+                )}{' '}
               </div>
             ))}
 

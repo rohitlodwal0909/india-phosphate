@@ -22,7 +22,8 @@ const {
   QcReportItem,
   RmCode,
   PmCode,
-  GuardEntry
+  GuardEntry,
+  FinishQty
 } = db;
 const { Op } = require("sequelize");
 
@@ -703,22 +704,60 @@ exports.updateQcBatch = async (req, res, next) => {
   }
 };
 
-exports.getAllQcBatches = async (req, res, next) => {
+exports.getCompleteBmrandFinish = async (req, res, next) => {
   try {
+    // ✅ Step 1: Approved BMR batch_ids
     const bmrRecords = await BmrRecordsModel.findAll({
       attributes: ["batch_id"],
       where: { status: "approved" }
     });
 
-    // Step 2: Extract batch_ids
     const batchIds = bmrRecords.map((item) => item.batch_id);
 
-    const batches = await Qcbatch.findAll({
+    // ✅ Step 2: Finishing with FinishQty condition
+    const finish = await Finishing.findAll({
       where: {
-        id: {
+        batch_number: {
           [Op.in]: batchIds
         }
       },
+      include: [
+        {
+          model: FinishQty,
+          required: true, // INNER JOIN
+          where: {
+            unfinishing_qty: 0
+          }
+        }
+      ],
+      order: [["created_at", "DESC"]]
+    });
+
+    // ✅ Step 3: Extract Batch Numbers
+    const batchId = finish.map((item) => item.batch_number);
+
+    // ✅ Step 4: Fetch QC Batches
+    const batches = await Qcbatch.findAll({
+      where: {
+        id: {
+          [Op.in]: batchId
+        }
+      },
+      order: [["created_at", "DESC"]]
+    });
+
+    res.status(200).json({
+      message: "QC Batches fetched successfully.",
+      data: batches
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllQcBatches = async (req, res, next) => {
+  try {
+    const batches = await Qcbatch.findAll({
       order: [["created_at", "DESC"]]
     });
     res.status(200).json({

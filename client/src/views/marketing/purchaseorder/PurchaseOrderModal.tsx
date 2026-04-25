@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Label, TextInput, Textarea, Checkbox } from 'flowbite-react';
 import Select from 'react-select';
+
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addPurchaseOrder,
@@ -16,12 +17,50 @@ interface PurchaseOrderModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
 }
+type PriorityOption = {
+  value: string;
+  label: string;
+  color: string;
+};
 
 const gstOptions = [
   { value: 18, label: '18%' },
   { value: 0.1, label: '0.1%' },
   { value: 0, label: 'Nil' },
 ];
+
+const priorityOptions: PriorityOption[] = [
+  {
+    value: 'High',
+    label: 'High Priority',
+    color: '#ef4444',
+  },
+  {
+    value: 'Priority',
+    label: 'Priority',
+    color: '#2563eb',
+  },
+  {
+    value: 'Normal',
+    label: 'Normal',
+    color: '#000000',
+  },
+];
+
+const formatOptionLabel = (option: PriorityOption) => (
+  <div className="flex items-center gap-2">
+    <span
+      style={{
+        backgroundColor: option.color,
+        width: 12,
+        height: 12,
+        borderRadius: '50%',
+        display: 'inline-block',
+      }}
+    />
+    {option.label}
+  </div>
+);
 
 const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<any>();
@@ -43,21 +82,6 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   }));
 
   const customerOptions = customers?.map((c: any) => {
-    // let address = '';
-
-    // if (c.addresses) {
-    //   try {
-    //     const parsed = typeof c.addresses === 'string' ? JSON.parse(c.addresses) : c.addresses;
-
-    //     if (Array.isArray(parsed) && parsed.length > 0) {
-    //       const addr = parsed[0];
-    //       address = `${addr.company_address || ''}, ${addr.factory_address || ''}, ${addr.city || ''}, ${addr.country || ''}`;
-    //     }
-    //   } catch (err) {
-    //     address = '';
-    //   }
-    // }
-
     return {
       label: c.company_name,
       value: c.id,
@@ -130,6 +154,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     customise_labels: '',
     expected_delivery_date: '',
     submitted_by: '',
+    priority: '',
   });
 
   const handleChange = (e: any) => {
@@ -174,6 +199,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       payload.append('freight', formData.freight);
       payload.append('payment_terms', formData.payment_terms);
       payload.append('expected_delivery_date', formData.expected_delivery_date);
+      payload.append('priority', formData.priority);
 
       /* ================= EXTRA ================= */
       payload.append('company_type', formData.company_type || '');
@@ -576,6 +602,22 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
           <div className="col-span-6">
             <Label value="Expected Delivery Date" />
             <TextInput type="date" name="expected_delivery_date" onChange={handleChange} />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Priority" />
+
+            <Select
+              options={priorityOptions}
+              formatOptionLabel={formatOptionLabel}
+              value={priorityOptions.find((opt) => opt.value === formData.priority)}
+              onChange={(selected) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  priority: selected?.value,
+                }))
+              }
+            />
           </div>
 
           {/* Buttons */}

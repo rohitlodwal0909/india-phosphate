@@ -59,14 +59,33 @@ const CustomerTable = () => {
   };
 
   const filteredItems = (customerdata || []).filter((item: any) => {
-    const searchText = searchTerm.toLowerCase();
-    const supllier = item?.company_name || '';
-    const mouldNo = item?.customer_type || '';
+    const keyword = searchTerm.toLowerCase().trim();
 
-    return (
-      mouldNo.toString().toLowerCase().includes(searchText) ||
-      supllier.toString().toLowerCase().includes(searchText)
-    );
+    if (!keyword) return true;
+
+    // recursive search function
+    const searchInObject = (obj: any): boolean => {
+      if (!obj) return false;
+
+      // string / number
+      if (typeof obj === 'string' || typeof obj === 'number') {
+        return String(obj).toLowerCase().includes(keyword);
+      }
+
+      // array
+      if (Array.isArray(obj)) {
+        return obj.some((val) => searchInObject(val));
+      }
+
+      // object
+      if (typeof obj === 'object') {
+        return Object.values(obj).some((val) => searchInObject(val));
+      }
+
+      return false;
+    };
+
+    return searchInObject(item);
   });
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);

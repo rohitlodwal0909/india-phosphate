@@ -77,7 +77,7 @@ const ProductRelease = ({ users = [], bmr, data, isReadOnly }) => {
 
               <p className="text-sm">
                 The product conforms to Finished Goods Specification:&nbsp;
-                <span className="font-semibold underline">Sodium citrate IP/BP/EP/USP/FCC</span>
+                <span className="font-semibold underline">{bmr?.records?.product_name}</span>
               </p>
 
               {/* Batch & Date */}

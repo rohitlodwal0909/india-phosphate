@@ -157,7 +157,7 @@ const PoPurchaseTable = () => {
                           >
                             <Icon icon="hugeicons:view" height={18} />
                           </Button>
-                          {permissions?.edit && (
+                          {/* {permissions?.edit && (
                             <Tooltip content="Edit" placement="bottom">
                               <Button
                                 size="sm"
@@ -170,7 +170,7 @@ const PoPurchaseTable = () => {
                                 <Icon icon="solar:pen-outline" height={18} />
                               </Button>
                             </Tooltip>
-                          )}
+                          )} */}
                           {permissions?.del && (
                             <Tooltip content="Delete" placement="bottom">
                               <Button

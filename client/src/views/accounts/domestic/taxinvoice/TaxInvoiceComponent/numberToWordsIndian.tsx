@@ -75,5 +75,5 @@ export const numberToWordsIndian = (num) => {
   if (thousand) result += convertHundreds(thousand) + ' Thousand ';
   if (hundred) result += convertHundreds(hundred) + ' ';
 
-  return result.trim() + ' Rupees Only';
+  return result.trim() + ' Only';
 };
