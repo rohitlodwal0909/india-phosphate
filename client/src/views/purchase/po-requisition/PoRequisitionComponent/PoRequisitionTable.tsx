@@ -141,28 +141,45 @@ const PoRequisitionTable = () => {
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.Product?.product_name || '-').replace(/^\w/, (c: string) =>
-                          c.toUpperCase(),
-                        )}
+                        {item?.products?.length
+                          ? item.products
+                              .map((p: any) => p?.Product?.product_name)
+                              .join(', ')
+                              .replace(/^\w/, (c: string) => c.toUpperCase())
+                          : '-'}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.RmCode?.rm_code || '-').replace(/^\w/, (c: string) =>
-                          c.toUpperCase(),
-                        )}{' '}
-                        ({item?.rm_qty}
-                        {item?.rm_unit})
+                        {item?.raw_materials?.length
+                          ? item.raw_materials
+                              .map(
+                                (rm: any) =>
+                                  `${rm?.RmCode?.rm_code || '-'} (${rm?.qty || 0}${rm?.unit || ''})`,
+                              )
+                              .join(', ')
+                              .replace(/^\w/, (c: string) => c.toUpperCase())
+                          : '-'}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.PmCode?.name || '-').replace(/^\w/, (c: string) => c.toUpperCase())}{' '}
-                        ({item?.pm_qty}
-                        {item?.pm_unit})
+                        {item?.packing_materials?.length
+                          ? item.packing_materials
+                              .map(
+                                (pm: any) =>
+                                  `${pm?.PmCode?.name || '-'} (${pm?.qty || 0}${pm?.unit || ''})`,
+                              )
+                              .join(', ')
+                              .replace(/^\w/, (c: string) => c.toUpperCase())
+                          : '-'}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.Equipment?.name || '-').replace(/^\w/, (c: string) =>
-                          c.toUpperCase(),
-                        )}{' '}
-                        ({item?.equipment_qty}
-                        {item?.equipment_unit})
+                        {item?.equipments?.length
+                          ? item.equipments
+                              .map(
+                                (eq: any) =>
+                                  `${eq?.Equipment?.name || '-'} (${eq?.qty || 0}${eq?.unit || ''})`,
+                              )
+                              .join(', ')
+                              .replace(/^\w/, (c: string) => c.toUpperCase())
+                          : '-'}
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">

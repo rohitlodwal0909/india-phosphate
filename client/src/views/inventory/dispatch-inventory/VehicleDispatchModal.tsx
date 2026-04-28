@@ -28,6 +28,7 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
 
   const [formData, setFormData] = useState<any>({
     po_id: '',
+    work_order_no: '',
     vehicle_number: '',
     driver_details: '',
     batches: [
@@ -47,8 +48,6 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     arrived_booking: '', // ✅ NEW FIELD
     max_quantity: 0,
   });
-
-  const batchMap = Object.fromEntries((StoreData || []).map((b: any) => [b.id, b]));
 
   const [errors, setErrors] = useState<any>({});
 
@@ -83,10 +82,18 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     }));
   };
 
-  const batchOptions =
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<any>(null);
+
+  const workOrderOptions =
     StoreData?.map((item: any) => ({
-      value: item.id,
-      label: item.qc_batch_number,
+      value: item.work_order_no,
+      label: item.work_order_no,
+    })) || [];
+
+  const batchOptions =
+    selectedWorkOrder?.batches?.map((b: any) => ({
+      value: b.id,
+      label: `${b.qc_batch_number}`,
     })) || [];
 
   const po_nos =
@@ -158,6 +165,7 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
         dispatch(GetFetchDispatch());
         setFormData({
           po_id: '',
+          work_order_no: '',
           vehicle_number: '',
           driver_details: '',
           batches: [
@@ -196,17 +204,28 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
     updated.splice(index, 1);
     setFormData({ ...formData, batches: updated });
   };
+
   const handleBatchChange = (index: number, field: string, value: any) => {
     const updated = [...formData.batches];
 
     updated[index][field] = value;
 
+    // ✅ When batch selected
     if (field === 'batch_no') {
-      const batch = batchMap[value];
-      updated[index].max_quantity = batch?.total_issued_qty || 0;
+      const batch = selectedWorkOrder?.batches?.find((b: any) => b.id === value);
+
+      const qty = batch?.quantity || 0;
+
+      updated[index].max_quantity = qty;
+
+      // ⭐ AUTO SHOW QTY
+      updated[index].quantity = qty;
     }
 
-    setFormData({ ...formData, batches: updated });
+    setFormData({
+      ...formData,
+      batches: updated,
+    });
   };
 
   return (
@@ -224,6 +243,37 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
               onChange={(selected: any) => setFormData({ ...formData, po_id: selected?.value })}
             />
             {errors.po_id && <span className="text-red-500 text-sm">{errors.po_id}</span>}
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Work Order No." />
+
+            <Select
+              options={workOrderOptions}
+              value={workOrderOptions.find((opt) => opt.value == formData.work_order_no) || null}
+              onChange={(selected: any) => {
+                const wo = StoreData.find((item: any) => item.work_order_no === selected?.value);
+
+                setSelectedWorkOrder(wo);
+
+                setFormData((prev: any) => ({
+                  ...prev,
+                  work_order_no: selected?.value,
+                  product_name: wo?.batches?.[0]?.product_name || '',
+                  batches: [
+                    {
+                      batch_no: '',
+                      quantity: '',
+                      unit: '',
+                      max_quantity: 0,
+                    },
+                  ],
+                }));
+              }}
+            />
+            {errors.work_order_no && (
+              <span className="text-red-500 text-sm">{errors.work_order_no}</span>
+            )}
           </div>
 
           {/* Vehicle Number */}
@@ -330,11 +380,19 @@ const VehicleDispatchModal: React.FC<VehicleDispatchModalProps> = ({
                     {' '}
                     <input
                       type="number"
-                      placeholder="Quantity"
                       value={batch.quantity}
                       max={batch.max_quantity}
-                      onChange={(e) => handleBatchChange(index, 'quantity', e.target.value)}
                       className="w-full border px-3 py-2 rounded-l-md"
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+
+                        if (value > batch.max_quantity) {
+                          toast.error('Quantity exceeds available qty');
+                          return;
+                        }
+
+                        handleBatchChange(index, 'quantity', value);
+                      }}
                     />
                     <select
                       value={batch.unit}

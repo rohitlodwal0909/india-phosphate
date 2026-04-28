@@ -11,6 +11,10 @@ const {
   PMIssueModel,
   EquipmentIssueModel,
   PoRequisitionModel,
+  PoRequisitionProduct,
+  PoRequisitionRawMaterial,
+  PoRequisitionPackingMaterial,
+  PoRequisitionEquipment,
   Product
 } = db;
 
@@ -170,41 +174,110 @@ exports.getRemaningStock = async (req, res) => {
 ====================================================== */
 
 exports.createPoRequisition = async (req, res) => {
+  const transaction = await db.sequelize.transaction();
+
   try {
-    const data = await PoRequisitionModel.create({
-      user_id: req.admin.id,
+    const {
+      address,
+      application,
+      expected_arrival_date,
+      remark,
+      products,
+      raw_materials,
+      packing_materials,
+      equipments
+    } = req.body;
 
-      product_id: req.body.product_id,
-      address: req.body.address,
-      application: req.body.application,
-      expected_arrival_date: req.body.expected_arrival_date,
-      remark: req.body.remark,
+    /* ================= CREATE REQUISITION ================= */
 
-      /* RM */
-      rm_id: req.body.rm_id,
-      rm_qty: req.body.rm_qty,
-      rm_unit: req.body.rm_unit,
+    const requisition = await PoRequisitionModel.create(
+      {
+        user_id: req.admin.id,
+        address,
+        application,
+        expected_arrival_date,
+        remark
+      },
+      { transaction }
+    );
 
-      /* PM */
-      pm_id: req.body.pm_id,
-      pm_qty: req.body.pm_qty,
-      pm_unit: req.body.pm_unit,
+    /* ================= LOOP PRODUCTS ================= */
 
-      /* EQUIPMENT */
-      equipment_id: req.body.equipment_id,
-      equipment_qty: req.body.equipment_qty,
-      equipment_unit: req.body.equipment_unit
-    });
+    for (const product of products) {
+      const productRow = await PoRequisitionProduct.create(
+        {
+          po_requisition_id: requisition.id,
+          product_id: product.product_id
+        },
+        { transaction }
+      );
+
+      /* ================= RAW MATERIALS ================= */
+
+      if (raw_materials?.length) {
+        const rmData = raw_materials.map((rm) => ({
+          po_requisition_id: requisition.id,
+          rm_id: rm.rm_id,
+          qty: rm.qty,
+          unit: rm.unit
+        }));
+
+        await PoRequisitionRawMaterial.bulkCreate(rmData, {
+          transaction
+        });
+      }
+
+      /* ================= PACKING MATERIAL ================= */
+
+      if (packing_materials?.length) {
+        const pmData = packing_materials.map((pm) => ({
+          po_requisition_id: requisition.id,
+          pm_id: pm.pm_id,
+          qty: pm.qty,
+          unit: pm.unit
+        }));
+
+        await PoRequisitionPackingMaterial.bulkCreate(pmData, {
+          transaction
+        });
+      }
+
+      /* ================= EQUIPMENT ================= */
+
+      if (equipments?.length) {
+        const eqData = equipments.map((eq) => ({
+          po_requisition_id: requisition.id,
+          equipment_id: eq.equipment_id,
+          qty: eq.qty,
+          unit: eq.unit
+        }));
+
+        await PoRequisitionEquipment.bulkCreate(eqData, {
+          transaction
+        });
+      }
+    }
+
+    /* ================= COMMIT ================= */
+
+    await transaction.commit();
+
+    console.log(req.body);
+    return;
 
     return res.status(200).json({
-      message: "PO Requisition created successfully",
-      data
+      success: true,
+      message: "PO Requisition Created Successfully",
+      id: requisition.id
     });
   } catch (error) {
-    console.error("Create Error:", error);
+    await transaction.rollback();
+
+    console.error("CREATE ERROR:", error);
 
     return res.status(500).json({
-      message: "PO Requisition creation failed"
+      success: false,
+      message: "Creation Failed"
     });
   }
 };
@@ -216,48 +289,143 @@ exports.createPoRequisition = async (req, res) => {
    UPDATE PO REQUISITION
 ====================================================== */
 exports.updatePoRequisition = async (req, res) => {
+  const transaction = await db.sequelize.transaction();
+
   try {
     const { id } = req.params;
+
+    const {
+      address,
+      application,
+      expected_arrival_date,
+      remark,
+      products,
+      raw_materials,
+      packing_materials,
+      equipments
+    } = req.body;
+
+    /* ================= FIND ================= */
 
     const requisition = await PoRequisitionModel.findByPk(id);
 
     if (!requisition) {
+      await transaction.rollback();
       return res.status(404).json({
+        success: false,
         message: "Requisition not found"
       });
     }
 
-    await requisition.update({
-      user_id: req.admin.id,
+    /* ================= UPDATE MAIN ================= */
 
-      product_id: req.body.product_id,
-      address: req.body.address,
-      application: req.body.application,
-      expected_arrival_date: req.body.expected_arrival_date,
-      remark: req.body.remark,
+    await requisition.update(
+      {
+        user_id: req.admin.id,
+        address,
+        application,
+        expected_arrival_date,
+        remark
+      },
+      { transaction }
+    );
 
-      rm_id: req.body.rm_id,
-      rm_qty: req.body.rm_qty,
-      rm_unit: req.body.rm_unit,
+    /* ================= DELETE OLD CHILD DATA ================= */
 
-      pm_id: req.body.pm_id,
-      pm_qty: req.body.pm_qty,
-      pm_unit: req.body.pm_unit,
-
-      equipment_id: req.body.equipment_id,
-      equipment_qty: req.body.equipment_qty,
-      equipment_unit: req.body.equipment_unit
+    await PoRequisitionProduct.destroy({
+      where: { po_requisition_id: id },
+      transaction
     });
+
+    await PoRequisitionRawMaterial.destroy({
+      where: { po_requisition_id: id },
+      transaction
+    });
+
+    await PoRequisitionPackingMaterial.destroy({
+      where: { po_requisition_id: id },
+      transaction
+    });
+
+    await PoRequisitionEquipment.destroy({
+      where: { po_requisition_id: id },
+      transaction
+    });
+
+    /* ================= RECREATE PRODUCTS ================= */
+
+    if (products?.length) {
+      const productData = products.map((p) => ({
+        po_requisition_id: id,
+        product_id: p.product_id
+      }));
+
+      await PoRequisitionProduct.bulkCreate(productData, {
+        transaction
+      });
+    }
+
+    /* ================= RECREATE RM ================= */
+
+    if (raw_materials?.length) {
+      const rmData = raw_materials.map((rm) => ({
+        po_requisition_id: id,
+        rm_id: rm.rm_id,
+        qty: rm.qty,
+        unit: rm.unit
+      }));
+
+      await PoRequisitionRawMaterial.bulkCreate(rmData, {
+        transaction
+      });
+    }
+
+    /* ================= RECREATE PM ================= */
+
+    if (packing_materials?.length) {
+      const pmData = packing_materials.map((pm) => ({
+        po_requisition_id: id,
+        pm_id: pm.pm_id,
+        qty: pm.qty,
+        unit: pm.unit
+      }));
+
+      await PoRequisitionPackingMaterial.bulkCreate(pmData, {
+        transaction
+      });
+    }
+
+    /* ================= RECREATE EQUIPMENT ================= */
+
+    if (equipments?.length) {
+      const eqData = equipments.map((eq) => ({
+        po_requisition_id: id,
+        equipment_id: eq.equipment_id,
+        qty: eq.qty,
+        unit: eq.unit
+      }));
+
+      await PoRequisitionEquipment.bulkCreate(eqData, {
+        transaction
+      });
+    }
+
+    /* ================= COMMIT ================= */
+
+    await transaction.commit();
 
     return res.status(200).json({
-      message: "PO Requisition updated successfully",
-      data: requisition
+      success: true,
+      message: "PO Requisition Updated Successfully"
     });
   } catch (error) {
-    console.error("Update Error:", error);
+    await transaction.rollback();
+
+    console.error("UPDATE ERROR:", error);
 
     return res.status(500).json({
-      message: "Update failed"
+      success: false,
+      message: "Update Failed"
     });
   }
 };
@@ -272,26 +440,56 @@ exports.getPoRequisition = async (req, res) => {
   try {
     const data = await PoRequisitionModel.findAll({
       order: [["id", "DESC"]],
+
       include: [
         {
-          model: Product,
-          attributes: ["id", "product_name"]
+          model: PoRequisitionProduct,
+          as: "products",
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "product_name"]
+            }
+          ]
         },
+
         {
-          model: RmCode,
-          attributes: ["rm_code"]
+          model: PoRequisitionRawMaterial,
+          as: "raw_materials",
+          include: [
+            {
+              model: RmCode,
+              attributes: ["id", "rm_code"]
+            }
+          ]
         },
+
         {
-          model: PmCode,
-          attributes: ["name"]
+          model: PoRequisitionPackingMaterial,
+          as: "packing_materials",
+          include: [
+            {
+              model: PmCode,
+              attributes: ["id", "name"]
+            }
+          ]
         },
+
         {
-          model: Equipment
+          model: PoRequisitionEquipment,
+          as: "equipments",
+          include: [
+            {
+              model: Equipment,
+              attributes: ["id", "name"]
+            }
+          ]
         }
       ]
     });
 
     return res.status(200).json({
+      success: true,
       message: "PO Requisition list",
       data
     });
@@ -299,6 +497,7 @@ exports.getPoRequisition = async (req, res) => {
     console.error(error);
 
     return res.status(500).json({
+      success: false,
       message: error.message
     });
   }

@@ -17,6 +17,7 @@ interface FMIssuedState {
   batches: any[];
   issuedFMList: any[];
   finishedstock: any[];
+  dispatchbatch: any[];
   addResult: any;
   updateResult: any;
   deleteResult: any;
@@ -32,6 +33,7 @@ const initialState: FMIssuedState = {
   batches: [],
   issuedFMList: [],
   finishedstock: [],
+  dispatchbatch: [],
   addResult: null,
   updateResult: null,
   deleteResult: null,
@@ -88,6 +90,18 @@ export const getIssuedFM = createAsyncThunk('issuedFM/getAll', async (_, { rejec
   }
 });
 
+export const getDispatchBatches = createAsyncThunk(
+  'issuedBatches/get',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get('/get-dispatch-batches');
+      return res.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch issued FM');
+    }
+  },
+);
+
 /* ✅ DELETE ISSUED FM */
 export const deleteIssuedFM = createAsyncThunk(
   'issuedFM/delete',
@@ -134,6 +148,18 @@ const FMIssuedSlice = createSlice({
         state.batches = action.payload.data;
       })
       .addCase(getBatches.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(getDispatchBatches.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getDispatchBatches.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dispatchbatch = action.payload.data;
+      })
+      .addCase(getDispatchBatches.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

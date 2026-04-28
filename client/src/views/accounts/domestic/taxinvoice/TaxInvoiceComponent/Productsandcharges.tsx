@@ -1,16 +1,21 @@
 import { Button, Label, TextInput } from 'flowbite-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getDispatchBatches } from 'src/features/account/invoice/taxinvoice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { AppDispatch } from 'src/store';
 
 const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { productdata } = useSelector((state: any) => state.products);
+  const { dispatchBatches } = useSelector((state: any) => state.taxinvoices);
 
   useEffect(() => {
     dispatch(GetProduct());
+    dispatch(getDispatchBatches());
   }, [dispatch]);
+
+  // console.log(dispatchBatches);
 
   const handleChange = (field: string, value: any) => {
     setCharges((prev) => ({ ...prev, [field]: value }));
@@ -217,12 +222,21 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
 
                   {/* Batch */}
                   <td className="border p-2">
-                    <TextInput
+                    <select
+                      className="w-full border p-2 rounded"
                       value={batch.batch_no}
                       onChange={(e) =>
                         handleBatchChange(pIndex, bIndex, 'batch_no', e.target.value)
                       }
-                    />
+                    >
+                      <option value="">Select Batch</option>
+                      {dispatchBatches.length > 0 &&
+                        dispatchBatches?.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.batch_no}
+                          </option>
+                        ))}
+                    </select>
                   </td>
 
                   {/* MFG */}

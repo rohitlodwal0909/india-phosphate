@@ -13,6 +13,7 @@ import ViewDispatchModal from 'src/views/inventory/dispatch-inventory/ViewDispat
 import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 import AddInvoiceTaxModel from './AddInvoiceTaxModel';
 import InvoiceViewModel from './InvoiceViewModel';
+import { ImageUrl } from 'src/constants/contant';
 
 const TaxInvoiceTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -38,12 +39,38 @@ const TaxInvoiceTable = () => {
   }, [dispatch]);
   const [dispatchModal, setDispatchModal] = useState(false);
 
+  const handleDownload = async (row) => {
+    const pdf = row?.Invoice?.oq_upload;
+
+    if (!pdf) return;
+
+    const fileUrl = ImageUrl + 'uploads/oq-uploads/' + pdf;
+
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = pdf; // ⭐ FORCE DOWNLOAD
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const filteredItems = (invoiceentry || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
 
     const company_name = item?.poentry?.customers?.company_name || '';
     const po_no = item?.poentry?.po_no || '';
-    const invoice_no = item?.invoice_no || '';
+    const invoice_no = item?.Invoice?.invoice_no || '';
 
     return (
       company_name.toString().toLowerCase().includes(searchText) ||
@@ -107,7 +134,9 @@ const TaxInvoiceTable = () => {
                         )}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.invoice_no || '-').replace(/^\w/, (c: string) => c.toUpperCase())}
+                        {(item?.Invoice?.invoice_no || '-').replace(/^\w/, (c: string) =>
+                          c.toUpperCase(),
+                        )}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {(item?.poentry?.po_no || '-').replace(/^\w/, (c: string) =>
@@ -119,7 +148,7 @@ const TaxInvoiceTable = () => {
                         <div className="flex justify-start gap-2">
                           {/* PO Details View */}
 
-                          <Button
+                          {/* <Button
                             size="sm"
                             color={'lightsecondary'}
                             className="p-0"
@@ -130,7 +159,20 @@ const TaxInvoiceTable = () => {
                             title="View Invoice"
                           >
                             <Icon icon="mdi:file-document-outline" height={18} />{' '}
-                          </Button>
+                          </Button> */}
+                          {item?.Invoice && (
+                            <Button
+                              size="sm"
+                              color={'lightsecondary'}
+                              className="p-0"
+                              onClick={() => {
+                                handleDownload(item);
+                              }}
+                              title="Download"
+                            >
+                              <Icon icon="mdi:file-document-outline" height={18} />{' '}
+                            </Button>
+                          )}
 
                           <Button
                             size="sm"

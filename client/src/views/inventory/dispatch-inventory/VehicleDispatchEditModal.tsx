@@ -44,10 +44,19 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
   }, [dispatch]);
 
   // Batch options
-  const batchOptions =
+
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<any>(null);
+
+  const workOrderOptions =
     StoreDatas?.map((item: any) => ({
-      value: item.id,
-      label: item.qc_batch_number,
+      value: item.work_order_no,
+      label: item.work_order_no,
+    })) || [];
+
+  const batchOptions =
+    selectedWorkOrder?.batches?.map((b: any) => ({
+      value: b.id,
+      label: `${b.qc_batch_number}`,
     })) || [];
 
   // PO options
@@ -59,24 +68,29 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
 
   // Selected row load
   useEffect(() => {
-    if (selectedRow) {
+    if (selectedRow && StoreDatas?.length) {
+      // ✅ Find Work Order
+      const wo = StoreDatas.find((item: any) => item.work_order_no === selectedRow.work_order_no);
+
+      setSelectedWorkOrder(wo);
+
       setFormData({
         ...selectedRow,
-        batches: selectedRow.batches?.map((b: any) => ({
-          batch_no: b.batch_id || b.batch_no,
-          quantity: b.quantity,
-          unit: b.unit,
-          max_quantity: batchMap[b.batch_id]?.total_issued_qty || 0,
-        })) || [{ batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
+        product_name: wo?.batches?.[0]?.product_name || '',
+
+        batches: selectedRow.batches?.map((b: any) => {
+          const batch = wo?.batches?.find((bb: any) => bb.id === (b.batch_id || b.batch_no));
+
+          return {
+            batch_no: b.batch_id || b.batch_no,
+            quantity: b.quantity,
+            unit: b.unit,
+            max_quantity: batch?.quantity || 0,
+          };
+        }) || [{ batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
       });
     }
   }, [selectedRow, StoreDatas]);
-
-  const batchMap =
-    StoreDatas?.reduce((acc: any, item: any) => {
-      acc[item.id] = item;
-      return acc;
-    }, {}) || {};
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -125,26 +139,28 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
     updated.splice(index, 1);
     setFormData({ ...formData, batches: updated });
   };
+
   const handleBatchChange = (index: number, field: string, value: any) => {
     const updated = [...formData.batches];
 
     updated[index][field] = value;
 
+    // ✅ When batch selected
     if (field === 'batch_no') {
-      const batch = batchMap[value];
-      updated[index].max_quantity = batch?.finishing?.finish_quantity || 0;
+      const batch = selectedWorkOrder?.batches?.find((b: any) => b.id === value);
+
+      const qty = batch?.quantity || 0;
+
+      updated[index].max_quantity = qty;
+
+      // ⭐ AUTO SHOW QTY
+      updated[index].quantity = qty;
     }
 
-    if (field === 'batch_no') {
-      const exists = updated.some((b, i) => b.batch_no === value && i !== index);
-
-      if (exists) {
-        alert('Batch already selected');
-        return;
-      }
-    }
-
-    setFormData({ ...formData, batches: updated });
+    setFormData({
+      ...formData,
+      batches: updated,
+    });
   };
 
   return (
@@ -160,6 +176,34 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
               options={po_nos}
               value={po_nos.find((opt) => opt.value === formData.po_id) || null}
               onChange={(selected: any) => setFormData({ ...formData, po_id: selected?.value })}
+            />
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Work Order No." />
+
+            <Select
+              options={workOrderOptions}
+              value={workOrderOptions.find((opt) => opt.value == formData.work_order_no) || null}
+              onChange={(selected: any) => {
+                const wo = StoreDatas.find((item: any) => item.work_order_no === selected?.value);
+
+                setSelectedWorkOrder(wo);
+
+                setFormData((prev: any) => ({
+                  ...prev,
+                  work_order_no: selected?.value,
+                  product_name: wo?.batches?.[0]?.product_name || '',
+                  batches: [
+                    {
+                      batch_no: '',
+                      quantity: '',
+                      unit: '',
+                      max_quantity: 0,
+                    },
+                  ],
+                }));
+              }}
             />
           </div>
 

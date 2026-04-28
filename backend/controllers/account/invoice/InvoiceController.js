@@ -7,11 +7,11 @@ const {
   DispatchVehicle,
   Invoice,
   InvoiceItem,
-  Product
+  Product,
+  DispatchBatch,
+  Qcbatch
 } = db;
 const sequelize = db.sequelize;
-const fs = require("fs");
-const path = require("path");
 
 exports.getEntryInvoice = async (req, res) => {
   try {
@@ -42,6 +42,10 @@ exports.getEntryInvoice = async (req, res) => {
               as: "customers"
             }
           ]
+        },
+        {
+          model: Invoice,
+          required: false
         }
       ]
     });
@@ -108,6 +112,7 @@ exports.createInvoice = async (req, res) => {
         eway_bill: invoiceData.eway_bill,
         delivery_note: invoiceData.delivery_note,
         delivery_note_date: invoiceData.delivery_note_date,
+        grade: invoiceData.grade,
 
         oq_upload, // ✅ SAFE
 
@@ -148,8 +153,8 @@ exports.createInvoice = async (req, res) => {
 
     /* ================= ITEMS ================= */
 
-    const items = products.map((item) => {
-      if (!item.product_name || !item.qty || !item.rate) {
+    const items = products?.map((item) => {
+      if (!item.product_name || !item.rate) {
         throw new Error("Invalid product data");
       }
 
@@ -267,6 +272,42 @@ exports.getInvoices = async (req, res) => {
   try {
     const data = await Invoice.findAll({ order: [["id", "DESC"]] });
     res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getDispatchBatches = async (req, res) => {
+  try {
+    const batches = await DispatchVehicle.findAll({
+      attributes: ["product_name"],
+      include: [
+        {
+          model: DispatchBatch,
+          as: "batches",
+          attributes: [],
+          include: [
+            {
+              model: Qcbatch,
+              as: "batch",
+              attributes: [
+                ["id", "batch_id"],
+                ["qc_batch_number", "batch_no"]
+              ]
+            }
+          ]
+        }
+      ],
+      raw: true
+    });
+
+    const result = batches.map((item) => ({
+      batch_id: item["batches.batch.batch_id"],
+      batch_no: item["batches.batch.batch_no"],
+      product_name: item.product_name
+    }));
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

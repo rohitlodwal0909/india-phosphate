@@ -49,4 +49,6 @@ router.post("/update-issued-pm", FMIssuedController.updateIssuedPM);
 router.post("/return-pm", authMiddleware, FMIssuedController.returnPM);
 router.get("/get-finished-stock", FMIssuedController.getFinishedStock);
 
+router.get("/get-dispatch-batches", FMIssuedController.getDispatchBatch);
+
 module.exports = router;

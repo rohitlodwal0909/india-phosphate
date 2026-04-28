@@ -15,10 +15,6 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       /* ================= PRODUCT ================= */
-      product_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
 
       address: {
         type: DataTypes.TEXT,
@@ -95,23 +91,27 @@ module.exports = (sequelize, DataTypes) => {
       createdAt: "created_at",
       updatedAt: "updated_at",
       deletedAt: "deleted_at",
-
       paranoid: true
     }
   );
 
   PoRequisitionModel.associate = (models) => {
-    PoRequisitionModel.belongsTo(models.Product, {
-      foreignKey: "product_id"
+    PoRequisitionModel.hasMany(models.PoRequisitionProduct, {
+      foreignKey: "po_requisition_id",
+      as: "products"
     });
-    PoRequisitionModel.belongsTo(models.RmCode, {
-      foreignKey: "rm_id"
+
+    PoRequisitionModel.hasMany(models.PoRequisitionRawMaterial, {
+      foreignKey: "po_requisition_id",
+      as: "raw_materials"
     });
-    PoRequisitionModel.belongsTo(models.PmCode, {
-      foreignKey: "pm_id"
+    PoRequisitionModel.hasMany(models.PoRequisitionPackingMaterial, {
+      foreignKey: "po_requisition_id",
+      as: "packing_materials"
     });
-    PoRequisitionModel.belongsTo(models.Equipment, {
-      foreignKey: "equipment_id"
+    PoRequisitionModel.hasMany(models.PoRequisitionEquipment, {
+      foreignKey: "po_requisition_id",
+      as: "equipments"
     });
   };
 

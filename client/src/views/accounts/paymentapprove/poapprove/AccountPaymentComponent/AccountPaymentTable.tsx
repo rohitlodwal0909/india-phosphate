@@ -127,7 +127,7 @@ const AccountPaymentTable = () => {
 
       columnHelper.display({
         id: 'actions',
-        header: 'Payment Status',
+        header: 'Status',
         cell: (info) => {
           const row = info.row.original;
 
@@ -148,6 +148,14 @@ const AccountPaymentTable = () => {
               </span>
             );
           }
+        },
+      }),
+
+      columnHelper.display({
+        id: 'actions',
+        header: 'Payment Status',
+        cell: (info) => {
+          const row = info.row.original;
 
           // ✅ Pending → show buttons
           return (

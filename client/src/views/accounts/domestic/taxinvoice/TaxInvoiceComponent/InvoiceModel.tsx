@@ -88,11 +88,12 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
         <Label value="Delivery Note Date" />
         <TextInput
           type="date"
+          max={new Date().toISOString().split('T')[0]}
           value={formData.delivery_note_date}
           onChange={(e) => handleChange('delivery_note_date', e.target.value)}
         />
       </div>
-      <div className="col-span-4">
+      <div className="col-span-3">
         <Label value="PO Date" />
         <TextInput
           type="date"
@@ -101,6 +102,24 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('from_to', e.target.value)}
         />
       </div>
+
+      <div className="col-span-3">
+        <Label value="Grade" />
+        <select
+          className="w-full border p-2 rounded-md"
+          value={formData.grade}
+          onChange={(e) => handleChange('grade', e.target.value)}
+        >
+          <option value="">Select</option>
+          <option value="IP">IP</option>
+          <option value="BP">BP</option>
+          <option value="EP">EP</option>
+          <option value="USP">USP</option>
+          <option value="FCC">FCC</option>
+          <option value="IHS">IHS</option>
+        </select>
+      </div>
+
       <div className="col-span-3">
         <Label
           htmlFor="oq_upload"

@@ -9,39 +9,41 @@ type Props = {
 };
 
 const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
-  /* ================= SAFE PRODUCTS PARSE ================= */
+  /* ================= COMMON LIST FORMATTER ================= */
 
-  /* ================= FORMAT HELPER ================= */
+  const formatList = (arr: any[], nameKey: string) => {
+    if (!arr?.length) return '-';
 
-  const formatQty = (name?: string, qty?: number | string, unit?: string) => {
-    if (!name) return '-';
-    return `${name} (${qty ?? '-'} ${unit ?? ''})`;
+    return arr
+      .map((item: any) => {
+        const name =
+          item?.[nameKey]?.product_name || item?.[nameKey]?.rm_code || item?.[nameKey]?.name || '-';
+
+        const qty = item?.qty ?? '';
+        const unit = item?.unit ?? '';
+
+        return qty ? `${name} (${qty}${unit})` : name;
+      })
+      .join(', ');
   };
 
-  /* ================= BASIC FIELDS ================= */
+  /* ================= FIELDS ================= */
 
   const fields = [
-    ['Product Name', selectedRow?.Product?.product_name || '-'],
+    ['Products', formatList(selectedRow?.products, 'Product')],
 
-    [
-      'RM (Qty)',
-      formatQty(selectedRow?.RmCode?.rm_code, selectedRow?.rm_qty, selectedRow?.rm_unit),
-    ],
+    ['Raw Materials', formatList(selectedRow?.raw_materials, 'RmCode')],
 
-    ['PM (Qty)', formatQty(selectedRow?.PmCode?.name, selectedRow?.pm_qty, selectedRow?.pm_unit)],
+    ['Packing Materials', formatList(selectedRow?.packing_materials, 'PmCode')],
 
-    [
-      'Equipment (Qty)',
-      formatQty(
-        selectedRow?.Equipment?.name,
-        selectedRow?.equipment_qty,
-        selectedRow?.equipment_unit,
-      ),
-    ],
+    ['Equipments', formatList(selectedRow?.equipments, 'Equipment')],
 
     ['Address', selectedRow?.address || '-'],
+
     ['Application', selectedRow?.application || '-'],
+
     ['Expected Arrival Date', selectedRow?.expected_arrival_date || '-'],
+
     ['Remark', selectedRow?.remark || '-'],
   ];
 
@@ -51,19 +53,16 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
 
       <ModalBody>
         <Tabs variant="underline">
-          {/* ================= QUOTATION INFO ================= */}
-
           <TabItem
             active
             title="PO Requisition"
             icon={() => <Icon icon="mdi:file-document-outline" height={20} />}
           >
-            {/* ================= BASIC DETAILS ================= */}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
               {fields.map(([label, value]) => (
                 <div key={label as string} className="bg-gray-50 rounded-md p-4 shadow-sm">
                   <p className="text-sm text-gray-500 font-semibold">{label}</p>
+
                   <p className="text-base font-medium mt-1">{value as string}</p>
                 </div>
               ))}

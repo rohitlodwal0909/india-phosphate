@@ -91,6 +91,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
     delivery_note: '',
     delivery_note_date: '',
     oq_upload: '',
+    grade: '',
     // IRN
     irn: '',
     ack_no: '',

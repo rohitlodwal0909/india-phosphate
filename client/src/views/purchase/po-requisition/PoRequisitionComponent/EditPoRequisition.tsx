@@ -11,6 +11,7 @@ import {
 } from 'src/features/purchase/porequisition/PoRequisitionSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { allUnits } from 'src/utils/AllUnit';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 type Props = {
   editModal: boolean;
@@ -24,26 +25,15 @@ const EditPoRequisitionModel = ({ editModal, setEditModal, editData }: Props) =>
   /* ================= STATE ================= */
 
   const [formData, setFormData] = useState<any>({
-    product_id: '',
     address: '',
     application: '',
     expected_arrival_date: '',
     remark: '',
 
-    rm_id: '',
-    rm_qty: '',
-    rm_unit: '',
-    rm_stock: '',
-
-    pm_id: '',
-    pm_qty: '',
-    pm_unit: '',
-    pm_stock: '',
-
-    equipment_id: '',
-    equipment_qty: '',
-    equipment_unit: '',
-    equipment_stock: '',
+    products: [{ product_id: '' }],
+    raw_materials: [{ rm_id: '', qty: '', unit: '', stock: '' }],
+    packing_materials: [{ pm_id: '', qty: '', unit: '', stock: '' }],
+    equipments: [{ equipment_id: '', qty: '', unit: '', stock: '' }],
   });
 
   const product = useSelector((state: RootState) => state.products.productdata) as any[];
@@ -60,31 +50,61 @@ const EditPoRequisitionModel = ({ editModal, setEditModal, editData }: Props) =>
   /* ================= PREFILL DATA ================= */
 
   useEffect(() => {
-    if (editData) {
-      setFormData({
-        product_id: editData.product_id || '',
-        address: editData.address || '',
-        application: editData.application || '',
-        expected_arrival_date: editData.expected_arrival_date || '',
-        remark: editData.remark || '',
+    if (!editData) return;
 
-        rm_id: editData.rm_id || '',
-        rm_qty: editData.rm_qty || '',
-        rm_unit: editData.rm_unit || '',
-        rm_stock: editData.rm_stock || '',
+    setFormData({
+      address: editData.address || '',
+      application: editData.application || '',
+      expected_arrival_date: editData.expected_arrival_date || '',
+      remark: editData.remark || '',
 
-        pm_id: editData.pm_id || '',
-        pm_qty: editData.pm_qty || '',
-        pm_unit: editData.pm_unit || '',
-        pm_stock: editData.pm_stock || '',
+      products: editData.products?.map((p: any) => ({
+        product_id: p.product_id,
+      })) || [{ product_id: '' }],
 
-        equipment_id: editData.equipment_id || '',
-        equipment_qty: editData.equipment_qty || '',
-        equipment_unit: editData.equipment_unit || '',
-        equipment_stock: editData.equipment_stock || '',
-      });
-    }
+      raw_materials: editData.raw_materials?.map((r: any) => ({
+        rm_id: r.rm_id,
+        qty: r.qty,
+        unit: r.unit,
+        stock: '',
+      })) || [{ rm_id: '', qty: '', unit: '', stock: '' }],
+
+      packing_materials: editData.packing_materials?.map((p: any) => ({
+        pm_id: p.pm_id,
+        qty: p.qty,
+        unit: p.unit,
+        stock: '',
+      })) || [{ pm_id: '', qty: '', unit: '', stock: '' }],
+
+      equipments: editData.equipments?.map((e: any) => ({
+        equipment_id: e.equipment_id,
+        qty: e.qty,
+        unit: e.unit,
+        stock: '',
+      })) || [{ equipment_id: '', qty: '', unit: '', stock: '' }],
+    });
   }, [editData]);
+
+  useEffect(() => {
+    if (!remaining) return;
+
+    const fillStock = (items: any[], options: any[], idKey: string) =>
+      items.map((item) => {
+        const found = options.find((o) => o.value === item[idKey]);
+
+        return {
+          ...item,
+          stock: found?.stock || '',
+        };
+      });
+
+    setFormData((prev: any) => ({
+      ...prev,
+      raw_materials: fillStock(prev.raw_materials, rmOptions, 'rm_id'),
+      packing_materials: fillStock(prev.packing_materials, pmOptions, 'pm_id'),
+      equipments: fillStock(prev.equipments, equipmentOptions, 'equipment_id'),
+    }));
+  }, [remaining]);
 
   /* ================= OPTIONS ================= */
 
@@ -114,6 +134,26 @@ const EditPoRequisitionModel = ({ editModal, setEditModal, editData }: Props) =>
     label: i.product_name,
   }));
 
+  const handleArrayChange = (key: string, index: number, field: string, value: any) => {
+    const updated = [...formData[key]];
+    updated[index][field] = value;
+
+    setFormData({ ...formData, [key]: updated });
+  };
+
+  const addRow = (key: string, emptyRow: any) => {
+    setFormData({
+      ...formData,
+      [key]: [...formData[key], emptyRow],
+    });
+  };
+
+  const removeRow = (key: string, index: number) => {
+    const updated = [...formData[key]];
+    updated.splice(index, 1);
+    setFormData({ ...formData, [key]: updated });
+  };
+
   /* ================= HANDLERS ================= */
 
   const handleChange = (e: any) => {
@@ -121,16 +161,10 @@ const EditPoRequisitionModel = ({ editModal, setEditModal, editData }: Props) =>
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleQtyUnitChange = (
-    fieldQty: string,
-    fieldUnit: string,
-    type: 'qty' | 'unit',
-    value: string,
-  ) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      [type === 'qty' ? fieldQty : fieldUnit]: value,
-    }));
+  const updateArray = (key: string, index: number, field: string, value: any) => {
+    const updated = [...formData[key]];
+    updated[index][field] = value;
+    setFormData({ ...formData, [key]: updated });
   };
 
   /* ================= UPDATE ================= */
@@ -153,6 +187,73 @@ const EditPoRequisitionModel = ({ editModal, setEditModal, editData }: Props) =>
     }
   };
 
+  const renderSection = (title: string, key: string, options: any[], idField: string) =>
+    formData[key]?.map((item: any, index: number) => (
+      <div key={index} className="grid grid-cols-12 gap-3 col-span-12">
+        <div className="col-span-4">
+          <Label value={title} />
+
+          <Select
+            options={options}
+            value={options.find((o) => o.value === item[idField])}
+            onChange={(s: any) => {
+              updateArray(key, index, idField, s.value);
+              updateArray(key, index, 'stock', s.stock);
+            }}
+          />
+        </div>
+
+        <div className="col-span-2">
+          <Label value="Remaining Stock" />
+          <TextInput value={item.stock} disabled />
+        </div>
+
+        <div className="col-span-4">
+          <Label value="Quantity Required" />
+
+          <div className="flex rounded-md shadow-sm mt-1">
+            <input
+              type="number"
+              className="w-full rounded-l-md border border-gray-300 px-3 py-2"
+              value={item.qty}
+              onChange={(e) => updateArray(key, index, 'qty', e.target.value)}
+            />
+
+            <select
+              className="rounded-r-md border border-l-0 border-gray-300"
+              value={item.unit}
+              onChange={(e) => updateArray(key, index, 'unit', e.target.value)}
+            >
+              <option value="">Unit</option>
+              {allUnits.map((u) => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="col-span-1 mt-5">
+          <Button size="sm" color="failure" onClick={() => removeRow(key, index)}>
+            <Icon icon="solar:trash-bin-minimalistic-outline" />
+          </Button>
+        </div>
+
+        {index === formData[key].length - 1 && (
+          <div className="col-span-1 mt-5">
+            <Button
+              size="sm"
+              color="primary"
+              onClick={() => addRow(key, { [idField]: '', qty: '', unit: '', stock: '' })}
+            >
+              +
+            </Button>
+          </div>
+        )}
+      </div>
+    ));
+
   /* ================= UI ================= */
 
   return (
@@ -162,154 +263,33 @@ const EditPoRequisitionModel = ({ editModal, setEditModal, editData }: Props) =>
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* RM */}
-          <div className="col-span-4">
-            <Label value="RM Item" />
-            <Select
-              options={rmOptions}
-              value={rmOptions.find((o) => o.value === formData.rm_id)}
-              onChange={(s: any) =>
-                setFormData({
-                  ...formData,
-                  rm_id: s.value,
-                  rm_stock: s.stock,
-                })
-              }
-            />
-          </div>
 
-          <div className="col-span-4">
-            <Label value="Remaining Stock" />
-            <TextInput value={formData.rm_stock} disabled />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Quantity Required" />
-            <div className="flex">
-              <input
-                type="number"
-                className="w-full border px-3 py-2 rounded-l-md"
-                value={formData.rm_qty}
-                onChange={(e) => handleQtyUnitChange('rm_qty', 'rm_unit', 'qty', e.target.value)}
-              />
-
-              <select
-                className="border border-l-0 px-2 rounded-r-md"
-                value={formData.rm_unit}
-                onChange={(e) => handleQtyUnitChange('rm_qty', 'rm_unit', 'unit', e.target.value)}
-              >
-                <option value="">Unit</option>
-                {allUnits.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* PM */}
-          <div className="col-span-4">
-            <Label value="PM Item" />
-            <Select
-              options={pmOptions}
-              value={pmOptions.find((o) => o.value === formData.pm_id)}
-              onChange={(s: any) =>
-                setFormData({
-                  ...formData,
-                  pm_id: s.value,
-                  pm_stock: s.stock,
-                })
-              }
-            />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Remaining Stock" />
-            <TextInput value={formData.pm_stock} disabled />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Quantity Required" />
-            <div className="flex">
-              <input
-                type="number"
-                className="w-full border px-3 py-2 rounded-l-md"
-                value={formData.pm_qty}
-                onChange={(e) => handleQtyUnitChange('pm_qty', 'pm_unit', 'qty', e.target.value)}
-              />
-
-              <select
-                className="border border-l-0 px-2 rounded-r-md"
-                value={formData.pm_unit}
-                onChange={(e) => handleQtyUnitChange('pm_qty', 'pm_unit', 'unit', e.target.value)}
-              >
-                <option value="">Unit</option>
-                {allUnits.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="col-span-4">
-            <Label value="PM Item" />
-            <Select
-              options={equipmentOptions}
-              value={equipmentOptions.find((o) => o.value === formData.equipment_id)}
-              onChange={(s: any) =>
-                setFormData({
-                  ...formData,
-                  equipment_id: s.value,
-                  equipment_stock: s.stock,
-                })
-              }
-            />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Remaining Stock" />
-            <TextInput value={formData.equipment_stock} disabled />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Quantity Required" />
-            <div className="flex">
-              <input
-                type="number"
-                className="w-full border px-3 py-2 rounded-l-md"
-                value={formData.equipment_qty}
-                onChange={(e) =>
-                  handleQtyUnitChange('equipment_qty', 'equipment_unit', 'qty', e.target.value)
-                }
-              />
-
-              <select
-                className="border border-l-0 px-2 rounded-r-md"
-                value={formData.equipment_unit}
-                onChange={(e) =>
-                  handleQtyUnitChange('equipment_qty', 'equipment_unit', 'unit', e.target.value)
-                }
-              >
-                <option value="">Unit</option>
-                {allUnits.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {renderSection('RM Item', 'raw_materials', rmOptions, 'rm_id')}
+          {renderSection('PM Item', 'packing_materials', pmOptions, 'pm_id')}
+          {renderSection('Equipment', 'equipments', equipmentOptions, 'equipment_id')}
 
           {/* PRODUCT */}
-          <div className="col-span-6">
-            <Label value="Product" />
-            <Select
-              options={productOptions}
-              value={productOptions.find((o) => o.value === formData.product_id)}
-              onChange={(s: any) => setFormData({ ...formData, product_id: s.value })}
-            />
+          <div className="col-span-8">
+            {formData.products.map((p: any, index: number) => (
+              <div key={index} className="flex gap-3">
+                <Select
+                  className="flex-1"
+                  options={productOptions}
+                  value={productOptions.find((o) => o.value === p.product_id)}
+                  onChange={(s: any) => handleArrayChange('products', index, 'product_id', s.value)}
+                />
+
+                <Button color="failure" onClick={() => removeRow('products', index)}>
+                  <Icon icon="solar:trash-bin-minimalistic-outline" />
+                </Button>
+
+                {index === formData.products.length - 1 && (
+                  <Button color="primary" onClick={() => addRow('products', { product_id: '' })}>
+                    +
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="col-span-6">

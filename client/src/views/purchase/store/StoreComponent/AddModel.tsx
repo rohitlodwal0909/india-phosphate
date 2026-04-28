@@ -11,6 +11,7 @@ import {
   updateTransport,
   findStore,
 } from 'src/features/purchase/store/StoreSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 interface VehicleDispatchModalProps {
   openModal: boolean;
@@ -47,10 +48,17 @@ const AddModel: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal
     driver_name: '',
     driver_number: '',
     vehicle_number: '',
-    product_id: '',
-    quantity: '',
     lr_no: '',
     expected_arrival_date: '',
+
+    // ✅ MULTIPLE PRODUCTS
+    items: [
+      {
+        product_id: '',
+        quantity: '',
+        unit: '',
+      },
+    ],
   };
 
   const [formData, setFormData] = useState<any>(initialState);
@@ -61,6 +69,8 @@ const AddModel: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal
     if (isEdit) {
       const row = data[0]; // ✅ FIRST RECORD ONLY
 
+      const products = JSON.parse(row?.products) || [];
+
       setFormData({
         id: row.id,
         po_id: row.po_id,
@@ -68,10 +78,14 @@ const AddModel: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal
         driver_name: row.driver_name || '',
         driver_number: row.driver_number || '',
         vehicle_number: row.vehicle_number || '',
-        product_id: row.product_id || '',
-        quantity: row.quantity || '',
         lr_no: row.lr_no || '',
         expected_arrival_date: row.expected_arrival_date?.split('T')[0] || '',
+
+        items: products?.map((i: any) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+          unit: i.unit,
+        })) || [{ product_id: '', quantity: '', unit: '' }],
       });
     } else {
       setFormData(initialState);
@@ -100,6 +114,33 @@ const AddModel: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal
       ...prev,
       [name]: value,
     }));
+  };
+
+  const addItemRow = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      items: [...prev.items, { product_id: '', quantity: '', unit: '' }],
+    }));
+  };
+
+  const removeItemRow = (index: number) => {
+    const updated = [...formData.items];
+    updated.splice(index, 1);
+
+    setFormData({
+      ...formData,
+      items: updated,
+    });
+  };
+
+  const handleItemChange = (index: number, field: string, value: any) => {
+    const updated = [...formData.items];
+    updated[index][field] = value;
+
+    setFormData({
+      ...formData,
+      items: updated,
+    });
   };
 
   /* ================= SUBMIT ================= */
@@ -175,29 +216,62 @@ const AddModel: React.FC<VehicleDispatchModalProps> = ({ openModal, setOpenModal
             />
           </div>
 
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Product Name" />
-            <Select
-              options={productOptions}
-              value={productOptions.find((p) => p.value === formData.product_id)}
-              onChange={(selected: any) =>
-                setFormData({
-                  ...formData,
-                  product_id: selected?.value,
-                })
-              }
-            />
-          </div>
+          <div className="col-span-12">
+            <Label value="Products & Quantity" />
 
-          <div className="sm:col-span-6 col-span-12">
-            <Label value="Quantity Required" />
-            <TextInput
-              type="number"
-              name="quantity"
-              placeholder="Enter Quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-            />
+            {formData.items.map((item: any, index: number) => (
+              <div key={index} className="grid grid-cols-12 gap-3 mb-3 items-end">
+                {/* PRODUCT */}
+                <div className="col-span-6">
+                  <Select
+                    options={productOptions}
+                    value={productOptions.find((p) => p.value === item.product_id)}
+                    onChange={(selected: any) =>
+                      handleItemChange(index, 'product_id', selected?.value)
+                    }
+                  />
+                </div>
+
+                {/* QUANTITY */}
+                <div className="col-span-5">
+                  <div className="flex">
+                    <input
+                      type="number"
+                      placeholder="Quantity"
+                      value={item.quantity}
+                      onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                      className="w-full border px-3 py-2 rounded-l-md"
+                    />
+
+                    <select
+                      value={item.unit}
+                      onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
+                      className="border border-l-0 px-2 rounded-r-md"
+                    >
+                      <option value="">Unit</option>
+                      {allUnits.map((u) => (
+                        <option key={u.value} value={u.value}>
+                          {u.value}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* ADD REMOVE */}
+                <div className="col-span-1 flex gap-2">
+                  <Button color="primary" size="xs" onClick={addItemRow}>
+                    +
+                  </Button>
+
+                  {formData.items.length > 1 && (
+                    <Button size="xs" color="failure" onClick={() => removeItemRow(index)}>
+                      -
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="sm:col-span-6 col-span-12">

@@ -28,6 +28,7 @@ import Remark from './Remark';
 import { toast } from 'react-toastify';
 import { Badge } from 'flowbite-react';
 import PasswordVerifyModal from './PasswordVerifyModal';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
 
 interface PurchaseOrderDataType {
   id: number;
@@ -56,6 +57,18 @@ const ViewWorkOrderTable = () => {
     (state: RootState) => state.purchaseOrder.purchaseOrders,
   ) as any;
 
+  const products = useSelector((state: RootState) => state.products.productdata) as any;
+
+  const productMap = useMemo(() => {
+    const map: any = {};
+
+    products?.forEach((p: any) => {
+      map[p.id] = p.product_name;
+    });
+
+    return map;
+  }, [products]);
+
   const remarkPermission = logindata?.admin?.id === 5;
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
@@ -83,6 +96,7 @@ const ViewWorkOrderTable = () => {
 
   useEffect(() => {
     dispatch(getPurchaseOrders());
+    dispatch(GetProduct());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: PurchaseOrderDataType) => {
@@ -99,10 +113,7 @@ const ViewWorkOrderTable = () => {
     return data.filter((item) => {
       return (
         item.po_no?.toLowerCase().includes(search) ||
-        item.product_name?.toLowerCase().includes(search) ||
-        item.customers?.company_name?.toLowerCase().includes(search) ||
-        item.workNo?.work_order_no?.toLowerCase().includes(search) ||
-        item.workNo?.remark?.toLowerCase().includes(search)
+        item.product_name?.toLowerCase().includes(search)
       );
     });
   }, [data, searchText]);
@@ -128,6 +139,18 @@ const ViewWorkOrderTable = () => {
     handleModal('view', true, selectedRow || undefined);
   };
 
+  const parseProducts = (product: any) => {
+    const products = product?.products || {};
+    if (!products) return [];
+
+    try {
+      return typeof products === 'string' ? JSON.parse(products) : products;
+    } catch (err) {
+      console.error('Invalid products JSON', err);
+      return [];
+    }
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -141,15 +164,40 @@ const ViewWorkOrderTable = () => {
       }),
 
       columnHelper.display({
-        id: 'work_order_no',
-        header: 'Work Order No.',
-        cell: (info) => info.row.original.workNo?.work_order_no || '-',
+        id: 'product_name',
+        header: 'Product Name',
+        cell: (info) => {
+          const rowProducts = parseProducts(info.row.original);
+
+          if (!rowProducts?.length) return '-';
+
+          const names = rowProducts.map((p: any) => productMap[p.product_id] || '-');
+
+          return <span>{names.join(', ')}</span>;
+        },
+      }),
+      columnHelper.display({
+        id: 'grade',
+        header: 'Grade',
+        cell: (info) => {
+          const products = parseProducts(info.row.original);
+
+          if (!products.length) return '-';
+
+          return <span>{products.map((p: any) => p.grade).join(', ')}</span>;
+        },
       }),
 
       columnHelper.display({
-        id: 'remark',
-        header: 'Remark',
-        cell: (info) => info.row.original.workNo?.remark || '-',
+        id: 'quantity',
+        header: 'Quantity',
+        cell: (info) => {
+          const products = parseProducts(info.row.original);
+
+          if (!products.length) return '-';
+
+          return <span>{products.map((p: any) => `${p.quantity} KG`).join(', ')}</span>;
+        },
       }),
 
       columnHelper.display({
@@ -243,7 +291,7 @@ const ViewWorkOrderTable = () => {
         },
       }),
     ],
-    [permissions, remarkPermission],
+    [permissions, remarkPermission, productMap],
   );
 
   const table = useReactTable({

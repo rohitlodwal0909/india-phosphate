@@ -11,14 +11,20 @@ exports.index = async (req, res, next) => {
       include: [
         {
           model: BatchReleaseModel,
-          as: "batch_releases",
-          required: false
+          as: "batch_releases", // must match association alias
+          required: false, // LEFT JOIN
+          attributes: { exclude: ["createdAt", "updatedAt"] }
         }
       ]
     });
 
-    res.status(200).json({ message: "Approved Batch fetched", data: entries });
+    return res.status(200).json({
+      success: true,
+      message: "Approved Batch fetched successfully",
+      data: entries
+    });
   } catch (error) {
+    console.error(error);
     next(error);
   }
 };

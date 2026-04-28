@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       po_id: {
         type: DataTypes.INTEGER
       },
+      work_order_no: {
+        type: DataTypes.STRING
+      },
       vehicle_number: DataTypes.STRING,
       driver_details: DataTypes.STRING,
       product_name: DataTypes.STRING,
@@ -48,6 +51,9 @@ module.exports = (sequelize, DataTypes) => {
     DispatchVehicle.belongsTo(models.PurchaseOrderModel, {
       foreignKey: "po_id",
       as: "poentry"
+    });
+    DispatchVehicle.hasOne(models.Invoice, {
+      foreignKey: "dispatch_id"
     });
     DispatchVehicle.belongsTo(models.Transport, {
       foreignKey: "transport_id"

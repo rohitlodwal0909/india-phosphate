@@ -8,6 +8,7 @@ type Props = {
 };
 
 const ViewDispatchModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow }: Props) => {
+  console.log(selectedRow);
   /* ================= DATE FORMAT ================= */
   const formatDate = (date: any) => {
     if (!date) return '-';

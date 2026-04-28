@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       eway_bill: DataTypes.STRING,
       oq_upload: DataTypes.STRING,
       delivery_note: DataTypes.STRING,
+      grade: DataTypes.STRING,
       delivery_note_date: DataTypes.DATE,
 
       // 🔹 IRN
@@ -88,6 +89,9 @@ module.exports = (sequelize, DataTypes) => {
   Invoice.associate = (models) => {
     Invoice.hasMany(models.InvoiceItem, {
       foreignKey: "invoice_id"
+    });
+    Invoice.belongsTo(models.DispatchVehicle, {
+      foreignKey: "dispatch_id"
     });
   };
 

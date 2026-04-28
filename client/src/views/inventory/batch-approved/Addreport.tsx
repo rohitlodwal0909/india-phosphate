@@ -140,7 +140,7 @@ const AddReport = () => {
           </div>
 
           <div className="text-center">
-            <img src={logoimg} alt="Logo" className="h-16 mx-auto" />
+            <img src={logoimg} alt="Logo" />
           </div>
 
           <div className="text-right text-xs">

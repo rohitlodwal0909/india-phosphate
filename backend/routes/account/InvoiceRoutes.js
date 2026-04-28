@@ -43,6 +43,8 @@ router.get("/get-invoice-entry", InvoiceController.getEntryInvoice);
 router.get("/get-invoice/:id", InvoiceController.getInvoice);
 router.get("/get-invoices", InvoiceController.getInvoices);
 
+router.get("/get-dispatch-batches", InvoiceController.getDispatchBatches);
+
 // Create Invoice + OQ Upload
 router.post(
   "/create-invoice",

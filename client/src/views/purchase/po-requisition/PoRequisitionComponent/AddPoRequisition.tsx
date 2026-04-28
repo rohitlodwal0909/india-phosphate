@@ -11,6 +11,7 @@ import {
   createPoRequisition,
 } from 'src/features/purchase/porequisition/PoRequisitionSlice';
 import { allUnits } from 'src/utils/AllUnit';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 interface Props {
   placeModal: boolean;
@@ -21,27 +22,79 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
-    product_id: '',
     address: '',
     application: '',
     expected_arrival_date: '',
     remark: '',
 
-    rm_id: '',
-    rm_qty: '',
-    rm_unit: '',
-    rm_stock: '',
-
-    pm_id: '',
-    pm_qty: '',
-    pm_unit: '',
-    pm_stock: '',
-
-    equipment_id: '',
-    equipment_qty: '',
-    equipment_unit: '',
-    equipment_stock: '',
+    products: [{ product_id: '' }],
+    raw_materials: [{ rm_id: '', qty: '', unit: '', stock: '' }],
+    packing_materials: [{ pm_id: '', qty: '', unit: '', stock: '' }],
+    equipments: [{ equipment_id: '', qty: '', unit: '', stock: '' }],
   });
+
+  const handleArrayChange = (section: string, index: number, field: string, value: any) => {
+    const updated = [...formData[section]];
+    updated[index][field] = value;
+
+    setFormData({
+      ...formData,
+      [section]: updated,
+    });
+  };
+
+  // RM section
+  const addRM = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      raw_materials: [...prev.raw_materials, { rm_id: '', qty: '', unit: '', stock: '' }],
+    }));
+  };
+
+  const removeRM = (index: number) => {
+    const updated = [...formData.raw_materials];
+    updated.splice(index, 1);
+    setFormData({ ...formData, raw_materials: updated });
+  };
+
+  const addPM = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      packing_materials: [...prev.packing_materials, { pm_id: '', qty: '', unit: '', stock: '' }],
+    }));
+  };
+
+  const removePM = (index: number) => {
+    const updated = [...formData.packing_materials];
+    updated.splice(index, 1);
+    setFormData({ ...formData, packing_materials: updated });
+  };
+
+  const addEquipment = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      equipments: [...prev.equipments, { equipment_id: '', qty: '', unit: '', stock: '' }],
+    }));
+  };
+
+  const removeEquipment = (index: number) => {
+    const updated = [...formData.equipments];
+    updated.splice(index, 1);
+    setFormData({ ...formData, equipments: updated });
+  };
+
+  const addProduct = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+      products: [...prev.products, { product_id: '' }],
+    }));
+  };
+
+  const removeProduct = (index: number) => {
+    const updated = [...formData.products];
+    updated.splice(index, 1);
+    setFormData({ ...formData, products: updated });
+  };
 
   const product = useSelector((state: RootState) => state.products.productdata) as any[];
 
@@ -51,18 +104,6 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
     dispatch(GetProduct());
     dispatch(getRemaningStock());
   }, [dispatch]);
-
-  const handleQtyUnitChange = (
-    fieldQty: string,
-    fieldUnit: string,
-    type: 'qty' | 'unit',
-    value: string,
-  ) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      [type === 'qty' ? fieldQty : fieldUnit]: value,
-    }));
-  };
 
   /* ================= OPTIONS ================= */
 
@@ -103,13 +144,15 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
     e.preventDefault();
 
     try {
-      console.log(formData);
-      dispatch(createPoRequisition(formData));
+      await dispatch(createPoRequisition(formData)).unwrap(); // ⭐ important
 
-      toast.success('PO Requisition Created');
+      toast.success('PO Requisition Created Successfully');
+
       setPlaceModal(false);
-    } catch {
-      toast.error('Failed');
+    } catch (error: any) {
+      console.error(error);
+
+      toast.error(error?.message || 'PO Requisition Creation Failed');
     }
   };
 
@@ -121,171 +164,227 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
           {/* ================= RM ================= */}
 
-          <div className="col-span-4">
-            <Label value="RM Item" />
-            <Select
-              options={rmOptions}
-              onChange={(s: any) =>
-                setFormData({
-                  ...formData,
-                  rm_id: s.value,
-                  rm_stock: s.stock,
-                })
-              }
-            />
-          </div>
+          <h3 className="col-span-12 font-semibold text-lg">Raw Materials</h3>
 
-          <div className="col-span-4">
-            <Label value="Remaining Stock" />
-            <TextInput value={formData.rm_stock} disabled />
-          </div>
+          {formData.raw_materials.map((item: any, index: number) => (
+            <div key={index} className="grid grid-cols-12 gap-3 col-span-12">
+              <div className="col-span-4">
+                <Label value="RM Item" />
 
-          <div className="col-span-4">
-            <Label value="Quantity Required" />
+                <Select
+                  options={rmOptions}
+                  onChange={(s: any) => {
+                    handleArrayChange('raw_materials', index, 'rm_id', s.value);
+                    handleArrayChange('raw_materials', index, 'stock', s.stock);
+                  }}
+                />
+              </div>
 
-            <div className="flex">
-              <input
-                type="number"
-                placeholder="Qty"
-                className="w-full rounded-l-md border border-gray-300 px-3 py-2"
-                value={formData.rm_qty}
-                onChange={(e) => handleQtyUnitChange('rm_qty', 'rm_unit', 'qty', e.target.value)}
-              />
+              <div className="col-span-2">
+                <Label value="Remaining Stock" />
 
-              <select
-                className="rounded-r-md border border-l-0 border-gray-300 px-2"
-                value={formData.rm_unit}
-                onChange={(e) => handleQtyUnitChange('rm_qty', 'rm_unit', 'unit', e.target.value)}
-              >
-                <option value="">Unit</option>
-                {allUnits.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
+                <TextInput value={item.stock} disabled />
+              </div>
+              <div className="col-span-4">
+                <Label value="Quantity Required" />
+
+                <div className="flex rounded-md shadow-sm mt-1">
+                  <input
+                    type="number"
+                    className="w-full rounded-l-md border border-gray-300 px-3 py-2"
+                    value={item.qty}
+                    onChange={(e) =>
+                      handleArrayChange('raw_materials', index, 'qty', e.target.value)
+                    }
+                  />
+
+                  <select
+                    value={item.unit}
+                    className="rounded-r-md border border-l-0 border-gray-300"
+                    onChange={(e) =>
+                      handleArrayChange('raw_materials', index, 'unit', e.target.value)
+                    }
+                  >
+                    <option value="">Unit</option>
+                    {allUnits.map((u) => (
+                      <option key={u.value} value={u.value}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-span-1 mt-5">
+                <Button size="sm" color="lighterror" onClick={() => removeRM(index)}>
+                  <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                </Button>
+              </div>
+              <div className="col-span-1 mt-5">
+                <Button color="primary" size="sm" onClick={addRM}>
+                  +
+                </Button>
+              </div>
             </div>
-          </div>
+          ))}
 
           {/* ================= PM ================= */}
 
-          <div className="col-span-4">
-            <Label value="PM Item" />
-            <Select
-              options={pmOptions}
-              onChange={(s: any) =>
-                setFormData({
-                  ...formData,
-                  pm_id: s.value,
-                  pm_stock: s.stock,
-                })
-              }
-            />
-          </div>
+          {formData.packing_materials.map((item: any, index: number) => (
+            <div key={index} className="grid grid-cols-12 gap-3 col-span-12">
+              <div className="col-span-4">
+                <Label value="PM Item" />
 
-          <div className="col-span-4">
-            <Label value="Remaining Stock" />
-            <TextInput value={formData.pm_stock} disabled />
-          </div>
+                <Select
+                  options={pmOptions}
+                  onChange={(s: any) => {
+                    handleArrayChange('packing_materials', index, 'pm_id', s.value);
+                    handleArrayChange('packing_materials', index, 'stock', s.stock);
+                  }}
+                />
+              </div>
 
-          <div className="col-span-4">
-            <Label value="Quantity Required" />
+              <div className="col-span-2">
+                <Label value="Remaining Stock" />
 
-            <div className="flex rounded-md shadow-sm mt-1">
-              <input
-                type="number"
-                className="w-full rounded-l-md border border-gray-300 px-3 py-2"
-                value={formData.pm_qty}
-                onChange={(e) => handleQtyUnitChange('pm_qty', 'pm_unit', 'qty', e.target.value)}
-              />
+                <TextInput value={item.stock} disabled />
+              </div>
+              <div className="col-span-4">
+                <Label value="Quantity Required" />
 
-              <select
-                className="rounded-r-md border border-l-0 border-gray-300 px-2"
-                value={formData.pm_unit}
-                onChange={(e) => handleQtyUnitChange('pm_qty', 'pm_unit', 'unit', e.target.value)}
-              >
-                <option value="">Unit</option>
-                {allUnits.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
+                <div className="flex rounded-md shadow-sm mt-1">
+                  <input
+                    type="number"
+                    className="w-full rounded-l-md border border-gray-300 px-3 py-2"
+                    value={item.qty}
+                    onChange={(e) =>
+                      handleArrayChange('packing_materials', index, 'qty', e.target.value)
+                    }
+                  />
+
+                  <select
+                    value={item.unit}
+                    className="rounded-r-md border border-l-0 border-gray-300"
+                    onChange={(e) =>
+                      handleArrayChange('packing_materials', index, 'unit', e.target.value)
+                    }
+                  >
+                    <option value="">Unit</option>
+                    {allUnits.map((u) => (
+                      <option key={u.value} value={u.value}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-span-1 mt-5">
+                <Button size="sm" color="lighterror" onClick={() => removePM(index)}>
+                  <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                </Button>
+              </div>
+
+              <div className="col-span-1 mt-5">
+                <Button color="primary" size="sm" onClick={addPM}>
+                  +
+                </Button>
+              </div>
             </div>
-          </div>
+          ))}
+          {formData.equipments.map((item: any, index: number) => (
+            <div key={index} className="grid grid-cols-12 gap-3 col-span-12">
+              <div className="col-span-4">
+                <Label value="Equipments" />
+
+                <Select
+                  options={equipmentOptions}
+                  onChange={(s: any) => {
+                    handleArrayChange('equipments', index, 'equipment_id', s.value);
+                    handleArrayChange('equipments', index, 'stock', s.stock);
+                  }}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label value="Remaining Stock" />
+
+                <TextInput value={item.stock} disabled />
+              </div>
+              <div className="col-span-4">
+                <Label value="Quantity Required" />
+
+                <div className="flex rounded-md shadow-sm mt-1">
+                  <input
+                    type="number"
+                    className="w-full rounded-l-md border border-gray-300 px-3 py-2"
+                    value={item.qty}
+                    onChange={(e) => handleArrayChange('equipments', index, 'qty', e.target.value)}
+                  />
+
+                  <select
+                    value={item.unit}
+                    className="rounded-r-md border border-l-0 border-gray-300"
+                    onChange={(e) => handleArrayChange('equipments', index, 'unit', e.target.value)}
+                  >
+                    <option value="">Unit</option>
+                    {allUnits.map((u) => (
+                      <option key={u.value} value={u.value}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-span-1 mt-5">
+                <Button size="sm" color="lighterror" onClick={() => removeEquipment(index)}>
+                  <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                </Button>
+              </div>
+              <div className="col-span-1 mt-5">
+                <Button color="primary" size="sm" onClick={addEquipment}>
+                  +
+                </Button>
+              </div>
+            </div>
+          ))}
 
           {/* ================= EQUIPMENT ================= */}
 
-          <div className="col-span-4">
-            <Label value="Equipment" />
-            <Select
-              options={equipmentOptions}
-              onChange={(s: any) =>
-                setFormData({
-                  ...formData,
-                  equipment_id: s.value,
-                  equipment_stock: s.stock,
-                })
-              }
-            />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Remaining Stock" />
-            <TextInput value={formData.equipment_stock} disabled />
-          </div>
-
-          <div className="col-span-4">
-            <Label value="Quantity Required" />
-
-            <div className="flex">
-              <input
-                type="number"
-                className="w-full rounded-l-md border border-gray-300 px-3 py-2"
-                value={formData.equipment_qty}
-                onChange={(e) =>
-                  handleQtyUnitChange('equipment_qty', 'equipment_unit', 'qty', e.target.value)
-                }
-              />
-
-              <select
-                className="rounded-r-md border border-l-0 border-gray-300 px-2"
-                value={formData.equipment_unit}
-                onChange={(e) =>
-                  handleQtyUnitChange('equipment_qty', 'equipment_unit', 'unit', e.target.value)
-                }
-              >
-                <option value="">Unit</option>
-                {allUnits.map((u) => (
-                  <option key={u.value} value={u.value}>
-                    {u.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
           {/* ================= COMMON ================= */}
 
-          <div className="col-span-6">
-            <Label value="Product" />
-            <Select
-              options={productOptions}
-              onChange={(s: any) => setFormData({ ...formData, product_id: s.value })}
-            />
-          </div>
+          {/* ================= PRODUCTS ================= */}
 
-          <div className="col-span-6">
-            <Label value="Address" />
-            <TextInput name="address" value={formData.address} onChange={handleChange} />
-          </div>
+          {formData.products.map((p: any, index: number) => (
+            <div key={index} className="grid grid-cols-12 gap-3 col-span-12 items-end">
+              {/* PRODUCT SELECT */}
+              <div className="col-span-6">
+                {index === 0 && <Label value="Product" />}
 
-          <div className="col-span-12">
-            <Label value="Application" />
-            <Textarea name="application" value={formData.application} onChange={handleChange} />
-          </div>
+                <Select
+                  options={productOptions}
+                  value={productOptions.find((opt) => opt.value === p.product_id)}
+                  onChange={(s: any) => handleArrayChange('products', index, 'product_id', s.value)}
+                />
+              </div>
 
-          <div className="col-span-6">
+              {/* REMOVE */}
+              <div className="col-span-1">
+                <Button size="sm" color="lighterror" onClick={() => removeProduct(index)}>
+                  <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                </Button>
+              </div>
+
+              {/* ADD */}
+              <div className="col-span-1">
+                <Button color="primary" onClick={addProduct} className="sm">
+                  +
+                </Button>
+              </div>
+            </div>
+          ))}
+          <div className="col-span-4">
             <Label value="Expected Arrival Date" />
             <input
               type="date"
@@ -294,6 +393,16 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
               onChange={handleChange}
               className="w-full border px-3 py-2 rounded-md"
             />
+          </div>
+
+          <div className="col-span-12">
+            <Label value="Address" />
+            <Textarea name="address" value={formData.address} onChange={handleChange} />
+          </div>
+
+          <div className="col-span-12">
+            <Label value="Application" />
+            <Textarea name="application" value={formData.application} onChange={handleChange} />
           </div>
 
           <div className="col-span-12">

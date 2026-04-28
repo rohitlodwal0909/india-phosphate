@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   invoiceentry: [],
   singleinvoice: [],
+  dispatchBatches: [],
   invoices: [],
   create: null,
   update: null,
@@ -82,6 +83,19 @@ export const getInvoices = createAsyncThunk<any, void>('invoices/get', async (_,
   }
 });
 
+export const getDispatchBatches = createAsyncThunk<any, void>(
+  'dispatch/getBatches',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/get-dispatch-batches`);
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch invoice.';
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  },
+);
+
 export const uploadEwayPdf = createAsyncThunk<any, FormData>(
   'invoice/uploadEwayPdf',
   async (formData, thunkAPI) => {
@@ -112,6 +126,19 @@ const TaxInvoiceSlice = createSlice({
         state.invoiceentry = action.payload;
       })
       .addCase(getentryinvoice.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getDispatchBatches.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getDispatchBatches.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dispatchBatches = action.payload;
+      })
+      .addCase(getDispatchBatches.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
       })

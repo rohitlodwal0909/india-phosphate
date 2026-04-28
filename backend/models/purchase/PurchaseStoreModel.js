@@ -42,13 +42,8 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       /* ================= PRODUCT ================= */
-      product_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
-
-      quantity: {
-        type: DataTypes.DECIMAL(10, 2),
+      products: {
+        type: DataTypes.TEXT,
         allowNull: false
       },
 
@@ -70,7 +65,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     {
-      tableName: "transport_entries",
+      tableName: "purchase_stores",
 
       timestamps: true,
       createdAt: "created_at",

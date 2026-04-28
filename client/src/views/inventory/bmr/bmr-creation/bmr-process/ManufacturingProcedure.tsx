@@ -35,6 +35,7 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
   const defaultRow = {
     id: null,
     step_name: '',
+    isManual: true,
     value: '',
     actualQty: '',
     timeFrom: '',
@@ -98,9 +99,10 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
     try {
       const parsed = JSON.parse(selected.perameters);
 
-      const generatedRows = parsed.map((param: string) => ({
+      const generatedRows = parsed.map((param) => ({
         ...defaultRow,
         step_name: param,
+        isManual: false, // ⭐ AUTO ROW
       }));
 
       setRows(generatedRows);
@@ -187,12 +189,16 @@ const ManufacturingProcedure = ({ data = [], users = [], proce = [], isReadOnly 
                   {rows.map((row, index) => (
                     <tr key={index}>
                       <td className="border p-1">
-                        <TextInput
-                          sizing="sm"
-                          value={row.step_name}
-                          readOnly
-                          className="bg-gray-100"
-                        />
+                        {row.isManual ? (
+                          <TextInput
+                            sizing="sm"
+                            value={row.step_name}
+                            onChange={(e) => handleChange(index, 'step_name', e.target.value)}
+                            placeholder="Enter Step Name"
+                          />
+                        ) : (
+                          <span className="px-2">{row.step_name}</span>
+                        )}
                       </td>
 
                       <td className="border p-1">

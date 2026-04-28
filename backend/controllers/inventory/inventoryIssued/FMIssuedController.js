@@ -90,7 +90,7 @@ exports.getBatches = async (req, res, next) => {
 exports.getFinishedStock = async (req, res, next) => {
   try {
     const data = await Qcbatch.findAll({
-      attributes: ["id", "product_name"],
+      attributes: ["id", "product_name", "qc_batch_number"],
       include: [
         {
           model: Finishing,
@@ -138,7 +138,7 @@ exports.getFinishedStock = async (req, res, next) => {
       const remainingQty = totalFinishQty - totalIssuedQty;
 
       return {
-        product_name: batchJSON.product_name,
+        product_name: batchJSON.qc_batch_number,
         remaining_qty: remainingQty
       };
     });
@@ -238,6 +238,60 @@ exports.getIssueFM = async (req, res, next) => {
     res.status(200).json({
       message: "Issued FM Fetched",
       data: formattedData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getDispatchBatch = async (req, res, next) => {
+  try {
+    const data = await Qcbatch.findAll({
+      attributes: ["id", "qc_batch_number", "product_name"],
+      include: [
+        {
+          model: Finishing,
+          as: "finishing",
+          attributes: ["id"],
+          required: true,
+          include: [
+            {
+              model: FMIssuedModel,
+              attributes: ["quantity", "work_order_no"],
+              required: true
+            }
+          ]
+        }
+      ],
+      order: [["created_at", "DESC"]],
+      raw: true,
+      nest: true
+    });
+
+    // ✅ GROUP BY WORK ORDER
+    const groupedData = {};
+
+    data.forEach((item) => {
+      const workOrder = item.finishing.FMIssuedModels.work_order_no;
+
+      if (!groupedData[workOrder]) {
+        groupedData[workOrder] = {
+          work_order_no: workOrder,
+          batches: []
+        };
+      }
+
+      groupedData[workOrder].batches.push({
+        id: item.id,
+        qc_batch_number: item.qc_batch_number,
+        product_name: item.product_name,
+        quantity: item.finishing.FMIssuedModels.quantity
+      });
+    });
+
+    res.status(200).json({
+      message: "Dispatch Batch Grouped",
+      data: Object.values(groupedData)
     });
   } catch (error) {
     next(error);
