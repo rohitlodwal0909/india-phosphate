@@ -55,6 +55,52 @@ const SidebarContent: MenuItem[] = [
       {
         heading: "Marketing Department",
          children: [
+
+          {
+             name: "Enquiry",
+            icon: "tabler:file-invoice",             
+            id: uniqueId(),
+             url: "/marketing/enquiry",
+             subId:2,
+             add: false,
+             view: false,
+             edit: false,
+             delete: false,
+          },
+                {
+        name: "Sample Request",
+        icon: "tabler:flask",
+        id: uniqueId(),
+        url: "/marketing/sample-request",
+        subId: 3,
+        add: false,
+        view: false,
+        edit: false,
+        delete: false,
+      },
+                {
+        name: "Audit Request",
+        icon: "tabler:file-check",
+        id: uniqueId(),
+        url: "/marketing/audit-request",
+        subId: 4,
+        add: false,
+        view: false,
+        edit: false,
+        delete: false,
+      },
+
+       {
+        name: "Teams Calander",
+        icon: "tabler:calendar-event",
+        id: uniqueId(),
+        url: "/marketing/teams-calander",
+        subId: 5,
+        add: false,
+        view: false,
+        edit: false,
+        delete: false,
+      },
              {
              name: "Purchase Order",
             icon: "tabler:file-invoice",             
@@ -66,6 +112,7 @@ const SidebarContent: MenuItem[] = [
              edit: false,
              delete: false,
           },
+
     
         ]
       },

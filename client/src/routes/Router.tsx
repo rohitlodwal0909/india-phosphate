@@ -36,6 +36,10 @@ import PuchaseReport from 'src/views/accounts/paymentapprove/poapprove/AccountPa
 import PoPurchase from 'src/views/purchase/po-purchase/PoPurchase';
 import AccountPurchase from 'src/views/accounts/purchaseApprove/AccountPurchase';
 import ProductionPlaning from 'src/views/inventory/productionPlaning/ProductionPlaning';
+import Enquiry from 'src/views/marketing/enquiry/Enquiry';
+import SampleRequest from 'src/views/marketing/sampleRequest/SampleRequest';
+import AuditRequest from 'src/views/marketing/auditRequest/AuditRequest';
+import Calander from 'src/views/marketing/calander/Calander';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -163,6 +167,10 @@ const fullLayoutChildren = [
   // Marketing
 
   { path: '/marketing/purchase-order', element: <PurchaseOrder /> },
+  { path: '/marketing/enquiry', element: <Enquiry /> },
+  { path: '/marketing/sample-request', element: <SampleRequest /> },
+  { path: '/marketing/audit-request', element: <AuditRequest /> },
+  { path: '/marketing/teams-calander', element: <Calander /> },
 
   // Purchase Department
 
