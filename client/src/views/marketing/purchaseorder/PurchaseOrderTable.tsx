@@ -59,8 +59,6 @@ const PurchaseOrderTable = () => {
     (state: RootState) => state.purchaseOrder.purchaseOrders,
   ) as any;
 
-  console.log(purchaseOrders);
-
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
   const [searchText, setSearchText] = useState('');
   const [modals, setModals] = useState({ add: false, edit: false, view: false, delete: false });

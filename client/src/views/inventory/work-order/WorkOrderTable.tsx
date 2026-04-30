@@ -180,7 +180,13 @@ const ViewWorkOrderTable = () => {
 
           const names = rowProducts.map((p: any) => productMap[p.product_id] || '-');
 
-          return <span>{names.join(', ')}</span>;
+          return (
+            <span>
+              <p className="max-w-[350px] whitespace-normal break-words text-sm">
+                {names.join(', ')}
+              </p>
+            </span>
+          );
         },
       }),
       columnHelper.display({
@@ -329,8 +335,8 @@ const ViewWorkOrderTable = () => {
 
       {permissions.view ? (
         <>
-          <div className="w-full overflow-x-auto scrollbar-thin">
-            <div className="min-w-[1200px]">
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-full">
               <TableComponent table={table} flexRender={flexRender} columns={columns} />
             </div>
           </div>
