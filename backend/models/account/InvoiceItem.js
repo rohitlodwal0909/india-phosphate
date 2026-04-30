@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 
       invoice_id: DataTypes.INTEGER,
       product_id: DataTypes.INTEGER,
+      grade: DataTypes.STRING,
       kind_of_pkgs: DataTypes.STRING,
       batch_no: DataTypes.STRING,
       mfg: DataTypes.DATE,

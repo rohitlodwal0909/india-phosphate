@@ -162,6 +162,13 @@ const ViewWorkOrderTable = () => {
       columnHelper.accessor('po_no', {
         header: 'PO No.',
       }),
+      columnHelper.display({
+        id: 'workNo',
+        header: 'Work Order No.',
+        cell: (info) => {
+          return <span>{info.row.original.workNo?.work_order_no}</span>;
+        },
+      }),
 
       columnHelper.display({
         id: 'product_name',
@@ -322,8 +329,10 @@ const ViewWorkOrderTable = () => {
 
       {permissions.view ? (
         <>
-          <div className="w-full overflow-x-auto">
-            <TableComponent table={table} flexRender={flexRender} columns={columns} />
+          <div className="w-full overflow-x-auto scrollbar-thin">
+            <div className="min-w-[1200px]">
+              <TableComponent table={table} flexRender={flexRender} columns={columns} />
+            </div>
           </div>
 
           <PaginationComponent table={table} />

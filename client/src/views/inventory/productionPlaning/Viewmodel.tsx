@@ -10,7 +10,7 @@ const ViewProductionPlanning = ({ openModal, setOpenModal, selectedRow }: Props)
   const details = [
     ['Work Order No', selectedRow?.work_order_no],
 
-    ['Equipment', selectedRow?.Equipment?.name],
+    // ['Equipment', selectedRow?.Equipment?.name],
 
     ['Material Name', selectedRow?.Product?.product_name],
 

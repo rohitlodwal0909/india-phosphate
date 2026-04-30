@@ -35,7 +35,7 @@ interface RowType {
   id: number;
   work_order_no: string;
   expected_fpr_date: string;
-  Equipment: any;
+  // Equipment: any;
   Product: any;
 }
 
@@ -116,11 +116,11 @@ function ProductionPlaningTable() {
       cell: (info) => info.getValue() || '---',
     }),
 
-    columnHelper.display({
-      id: 'equipment',
-      header: 'Equipment',
-      cell: (info) => info.row.original?.Equipment?.name || '---',
-    }),
+    // columnHelper.display({
+    //   id: 'equipment',
+    //   header: 'Equipment',
+    //   cell: (info) => info.row.original?.Equipment?.name || '---',
+    // }),
 
     columnHelper.display({
       id: 'material',

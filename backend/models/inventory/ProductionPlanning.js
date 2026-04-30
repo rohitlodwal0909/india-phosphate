@@ -13,10 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
       },
 
-      equipment_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
+      // equipment_id: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: false
+      // },
 
       material_id: {
         type: DataTypes.INTEGER,

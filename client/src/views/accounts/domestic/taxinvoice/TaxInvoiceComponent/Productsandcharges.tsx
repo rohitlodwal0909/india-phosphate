@@ -1,18 +1,15 @@
 import { Button, Label, TextInput } from 'flowbite-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getDispatchBatches } from 'src/features/account/invoice/taxinvoice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { AppDispatch } from 'src/store';
 
-const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
+const Productsandcharges = ({ batches, products, setProducts, charges, setCharges }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { productdata } = useSelector((state: any) => state.products);
-  const { dispatchBatches } = useSelector((state: any) => state.taxinvoices);
 
   useEffect(() => {
     dispatch(GetProduct());
-    dispatch(getDispatchBatches());
   }, [dispatch]);
 
   // console.log(dispatchBatches);
@@ -53,6 +50,7 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
       {
         kind_of_pkgs: '',
         product_name: '',
+        grade: '',
         hsn: '',
         rate: '',
         per: 'kg',
@@ -121,6 +119,8 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
 
       updated[index].product_name = value;
       updated[index].hsn = selectedProduct?.ihs_code || '999799';
+
+      updated[index].grade = selectedProduct?.grade || '';
     } else {
       updated[index][field] = value;
     }
@@ -171,6 +171,7 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
             <tr>
               <th className="border p-2">No. of Pkgs</th>
               <th className="border p-2">Description</th>
+              <th className="border p-2">Grade</th>
               <th className="border p-2">Batch No</th>
               <th className="border p-2">MFG</th>
               <th className="border p-2">EXP</th>
@@ -220,6 +221,24 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
                     </td>
                   )}
 
+                  {bIndex === 0 && (
+                    <td rowSpan={product.batches.length} className="border p-2">
+                      <select
+                        className="w-full border p-2 rounded"
+                        value={product.grade}
+                        onChange={(e) => handleProductChange(pIndex, 'grade', e.target.value)}
+                      >
+                        <option value="">Select</option>
+                        <option value="IP">IP</option>
+                        <option value="BP">BP</option>
+                        <option value="EP">EP</option>
+                        <option value="USP">USP</option>
+                        <option value="FCC">FCC</option>
+                        <option value="IHS">IHS</option>
+                      </select>
+                    </td>
+                  )}
+
                   {/* Batch */}
                   <td className="border p-2">
                     <select
@@ -230,10 +249,10 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
                       }
                     >
                       <option value="">Select Batch</option>
-                      {dispatchBatches.length > 0 &&
-                        dispatchBatches?.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.batch_no}
+                      {batches.length > 0 &&
+                        batches?.map((p) => (
+                          <option key={p.id} value={p.batch?.batch_no}>
+                            {p.batch?.batch_no}
                           </option>
                         ))}
                     </select>

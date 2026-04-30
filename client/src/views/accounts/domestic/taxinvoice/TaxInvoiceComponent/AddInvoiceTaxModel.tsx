@@ -16,6 +16,8 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   const dispatch = useDispatch<AppDispatch>();
   const invoice = useSelector((state: RootState) => state.taxinvoices.singleinvoice) as any;
 
+  const batches = data?.batches;
+
   useEffect(() => {
     dispatch(getInvoice(data?.id));
   }, [dispatch]);
@@ -42,6 +44,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
           return {
             kind_of_pkgs: item.kind_of_pkgs || '',
             product_name: item.product_id || '',
+            grade: item.grade || '',
             hsn: item.hsn || '',
             rate: item.rate || '',
             per: item.per || 'kg',
@@ -133,6 +136,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
     {
       kind_of_pkgs: '',
       product_name: '',
+      grade: '',
       hsn: '',
       rate: '',
       per: 'kg',
@@ -266,6 +270,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
             <div className="bg-white p-5 rounded-xl shadow-sm border">
               <Productsandcharges
                 products={products}
+                batches={batches}
                 setProducts={setProducts}
                 charges={charges}
                 setCharges={setCharges}

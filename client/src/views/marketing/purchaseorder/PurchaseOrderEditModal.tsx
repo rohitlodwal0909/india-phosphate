@@ -31,32 +31,39 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
 
   // ✅ Set selected row data
   useEffect(() => {
-    if (selectedRow) {
-      setFormData(selectedRow);
+    if (!selectedRow) return;
 
-      if (selectedRow.products) {
-        try {
-          const parsed =
-            typeof selectedRow.products === 'string'
-              ? JSON.parse(selectedRow.products)
-              : selectedRow.products;
+    setFormData({
+      ...selectedRow,
+      expected_delivery_date: selectedRow.expected_delivery_date
+        ? selectedRow.expected_delivery_date.split('T')[0]
+        : '',
+      export: selectedRow.type === 'export',
+      domestic: selectedRow.type === 'domestic',
+    });
 
-          // 🔥 IMPORTANT mapping
-          const formatted = parsed.map((p: any) => ({
-            product_id: p.product_id,
-            grade: p.grade,
-            quantity: p.quantity,
-            rate: p.rate,
-            gst: p.gst,
-            total: p.total,
-            packing: p.packing,
-            file: null,
-          }));
+    // Products parse
+    if (selectedRow.products) {
+      try {
+        const parsed =
+          typeof selectedRow.products === 'string'
+            ? JSON.parse(selectedRow.products)
+            : selectedRow.products;
 
-          setProducts(formatted);
-        } catch {
-          setProducts([]);
-        }
+        const formatted = parsed.map((p: any) => ({
+          product_id: p.product_id,
+          grade: p.grade || '',
+          quantity: p.quantity || '',
+          rate: p.rate || '',
+          gst: p.gst || '',
+          total: p.total || '',
+          packing: p.packing || '',
+          file: null,
+        }));
+
+        setProducts(formatted);
+      } catch {
+        setProducts([]);
       }
     }
   }, [selectedRow]);
@@ -194,6 +201,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       payload.append('insurance', formData.insurance || '');
       payload.append('insurance_remark', formData.insurance_remark || '');
       payload.append('customise_labels', formData.customise_labels || '');
+      payload.append('priority', formData.priority || '');
       payload.append('type', formData.export ? 'export' : 'domestic');
 
       payload.append('products', JSON.stringify(products));
@@ -222,6 +230,45 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       console.error('Error submitting purchase order:', error);
     }
   };
+
+  type PriorityOption = {
+    value: string;
+    label: string;
+    color: string;
+  };
+
+  const priorityOptions: PriorityOption[] = [
+    {
+      value: 'High',
+      label: 'High Priority',
+      color: '#ef4444',
+    },
+    {
+      value: 'Priority',
+      label: 'Priority',
+      color: '#2563eb',
+    },
+    {
+      value: 'Normal',
+      label: 'Normal',
+      color: '#000000',
+    },
+  ];
+
+  const formatOptionLabel = (option: PriorityOption) => (
+    <div className="flex items-center gap-2">
+      <span
+        style={{
+          backgroundColor: option.color,
+          width: 12,
+          height: 12,
+          borderRadius: '50%',
+          display: 'inline-block',
+        }}
+      />
+      {option.label}
+    </div>
+  );
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)} size="5xl">
       <Modal.Header>Edit Purchase Order</Modal.Header>
@@ -560,6 +607,22 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               name="expected_delivery_date"
               value={formData.expected_delivery_date || ''}
               onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Priority" />
+
+            <Select
+              options={priorityOptions}
+              formatOptionLabel={formatOptionLabel}
+              value={priorityOptions.find((opt) => opt.value === formData.priority)}
+              onChange={(selected: any) =>
+                setFormData({
+                  ...formData,
+                  priority: selected?.value,
+                })
+              }
             />
           </div>
 

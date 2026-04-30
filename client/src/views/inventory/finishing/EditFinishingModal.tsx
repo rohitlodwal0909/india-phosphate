@@ -19,7 +19,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
   const canAdd = permissions?.add;
-  const canEdit = permissions?.edit;
+  // const canEdit = permissions?.edit;
   const qty = selectedRow?.rm_quantity;
 
   const [rows, setRows] = useState<any[]>([
@@ -155,7 +155,8 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
                 <TextInput
                   type="number"
                   name="finish_quantity"
-                  disabled={!row.isNew && !canEdit}
+                  // disabled={!row.isNew && !canEdit}
+                  disabled={!row.isNew}
                   value={row.finish_quantity}
                   onChange={(e) => handleChange(index, e)}
                 />
@@ -167,7 +168,8 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
                 <TextInput
                   type="number"
                   name="unfinish_quantity"
-                  disabled={!row.isNew && !canEdit}
+                  // disabled={!row.isNew && !canEdit}
+                  disabled={!row.isNew}
                   value={row.unfinish_quantity}
                   onChange={(e) => handleChange(index, e)}
                 />
@@ -180,7 +182,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
                   <TextInput
                     type="datetime-local"
                     name="time"
-                    disabled={!canEdit}
+                    disabled={true}
                     value={row.time ? row.time.replace(' ', 'T') : ''}
                     onChange={(e) => handleChange(index, e)}
                   />

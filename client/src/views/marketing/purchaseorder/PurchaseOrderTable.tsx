@@ -42,6 +42,7 @@ interface PurchaseOrderDataType {
   quantity: string;
   total: string;
   expected_delivery_date: string;
+  priority: string;
   users?: {
     id: number;
     username: string;
@@ -57,6 +58,8 @@ const PurchaseOrderTable = () => {
   const purchaseOrders = useSelector(
     (state: RootState) => state.purchaseOrder.purchaseOrders,
   ) as any;
+
+  console.log(purchaseOrders);
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -80,6 +83,19 @@ const PurchaseOrderTable = () => {
     setSelectedRow(row || null);
     setModals((prev) => ({ ...prev, [type]: value }));
     setTimeout(triggerGoogleTranslateRescan, 200);
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return 'bg-red-500';
+      case 'Priority':
+        return 'bg-blue-500';
+      case 'Normal':
+        return 'bg-black';
+      default:
+        return 'bg-gray-400';
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -161,6 +177,19 @@ const PurchaseOrderTable = () => {
         cell: (info) => (
           <div className="truncate">
             <p>{info.row.original.users?.username}</p>
+          </div>
+        ),
+      }),
+      columnHelper.accessor('priority', {
+        header: 'Priority',
+        cell: (info) => (
+          <div className="truncate">
+            <div className="flex items-center gap-2 mt-1">
+              <span
+                className={`w-3 h-3 rounded-full ${getPriorityColor(info.row.original.priority)}`}
+              />
+              <p className="text-gray-900 font-medium">{info.row.original.priority || '-'}</p>
+            </div>
           </div>
         ),
       }),

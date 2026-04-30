@@ -46,7 +46,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
     <form className="grid grid-cols-12 gap-4">
       {/* 🔹 Invoice */}
       <div className="col-span-12 font-semibold text-lg border-b pb-2">Invoice Details</div>
-
       <div className="col-span-3">
         <Label value="Invoice No" className="text-black" />
         <TextInput
@@ -55,17 +54,16 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           placeholder="Enter Invoice No"
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Invoice Date" />
+
         <TextInput
           type="date"
-          max={new Date().toISOString().split('T')[0]}
-          value={formData.invoice_date ? formData.invoice_date.split('T')[0] : ''}
+          min={new Date().toISOString().split('T')[0]}
+          value={formData.invoice_date?.split('T')[0] || ''}
           onChange={(e) => handleChange('invoice_date', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="E-Way Bill" />
         <TextInput
@@ -74,7 +72,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           placeholder="Enter E-Way Bill"
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Delivery Note" />
         <TextInput
@@ -88,7 +85,7 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
         <Label value="Delivery Note Date" />
         <TextInput
           type="date"
-          max={new Date().toISOString().split('T')[0]}
+          min={new Date().toISOString().split('T')[0]}
           value={formData.delivery_note_date}
           onChange={(e) => handleChange('delivery_note_date', e.target.value)}
         />
@@ -97,27 +94,10 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
         <Label value="PO Date" />
         <TextInput
           type="date"
-          max={new Date().toISOString().split('T')[0]}
+          min={new Date().toISOString().split('T')[0]}
           value={formData.from_to ? formData.from_to.split('T')[0] : ''}
           onChange={(e) => handleChange('from_to', e.target.value)}
         />
-      </div>
-
-      <div className="col-span-3">
-        <Label value="Grade" />
-        <select
-          className="w-full border p-2 rounded-md"
-          value={formData.grade}
-          onChange={(e) => handleChange('grade', e.target.value)}
-        >
-          <option value="">Select</option>
-          <option value="IP">IP</option>
-          <option value="BP">BP</option>
-          <option value="EP">EP</option>
-          <option value="USP">USP</option>
-          <option value="FCC">FCC</option>
-          <option value="IHS">IHS</option>
-        </select>
       </div>
 
       <div className="col-span-3">
@@ -165,10 +145,8 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           </>
         )}
       </div>
-
       {/* 🔹 IRN */}
       <div className="col-span-12 font-semibold text-lg border-b pt-4 pb-2">IRN Details</div>
-
       <div className="col-span-4">
         <Label value="IRN" />
         <TextInput
@@ -177,7 +155,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('irn', e.target.value)}
         />
       </div>
-
       <div className="col-span-4">
         <Label value="ACK No" />
         <TextInput
@@ -186,19 +163,17 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('ack_no', e.target.value)}
         />
       </div>
-
       <div className="col-span-4">
         <Label value="ACK Date" />
         <TextInput
           type="date"
+          min={new Date().toISOString().split('T')[0]}
           value={formData.ack_date}
           onChange={(e) => handleChange('ack_date', e.target.value)}
         />
       </div>
-
       {/* 🔹 Party */}
       <div className="col-span-12 font-semibold text-lg border-b pt-4 pb-2">Party Details</div>
-
       <div className="col-span-6">
         <Label value="Buyer (Bill To)" />
         <Textarea
@@ -208,7 +183,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           placeholder="Enter Buyer Name, GST No & Billing Address"
         />
       </div>
-
       <div className="col-span-6">
         <Label value="Consignee (Ship To)" />
         <Textarea
@@ -218,10 +192,8 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           placeholder="Enter Consignee Name & Shipping Address"
         />
       </div>
-
       {/* 🔹 Payment */}
       <div className="col-span-12 font-semibold text-lg border-b pt-4 pb-2">Payment</div>
-
       <div className="col-span-4">
         <Label value="Mode of Payment" />
         <select
@@ -236,7 +208,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           <option value="immediate">Immediate</option>
         </select>
       </div>
-
       <div className="col-span-4">
         <Label value="Payment Remark" />
         <TextInput
@@ -245,10 +216,8 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('payment_remark', e.target.value)}
         />
       </div>
-
       {/* 🔹 References */}
       <div className="col-span-12 font-semibold text-lg border-b pt-4 pb-2">Reference Details</div>
-
       <div className="col-span-3">
         <Label value="Reference No" />
         <TextInput
@@ -257,7 +226,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('reference_no', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Other Reference" />
         <TextInput
@@ -266,7 +234,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('other_reference', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Buyer Order No" />
         <TextInput
@@ -275,19 +242,17 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('buyer_order_no', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Buyer Order Date" />
         <TextInput
           type="date"
+          min={new Date().toISOString().split('T')[0]}
           value={formData.buyer_order_date}
           onChange={(e) => handleChange('buyer_order_date', e.target.value)}
         />
       </div>
-
       {/* 🔹 Dispatch */}
       <div className="col-span-12 font-semibold text-lg border-b pt-4 pb-2">Dispatch Details</div>
-
       <div className="col-span-3">
         <Label value="Dispatch Doc No" />
         <TextInput
@@ -296,7 +261,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('dispatch_doc_no', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Dispatch Through" />
         <TextInput
@@ -305,7 +269,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('dispatch_through', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Destination" />
         <TextInput
@@ -314,7 +277,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('destination', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="Country" />
         <TextInput
@@ -323,7 +285,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('country', e.target.value)}
         />
       </div>
-
       <div className="col-span-3">
         <Label value="LUT/Bond No" />
         <TextInput
@@ -332,7 +293,6 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
           onChange={(e) => handleChange('lut_no', e.target.value)}
         />
       </div>
-
       {/* 🔹 Final */}
       <div className="col-span-3">
         <Label value="Term of delivery" />

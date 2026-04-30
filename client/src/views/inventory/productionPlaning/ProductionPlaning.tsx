@@ -6,8 +6,8 @@ const ProductionPlaning = () => {
   return (
     <div>
       <BreadcrumbComp
-        items={[{ title: 'Production Planing', to: '/' }]}
-        title="Production Planing"
+        items={[{ title: 'Production Planning', to: '/' }]}
+        title="Production Planning"
       />
       <CardBox>
         <ProductionPlaningTable />

@@ -425,12 +425,10 @@ const SidebarContent: MenuItem[] = [
           },         
         ]
           },
-
-         
-        
+          
            {
             subId: 14,
-            name: "Production Planing",
+            name: "Production Planning",
            icon: "carbon:industry",
             id: uniqueId(),
             url: "/inventory/planing",

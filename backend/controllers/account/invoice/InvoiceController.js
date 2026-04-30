@@ -28,6 +28,20 @@ exports.getEntryInvoice = async (req, res) => {
     const data = await DispatchVehicle.findAll({
       include: [
         {
+          model: DispatchBatch,
+          as: "batches",
+          include: [
+            {
+              model: Qcbatch,
+              as: "batch",
+              attributes: [
+                ["id", "batch_id"],
+                ["qc_batch_number", "batch_no"]
+              ]
+            }
+          ]
+        },
+        {
           model: PurchaseOrderModel,
           as: "poentry",
           where: condition,
@@ -112,7 +126,6 @@ exports.createInvoice = async (req, res) => {
         eway_bill: invoiceData.eway_bill,
         delivery_note: invoiceData.delivery_note,
         delivery_note_date: invoiceData.delivery_note_date,
-        grade: invoiceData.grade,
 
         oq_upload, // ✅ SAFE
 
@@ -160,6 +173,7 @@ exports.createInvoice = async (req, res) => {
 
       return {
         invoice_id: invoice.id,
+        grade: item.grade,
         product_id: item.product_name,
         kind_of_pkgs: item.kind_of_pkgs,
         batch_no: JSON.stringify(item.batches),
@@ -221,6 +235,7 @@ exports.updateInvoice = async (req, res) => {
     const items = products.map((item) => ({
       invoice_id: id,
       product_id: item.product_name,
+      grade: item.grade,
       kind_of_pkgs: item.kind_of_pkgs,
       batch_no: JSON.stringify(item.batches),
       hsn: item.hsn,
@@ -322,7 +337,6 @@ exports.uploadEwayPdf = async (req, res) => {
     }
 
     const filePath = req.file.path;
-
     await Invoice.update({ eway_pdf: filePath }, { where: { id: invoice_id } });
 
     res.json({

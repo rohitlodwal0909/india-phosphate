@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 
-import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
+// import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import {
   getProductionPlanning,
@@ -25,14 +25,14 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
 
   /* ================= REDUX ================= */
 
-  const equipments = useSelector((state: any) => state.equipment.Equipmentdata) || [];
+  // const equipments = useSelector((state: any) => state.equipment.Equipmentdata) || [];
 
   const materials = useSelector((state: any) => state.products.productdata) || [];
 
   /* ================= INITIAL ================= */
 
   const initialState = {
-    equipment_id: '',
+    // equipment_id: '',
     material_id: '',
     quantity: '',
     unit: '',
@@ -52,7 +52,7 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
   /* ================= LOAD MASTER ================= */
 
   useEffect(() => {
-    dispatch(GetEquipment());
+    // dispatch(GetEquipment());
     dispatch(GetProduct());
   }, [dispatch]);
 
@@ -61,7 +61,7 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
   useEffect(() => {
     if (selectedRow) {
       setFormData({
-        equipment_id: selectedRow.equipment_id ?? '',
+        // equipment_id: selectedRow.equipment_id ?? '',
         material_id: selectedRow.material_id ?? '',
         quantity: selectedRow.quantity ?? '',
         unit: selectedRow.unit ?? '',
@@ -96,7 +96,7 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
   const validateForm = () => {
     const newErrors: any = {};
 
-    if (!formData.equipment_id) newErrors.equipment_id = 'Required';
+    // if (!formData.equipment_id) newErrors.equipment_id = 'Required';
     if (!formData.material_id) newErrors.material_id = 'Required';
     if (!formData.quantity) newErrors.quantity = 'Required';
     if (!formData.unit) newErrors.unit = 'Required';
@@ -136,10 +136,10 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
 
   /* ================= OPTIONS ================= */
 
-  const equipmentOptions = equipments.map((e: any) => ({
-    value: e.id,
-    label: e.name,
-  }));
+  // const equipmentOptions = equipments.map((e: any) => ({
+  //   value: e.id,
+  //   label: e.name,
+  // }));
 
   const materialOptions = materials.map((m: any) => ({
     value: m.id,
@@ -155,7 +155,7 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {/* Equipment */}
-          <div className="col-span-6">
+          {/* <div className="col-span-6">
             <Label value="Equipment" />
             <Select
               placeholder="Select Equipment"
@@ -164,7 +164,7 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selected
               onChange={(s) => handleChange('equipment_id', s?.value)}
             />
             <p className="text-red-500 text-sm">{errors.equipment_id}</p>
-          </div>
+          </div> */}
 
           {/* Material */}
           <div className="col-span-6">

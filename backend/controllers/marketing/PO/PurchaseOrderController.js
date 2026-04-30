@@ -387,7 +387,8 @@ exports.updatePurchaseOrder = async (req, res) => {
 
       // ✅ Other
       customise_labels: req.body.customise_labels,
-      expected_delivery_date: req.body.expected_delivery_date
+      expected_delivery_date: req.body.expected_delivery_date,
+      priority: req.body.priority
     };
 
     await PurchaseOrderModel.update(updateData, {

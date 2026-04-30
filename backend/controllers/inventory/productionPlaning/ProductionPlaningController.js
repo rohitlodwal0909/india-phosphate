@@ -10,9 +10,6 @@ exports.index = async (req, res, next) => {
       order: [["created_at", "DESC"]],
       include: [
         {
-          model: Equipment
-        },
-        {
           model: Product
         }
       ]
@@ -30,7 +27,7 @@ exports.index = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   try {
     const {
-      equipment_id,
+      // equipment_id,
       material_id,
       quantity,
       unit,
@@ -45,8 +42,8 @@ exports.create = async (req, res, next) => {
 
     /* ================= VALIDATION ================= */
 
-    if (!equipment_id)
-      return res.status(400).json({ message: "Equipment is required" });
+    // if (!equipment_id)
+    //   return res.status(400).json({ message: "Equipment is required" });
 
     if (!material_id)
       return res.status(400).json({ message: "Material is required" });
@@ -55,7 +52,7 @@ exports.create = async (req, res, next) => {
       return res.status(400).json({ message: "Quantity is required" });
 
     const data = await ProductionPlanning.create({
-      equipment_id,
+      // equipment_id,
       material_id,
       quantity,
       unit,
@@ -92,7 +89,7 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const {
-      equipment_id,
+      // equipment_id,
       material_id,
       quantity,
       unit,
@@ -108,8 +105,8 @@ exports.update = async (req, res, next) => {
 
     /* ================= VALIDATION ================= */
 
-    if (!equipment_id)
-      return res.status(400).json({ message: "Equipment is required" });
+    // if (!equipment_id)
+    //   return res.status(400).json({ message: "Equipment is required" });
 
     if (!material_id)
       return res.status(400).json({ message: "Material is required" });
@@ -130,7 +127,7 @@ exports.update = async (req, res, next) => {
     /* ================= UPDATE ================= */
 
     await planning.update({
-      equipment_id,
+      // equipment_id,
       material_id,
       quantity,
       unit,
