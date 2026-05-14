@@ -44,7 +44,21 @@ interface PurchaseOrderDataType {
     company_name: string;
   };
   product_name: string;
+  priority: string;
 }
+
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case 'High':
+      return 'bg-red-500';
+    case 'Priority':
+      return 'bg-blue-500';
+    case 'Normal':
+      return 'bg-black';
+    default:
+      return 'bg-gray-400';
+  }
+};
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 
@@ -211,6 +225,19 @@ const ViewWorkOrderTable = () => {
 
           return <span>{products.map((p: any) => `${p.quantity} KG`).join(', ')}</span>;
         },
+      }),
+      columnHelper.accessor('priority', {
+        header: 'Priority',
+        cell: (info) => (
+          <div className="truncate">
+            <div className="flex items-center gap-2 mt-1">
+              <span
+                className={`w-3 h-3 rounded-full ${getPriorityColor(info.row.original.priority)}`}
+              />
+              <p className="text-gray-900 font-medium">{info.row.original.priority || '-'}</p>
+            </div>
+          </div>
+        ),
       }),
 
       columnHelper.display({

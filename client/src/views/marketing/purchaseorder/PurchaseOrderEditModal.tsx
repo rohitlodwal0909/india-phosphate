@@ -251,7 +251,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
     {
       value: 'Normal',
       label: 'Normal',
-      color: '#000000',
+      color: '#e9ec1a',
     },
   ];
 
@@ -290,7 +290,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
             >
               <option value="">Select Company Type</option>
               <option value="Trader">Trader</option>
-              <option value="end customer">End customer</option>
+              <option value="manufacture">Manufacture</option>
             </select>
           </div>
 

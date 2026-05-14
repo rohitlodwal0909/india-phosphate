@@ -6,13 +6,14 @@ import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { getAllCustomers } from 'src/features/marketing/PurchaseOrderSlice';
 import { toast } from 'react-toastify';
+import { addSampleRequest } from 'src/features/marketing/SampleRequestSlice';
 
 interface Props {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
 }
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
+const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
 
 const sampleTypes = [
   { value: 'FOC', label: 'FOC' },
@@ -43,7 +44,7 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   });
 
   const [items, setItems] = useState([
-    { product_id: '', grade: '', quantity: '', sample_type: '', file: null },
+    { product_id: '', grade: '', qty: '', sample_type: '', file: null },
   ]);
 
   const customerOptions = customers?.map((c: any) => ({
@@ -74,14 +75,46 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   };
 
   const addRow = () =>
-    setItems([...items, { product_id: '', grade: '', quantity: '', sample_type: '', file: null }]);
+    setItems([...items, { product_id: '', grade: '', qty: '', sample_type: '', file: null }]);
 
   const removeRow = (i: number) => setItems(items.filter((_, index) => index !== i));
 
-  const submit = (e: any) => {
+  // const submit = (e: any) => {
+  //   e.preventDefault();
+  //   toast.success('Sample Request Sent to QC ✅');
+  //   setOpenModal(false);
+  // };
+
+  const submit = async (e: any) => {
     e.preventDefault();
-    toast.success('Sample Request Sent to QC ✅');
-    setOpenModal(false);
+
+    try {
+      const formDataObj = new FormData();
+
+      /* -------- Main Fields -------- */
+      Object.keys(formData).forEach((key) => {
+        formDataObj.append(key, formData[key]);
+      });
+
+      /* -------- Items Without File -------- */
+      const itemsWithoutFile = items.map(({ file, ...rest }) => rest);
+
+      formDataObj.append('items', JSON.stringify(itemsWithoutFile));
+
+      /* -------- Append Files -------- */
+      items.forEach((item, index) => {
+        if (item.file) {
+          formDataObj.append(`file_${index}`, item.file);
+        }
+      });
+
+      await dispatch(addSampleRequest(formDataObj)).unwrap();
+
+      toast.success('Sample Request Sent to QC ✅');
+      setOpenModal(false);
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to save');
+    }
   };
 
   /* ================= UI ================= */
@@ -164,7 +197,7 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
                 <div className="col-span-2">
                   <Label>Qty</Label>
-                  <TextInput onChange={(e) => handleItem(index, 'quantity', e.target.value)} />
+                  <TextInput onChange={(e) => handleItem(index, 'qty', e.target.value)} />
                 </div>
 
                 <div className="col-span-3">

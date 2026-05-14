@@ -24,7 +24,7 @@ const selectStyles = {
   }),
 };
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
+const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
 
 const enquiryStatusOptions = [
   { value: 'closed', label: 'Closed', color: '#16a34a' },

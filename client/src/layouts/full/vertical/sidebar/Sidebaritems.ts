@@ -56,6 +56,18 @@ const SidebarContent: MenuItem[] = [
         heading: "Marketing Department",
          children: [
 
+           {
+             name: "Development",
+            icon: "tabler:file-invoice",             
+            id: uniqueId(),
+             url: "/marketing/development",
+             subId:6,
+             add: false,
+             view: false,
+             edit: false,
+             delete: false,
+          },
+
           {
              name: "Enquiry",
             icon: "tabler:file-invoice",             

@@ -51,7 +51,13 @@ import FMIssuedSlice from '../src/features/Inventorymodule/InventoryIssued/FMIss
 import BmrReportSlices from '../src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 import ProcedureSlice from '../src/features/master/ManufacturingProcedure/ManufacturingProcedureSlice';
 import GRNSlice from '../src/features/master/Grn/GRNSlice';
+
+// Marketing
 import PurchaseOrderSlice from '../src/features/marketing/PurchaseOrderSlice';
+import EnquirySlice from '../src/features/marketing/EnquirySlice';
+import AuditSlice from '../src/features/marketing/AuditSlice';
+import SampleRequestSlice from '../src/features/marketing/SampleRequestSlice';
+
 import TaxInvoiceSlice from '../src/features/account/invoice/taxinvoice';
 import ExportInvoiceSlice from '../src/features/account/exportinvoice/exportInvoice';
 import ExportPackingSlice from '../src/features/account/exportinvoice/packinglist';
@@ -134,6 +140,11 @@ export const store = configureStore({
     purchasestore: PurchaseStoreSlice,
     requisition: PoRequisitionSlice,
     purchasepo: PurchasePoSlice,
+
+    //  Marketing
+    enquiry: EnquirySlice,
+    audits: AuditSlice,
+    samplerequest: SampleRequestSlice,
   },
 });
 

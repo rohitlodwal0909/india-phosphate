@@ -37,7 +37,7 @@ const ViewPurchaseOrderModal = ({
       case 'Priority':
         return 'bg-blue-500';
       case 'Normal':
-        return 'bg-black';
+        return 'bg-yellow-300';
       default:
         return 'bg-gray-400';
     }

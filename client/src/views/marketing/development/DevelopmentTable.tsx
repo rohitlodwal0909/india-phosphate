@@ -20,17 +20,12 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-// import PurchaseOrderEditModal from './PurchaseOrderEditModal';
-// import ViewPurchaseOrderModal from './ViewPurchaseOrderModal';
-import {
-  deletePurchaseOrder,
-  getPurchaseOrders,
-  // updatePurchaseOrder,
-} from 'src/features/marketing/PurchaseOrderSlice';
-import SampleRequestModal from './SampleRequestModal';
-import { getSampleRequest } from 'src/features/marketing/SampleRequestSlice';
+import ViewEnquiryModal from './ViewEnquiryModal';
+import EnquiryModal from './EnquiryModal';
+import { deleteEnquiry, getEnquiry } from 'src/features/marketing/EnquirySlice';
+import EnquiryEditModal from './EnquiryEditModal';
 
-interface PurchaseOrderDataType {
+interface DevelopmentDataType {
   id: number;
   user_id: number;
   sr_no: string;
@@ -38,47 +33,43 @@ interface PurchaseOrderDataType {
     id: number;
     company_name: string;
   };
-  delivery_address: string;
-  contact_person: string;
-  type: string;
-  mobile: string;
-  total: string;
-  expected_delivery_date: string;
+  interested_products?: any;
+  note: string;
+  status: string;
+  follow_up_date: string;
   users?: {
     id: number;
     username: string;
   };
 }
 
-const columnHelper = createColumnHelper<PurchaseOrderDataType>();
+const columnHelper = createColumnHelper<DevelopmentDataType>();
 
-const SampleRequestTable = () => {
+const DevelopmentTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const samplerequests = useSelector(
-    (state: RootState) => state.samplerequest.samplerequests,
-  ) as any;
+  const enquiries = useSelector((state: RootState) => state.enquiry.enquiries) as any;
 
-  const [data, setData] = useState<PurchaseOrderDataType[]>([]);
+  const [data, setData] = useState<DevelopmentDataType[]>([]);
   const [searchText, setSearchText] = useState('');
   const [modals, setModals] = useState({ add: false, edit: false, view: false, delete: false });
-  const [selectedRow, setSelectedRow] = useState<PurchaseOrderDataType | null>(null);
+  const [selectedRow, setSelectedRow] = useState<DevelopmentDataType | null>(null);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 3);
+    return getPermissions(logindata, selectedIconId, 6);
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(samplerequests) ? samplerequests : []);
-  }, [samplerequests]);
+    setData(Array.isArray(enquiries) ? enquiries : []);
+  }, [enquiries]);
 
   useEffect(() => {
-    dispatch(getSampleRequest());
+    dispatch(getEnquiry());
   }, [dispatch]);
 
-  const handleModal = (type: keyof typeof modals, value: boolean, row?: PurchaseOrderDataType) => {
+  const handleModal = (type: keyof typeof modals, value: boolean, row?: DevelopmentDataType) => {
     setSelectedRow(row || null);
     setModals((prev) => ({ ...prev, [type]: value }));
     setTimeout(triggerGoogleTranslateRescan, 200);
@@ -91,9 +82,9 @@ const SampleRequestTable = () => {
     try {
       const id = selectedRow.id;
 
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase Order Entry deleted!');
-      dispatch(getPurchaseOrders());
+      await dispatch(deleteEnquiry(id)).unwrap();
+      toast.success('Enquiry Entry deleted!');
+      dispatch(getEnquiry());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
@@ -102,37 +93,42 @@ const SampleRequestTable = () => {
     }
   };
 
-  // const handleUpdate = async (rowdata: PurchaseOrderDataType) => {
-  //   try {
-  //     await dispatch(updatePurchaseOrder(rowdata)).unwrap();
-  //     toast.success('Update Purchase Order Successfully');
-  //     dispatch(getPurchaseOrders());
-  //   } catch (err: any) {
-  //     toast.error(err.message || 'Failed to update entry');
-  //   } finally {
-  //     handleModal('edit', false);
-  //   }
-  // };
+  const searchInObject = (obj: any, search: string): boolean => {
+    if (!obj) return false;
 
-  const filteredData = useMemo(
-    () =>
-      data.filter((item) =>
-        Object.values(item).some((v) =>
-          String(v || '')
-            .toLowerCase()
-            .includes(searchText.toLowerCase()),
-        ),
-      ),
-    [data, searchText],
-  );
+    // string / number / boolean
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+      return String(obj).toLowerCase().includes(search);
+    }
+
+    // array
+    if (Array.isArray(obj)) {
+      return obj.some((item) => searchInObject(item, search));
+    }
+
+    // object
+    if (typeof obj === 'object') {
+      return Object.values(obj).some((value) => searchInObject(value, search));
+    }
+
+    return false;
+  };
+
+  const filteredData = useMemo(() => {
+    if (!searchText) return data;
+
+    const search = searchText.toLowerCase();
+
+    return data.filter((item) => searchInObject(item, search));
+  }, [data, searchText]);
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('sr_no', {
+      columnHelper.accessor('id', {
         header: 'S. No.',
         cell: (info) => (
           <div className="truncate max-w-56">
-            <h6 className="text-base">#{info.row.original.sr_no}</h6>
+            <h6 className="text-base">#{info.row.index + 1}</h6>
           </div>
         ),
       }),
@@ -146,33 +142,35 @@ const SampleRequestTable = () => {
         ),
       }),
 
-      columnHelper.accessor('type', {
-        header: 'Domestic/Export',
-        cell: (info) => (
-          <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.type}</p>
-          </div>
-        ),
-      }),
+      columnHelper.accessor('interested_products', {
+        header: 'Interested Products',
+        cell: (info) => {
+          const products = info.row.original.interested_products || [];
 
-      columnHelper.accessor('contact_person', {
-        header: 'Contact Person Name',
-        cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
-      }),
+          return (
+            <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+              {products.length > 0 ? (
+                products.map((item: any, index: number) => (
+                  <div key={index} className="border-b pb-1">
+                    <p>
+                      <strong>Product:</strong> {item.product?.product_name}
+                    </p>
 
-      columnHelper.accessor('mobile', {
-        header: 'Mobile',
-      }),
+                    <p>
+                      <strong>Grade:</strong> {item.grade}
+                    </p>
 
-      columnHelper.accessor('user_id', {
-        header: 'Submitted by',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
-          </div>
-        ),
+                    <p>
+                      <strong>Person:</strong> {item.sales_name?.username}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+          );
+        },
       }),
 
       columnHelper.display({
@@ -257,7 +255,7 @@ const SampleRequestTable = () => {
             size="sm"
             className="border border-primary bg-primary text-white rounded-md"
           >
-            Create Sample Request
+            Create Enquiry
           </Button>
         )}
       </div>
@@ -293,41 +291,37 @@ const SampleRequestTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Purchase Order ?"
+            title="Are you sure you want to Delete this Enquiry ?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
       )}
-      {/* {modals.view && (
+      {modals.view && (
         <Portal>
-          <ViewPurchaseOrderModal
+          <ViewEnquiryModal
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
             modalPlacement="center"
           />
         </Portal>
-      )} */}
+      )}
       {modals.add && (
         <Portal>
-          <SampleRequestModal
-            openModal={modals.add}
-            setOpenModal={() => handleModal('add', false)}
-          />
+          <EnquiryModal openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
         </Portal>
       )}
-      {/* {modals.edit && (
+      {modals.edit && (
         <Portal>
-          <PurchaseOrderEditModal
+          <EnquiryEditModal
             openModal={modals.edit}
             setOpenModal={() => handleModal('edit', false)}
             selectedRow={selectedRow}
-            handleupdated={handleUpdate}
           />
         </Portal>
-      )} */}
+      )}
     </div>
   );
 };
 
-export default SampleRequestTable;
+export default DevelopmentTable;

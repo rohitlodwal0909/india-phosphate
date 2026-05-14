@@ -90,7 +90,7 @@ const PurchaseOrderTable = () => {
       case 'Priority':
         return 'bg-blue-500';
       case 'Normal':
-        return 'bg-black';
+        return 'bg-yellow-200';
       default:
         return 'bg-gray-400';
     }

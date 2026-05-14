@@ -20,23 +20,23 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import ViewPurchaseOrderModal from './ViewPurchaseOrderModal';
-import { deletePurchaseOrder, getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
+import ViewEnquiryModal from './ViewEnquiryModal';
 import EnquiryModal from './EnquiryModal';
+import { deleteEnquiry, getEnquiry } from 'src/features/marketing/EnquirySlice';
+import EnquiryEditModal from './EnquiryEditModal';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
-  po_no: string;
+  sr_no: string;
   customers?: {
     id: number;
     company_name: string;
   };
-  delivery_address: string;
-  product_name: string;
-  quantity: string;
-  total: string;
-  expected_delivery_date: string;
+  interested_products?: any;
+  note: string;
+  status: string;
+  follow_up_date: string;
   users?: {
     id: number;
     username: string;
@@ -49,9 +49,7 @@ const EnquiryTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const purchaseOrders = useSelector(
-    (state: RootState) => state.purchaseOrder.purchaseOrders,
-  ) as any;
+  const enquiries = useSelector((state: RootState) => state.enquiry.enquiries) as any;
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -64,11 +62,11 @@ const EnquiryTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(purchaseOrders) ? purchaseOrders : []);
-  }, [purchaseOrders]);
+    setData(Array.isArray(enquiries) ? enquiries : []);
+  }, [enquiries]);
 
   useEffect(() => {
-    // dispatch(getPurchaseOrders());
+    dispatch(getEnquiry());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: PurchaseOrderDataType) => {
@@ -84,9 +82,9 @@ const EnquiryTable = () => {
     try {
       const id = selectedRow.id;
 
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase Order Entry deleted!');
-      dispatch(getPurchaseOrders());
+      await dispatch(deleteEnquiry(id)).unwrap();
+      toast.success('Enquiry Entry deleted!');
+      dispatch(getEnquiry());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
@@ -95,29 +93,46 @@ const EnquiryTable = () => {
     }
   };
 
-  const filteredData = useMemo(
-    () =>
-      data.filter((item) =>
-        Object.values(item).some((v) =>
-          String(v || '')
-            .toLowerCase()
-            .includes(searchText.toLowerCase()),
-        ),
-      ),
-    [data, searchText],
-  );
+  const searchInObject = (obj: any, search: string): boolean => {
+    if (!obj) return false;
+
+    // string / number / boolean
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+      return String(obj).toLowerCase().includes(search);
+    }
+
+    // array
+    if (Array.isArray(obj)) {
+      return obj.some((item) => searchInObject(item, search));
+    }
+
+    // object
+    if (typeof obj === 'object') {
+      return Object.values(obj).some((value) => searchInObject(value, search));
+    }
+
+    return false;
+  };
+
+  const filteredData = useMemo(() => {
+    if (!searchText) return data;
+
+    const search = searchText.toLowerCase();
+
+    return data.filter((item) => searchInObject(item, search));
+  }, [data, searchText]);
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor('id', {
+      columnHelper.accessor('sr_no', {
         header: 'S. No.',
         cell: (info) => (
           <div className="truncate max-w-56">
-            <h6 className="text-base">#{info.row.index + 1}</h6>
+            <h6 className="text-base">{info.row.original.sr_no}</h6>
           </div>
         ),
       }),
-      columnHelper.accessor('po_no', { header: 'Serial No.' }),
+      // columnHelper.accessor('sr_no', { header: 'Serial No.' }),
 
       columnHelper.accessor('customers', {
         header: 'Company Name',
@@ -128,32 +143,35 @@ const EnquiryTable = () => {
         ),
       }),
 
-      columnHelper.accessor('delivery_address', {
-        header: 'Intrested Products',
-        cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
-      }),
+      columnHelper.accessor('interested_products', {
+        header: 'Interested Products',
+        cell: (info) => {
+          const products = info.row.original.interested_products || [];
 
-      columnHelper.accessor('expected_delivery_date', {
-        header: 'Follow Up Date',
-      }),
+          return (
+            <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+              {products.length > 0 ? (
+                products.map((item: any, index: number) => (
+                  <div key={index} className="border-b pb-1">
+                    <p>
+                      <strong>Product:</strong> {item.product?.product_name}
+                    </p>
 
-      columnHelper.accessor('user_id', {
-        header: 'Status',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
-          </div>
-        ),
-      }),
-      columnHelper.accessor('user_id', {
-        header: 'Followup Note',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
-          </div>
-        ),
+                    <p>
+                      <strong>Grade:</strong> {item.grade}
+                    </p>
+
+                    <p>
+                      <strong>Person:</strong> {item.sales_name?.username}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+          );
+        },
       }),
 
       columnHelper.display({
@@ -274,14 +292,14 @@ const EnquiryTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Purchase Order ?"
+            title="Are you sure you want to Delete this Enquiry ?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
       )}
       {modals.view && (
         <Portal>
-          <ViewPurchaseOrderModal
+          <ViewEnquiryModal
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
@@ -294,16 +312,15 @@ const EnquiryTable = () => {
           <EnquiryModal openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
         </Portal>
       )}
-      {/* {modals.edit && (
+      {modals.edit && (
         <Portal>
-          <PurchaseOrderEditModal
+          <EnquiryEditModal
             openModal={modals.edit}
             setOpenModal={() => handleModal('edit', false)}
             selectedRow={selectedRow}
-            handleupdated={handleUpdate}
           />
         </Portal>
-      )} */}
+      )}
     </div>
   );
 };

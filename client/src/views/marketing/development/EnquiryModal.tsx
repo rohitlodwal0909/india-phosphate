@@ -7,14 +7,13 @@ import { toast } from 'react-toastify';
 import { RootState } from 'src/store';
 import { getAllCustomers } from 'src/features/marketing/PurchaseOrderSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
-import { updateEnquiry } from 'src/features/marketing/EnquirySlice';
+import { addEnquiry, getEnquiry } from 'src/features/marketing/EnquirySlice';
 import { validateEnquiryForm } from './Validation';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 
 interface Props {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-  selectedRow: any;
 }
 
 const selectStyles = {
@@ -24,7 +23,7 @@ const selectStyles = {
   }),
 };
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
+const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
 
 const enquiryStatusOptions = [
   { value: 'closed', label: 'Closed', color: '#16a34a' },
@@ -33,6 +32,10 @@ const enquiryStatusOptions = [
   { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
+
+  // ✅ NEW STATUS
+  { value: 'internal_hold', label: 'Internal Hold', color: '#9333ea' },
+  { value: 'customer_hold', label: 'Customer Hold', color: '#dc2626' },
 ];
 
 const formatStatus = (option: any) => (
@@ -49,71 +52,33 @@ const formatStatus = (option: any) => (
   </div>
 );
 
-const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRow }) => {
+const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<any>();
 
-  const customers = useSelector((state: RootState) => state.purchaseOrder.customers);
+  /* ================= REDUX ================= */
 
-  const { productdata } = useSelector((state: any) => state.products);
-  const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata ?? []);
-  const users = usersdata.filter((user) => Number(user.role_id) === 9);
+  const customers = useSelector((state: RootState) => state.purchaseOrder?.customers) ?? [];
+
+  const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
+
+  const { productdata = [] } = useSelector((state: RootState) => state.products) ?? {};
+
+  // ✅ Marketing Users
+  const users = usersdata.filter((user: any) => Number(user.role_id) === 9);
 
   useEffect(() => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
     dispatch(GetUsermodule());
-  }, []);
-
-  useEffect(() => {
-    if (!selectedRow) return;
-
-    setFormData({
-      company_id: selectedRow.company_id || '',
-    });
-
-    if (selectedRow.interested_products?.length) {
-      const mappedProducts = selectedRow.interested_products.map((p: any) => {
-        let followups = [];
-
-        if (Array.isArray(p.followups)) {
-          followups = p.followups;
-        } else if (typeof p.followups === 'string') {
-          try {
-            followups = JSON.parse(p.followups);
-          } catch {
-            followups = [];
-          }
-        }
-
-        return {
-          product_id: p.product_id || '',
-          grade: p.grade || '',
-          sales_person: p.person_name || '',
-          followups:
-            followups.length > 0
-              ? followups
-              : [
-                  {
-                    followup_date: '',
-                    status: '',
-                    note: '',
-                  },
-                ],
-        };
-      });
-
-      setProducts(mappedProducts);
-    }
-  }, [selectedRow]);
+  }, [dispatch]);
 
   /* ================= FORM ================= */
 
-  const [formData, setFormData] = useState<any>({
+  const initialForm = {
     company_id: '',
-    // followup_date: '',
-    // note: '',
-    // status: '',
-  });
+  };
+
+  const [formData, setFormData] = useState(initialForm);
 
   const [products, setProducts] = useState([
     {
@@ -129,60 +94,28 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
       ],
     },
   ]);
+  /* ================= OPTIONS ================= */
 
-  const handleFollowupChange = (
-    productIndex: number,
-    followupIndex: number,
-    field: string,
-    value: any,
-  ) => {
-    const updated = [...products];
-
-    updated[productIndex].followups[followupIndex][field] = value;
-
-    setProducts(updated);
-  };
-
-  const addFollowup = (productIndex: number) => {
-    const updated = [...products];
-
-    updated[productIndex].followups.push({
-      followup_date: '',
-      status: '',
-      note: '',
-    });
-
-    setProducts(updated);
-  };
-
-  const removeFollowup = (pIndex: number, fIndex: number) => {
-    const updated = [...products];
-
-    updated[pIndex].followups = updated[pIndex].followups.filter((_, i) => i !== fIndex);
-
-    setProducts(updated);
-  };
-
-  const customerOptions = customers?.map((c: any) => ({
+  const customerOptions = customers.map((c: any) => ({
     label: c.company_name,
     value: c.id,
   }));
 
-  const productOptions = productdata?.map((p: any) => ({
-    label: p.product_name,
-    value: p.id,
+  const usersOptions = users.map((u: any) => ({
+    label: u.username,
+    value: u.id,
   }));
 
-  const usersOptions = users?.map((c: any) => ({
-    label: c.username,
-    value: c.id,
+  const productOptions = productdata.map((p: any) => ({
+    label: p.product_name,
+    value: p.id,
   }));
 
   /* ================= HANDLERS ================= */
 
   const handleProductChange = (index: number, field: string, value: any) => {
     const updated = [...products];
-    updated[index][field] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setProducts(updated);
   };
 
@@ -208,62 +141,117 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
     setProducts(products.filter((_, i) => i !== index));
   };
 
+  const resetForm = () => {
+    setFormData(initialForm);
+    setProducts([
+      ...products,
+      {
+        product_id: '',
+        grade: '',
+        sales_person: '',
+        followups: [
+          {
+            followup_date: '',
+            status: '',
+            note: '',
+          },
+        ],
+      },
+    ]);
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (!validateEnquiryForm(formData, products)) return;
 
     try {
-      const payload = {
-        ...formData,
-        products,
-      };
-
       await dispatch(
-        updateEnquiry({
-          id: selectedRow?.id,
-          data: payload, // ✅ correct key
+        addEnquiry({
+          ...formData,
+          products,
         }),
       ).unwrap();
 
-      toast.success('Enquiry Update ✅');
+      toast.success('Enquiry Saved ✅');
+
+      dispatch(getEnquiry());
+
+      resetForm();
       setOpenModal(false);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to save enquiry');
     }
   };
 
+  const handleFollowupChange = (
+    productIndex: number,
+    followupIndex: number,
+    field: string,
+    value: any,
+  ) => {
+    const updated = [...products];
+
+    updated[productIndex].followups[followupIndex] = {
+      ...updated[productIndex].followups[followupIndex],
+      [field]: value,
+    };
+
+    setProducts(updated);
+  };
+
+  const addFollowup = (productIndex: number) => {
+    const updated = [...products];
+
+    updated[productIndex].followups.push({
+      followup_date: '',
+      status: '',
+      note: '',
+    });
+
+    setProducts(updated);
+  };
+
+  const removeFollowup = (productIndex: number, followupIndex: number) => {
+    const updated = [...products];
+
+    updated[productIndex].followups = updated[productIndex].followups.filter(
+      (_, i) => i !== followupIndex,
+    );
+
+    setProducts(updated);
+  };
+
   /* ================= UI ================= */
 
   return (
     <Modal show={openModal} size="6xl" onClose={() => setOpenModal(false)}>
-      <Modal.Header>
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold">Edit Enquiry</span>
-        </div>
-      </Modal.Header>
+      <Modal.Header>Create Enquiry</Modal.Header>
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* ================= BASIC INFO ================= */}
+          {/* BASIC INFO */}
           <div className="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-lg">
+            <div className="col-span-4">
+              <Label value="Date" />
+              <TextInput value={new Date().toLocaleDateString()} disabled />
+            </div>
+
             <div className="col-span-8">
               <Label value="Company Name" />
               <Select
                 options={customerOptions}
-                placeholder="Select Company"
-                value={customerOptions?.find((c: any) => c.value === formData.company_id)}
-                onChange={(v: any) => setFormData({ ...formData, company_id: v.value })}
+                onChange={(v: any) => setFormData({ ...formData, company_id: v?.value })}
               />
             </div>
           </div>
 
-          {/* ================= PRODUCTS ================= */}
+          {/* PRODUCTS */}
           <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-700">Interested Products</h3>
+            <div className="flex justify-between">
+              <h3 className="font-semibold">Interested Products</h3>
 
-              <Button size="xs" color="primary" onClick={addRow}>
+              <Button color="primary" size="xs" onClick={addRow}>
                 + Add Product
               </Button>
             </div>
@@ -278,9 +266,6 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
                       options={productOptions}
                       menuPortalTarget={document.body}
                       styles={selectStyles}
-                      value={productOptions?.find(
-                        (p: any) => p.value === products[pIndex].product_id,
-                      )}
                       onChange={(v: any) => handleProductChange(pIndex, 'product_id', v?.value)}
                     />
                   </div>
@@ -289,7 +274,7 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
                     <Label value="Grade" />
                     <select
                       className="w-full border rounded-md p-2"
-                      value={product.grade || ''}
+                      value={product.grade}
                       onChange={(e) => handleProductChange(pIndex, 'grade', e.target.value)}
                     >
                       <option value="">Select Grade</option>
@@ -305,7 +290,6 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
                       options={usersOptions}
                       menuPortalTarget={document.body}
                       styles={selectStyles}
-                      value={usersOptions.find((u: any) => u.value == product.sales_person)}
                       onChange={(v: any) => handleProductChange(pIndex, 'sales_person', v?.value)}
                     />
                   </div>
@@ -324,7 +308,7 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
                 </div>
 
                 {/* FOLLOWUPS */}
-                {product?.followups?.map((f, fIndex) => (
+                {product.followups.map((f, fIndex) => (
                   <div
                     key={fIndex}
                     className="grid grid-cols-12 gap-3 items-end bg-white p-3 rounded border"
@@ -347,7 +331,6 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
                         formatOptionLabel={formatStatus}
                         menuPortalTarget={document.body}
                         styles={selectStyles}
-                        value={enquiryStatusOptions.find((s) => s.value === f.status)}
                         onChange={(v: any) =>
                           handleFollowupChange(pIndex, fIndex, 'status', v?.value)
                         }
@@ -382,13 +365,20 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
             ))}
           </div>
 
-          {/* ================= FOLLOWUP ================= */}
+          {/* FOLLOWUP */}
           {/* <div className="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-lg">
             <div className="col-span-4">
+              <Label value="Product" />
+              <Select
+                options={productOptions}
+                onChange={(v: any) => handleProductChange(index, 'product_id', v?.value)}
+              />
+            </div>
+            <div className="col-span-2">
               <Label value="Follow Up Date" />
               <TextInput
                 type="date"
-                value={formData.followup_date || ''}
+                value={formData.followup_date}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -398,35 +388,33 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
               />
             </div>
 
-            <div className="col-span-4">
+            <div className="col-span-3">
               <Label value="Status" />
               <Select
                 options={enquiryStatusOptions}
                 formatOptionLabel={formatStatus}
-                placeholder="Select Status"
-                value={enquiryStatusOptions.find((s) => s.value === formData.status)}
-                onChange={(v: any) => setFormData({ ...formData, status: v.value })}
+                isClearable
+                onChange={(v: any) => setFormData({ ...formData, status: v?.value })}
               />
             </div>
 
-            <div className="col-span-4">
+            <div className="col-span-3">
               <Label value="Followup Note" />
               <Textarea
                 rows={2}
-                placeholder="Write followup remark..."
-                value={formData.note || ''}
+                value={formData.note}
                 onChange={(e) => setFormData({ ...formData, note: e.target.value })}
               />
             </div>
           </div> */}
 
-          {/* ================= ACTION BUTTONS ================= */}
-          <div className="flex justify-end gap-3 pt-2 border-t">
+          {/* ACTION */}
+          <div className="flex justify-end gap-3 border-t pt-4">
             <Button color="gray" onClick={() => setOpenModal(false)}>
               Cancel
             </Button>
 
-            <Button type="submit" color="primary">
+            <Button color="primary" type="submit">
               Save Enquiry
             </Button>
           </div>
@@ -436,4 +424,4 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
   );
 };
 
-export default EnquiryEditModal;
+export default EnquiryModal;

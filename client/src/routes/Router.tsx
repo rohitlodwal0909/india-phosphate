@@ -40,6 +40,7 @@ import Enquiry from 'src/views/marketing/enquiry/Enquiry';
 import SampleRequest from 'src/views/marketing/sampleRequest/SampleRequest';
 import AuditRequest from 'src/views/marketing/auditRequest/AuditRequest';
 import Calander from 'src/views/marketing/calander/Calander';
+import Development from 'src/views/marketing/development/Development';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -168,6 +169,7 @@ const fullLayoutChildren = [
 
   { path: '/marketing/purchase-order', element: <PurchaseOrder /> },
   { path: '/marketing/enquiry', element: <Enquiry /> },
+  { path: '/marketing/development', element: <Development /> },
   { path: '/marketing/sample-request', element: <SampleRequest /> },
   { path: '/marketing/audit-request', element: <AuditRequest /> },
   { path: '/marketing/teams-calander', element: <Calander /> },

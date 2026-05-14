@@ -7,6 +7,7 @@ const { Server } = require("socket.io");
 const sequelize = require("./config/db");
 const router = require("./routes");
 const startPaymentReminder = require("./cron/paymentReminder");
+const enquiryCron = require("./cron/enquiryCron");
 const app = express();
 const server = http.createServer(app);
 //  Body parser middleware
@@ -55,6 +56,7 @@ sequelize
   .then(() => {
     console.log("DB connected");
     startPaymentReminder();
+    enquiryCron();
 
     server.listen(process.env.PORT || 5000, () =>
       console.log("Backend server running on port 5000")

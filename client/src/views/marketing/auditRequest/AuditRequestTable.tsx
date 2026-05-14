@@ -20,28 +20,23 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-// import PurchaseOrderEditModal from './PurchaseOrderEditModal';
-// import ViewPurchaseOrderModal from './ViewPurchaseOrderModal';
-import {
-  deletePurchaseOrder,
-  getPurchaseOrders,
-  // updatePurchaseOrder,
-} from 'src/features/marketing/PurchaseOrderSlice';
+
 import AuditRequestModal from './AuditRequestModal';
+import { deleteAudit, getAudit } from 'src/features/marketing/AuditSlice';
+import AuditEditModal from './AuditRequestEditModal';
+import ViewAuditModal from './ViewAuditModal';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
-  po_no: string;
+  arrival_date: string;
   customers?: {
     id: number;
     company_name: string;
   };
-  delivery_address: string;
-  product_name: string;
-  quantity: string;
-  total: string;
-  expected_delivery_date: string;
+  interested_products: any;
+  audit_agenda: string;
+  compliance_status: string;
   users?: {
     id: number;
     username: string;
@@ -54,9 +49,7 @@ const AuditRequestTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const purchaseOrders = useSelector(
-    (state: RootState) => state.purchaseOrder.purchaseOrders,
-  ) as any;
+  const audits = useSelector((state: RootState) => state.audits.audits) as any;
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -69,11 +62,11 @@ const AuditRequestTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(purchaseOrders) ? purchaseOrders : []);
-  }, [purchaseOrders]);
+    setData(Array.isArray(audits) ? audits : []);
+  }, [audits]);
 
   useEffect(() => {
-    // dispatch(getPurchaseOrders());
+    dispatch(getAudit());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: PurchaseOrderDataType) => {
@@ -89,9 +82,9 @@ const AuditRequestTable = () => {
     try {
       const id = selectedRow.id;
 
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase Order Entry deleted!');
-      dispatch(getPurchaseOrders());
+      await dispatch(deleteAudit(id)).unwrap();
+      toast.success('Audit Request Entry deleted!');
+      dispatch(getAudit());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
@@ -99,18 +92,6 @@ const AuditRequestTable = () => {
       handleModal('delete', false);
     }
   };
-
-  // const handleUpdate = async (rowdata: PurchaseOrderDataType) => {
-  //   try {
-  //     await dispatch(updatePurchaseOrder(rowdata)).unwrap();
-  //     toast.success('Update Purchase Order Successfully');
-  //     dispatch(getPurchaseOrders());
-  //   } catch (err: any) {
-  //     toast.error(err.message || 'Failed to update entry');
-  //   } finally {
-  //     handleModal('edit', false);
-  //   }
-  // };
 
   const filteredData = useMemo(
     () =>
@@ -134,7 +115,7 @@ const AuditRequestTable = () => {
           </div>
         ),
       }),
-      columnHelper.accessor('po_no', { header: 'Arriving date.' }),
+      columnHelper.accessor('arrival_date', { header: 'Arriving date.' }),
 
       columnHelper.accessor('customers', {
         header: 'Name of company',
@@ -145,15 +126,43 @@ const AuditRequestTable = () => {
         ),
       }),
 
-      columnHelper.accessor('delivery_address', {
+      columnHelper.accessor('interested_products', {
         header: 'Interested Products',
-        cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
+        cell: (info) => {
+          const products = info.row.original.interested_products || [];
+
+          return (
+            <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+              {products.length > 0 ? (
+                products.map((item: any, index: number) => (
+                  <div key={index} className="border-b pb-1">
+                    <p>
+                      <strong>Product:</strong> {item.product?.product_name}
+                    </p>
+
+                    <p>
+                      <strong>Grade:</strong> {item.grade}
+                    </p>
+
+                    <p>
+                      <strong>Person:</strong> {item.auditor_name}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+          );
+        },
       }),
 
-      columnHelper.accessor('expected_delivery_date', {
+      columnHelper.accessor('audit_agenda', {
         header: 'Audit Agenda',
+      }),
+
+      columnHelper.accessor('compliance_status', {
+        header: 'Compliance Status',
       }),
 
       columnHelper.accessor('user_id', {
@@ -283,21 +292,21 @@ const AuditRequestTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Purchase Order ?"
+            title="Are you sure you want to Delete this Audit Request ?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
       )}
-      {/* {modals.view && (
+      {modals.view && (
         <Portal>
-          <ViewPurchaseOrderModal
+          <ViewAuditModal
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
             modalPlacement="center"
           />
         </Portal>
-      )} */}
+      )}
       {modals.add && (
         <Portal>
           <AuditRequestModal
@@ -306,16 +315,15 @@ const AuditRequestTable = () => {
           />
         </Portal>
       )}
-      {/* {modals.edit && (
+      {modals.edit && (
         <Portal>
-          <PurchaseOrderEditModal
+          <AuditEditModal
             openModal={modals.edit}
             setOpenModal={() => handleModal('edit', false)}
             selectedRow={selectedRow}
-            handleupdated={handleUpdate}
           />
         </Portal>
-      )} */}
+      )}
     </div>
   );
 };
