@@ -52,7 +52,7 @@ const ProductionPlaningRoutes = require("../routes/inventory/ProductionPlaningRo
 
 const ManufacturingProcedureRoutes = require("../routes/master/ManufacturingProcedureRoutes");
 const GrnMasterRoutes = require("../routes/master/GrnMasterRoutes");
-const PurchaseOrderRoutes = require("../routes/marketing/purchaseOrderRoutes");
+const PurchaseOrderRoutes = require("../routes/marketing/PurchaseOrderRoutes");
 const EnquiryRoutes = require("../routes/marketing/EnquiryRoutes");
 const AuditRoutes = require("../routes/marketing/AuditRoutes");
 const SampleRequestRoutes = require("../routes/marketing/SampleRequestRoutes");

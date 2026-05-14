@@ -90,6 +90,18 @@ const SidebarContent: MenuItem[] = [
         edit: false,
         delete: false,
       },
+
+       {
+             name: "Sample QC",
+            icon: "tabler:file-invoice",             
+            id: uniqueId(),
+             url: "/marketing/sample-qc",
+             subId:7,
+             add: false,
+             view: false,
+             edit: false,
+             delete: false,
+          },
                 {
         name: "Audit Request",
         icon: "tabler:file-check",

@@ -50,7 +50,6 @@ exports.storeSampleRequest = async (req, res) => {
   try {
     /* ------------------ Parse Items ------------------ */
 
-    /* ------------------ Attach Files ------------------ */
     let items =
       typeof req.body.items === "string"
         ? JSON.parse(req.body.items)
@@ -106,6 +105,19 @@ exports.storeSampleRequest = async (req, res) => {
     if (productData.length > 0) {
       await SampleProductsModel.bulkCreate(productData);
     }
+
+    const title = "Sample Submitted to QC";
+
+    const message = `Marketing has submitted Sample ${sr_no}.
+       Kindly perform testing, upload COA and update QC status.`;
+
+    await createNotificationByRoleId({
+      title,
+      message,
+      role_id: 3,
+      module_id: 4,
+      submodule_id: 7
+    });
 
     /* ------------------ Response ------------------ */
     res.json({
@@ -219,5 +231,60 @@ exports.deletePurchaseOrder = async (req, res) => {
     res.json({ message: "Purchase Order Deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.uploadQcCoa = async (req, res) => {
+  try {
+    const { sample_id, sample_given, qc_remark } = req.body;
+
+    /* ------------------ FILE UPLOAD ------------------ */
+
+    let coa_pdf = null;
+
+    if (req.file) {
+      coa_pdf = req.file.filename; // multer upload
+    }
+
+    /* ------------------ UPDATE SAMPLE ------------------ */
+
+    const sampleRequest = await SampleRequestModel.update(
+      {
+        qc_status: sample_given,
+        qc_remark,
+        qc_coa_pdf: coa_pdf
+      },
+      {
+        where: { id: sample_id }
+      }
+    );
+
+    /* ------------------ NOTIFICATION ------------------ */
+
+    const title = "COA Uploaded by QC";
+
+    const message = `QC has uploaded the COA for Sample ID ${sample_id}.
+Marketing team can now proceed with dispatch details.`;
+
+    await createNotificationByRoleId({
+      title,
+      message,
+      role_id: 9, // Marketing Role
+      module_id: 4,
+      submodule_id: 3
+    });
+
+    /* ------------------ RESPONSE ------------------ */
+
+    res.json({
+      message: "COA Uploaded Successfully",
+      data: sampleRequest
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message
+    });
   }
 };

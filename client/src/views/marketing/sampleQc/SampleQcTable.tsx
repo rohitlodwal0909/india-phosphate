@@ -27,33 +27,24 @@ import {
   getPurchaseOrders,
   // updatePurchaseOrder,
 } from 'src/features/marketing/PurchaseOrderSlice';
-import SampleRequestModal from './SampleRequestModal';
 import { getSampleRequest } from 'src/features/marketing/SampleRequestSlice';
 import ViewSampleModal from './ViewSampleRequestModal';
+import { ImageUrl } from 'src/constants/contant';
+import SampleQcModal from './SampleQcModal';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   sr_no: string;
-  customers?: {
-    id: number;
-    company_name: string;
-  };
-  delivery_address: string;
-  contact_person: string;
+  qc_status: string;
+  interested_products?: any;
   type: string;
-  mobile: string;
-  total: string;
-  expected_delivery_date: string;
-  users?: {
-    id: number;
-    username: string;
-  };
+  sample_status: string;
 }
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 
-const SampleRequestTable = () => {
+const SampleQcTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
@@ -68,7 +59,7 @@ const SampleRequestTable = () => {
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 3);
+    return getPermissions(logindata, selectedIconId, 7);
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
@@ -138,13 +129,54 @@ const SampleRequestTable = () => {
         ),
       }),
 
-      columnHelper.accessor('customers', {
-        header: 'Company Name',
-        cell: (info) => (
-          <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.customers?.company_name}</p>
-          </div>
-        ),
+      columnHelper.accessor('interested_products', {
+        header: 'Products',
+        cell: (info) => {
+          const products = info.row.original.interested_products || [];
+
+          return (
+            <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+              {products.length > 0 ? (
+                products.map((item: any, index: number) => (
+                  <div key={index} className="border-b pb-1">
+                    <p>
+                      <strong>Product:</strong> {item.product?.product_name}
+                    </p>
+
+                    <p>
+                      <strong>Grade:</strong> {item.grade}
+                    </p>
+
+                    <p>
+                      <strong>Qty:</strong> {item.qty}
+                    </p>
+                    <p>
+                      <strong>Uploaded File:</strong>{' '}
+                      {item.file && (
+                        <a
+                          href={ImageUrl + 'uploads/sample-request/' + item.file} // file url from backend
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-blue-600 cursor-pointer"
+                        >
+                          {/* Dynamic Icon */}
+                          {item.file.toLowerCase().endsWith('.pdf') ? (
+                            <Icon icon="mdi:file-pdf-box" width={24} />
+                          ) : (
+                            <Icon icon="mdi:file-image" width={24} />
+                          )}
+                          View File
+                        </a>
+                      )}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+          );
+        },
       }),
 
       columnHelper.accessor('type', {
@@ -156,22 +188,11 @@ const SampleRequestTable = () => {
         ),
       }),
 
-      columnHelper.accessor('contact_person', {
-        header: 'Contact Person Name',
+      columnHelper.accessor('qc_status', {
+        header: 'Sample Status',
         cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
-      }),
-
-      columnHelper.accessor('mobile', {
-        header: 'Mobile',
-      }),
-
-      columnHelper.accessor('user_id', {
-        header: 'Submitted by',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
+          <div className="max-w-[350px] whitespace-normal break-words text-sm">
+            <p>{info.row.original.qc_status || '-'}</p>
           </div>
         ),
       }),
@@ -183,6 +204,19 @@ const SampleRequestTable = () => {
           const row = info.row.original;
           return (
             <div className="flex flex-wrap gap-2 justify-center notranslate" translate="no">
+              {permissions.add && (
+                <Tooltip content="Add">
+                  <Button
+                    onClick={() => handleModal('add', true, row)}
+                    color="primary"
+                    outline
+                    size="xs"
+                    className="text-primary bg-lightprimary hover:text-white"
+                  >
+                    <Icon icon="material-symbols:add-rounded" height={18} />
+                  </Button>
+                </Tooltip>
+              )}
               {permissions.view && (
                 <Tooltip content="View">
                   <Button
@@ -196,6 +230,7 @@ const SampleRequestTable = () => {
                   </Button>
                 </Tooltip>
               )}
+
               {permissions.edit && (
                 <Tooltip content="Edit">
                   <Button
@@ -250,7 +285,7 @@ const SampleRequestTable = () => {
             className="me-2 p-2 border rounded-md border-gray-300"
           />
         )}
-        {permissions.add && (
+        {/* {permissions.add && (
           <Button
             onClick={() => handleModal('add', true)}
             color="primary"
@@ -258,9 +293,9 @@ const SampleRequestTable = () => {
             size="sm"
             className="border border-primary bg-primary text-white rounded-md"
           >
-            Create Sample Request
+            Create Sample Qc
           </Button>
-        )}
+        )} */}
       </div>
       {permissions.view ? (
         <>
@@ -311,8 +346,9 @@ const SampleRequestTable = () => {
       )}
       {modals.add && (
         <Portal>
-          <SampleRequestModal
+          <SampleQcModal
             openModal={modals.add}
+            row={selectedRow}
             setOpenModal={() => handleModal('add', false)}
           />
         </Portal>
@@ -331,4 +367,4 @@ const SampleRequestTable = () => {
   );
 };
 
-export default SampleRequestTable;
+export default SampleQcTable;

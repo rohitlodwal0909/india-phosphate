@@ -40,6 +40,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT
       },
 
+      qc_status: {
+        type: DataTypes.STRING
+      },
+
+      qc_coa_pdf: {
+        type: DataTypes.STRING
+      },
+
+      qc_remark: {
+        type: DataTypes.TEXT
+      },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

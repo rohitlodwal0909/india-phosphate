@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   samplerequests: [],
   addResult: null,
+  uploadCoa: null,
   updateResult: null,
   deleteResult: null,
 };
@@ -25,6 +26,24 @@ export const addSampleRequest = createAsyncThunk(
   async (formdata: any, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(`/store-samplerequest`, formdata, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
+export const uploadCoaPdf = createAsyncThunk(
+  'sampleQc/upload',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/upload-qc-coa`, formdata, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -84,6 +103,13 @@ const SampleRequestSlice = createSlice({
         state.addResult = action.payload;
       })
       .addCase(addSampleRequest.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      .addCase(uploadCoaPdf.fulfilled, (state, action) => {
+        state.uploadCoa = action.payload;
+      })
+      .addCase(uploadCoaPdf.rejected, (state, action: any) => {
         state.error = action.payload;
       })
 
