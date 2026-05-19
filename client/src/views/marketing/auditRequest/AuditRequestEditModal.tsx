@@ -13,6 +13,7 @@ interface AuditEditModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
+  permissions: any;
 }
 
 const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
@@ -21,8 +22,11 @@ const AuditEditModal: React.FC<AuditEditModalProps> = ({
   openModal,
   setOpenModal,
   selectedRow,
+  permissions,
 }) => {
   const dispatch = useDispatch<any>();
+
+  const enabled = permissions?.admin?.role_id === 3 ? true : false;
 
   const { productdata } = useSelector((s: any) => s.products);
   const customers = useSelector((s: RootState) => s.purchaseOrder.customers);
@@ -234,42 +238,44 @@ const AuditEditModal: React.FC<AuditEditModalProps> = ({
             </Button>
           </div>
 
-          <div className="border rounded-lg p-5 bg-gray-50">
-            <h3 className="font-semibold mb-4">Compliance</h3>
+          {enabled && (
+            <div className="border rounded-lg p-5 bg-gray-50">
+              <h3 className="font-semibold mb-4">Compliance</h3>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-4">
-                <Label>Compliance Status</Label>
-                <select
-                  className="w-full border p-2 rounded"
-                  value={formData.compliance_status || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      compliance_status: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select</option>
-                  <option value="Complied">Complied</option>
-                  <option value="Not Complied">Not Complied</option>
-                </select>
-              </div>
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-4">
+                  <Label>Compliance Status</Label>
+                  <select
+                    className="w-full border p-2 rounded"
+                    value={formData.compliance_status || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        compliance_status: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="Complied">Complied</option>
+                    <option value="Not Complied">Not Complied</option>
+                  </select>
+                </div>
 
-              <div className="col-span-8">
-                <Label>Compliance Remark</Label>
-                <Textarea
-                  value={formData.compliance_remark || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      compliance_remark: e.target.value,
-                    })
-                  }
-                />
+                <div className="col-span-8">
+                  <Label>Compliance Remark</Label>
+                  <Textarea
+                    value={formData.compliance_remark || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        compliance_remark: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* ================= REMARK ================= */}
 

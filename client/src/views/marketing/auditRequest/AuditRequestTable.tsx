@@ -321,6 +321,7 @@ const AuditRequestTable = () => {
             openModal={modals.edit}
             setOpenModal={() => handleModal('edit', false)}
             selectedRow={selectedRow}
+            permissions={logindata}
           />
         </Portal>
       )}

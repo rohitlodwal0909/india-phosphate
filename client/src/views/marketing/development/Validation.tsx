@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 
-export const validateEnquiryForm = (formData: any, products: any[]) => {
+export const validateDevelopmentForm = (formData: any, products: any[]) => {
   // Company
   if (!formData.company_id) {
     toast.error('Company is required');
@@ -39,8 +39,8 @@ export const validateEnquiryForm = (formData: any, products: any[]) => {
       return false;
     }
 
-    if (!p.sales_person) {
-      toast.error(`Sales person required in row ${i + 1}`);
+    if (!p.purchase_person) {
+      toast.error(`Purchase person required in row ${i + 1}`);
       return false;
     }
   }

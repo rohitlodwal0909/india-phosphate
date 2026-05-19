@@ -30,6 +30,8 @@ import {
 import SampleRequestModal from './SampleRequestModal';
 import { getSampleRequest } from 'src/features/marketing/SampleRequestSlice';
 import ViewSampleModal from './ViewSampleRequestModal';
+import { ImageUrl } from 'src/constants/contant';
+import SampleRequestEditModal from './SampleRequestEditModal';
 
 interface PurchaseOrderDataType {
   id: number;
@@ -42,9 +44,8 @@ interface PurchaseOrderDataType {
   delivery_address: string;
   contact_person: string;
   type: string;
-  mobile: string;
-  total: string;
-  expected_delivery_date: string;
+  qc_status: string;
+  qc_coa_pdf: string;
   users?: {
     id: number;
     username: string;
@@ -100,6 +101,17 @@ const SampleRequestTable = () => {
       toast.error(err || 'Delete failed');
     } finally {
       handleModal('delete', false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'given':
+        return 'text-green-600 font-semibold';
+      case 'pending':
+        return 'text-red-600 font-semibold';
+      default:
+        return '';
     }
   };
 
@@ -163,8 +175,45 @@ const SampleRequestTable = () => {
         ),
       }),
 
-      columnHelper.accessor('mobile', {
-        header: 'Mobile',
+      columnHelper.accessor('qc_status', {
+        header: 'QC Status',
+        cell: (info) => {
+          const status = info.row.original.qc_status;
+
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <p className={getStatusColor(status)}>{status ? status.toUpperCase() : '-'}</p>
+            </div>
+          );
+        },
+      }),
+
+      columnHelper.accessor('qc_coa_pdf', {
+        header: 'COA File',
+        cell: (info) => {
+          const file = info.row.original.qc_coa_pdf;
+
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              {file && (
+                <a
+                  href={ImageUrl + 'uploads/coa_pdf/' + file} // file url from backend
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-blue-600 cursor-pointer"
+                >
+                  {/* Dynamic Icon */}
+                  {file.toLowerCase().endsWith('.pdf') ? (
+                    <Icon icon="mdi:file-pdf-box" width={24} />
+                  ) : (
+                    <Icon icon="mdi:file-image" width={24} />
+                  )}
+                  View File
+                </a>
+              )}
+            </div>
+          );
+        },
       }),
 
       columnHelper.accessor('user_id', {
@@ -317,16 +366,15 @@ const SampleRequestTable = () => {
           />
         </Portal>
       )}
-      {/* {modals.edit && (
+      {modals.edit && (
         <Portal>
-          <PurchaseOrderEditModal
+          <SampleRequestEditModal
             openModal={modals.edit}
             setOpenModal={() => handleModal('edit', false)}
             selectedRow={selectedRow}
-            handleupdated={handleUpdate}
           />
         </Portal>
-      )} */}
+      )}
     </div>
   );
 };

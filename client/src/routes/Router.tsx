@@ -42,6 +42,7 @@ import AuditRequest from 'src/views/marketing/auditRequest/AuditRequest';
 import Calander from 'src/views/marketing/calander/Calander';
 import Development from 'src/views/marketing/development/Development';
 import SampleQc from 'src/views/marketing/sampleQc/SampleQc';
+import QaDocument from 'src/views/marketing/qaDocument/QaDocument';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -175,6 +176,7 @@ const fullLayoutChildren = [
   { path: '/marketing/sample-qc', element: <SampleQc /> },
   { path: '/marketing/audit-request', element: <AuditRequest /> },
   { path: '/marketing/teams-calander', element: <Calander /> },
+  { path: '/marketing/qa-documents', element: <QaDocument /> },
 
   // Purchase Department
 

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Button } from 'flowbite-react';
 import { Icon } from '@iconify/react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store';
 import Portal from 'src/utils/Portal';
 import { CustomizerContext } from 'src/context/CustomizerContext';
@@ -13,19 +13,23 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 import CalanderModal from './CalanderModal';
-
-interface MeetingType {
-  id: number;
-  title: string;
-  meeting_date: string;
-  meeting_time: string;
-  meeting_type: string;
-  invited_person: string;
-  status: string;
-}
+import { getMeeting } from 'src/features/marketing/CalanderSlice';
+import MeetingViewModal from './MeetingViewModal';
+// interface MeetingType {
+//   id: number;
+//   title: string;
+//   meeting_date: string;
+//   meeting_time: string;
+//   meeting_type: string;
+//   invited_person: string;
+//   status: string;
+// }
 
 const CalendarTable = () => {
+  const dispatch = useDispatch<any>();
+
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+  const meetings = useSelector((state: RootState) => state.meetings.meetings) ?? [];
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
@@ -36,40 +40,47 @@ const CalendarTable = () => {
 
   /* ================= STATES ================= */
 
-  const [meetings, setMeetings] = useState<MeetingType[]>([]);
+  // const [meetings, setMeetings] = useState<MeetingType[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
+
+  const [selectedMeeting, setSelectedMeeting] = useState<any>(null);
+  const [openView, setOpenView] = useState(false);
 
   /* ================= DEMO DATA ================= */
 
   useEffect(() => {
-    setMeetings([
-      {
-        id: 1,
-        title: 'Client Discussion',
-        meeting_date: '2026-04-29',
-        meeting_time: '11:00',
-        meeting_type: 'Google Meet',
-        invited_person: 'client@gmail.com',
-        status: 'Pending',
-      },
-      {
-        id: 2,
-        title: 'Internal Sales Meeting',
-        meeting_date: '2026-04-30',
-        meeting_time: '15:30',
-        meeting_type: 'Zoom',
-        invited_person: 'team@company.com',
-        status: 'Completed',
-      },
-    ]);
-  }, []);
+    dispatch(getMeeting());
+  }, [dispatch]);
+
+  // useEffect(() => {
+  //   setMeetings([
+  //     {
+  //       id: 1,
+  //       title: 'Client Discussion',
+  //       meeting_date: '2026-04-29',
+  //       meeting_time: '11:00',
+  //       meeting_type: 'Google Meet',
+  //       invited_person: 'client@gmail.com',
+  //       status: 'Pending',
+  //     },
+  //     {
+  //       id: 2,
+  //       title: 'Internal Sales Meeting',
+  //       meeting_date: '2026-04-30',
+  //       meeting_time: '15:30',
+  //       meeting_type: 'Zoom',
+  //       invited_person: 'team@company.com',
+  //       status: 'Completed',
+  //     },
+  //   ]);
+  // }, []);
 
   /* ================= CALENDAR EVENTS ================= */
 
   const calendarEvents = useMemo(() => {
     return meetings.map((m) => {
-      let color = '#1a73e8'; // default
+      let color = '#1a73e8';
 
       if (m.status === 'Completed') color = '#22c55e';
       if (m.status === 'Pending') color = '#f59e0b';
@@ -77,14 +88,12 @@ const CalendarTable = () => {
 
       return {
         id: String(m.id),
-        title: m.title,
-        start: `${m.meeting_date}T${m.meeting_time}`,
+        title: m.meeting_title,
+        start: `${m.date}T${m.time}`,
         backgroundColor: color,
         borderColor: color,
         extendedProps: {
-          platform: m.meeting_type,
-          invited: m.invited_person,
-          status: m.status,
+          meeting: m, // ⭐ full meeting object
         },
       };
     });
@@ -98,7 +107,10 @@ const CalendarTable = () => {
   };
 
   const handleEventClick = (info: any) => {
-    alert(`Meeting: ${info.event.title}`);
+    const meetingData = info.event.extendedProps.meeting;
+
+    setSelectedMeeting(meetingData);
+    setOpenView(true);
   };
 
   /* ================= STATS ================= */
@@ -106,9 +118,12 @@ const CalendarTable = () => {
   const today = new Date().toISOString().slice(0, 10);
 
   const totalMeetings = meetings.length;
-  const todayMeetings = meetings.filter((m) => m.meeting_date === today).length;
 
-  const upcomingMeetings = totalMeetings - todayMeetings;
+  const todayMeetings = meetings.filter((m) => m.date === today).length;
+
+  const upcomingMeetings = meetings.filter((m) => m.date > today).length;
+
+  // const pastMeetings = meetings.filter((m) => m.date < today).length;
 
   /* ================= UI ================= */
 
@@ -176,7 +191,7 @@ const CalendarTable = () => {
       </div>
 
       {/* MODAL */}
-      {openAdd && (
+      {permissions?.add && openAdd && (
         <Portal>
           <CalanderModal
             openModal={openAdd}
@@ -184,6 +199,15 @@ const CalendarTable = () => {
             selectedDate={selectedDate}
           />
         </Portal>
+      )}
+
+      {openView && (
+        <MeetingViewModal
+          open={openView}
+          setOpen={setOpenView}
+          meeting={selectedMeeting}
+          permissions={permissions}
+        />
       )}
     </div>
   );

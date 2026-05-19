@@ -179,7 +179,7 @@ const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
             </Button>
           </div>
 
-          <div className="border rounded-lg p-5 bg-gray-50">
+          {/* <div className="border rounded-lg p-5 bg-gray-50">
             <h3 className="font-semibold mb-4">Compliance</h3>
 
             <div className="grid grid-cols-12 gap-4">
@@ -212,7 +212,7 @@ const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* ================= REMARK ================= */}
 

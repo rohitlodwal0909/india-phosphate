@@ -3,6 +3,9 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
+const path = require("path");
+
+const { pdfCompressor } = require("../../../helper/pdfCompressor");
 const {
   SampleRequestModel,
   SampleProductsModel,
@@ -58,9 +61,20 @@ exports.storeSampleRequest = async (req, res) => {
     /* FILE MAP */
     const fileMap = {};
 
-    (req.files || []).forEach((file) => {
-      fileMap[file.fieldname] = file.filename;
-    });
+    for (const file of req.files || []) {
+      let finalFile = file.filename;
+
+      const fullPath = path.join(file.destination, file.filename);
+
+      // ✅ Auto Compress PDF
+      if (file.mimetype === "application/pdf") {
+        const compressedPath = await pdfCompressor(fullPath);
+
+        finalFile = path.basename(compressedPath);
+      }
+
+      fileMap[file.fieldname] = finalFile;
+    }
 
     /* ATTACH FILE TO ITEMS */
     items = items.map((item, index) => ({
@@ -133,91 +147,99 @@ exports.storeSampleRequest = async (req, res) => {
   }
 };
 
-exports.updatePurchaseOrder = async (req, res) => {
+exports.updateSampleRequest = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
 
-    let products = [];
+    /* ------------------ FIND EXISTING ------------------ */
 
-    // products JSON parse
-    if (req.body.products) {
-      products =
-        typeof req.body.products === "string"
-          ? JSON.parse(req.body.products)
-          : req.body.products;
-    }
+    const sampleRequest = await SampleRequestModel.findByPk(id);
 
-    // attach uploaded files to products
-    if (req.files) {
-      products = products.map((p, index) => {
-        const file = req.files[`file_${index}`];
-        if (file) {
-          p.file = file[0].filename;
-        }
-        return p;
+    if (!sampleRequest) {
+      return res.status(404).json({
+        message: "Sample Request not found"
       });
     }
 
-    // const uniqepo = await PurchaseOrderModel.findOne({
-    //   where: {
-    //     po_no: req.body.po_no
-    //   }
-    // });
-    // if (uniqepo) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "PO Number already exists"
-    //   });
-    // }
+    /* ------------------ PARSE ITEMS ------------------ */
 
-    const updateData = {
-      // ✅ Basic
-      po_no: req.body.po_no,
-      company_id: req.body.company_id,
-      company_type: req.body.company_type,
-      company_address: req.body.company_address,
-      delivery_address: req.body.delivery_address,
-      customer_name: req.body.customer_name,
+    let items =
+      typeof req.body.items === "string"
+        ? JSON.parse(req.body.items)
+        : req.body.items;
 
-      // ✅ Products
-      products: JSON.stringify(products),
+    /* ------------------ FILE MAP ------------------ */
 
-      // ✅ Financial
-      freight: req.body.freight,
-      payment_terms: req.body.payment_terms,
-      remark: req.body.remark,
-      commission: req.body.commission,
+    const fileMap = {};
 
-      // ✅ Insurance
-      insurance: req.body.insurance,
-      insurance_remark: req.body.insurance_remark,
-
-      // ✅ Type
-      domestic: req.body.type === "domestic",
-      export: req.body.type === "export",
-
-      // ✅ Export Fields
-      country_name: req.body.country_name,
-      inco_term: req.body.inco_term,
-      discharge_port: req.body.discharge_port,
-
-      // ✅ Other
-      customise_labels: req.body.customise_labels,
-      expected_delivery_date: req.body.expected_delivery_date,
-      priority: req.body.priority
-    };
-
-    await PurchaseOrderModel.update(updateData, {
-      where: { id }
+    (req.files || []).forEach((file) => {
+      fileMap[file.fieldname] = file.filename;
     });
 
+    /* ------------------ ATTACH FILES ------------------ */
+
+    items = items.map((item, index) => ({
+      ...item,
+      file:
+        fileMap[`file_${index}`] || // new uploaded file
+        item.existing_file || // keep old file
+        null
+    }));
+
+    /* ------------------ UPDATE MAIN REQUEST ------------------ */
+
+    await sampleRequest.update({
+      ...req.body,
+      docket_remark: req.body.docket_remark,
+      sample_status: req.body.sample_status
+    });
+
+    /* ------------------ DELETE OLD PRODUCTS ------------------ */
+
+    await SampleProductsModel.destroy({
+      where: { sample_id: id }
+    });
+
+    /* ------------------ INSERT UPDATED PRODUCTS ------------------ */
+
+    const productData = items.map((item) => ({
+      sample_id: id,
+      product_id: item.product_id,
+      grade: item.grade,
+      qty: item.qty,
+      sample_type: item.sample_type,
+      file: item.file
+    }));
+
+    if (productData.length > 0) {
+      await SampleProductsModel.bulkCreate(productData);
+    }
+
+    /* ------------------ NOTIFICATION ------------------ */
+
+    const title = "Sample Request Updated";
+
+    const message = `Sample ${sampleRequest.sr_no} has been updated by Marketing.`;
+
+    await createNotificationByRoleId({
+      title,
+      message,
+      role_id: 3,
+      module_id: 4,
+      submodule_id: 7
+    });
+
+    /* ------------------ RESPONSE ------------------ */
+
     res.json({
-      message: "Purchase Order Updated Successfully"
+      message: "Sample Request Updated Successfully",
+      data: sampleRequest
     });
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
-      message: error.message || "Update failed"
+      message: error.message
     });
   }
 };

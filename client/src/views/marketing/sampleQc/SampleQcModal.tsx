@@ -16,6 +16,17 @@ const SampleQcModal: React.FC<Props> = ({ openModal, setOpenModal, row }) => {
 
   /* ================= STATE ================= */
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'given':
+        return 'text-green-600 font-semibold';
+      case 'pending':
+        return 'text-red-600 font-semibold';
+      default:
+        return '';
+    }
+  };
+
   const initialState = {
     sample_id: null,
     sample_given: '',
@@ -100,7 +111,7 @@ const SampleQcModal: React.FC<Props> = ({ openModal, setOpenModal, row }) => {
                 <Label value="Sample Given" />
 
                 <select
-                  className="w-full border rounded p-2"
+                  className={`w-full border rounded p-2 ${getStatusColor(formData.sample_given)}`}
                   value={formData.sample_given}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -110,8 +121,12 @@ const SampleQcModal: React.FC<Props> = ({ openModal, setOpenModal, row }) => {
                   }
                 >
                   <option value="">Select</option>
-                  <option value="given">Given</option>
-                  <option value="pending">Pending</option>
+                  <option value="given" className="text-green-600">
+                    🟢 Given
+                  </option>
+                  <option value="pending" className="text-red-600">
+                    🔴 Pending
+                  </option>
                 </select>
               </div>
 

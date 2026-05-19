@@ -39,15 +39,15 @@ export const validateForm = (formData: any, auditItems: any[]) => {
 
   /* ---------- COMPLIANCE ---------- */
 
-  if (!formData.compliance_status) {
-    toast.error('Compliance status required');
-    return false;
-  }
+  // if (!formData.compliance_status) {
+  //   toast.error('Compliance status required');
+  //   return false;
+  // }
 
-  if (formData.compliance_status === 'Not Complied' && !formData.compliance_remark) {
-    toast.error('Remark required when Not Complied');
-    return false;
-  }
+  // if (formData.compliance_status === 'Not Complied' && !formData.compliance_remark) {
+  //   toast.error('Remark required when Not Complied');
+  //   return false;
+  // }
 
   return true;
 };

@@ -60,7 +60,11 @@ export const uploadCoaPdf = createAsyncThunk(
 export const updateSampleRequest = createAsyncThunk(
   'samplerequest/update',
   async ({ id, data }: any) => {
-    const response = await axiosInstance.put(`/update-samplerequest/${id}`, data);
+    const response = await axiosInstance.put(`/update-samplerequest/${id}`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 );

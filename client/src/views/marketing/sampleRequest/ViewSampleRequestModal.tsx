@@ -18,6 +18,17 @@ const ViewSampleModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRo
 
   const { productdata } = useSelector((state: any) => state.products);
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'given':
+        return 'text-green-600 font-semibold';
+      case 'pending':
+        return 'text-red-600 font-semibold';
+      default:
+        return '';
+    }
+  };
+
   useEffect(() => {
     dispatch(GetProduct());
   }, [dispatch]);
@@ -52,16 +63,35 @@ const ViewSampleModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRo
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5 text-sm">
             <Info label="Company">{selectedRow?.customers?.company_name}</Info>
-
             <Info label="Type">{selectedRow?.type}</Info>
-
             <Info label="Contact Person">{selectedRow?.contact_person}</Info>
-
             <Info label="Mobile">{selectedRow?.mobile || '-'}</Info>
-
             <Info label="Address">{selectedRow?.address || '-'}</Info>
             <Info label="Submitted By">{selectedRow?.users?.username || '-'}</Info>
             <Info label="Remark">{selectedRow?.remark || '-'}</Info>
+            <Info label="QC Sample Status">
+              <p className={getStatusColor(selectedRow.qc_status)}>
+                {selectedRow.qc_status ? selectedRow.qc_status?.toUpperCase() : '-'}
+              </p>
+            </Info>
+            <Info label="COA Pdf">
+              <a
+                href={ImageUrl + 'uploads/coa_pdf/' + selectedRow?.qc_coa_pdf} // file url from backend
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 cursor-pointer"
+              >
+                {/* Dynamic Icon */}
+                {selectedRow?.qc_coa_pdf?.toLowerCase().endsWith('.pdf') ? (
+                  <Icon icon="mdi:file-pdf-box" width={24} />
+                ) : (
+                  <Icon icon="mdi:file-image" width={24} />
+                )}
+                View File
+              </a>
+            </Info>
+            <Info label="Docket Remark">{selectedRow?.docket_remark || '-'}</Info>
+            <Info label="Sample Status">{selectedRow?.sample_status || '-'}</Info>
           </div>
         </div>
 

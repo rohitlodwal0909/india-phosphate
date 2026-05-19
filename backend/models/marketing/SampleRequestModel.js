@@ -40,6 +40,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT
       },
 
+      docket_remark: {
+        type: DataTypes.TEXT
+      },
+
+      sample_status: {
+        type: DataTypes.STRING
+      },
+
       qc_status: {
         type: DataTypes.STRING
       },

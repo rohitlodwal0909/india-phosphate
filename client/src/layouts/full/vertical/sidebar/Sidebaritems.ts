@@ -125,6 +125,18 @@ const SidebarContent: MenuItem[] = [
         edit: false,
         delete: false,
       },
+
+      {
+             name: "QA Documents",
+             icon: "tabler:file-certificate",
+            id: uniqueId(),
+             url: "/marketing/qa-documents",
+             subId:8,
+             add: false,
+             view: false,
+             edit: false,
+             delete: false,
+          },
              {
              name: "Purchase Order",
             icon: "tabler:file-invoice",             

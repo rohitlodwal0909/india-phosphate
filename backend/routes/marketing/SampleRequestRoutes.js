@@ -4,51 +4,67 @@ const SampleRequestController = require("../../controllers/marketing/Sample/Samp
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
+const crypto = require("crypto");
 /* ===============================
    Create Upload Folders If Missing
 =================================*/
-const createFolder = (folderPath) => {
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true });
+
+/* ===============================
+   File Filter (Security)
+=================================*/
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/jpg"
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type"), false);
   }
 };
 
-createFolder("uploads/sample-request");
-createFolder("uploads/coa_pdf");
-
 /* ===============================
-   Sample Request File Upload
+   Sample Request Upload
 =================================*/
 const sampleStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, "uploads/sample-request");
   },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueName + path.extname(file.originalname));
+  filename: (req, file, cb) => {
+    cb(null, crypto.randomUUID() + path.extname(file.originalname));
   }
 });
 
 const upload = multer({
-  storage: sampleStorage
+  storage: sampleStorage,
+  fileFilter,
+  limits: {
+    fileSize: 15 * 1024 * 1024 // 15MB upload limit
+  }
 });
 
 /* ===============================
    QC COA Upload
 =================================*/
 const coaStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, "uploads/coa_pdf");
   },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueName + path.extname(file.originalname));
+  filename: (req, file, cb) => {
+    cb(null, crypto.randomUUID() + path.extname(file.originalname));
   }
 });
 
 const uploadCoa = multer({
-  storage: coaStorage
+  storage: coaStorage,
+  fileFilter,
+  limits: {
+    fileSize: 20 * 1024 * 1024
+  }
 });
 
 /* ===============================
@@ -66,11 +82,11 @@ router.post(
 );
 
 // Update Sample Request
-// router.put(
-//   "/update-samplerequest/:id",
-//   upload.any(),
-//   SampleRequestController.updateSampleRequest
-// );
+router.put(
+  "/update-samplerequest/:id",
+  upload.any(),
+  SampleRequestController.updateSampleRequest
+);
 
 // Delete Sample Request
 // router.delete(

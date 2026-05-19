@@ -57,6 +57,9 @@ import PurchaseOrderSlice from '../src/features/marketing/PurchaseOrderSlice';
 import EnquirySlice from '../src/features/marketing/EnquirySlice';
 import AuditSlice from '../src/features/marketing/AuditSlice';
 import SampleRequestSlice from '../src/features/marketing/SampleRequestSlice';
+import MeetingSlice from '../src/features/marketing/CalanderSlice';
+import QaDocumentSlice from '../src/features/marketing/QaDocumentSlice';
+import DevelopmentSlice from '../src/features/marketing/DevelopmentSlice';
 
 import TaxInvoiceSlice from '../src/features/account/invoice/taxinvoice';
 import ExportInvoiceSlice from '../src/features/account/exportinvoice/exportInvoice';
@@ -143,8 +146,11 @@ export const store = configureStore({
 
     //  Marketing
     enquiry: EnquirySlice,
+    developments: DevelopmentSlice,
     audits: AuditSlice,
     samplerequest: SampleRequestSlice,
+    meetings: MeetingSlice,
+    qadocuments: QaDocumentSlice,
   },
 });
 

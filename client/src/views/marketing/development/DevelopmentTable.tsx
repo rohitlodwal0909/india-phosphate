@@ -20,15 +20,14 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import ViewEnquiryModal from './ViewEnquiryModal';
-import EnquiryModal from './EnquiryModal';
-import { deleteEnquiry, getEnquiry } from 'src/features/marketing/EnquirySlice';
-import EnquiryEditModal from './EnquiryEditModal';
+import DevelopmentModal from './DevelopmentModal';
+import { deleteDevelopment, getDevelopment } from 'src/features/marketing/DevelopmentSlice';
+import DevelopmentEditModal from './DevelopmentEditModal';
+import ViewDevelopmentModal from './ViewDevelopmentModal';
 
 interface DevelopmentDataType {
   id: number;
   user_id: number;
-  sr_no: string;
   customers?: {
     id: number;
     company_name: string;
@@ -49,7 +48,7 @@ const DevelopmentTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const enquiries = useSelector((state: RootState) => state.enquiry.enquiries) as any;
+  const developments = useSelector((state: RootState) => state.developments.developments) as any;
 
   const [data, setData] = useState<DevelopmentDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -62,11 +61,11 @@ const DevelopmentTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(enquiries) ? enquiries : []);
-  }, [enquiries]);
+    setData(Array.isArray(developments) ? developments : []);
+  }, [developments]);
 
   useEffect(() => {
-    dispatch(getEnquiry());
+    dispatch(getDevelopment());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: DevelopmentDataType) => {
@@ -82,9 +81,9 @@ const DevelopmentTable = () => {
     try {
       const id = selectedRow.id;
 
-      await dispatch(deleteEnquiry(id)).unwrap();
-      toast.success('Enquiry Entry deleted!');
-      dispatch(getEnquiry());
+      await dispatch(deleteDevelopment(id)).unwrap();
+      toast.success('Development Entry deleted!');
+      dispatch(getDevelopment());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
@@ -161,7 +160,7 @@ const DevelopmentTable = () => {
                     </p>
 
                     <p>
-                      <strong>Person:</strong> {item.sales_name?.username}
+                      <strong>Person:</strong> {item.person_name}
                     </p>
                   </div>
                 ))
@@ -255,7 +254,7 @@ const DevelopmentTable = () => {
             size="sm"
             className="border border-primary bg-primary text-white rounded-md"
           >
-            Create Enquiry
+            Create Development
           </Button>
         )}
       </div>
@@ -291,14 +290,14 @@ const DevelopmentTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Enquiry ?"
+            title="Are you sure you want to Delete this Development ?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
       )}
       {modals.view && (
         <Portal>
-          <ViewEnquiryModal
+          <ViewDevelopmentModal
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
@@ -308,12 +307,12 @@ const DevelopmentTable = () => {
       )}
       {modals.add && (
         <Portal>
-          <EnquiryModal openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
+          <DevelopmentModal openModal={modals.add} setOpenModal={() => handleModal('add', false)} />
         </Portal>
       )}
       {modals.edit && (
         <Portal>
-          <EnquiryEditModal
+          <DevelopmentEditModal
             openModal={modals.edit}
             setOpenModal={() => handleModal('edit', false)}
             selectedRow={selectedRow}

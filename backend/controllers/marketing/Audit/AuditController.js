@@ -137,7 +137,9 @@ exports.updateAudit = async (req, res) => {
 
     await AuditModel.update(
       {
-        company_id: req.body.company_id
+        company_id: req.body.company_id,
+        compliance_status: req.body.compliance_status,
+        compliance_remark: req.body.compliance_remark
       },
       { where: { id } }
     );

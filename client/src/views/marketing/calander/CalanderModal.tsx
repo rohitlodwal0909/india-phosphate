@@ -3,6 +3,10 @@ import { Button, Modal, Label, TextInput, Textarea } from 'flowbite-react';
 import Select from 'react-select';
 import { Icon } from '@iconify/react';
 import { toast } from 'react-toastify';
+import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from 'src/store';
+import { addMeeting } from 'src/features/marketing/CalanderSlice';
 
 interface Props {
   openModal: boolean;
@@ -16,11 +20,28 @@ const meetingTypeOptions = [
 ];
 
 const platformOptions = [
-  { value: 'Google Meet', label: 'Google Meet' },
-  { value: 'Zoom', label: 'Zoom' },
+  { value: 'Google Meet', label: 'Google Meet', icon: 'logos:google-meet' },
+  { value: 'Zoom', label: 'Zoom', icon: 'logos:zoom' },
+  { value: 'Microsoft Teams', label: 'Microsoft Teams', icon: 'logos:microsoft-teams' },
+  { value: 'Skype', label: 'Skype', icon: 'logos:skype' },
+  { value: 'Whatsapp', label: 'Whatsapp', icon: 'logos:whatsapp-icon' },
+  { value: 'Telephonic', label: 'Telephonic', icon: 'mdi:phone' },
 ];
 
 const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate }) => {
+  const dispatch = useDispatch<any>();
+
+  const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
+
+  const usersOptions = usersdata.map((u: any) => ({
+    label: u.username,
+    value: u.id,
+  }));
+
+  useEffect(() => {
+    dispatch(GetUsermodule());
+  }, [dispatch]);
+
   /* ================= STATE ================= */
 
   const [formData, setFormData] = useState<any>({
@@ -29,7 +50,8 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
     platform: '',
     meeting_date: '',
     meeting_time: '',
-    invited_person: '',
+    internal_users: [],
+    external_emails: '',
     description: '',
     meeting_link: '',
   });
@@ -59,27 +81,82 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
   const generateMeetingLink = () => {
     const random = Math.random().toString(36).substring(2, 10);
 
-    if (formData.platform === 'Google Meet') {
-      handleChange('meeting_link', `https://meet.google.com/${random}`);
-    } else if (formData.platform === 'Zoom') {
-      handleChange('meeting_link', `https://zoom.us/j/${Date.now()}`);
+    switch (formData.platform) {
+      case 'Google Meet':
+        handleChange('meeting_link', `https://meet.google.com/${random}`);
+        break;
+      case 'Zoom':
+        handleChange('meeting_link', `https://zoom.us/j/${Date.now()}`);
+        break;
+      case 'Microsoft Teams':
+        handleChange('meeting_link', `https://teams.microsoft.com/l/meetup-join/${random}`);
+        break;
+      default:
+        handleChange('meeting_link', '');
     }
   };
 
   /* ================= SUBMIT ================= */
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (!formData.title) return toast.error('Meeting title required');
-    if (!formData.meeting_date) return toast.error('Select date');
-    if (!formData.meeting_time) return toast.error('Select time');
+    try {
+      /* ================= VALIDATION ================= */
 
-    console.log('MEETING DATA =>', formData);
+      if (!formData.title) return toast.error('Meeting title required');
 
-    toast.success('Meeting Scheduled Successfully ✅');
+      if (!formData.meeting_date) return toast.error('Select meeting date');
 
-    setOpenModal(false);
+      if (!formData.meeting_time) return toast.error('Select meeting time');
+
+      if (!formData.platform) return toast.error('Select platform');
+
+      if (formData.meeting_type === 'internal' && formData.internal_users.length === 0) {
+        return toast.error('Select internal users');
+      }
+
+      /* ================= PAYLOAD ================= */
+
+      const payload = {
+        meeting_title: formData.title,
+        meeting_type: formData.meeting_type,
+        platform: formData.platform,
+        date: formData.meeting_date,
+        time: formData.meeting_time,
+        meeting_link: formData.meeting_link,
+        description: formData.description,
+        internal_users: formData.internal_users,
+        external_emails: formData.external_emails,
+      };
+
+      console.log('PAYLOAD', payload);
+
+      /* ================= API CALL ================= */
+
+      const response = await dispatch(addMeeting(payload)).unwrap();
+
+      toast.success(response.message || 'Meeting Scheduled Successfully ✅');
+
+      /* ================= RESET FORM ================= */
+
+      setFormData({
+        title: '',
+        meeting_type: '',
+        platform: '',
+        meeting_date: '',
+        meeting_time: '',
+        internal_users: [],
+        external_emails: '',
+        description: '',
+        meeting_link: '',
+      });
+
+      setOpenModal(false);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || 'Something went wrong');
+    }
   };
 
   /* ================= UI ================= */
@@ -118,12 +195,9 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
               <Label value="Platform" />
               <Select
                 options={platformOptions}
-                formatOptionLabel={(opt) => (
+                formatOptionLabel={(opt: any) => (
                   <div className="flex gap-2 items-center">
-                    <Icon
-                      icon={opt.value === 'Google Meet' ? 'logos:google-meet' : 'logos:zoom'}
-                      width={20}
-                    />
+                    <Icon icon={opt.icon} width={20} />
                     {opt.label}
                   </div>
                 )}
@@ -133,6 +207,21 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
                 }}
               />
             </div>
+            {formData.meeting_type === 'internal' && (
+              <div className="col-span-4">
+                <Label value="Invite person" />
+                <Select
+                  isMulti
+                  options={usersOptions}
+                  onChange={(v: any) =>
+                    handleChange(
+                      'internal_users',
+                      v.map((x: any) => x.value),
+                    )
+                  }
+                />
+              </div>
+            )}
           </div>
 
           {/* DATE TIME */}
@@ -162,8 +251,8 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
               <Label value="Invited Persons (Emails comma separated)" />
               <TextInput
                 placeholder="client@gmail.com, team@gmail.com"
-                value={formData.invited_person}
-                onChange={(e) => handleChange('invited_person', e.target.value)}
+                value={formData.external_emails}
+                onChange={(e) => handleChange('external_emails', e.target.value)}
               />
             </div>
 

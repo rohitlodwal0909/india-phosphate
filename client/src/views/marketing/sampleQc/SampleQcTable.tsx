@@ -40,6 +40,7 @@ interface PurchaseOrderDataType {
   interested_products?: any;
   type: string;
   sample_status: string;
+  docket_remark: string;
 }
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
@@ -65,6 +66,17 @@ const SampleQcTable = () => {
   useEffect(() => {
     setData(Array.isArray(samplerequests) ? samplerequests : []);
   }, [samplerequests]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'given':
+        return 'text-green-600 font-semibold';
+      case 'pending':
+        return 'text-red-600 font-semibold';
+      default:
+        return '';
+    }
+  };
 
   useEffect(() => {
     dispatch(getSampleRequest());
@@ -189,12 +201,37 @@ const SampleQcTable = () => {
       }),
 
       columnHelper.accessor('qc_status', {
+        header: 'QC Status',
+        cell: (info) => {
+          const status = info.row.original.qc_status;
+
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <p className={getStatusColor(status)}>{status ? status.toUpperCase() : '-'}</p>
+            </div>
+          );
+        },
+      }),
+
+      columnHelper.accessor('docket_remark', {
+        header: 'Docket Remark',
+        cell: (info) => {
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <p>{info.row.original.docket_remark}</p>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('sample_status', {
         header: 'Sample Status',
-        cell: (info) => (
-          <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.qc_status || '-'}</p>
-          </div>
-        ),
+        cell: (info) => {
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <p>{info.row.original.sample_status}</p>
+            </div>
+          );
+        },
       }),
 
       columnHelper.display({
@@ -217,7 +254,7 @@ const SampleQcTable = () => {
                   </Button>
                 </Tooltip>
               )}
-              {permissions.view && (
+              {/* {permissions.view && (
                 <Tooltip content="View">
                   <Button
                     onClick={() => handleModal('view', true, row)}
@@ -229,9 +266,9 @@ const SampleQcTable = () => {
                     <Icon icon="solar:eye-outline" height={18} />
                   </Button>
                 </Tooltip>
-              )}
+              )} */}
 
-              {permissions.edit && (
+              {/* {permissions.edit && (
                 <Tooltip content="Edit">
                   <Button
                     size="sm"
@@ -241,7 +278,7 @@ const SampleQcTable = () => {
                     <Icon icon="solar:pen-outline" height={18} />
                   </Button>
                 </Tooltip>
-              )}
+              )} */}
               {permissions.del && (
                 <Tooltip content="Delete">
                   <Button
