@@ -89,10 +89,10 @@ router.put(
 );
 
 // Delete Sample Request
-// router.delete(
-//   "/delete-samplerequest/:id",
-//   SampleRequestController.deleteSampleRequest
-// );
+router.delete(
+  "/delete-samplerequest/:id",
+  SampleRequestController.deleteSampleRequest
+);
 
 // Upload QC COA PDF
 router.post(

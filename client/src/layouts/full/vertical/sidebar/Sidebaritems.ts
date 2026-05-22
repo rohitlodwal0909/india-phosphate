@@ -148,6 +148,17 @@ const SidebarContent: MenuItem[] = [
              edit: false,
              delete: false,
           },
+           {
+             name: "Potential Opportunity",
+             icon: "tabler:file-certificate",
+             id: uniqueId(),
+             url: "/marketing/potential-opportunity",
+             subId:9,
+             add: false,
+             view: false,
+             edit: false,
+             delete: false,
+          },
 
     
         ]

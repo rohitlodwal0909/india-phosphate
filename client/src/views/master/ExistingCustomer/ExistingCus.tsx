@@ -5,10 +5,7 @@ import CardBox from 'src/components/shared/CardBox';
 const ExistingCustomer = () => {
   return (
     <>
-      <BreadcrumbComp
-        items={[{ title: 'Existing Customer ', to: '/' }]}
-        title="Existing Customer"
-      />
+      <BreadcrumbComp items={[{ title: 'Existing Customer', to: '/' }]} title="Existing Customer" />
       <CardBox>
         <CustomerTable />
       </CardBox>

@@ -254,7 +254,7 @@ const QaDocumentTable = () => {
             size="sm"
             className="border border-primary bg-primary text-white rounded-md"
           >
-            Create Audit Request
+            Create QA Document
           </Button>
         )}
       </div>

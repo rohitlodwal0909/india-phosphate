@@ -5,6 +5,52 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductWithPO } from 'src/features/master/Customer/CustomerSlice';
 import { AppDispatch } from 'src/store';
+// import {
+//   LineChart,
+//   Line,
+//   XAxis,
+//   YAxis,
+//   CartesianGrid,
+//   Tooltip,
+//   ResponsiveContainer,
+//   PieChart,
+//   Pie,
+//   Cell,
+//   Legend,
+// } from 'recharts';
+
+// const journeyStages = [
+//   {
+//     stage: 'Awareness',
+//     color: 'bg-yellow-500',
+//     topActivities: ['Print Content', 'Search Data'],
+//     bottomActivities: ['Word of Mouth', 'Radio / TV'],
+//   },
+//   {
+//     stage: 'Consideration',
+//     color: 'bg-pink-500',
+//     topActivities: ['Landing Page', 'Social Media'],
+//     bottomActivities: ['Direct Mail', 'Store & Branch'],
+//   },
+//   {
+//     stage: 'Purchase',
+//     color: 'bg-green-500',
+//     topActivities: ['Website'],
+//     bottomActivities: ['Agent & Broker'],
+//   },
+//   {
+//     stage: 'Retention',
+//     color: 'bg-cyan-500',
+//     topActivities: ['Web Service', 'Community'],
+//     bottomActivities: ['Mailing', 'Offer & Invoice'],
+//   },
+//   {
+//     stage: 'Advocacy',
+//     color: 'bg-blue-600',
+//     topActivities: ['Offer to Customers', 'Loyalty Program'],
+//     bottomActivities: ['Referrals'],
+//   },
+// ];
 
 type Props = {
   placeModal: boolean;
@@ -54,6 +100,44 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
   useEffect(() => {
     fetchData();
   }, [selectedRow]);
+
+  const journeyStages = [
+    {
+      stage: 'Awareness',
+      icon: 'solar:eye-outline',
+      color: 'bg-yellow-500',
+      topActivities: ['Print Content', 'Search Data'],
+      bottomActivities: ['Word of Mouth', 'Radio / TV'],
+    },
+    {
+      stage: 'Consideration',
+      icon: 'solar:chat-round-outline',
+      color: 'bg-pink-500',
+      topActivities: ['Landing Page', 'Social Media'],
+      bottomActivities: ['Direct Mail', 'Store & Branch'],
+    },
+    {
+      stage: 'Purchase',
+      icon: 'solar:cart-outline',
+      color: 'bg-green-500',
+      topActivities: ['Website'],
+      bottomActivities: ['Agent & Broker'],
+    },
+    {
+      stage: 'Retention',
+      icon: 'solar:shield-check-outline',
+      color: 'bg-cyan-500',
+      topActivities: ['Web Service', 'Community'],
+      bottomActivities: ['Mailing', 'Offer & Invoice'],
+    },
+    {
+      stage: 'Advocacy',
+      icon: 'solar:like-outline',
+      color: 'bg-blue-600',
+      topActivities: ['Offer to Customers', 'Loyalty Program'],
+      bottomActivities: ['Referrals'],
+    },
+  ];
 
   return (
     <Modal
@@ -269,6 +353,209 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                   )}
                 </tbody>
               </table>
+            </div>
+          </TabItem>
+          <TabItem
+            title="Customer Journey Maps"
+            icon={() => <Icon icon="solar:chart-outline" height={20} />}
+          >
+            <div className="bg-[#f8fafc] rounded-2xl p-10 overflow-x-auto">
+              <div className="min-w-[1200px] relative">
+                {/* Top Labels */}
+                <div className="flex justify-between mb-10 px-10">
+                  {journeyStages.map((stage, index) => (
+                    <div key={index} className="flex flex-col items-center w-[180px]">
+                      <div className="flex flex-col items-center gap-3">
+                        {stage.topActivities.map((item: string, i: number) => (
+                          <div key={i} className="flex flex-col items-center">
+                            <div className="w-4 h-4 rounded-full bg-yellow-400 border-4 border-white shadow-lg z-10" />
+
+                            <div className="w-[2px] h-6 bg-gray-300" />
+
+                            <span className="text-xs text-gray-600 whitespace-nowrap">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Journey Stages */}
+                <div className="flex items-center">
+                  {journeyStages.map((stage, index) => (
+                    <div
+                      key={index}
+                      className={`relative flex items-center justify-center h-16 flex-1 text-white font-semibold text-sm tracking-wide
+            ${stage.color}
+            ${index !== 0 ? 'ml-2' : ''}
+          `}
+                      style={{
+                        clipPath:
+                          index !== journeyStages.length - 1
+                            ? 'polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%, 8% 50%)'
+                            : 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 8% 50%)',
+                      }}
+                    >
+                      <div className="flex items-center gap-2 z-10">
+                        <Icon icon={stage.icon} width={20} />
+                        {stage.stage}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Bottom Labels */}
+                <div className="flex justify-between mt-10 px-10">
+                  {journeyStages.map((stage, index) => (
+                    <div key={index} className="flex flex-col items-center w-[180px]">
+                      <div className="flex flex-col items-center gap-3">
+                        {stage.bottomActivities.map((item: string, i: number) => (
+                          <div key={i} className="flex flex-col items-center">
+                            <span className="text-xs text-gray-600 whitespace-nowrap mb-2">
+                              {item}
+                            </span>
+
+                            <div className="w-[2px] h-6 bg-gray-300" />
+
+                            <div className="w-4 h-4 rounded-full bg-pink-500 border-4 border-white shadow-lg z-10" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* CRM Analytics Dashboard */}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-10">
+              {/* Opportunity Insights */}
+              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Opportunity Insights</p>
+
+                    <h2 className="text-3xl font-bold text-gray-800 mt-2">78%</h2>
+
+                    <p className="text-green-600 text-sm mt-2">High conversion probability</p>
+                  </div>
+
+                  <Icon icon="solar:graph-up-outline" width={40} className="text-blue-500" />
+                </div>
+              </div>
+
+              {/* Future Prediction */}
+              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-green-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Future Requirement Prediction</p>
+
+                    <h2 className="text-2xl font-bold text-gray-800 mt-2">Calcium Carbonate</h2>
+
+                    <p className="text-green-600 text-sm mt-2">Expected next month</p>
+                  </div>
+
+                  <Icon icon="solar:lightbulb-outline" width={40} className="text-green-500" />
+                </div>
+              </div>
+
+              {/* Buying Behavior */}
+              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-yellow-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Buying Behavior</p>
+
+                    <h2 className="text-2xl font-bold text-gray-800 mt-2">Bulk Orders</h2>
+
+                    <p className="text-yellow-600 text-sm mt-2">Quarterly purchase cycle</p>
+                  </div>
+
+                  <Icon icon="solar:cart-large-outline" width={40} className="text-yellow-500" />
+                </div>
+              </div>
+
+              {/* Pain Points */}
+              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-red-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">Pain Points</p>
+
+                    <h2 className="text-2xl font-bold text-gray-800 mt-2">Delivery Delay</h2>
+
+                    <p className="text-red-600 text-sm mt-2">Frequent complaint detected</p>
+                  </div>
+
+                  <Icon icon="solar:danger-outline" width={40} className="text-red-500" />
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+              {/* Product Frequency */}
+              <div className="bg-white rounded-2xl shadow p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-lg font-bold text-gray-800">Product Frequency</h3>
+
+                  <Icon icon="solar:box-outline" width={24} className="text-blue-500" />
+                </div>
+
+                <div className="space-y-4">
+                  {[
+                    { name: 'Calcium Carbonate', value: 90 },
+                    { name: 'Hydrated Lime', value: 70 },
+                    { name: 'Dolomite Powder', value: 45 },
+                  ].map((item, index) => (
+                    <div key={index}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>{item.name}</span>
+                        <span>{item.value}%</span>
+                      </div>
+
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="bg-blue-500 h-3 rounded-full"
+                          style={{ width: `${item.value}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dormant Customer */}
+              <div className="bg-white rounded-2xl shadow p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-lg font-bold text-gray-800">Dormant Customer Tracking</h3>
+
+                  <Icon icon="solar:clock-circle-outline" width={24} className="text-red-500" />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b pb-3">
+                    <div>
+                      <p className="font-semibold text-gray-800">ABC Industries</p>
+
+                      <p className="text-sm text-gray-500">Last order: 93 days ago</p>
+                    </div>
+
+                    <span className="bg-red-100 text-red-600 text-xs px-3 py-1 rounded-full">
+                      High Risk
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between border-b pb-3">
+                    <div>
+                      <p className="font-semibold text-gray-800">XYZ Minerals</p>
+
+                      <p className="text-sm text-gray-500">Last order: 61 days ago</p>
+                    </div>
+
+                    <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full">
+                      Medium Risk
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </TabItem>
         </Tabs>

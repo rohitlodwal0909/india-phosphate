@@ -5,9 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store';
 import { getAllCustomers } from 'src/features/marketing/PurchaseOrderSlice';
 import { toast } from 'react-toastify';
-import { getAudit } from 'src/features/marketing/AuditSlice';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
-import { updateQaDocument } from 'src/features/marketing/QaDocumentSlice';
+import { getQaDocument, updateQaDocument } from 'src/features/marketing/QaDocumentSlice';
 import { validateQaDocument } from './Validation';
 
 interface Props {
@@ -20,6 +19,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
   const dispatch = useDispatch<any>();
 
   const customers = useSelector((s: RootState) => s.purchaseOrder.customers);
+
   const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
 
   /* ================= FILTER USERS ================= */
@@ -69,11 +69,36 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
     value: p.id,
   }));
 
+  /* ================= SET DATA ================= */
+
+  useEffect(() => {
+    if (!selectedRow) return;
+
+    setFormData({
+      company_id: selectedRow.company_id || '',
+    });
+
+    if (selectedRow.qa_document?.length) {
+      const items = selectedRow.qa_document.map((item: any) => ({
+        doc_name: item.doc_name || '',
+        qa_person_id: item.qa_person_id || '',
+        received_marketing_id: item.received_marketing_id || '',
+        share_customer_by: item.share_customer_by || '',
+        status: item.status || '',
+        comment: item.comment || '',
+      }));
+
+      setCoaItems(items);
+    } else {
+      setCoaItems([defaultRow]);
+    }
+  }, [selectedRow]);
+
   /* ================= HANDLERS ================= */
 
   const handleCustomer = (val: any) => {
     setFormData({
-      company_id: val.value,
+      company_id: val?.value || '',
     });
   };
 
@@ -111,7 +136,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
 
       toast.success('QA Document Updated Successfully ✅');
 
-      dispatch(getAudit());
+      dispatch(getQaDocument());
 
       setOpenModal(false);
     } catch (error: any) {
@@ -119,156 +144,219 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
     }
   };
 
-  useEffect(() => {
-    if (!selectedRow) return;
-
-    setFormData({
-      company_id: selectedRow.company_id || '',
-    });
-
-    if (selectedRow.qa_document?.length) {
-      const items = selectedRow.qa_document.map((item: any) => ({
-        doc_name: item.doc_name || '',
-        qa_person_id: item.qa_person_id || '',
-        received_marketing_id: item.received_marketing_id || '',
-        share_customer_by: item.share_customer_by || '',
-        status: item.status || '',
-        comment: item.comment || '',
-      }));
-
-      setCoaItems(items);
-    }
-  }, [selectedRow]);
-
   /* ================= UI ================= */
 
   return (
     <Modal show={openModal} size="7xl" onClose={() => setOpenModal(false)}>
-      <Modal.Header>Edit QA Documents</Modal.Header>
+      <Modal.Header>
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">Edit QA Documents</h2>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Update QA workflow & customer sharing details
+          </p>
+        </div>
+      </Modal.Header>
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* COMPANY INFO */}
-          <div className="border rounded-lg p-5 bg-gray-50">
-            <h3 className="font-semibold mb-4">Company Information</h3>
+          <div className="border rounded-2xl p-5 bg-gray-50 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-semibold text-gray-700">Company Information</h3>
+
+              <div className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Step 1</div>
+            </div>
 
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-5">
-                <Label value="Company Name" />
+              <div className="col-span-6">
+                <Label value="Company Name" className="mb-2 block" />
+
                 <Select
                   options={customerOptions}
-                  value={customerOptions?.find((c: any) => c.value === formData.company_id)}
+                  placeholder="Select Company"
+                  value={customerOptions?.find(
+                    (c: any) => Number(c.value) === Number(formData.company_id),
+                  )}
                   onChange={handleCustomer}
-                />{' '}
+                />
               </div>
             </div>
           </div>
 
-          {/* AUDIT TABLE */}
-          <div className="border rounded-lg p-5 bg-gray-50">
-            <h3 className="font-semibold mb-4">COA Specification Documents</h3>
+          {/* DOCUMENTS */}
+          <div className="border rounded-2xl p-5 bg-gray-50 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-700">COA Specification Documents</h3>
+
+                <p className="text-sm text-gray-500">Edit QA approval & sharing workflow</p>
+              </div>
+
+              <Button color="primary" size="sm" onClick={addRow}>
+                + Add New Document
+              </Button>
+            </div>
 
             {coaItems.map((item, index) => (
-              <div key={index} className="grid grid-cols-12 gap-4 mb-4 items-end">
-                {/* DOC NAME */}
-                <div className="col-span-2">
-                  <Label>Doc Name</Label>
-                  <TextInput
-                    value={item.doc_name}
-                    onChange={(e) => handleItem(index, 'doc_name', e.target.value)}
-                  />
-                </div>
+              <div key={index} className="border rounded-2xl p-5 bg-white shadow-sm mb-6">
+                {/* HEADER */}
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h4 className="font-semibold text-gray-800 text-lg">Document #{index + 1}</h4>
 
-                {/* QA PERSON */}
-                <div className="col-span-2">
-                  <Label>QA Person</Label>
-                  <Select
-                    options={qaOptions}
-                    value={qaOptions.find((o) => o.value === item.qa_person_id)}
-                    onChange={(v: any) => handleItem(index, 'qa_person_id', v.value)}
-                  />
-                </div>
-
-                {/* RECEIVED */}
-                <div className="col-span-2">
-                  <Label>Received by Marketing</Label>
-                  <Select
-                    options={marketingOptions}
-                    value={marketingOptions.find((o) => o.value === item.received_marketing_id)}
-                    onChange={(v: any) => handleItem(index, 'received_marketing_id', v.value)}
-                  />
-                </div>
-
-                {/* STATUS */}
-                <div className="col-span-2">
-                  <Label>Given / Not Given</Label>
-
-                  <div className="flex gap-4 mt-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name={`status-${index}`}
-                        checked={item.status === 'given'}
-                        onChange={() => handleItem(index, 'status', 'given')}
-                      />
-                      Given
-                    </label>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name={`status-${index}`}
-                        checked={item.status === 'not_given'}
-                        onChange={() => handleItem(index, 'status', 'not_given')}
-                      />
-                      Not Given
-                    </label>
+                    <p className="text-sm text-gray-500">QA approval workflow</p>
                   </div>
-                </div>
 
-                {/* SHARE CUSTOMER */}
-                <div className="col-span-2">
-                  <Label>Share Customer</Label>
-                  <Select
-                    options={marketingOptions}
-                    value={marketingOptions.find((o) => o.value === item.share_customer_by)}
-                    onChange={(v: any) => handleItem(index, 'share_customer_by', v.value)}
-                  />
-                </div>
-
-                {/* COMMENT */}
-                <div className="col-span-2">
-                  <Label>Comment</Label>
-                  <TextInput
-                    value={item.comment}
-                    onChange={(e) => handleItem(index, 'comment', e.target.value)}
-                  />
-                </div>
-
-                {/* REMOVE */}
-                <div className="col-span-1">
                   {index > 0 && (
                     <Button color="failure" size="xs" onClick={() => removeRow(index)}>
-                      X
+                      Remove
                     </Button>
                   )}
                 </div>
+
+                {/* STEP 1 */}
+                <div className="border rounded-xl p-5 bg-blue-50 mb-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-semibold text-blue-700">Step 1 : Assign QA Person</h5>
+
+                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                      Marketing Team
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-4">
+                    {/* DOC NAME */}
+                    <div className="col-span-6">
+                      <Label value="Document Name" className="mb-2 block" />
+
+                      <TextInput
+                        placeholder="Enter document name"
+                        value={item.doc_name}
+                        onChange={(e) => handleItem(index, 'doc_name', e.target.value)}
+                      />
+                    </div>
+
+                    {/* QA PERSON */}
+                    <div className="col-span-6">
+                      <Label value="QA Person" className="mb-2 block" />
+
+                      <Select
+                        options={qaOptions}
+                        placeholder="Select QA Person"
+                        value={qaOptions.find(
+                          (o: any) => Number(o.value) === Number(item.qa_person_id),
+                        )}
+                        onChange={(v: any) => handleItem(index, 'qa_person_id', v?.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* STEP 2 */}
+                <div className="border rounded-xl p-5 bg-yellow-50 mb-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-semibold text-yellow-700">Step 2 : QA Review</h5>
+
+                    <span className="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
+                      QA Department
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-4">
+                    {/* STATUS */}
+                    <div className="col-span-4">
+                      <Label value="Document Status" className="mb-2 block" />
+
+                      <div className="flex gap-5 mt-3">
+                        <label className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`status-${index}`}
+                            checked={item.status === 'given'}
+                            onChange={() => handleItem(index, 'status', 'given')}
+                          />
+
+                          <span>Given</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`status-${index}`}
+                            checked={item.status === 'not_given'}
+                            onChange={() => handleItem(index, 'status', 'not_given')}
+                          />
+
+                          <span>Not Given</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* COMMENT */}
+                    <div className="col-span-4">
+                      <Label value="Comment" className="mb-2 block" />
+
+                      <TextInput
+                        placeholder="Enter QA comment"
+                        value={item.comment}
+                        onChange={(e) => handleItem(index, 'comment', e.target.value)}
+                      />
+                    </div>
+
+                    {/* RECEIVED */}
+                    <div className="col-span-4">
+                      <Label value="Received By Marketing" className="mb-2 block" />
+
+                      <Select
+                        options={marketingOptions}
+                        placeholder="Select Marketing Person"
+                        value={marketingOptions.find(
+                          (o: any) => Number(o.value) === Number(item.received_marketing_id),
+                        )}
+                        onChange={(v: any) => handleItem(index, 'received_marketing_id', v?.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* STEP 3 */}
+                <div className="border rounded-xl p-5 bg-green-50">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-semibold text-green-700">Step 3 : Share With Customer</h5>
+
+                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                      Marketing Team
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-6">
+                      <Label value="Share Customer By" className="mb-2 block" />
+
+                      <Select
+                        options={marketingOptions}
+                        placeholder="Select Marketing Person"
+                        value={marketingOptions.find(
+                          (o: any) => Number(o.value) === Number(item.share_customer_by),
+                        )}
+                        onChange={(v: any) => handleItem(index, 'share_customer_by', v?.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
-
-            <Button color="primary" size="xs" onClick={addRow}>
-              + Add Row
-            </Button>
           </div>
 
-          {/* ACTION */}
-          <div className="flex justify-end gap-3">
+          {/* ACTION BUTTONS */}
+          <div className="flex justify-end gap-3 pt-2">
             <Button color="gray" onClick={() => setOpenModal(false)}>
               Cancel
             </Button>
 
             <Button color="primary" type="submit">
-              Update
+              Update QA Document
             </Button>
           </div>
         </form>

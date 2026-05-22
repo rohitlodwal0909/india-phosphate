@@ -244,13 +244,13 @@ exports.updateSampleRequest = async (req, res) => {
   }
 };
 
-exports.deletePurchaseOrder = async (req, res) => {
+exports.deleteSampleRequest = async (req, res) => {
   try {
-    await PurchaseOrderModel.destroy({
+    await SampleRequestModel.destroy({
       where: { id: req.params.id }
     });
 
-    res.json({ message: "Purchase Order Deleted" });
+    res.json({ message: "Sample request deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

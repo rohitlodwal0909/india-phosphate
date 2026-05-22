@@ -22,13 +22,9 @@ import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 // import PurchaseOrderEditModal from './PurchaseOrderEditModal';
 // import ViewPurchaseOrderModal from './ViewPurchaseOrderModal';
-import {
-  deletePurchaseOrder,
-  getPurchaseOrders,
-  // updatePurchaseOrder,
-} from 'src/features/marketing/PurchaseOrderSlice';
+
 import SampleRequestModal from './SampleRequestModal';
-import { getSampleRequest } from 'src/features/marketing/SampleRequestSlice';
+import { deleteSampleRequest, getSampleRequest } from 'src/features/marketing/SampleRequestSlice';
 import ViewSampleModal from './ViewSampleRequestModal';
 import { ImageUrl } from 'src/constants/contant';
 import SampleRequestEditModal from './SampleRequestEditModal';
@@ -66,8 +62,8 @@ const SampleRequestTable = () => {
   const [searchText, setSearchText] = useState('');
   const [modals, setModals] = useState({ add: false, edit: false, view: false, delete: false });
   const [selectedRow, setSelectedRow] = useState<PurchaseOrderDataType | null>(null);
-
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 3);
   }, [logindata, selectedIconId]);
@@ -93,9 +89,9 @@ const SampleRequestTable = () => {
     try {
       const id = selectedRow.id;
 
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase Order Entry deleted!');
-      dispatch(getPurchaseOrders());
+      await dispatch(deleteSampleRequest(id)).unwrap();
+      toast.success('Sample Request Entry deleted!');
+      dispatch(getSampleRequest());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
