@@ -7,6 +7,7 @@ const initialState = {
   customerdata: [],
   existscustomer: [],
   productswithpo: [],
+  customerJourney: [],
   addResult: null,
   updateResult: null,
   deleteResult: null,
@@ -88,6 +89,19 @@ export const getProductWithPO = createAsyncThunk<any, { id: string }, { rejectVa
   },
 );
 
+export const customerJourneydata = createAsyncThunk<any, { id: string }, { rejectValue: any }>(
+  'customer/Journeydata',
+  async ({ id }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/customer-journey-data/${id}`);
+
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch journey');
+    }
+  },
+);
+
 const CustomerSlice = createSlice({
   name: 'Customer',
   initialState,
@@ -104,6 +118,19 @@ const CustomerSlice = createSlice({
         state.customerdata = action.payload;
       })
       .addCase(GetCustomer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(customerJourneydata.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(customerJourneydata.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customerJourney = action.payload;
+      })
+      .addCase(customerJourneydata.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

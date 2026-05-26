@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductWithPO } from 'src/features/master/Customer/CustomerSlice';
 import { AppDispatch } from 'src/store';
+import CustomerJourneyMap from './CustomerJourneymap';
 // import {
 //   LineChart,
 //   Line,
@@ -100,44 +101,6 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
   useEffect(() => {
     fetchData();
   }, [selectedRow]);
-
-  const journeyStages = [
-    {
-      stage: 'Awareness',
-      icon: 'solar:eye-outline',
-      color: 'bg-yellow-500',
-      topActivities: ['Print Content', 'Search Data'],
-      bottomActivities: ['Word of Mouth', 'Radio / TV'],
-    },
-    {
-      stage: 'Consideration',
-      icon: 'solar:chat-round-outline',
-      color: 'bg-pink-500',
-      topActivities: ['Landing Page', 'Social Media'],
-      bottomActivities: ['Direct Mail', 'Store & Branch'],
-    },
-    {
-      stage: 'Purchase',
-      icon: 'solar:cart-outline',
-      color: 'bg-green-500',
-      topActivities: ['Website'],
-      bottomActivities: ['Agent & Broker'],
-    },
-    {
-      stage: 'Retention',
-      icon: 'solar:shield-check-outline',
-      color: 'bg-cyan-500',
-      topActivities: ['Web Service', 'Community'],
-      bottomActivities: ['Mailing', 'Offer & Invoice'],
-    },
-    {
-      stage: 'Advocacy',
-      icon: 'solar:like-outline',
-      color: 'bg-blue-600',
-      topActivities: ['Offer to Customers', 'Loyalty Program'],
-      bottomActivities: ['Referrals'],
-    },
-  ];
 
   return (
     <Modal
@@ -355,82 +318,14 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
               </table>
             </div>
           </TabItem>
+
           <TabItem
             title="Customer Journey Maps"
             icon={() => <Icon icon="solar:chart-outline" height={20} />}
           >
-            <div className="bg-[#f8fafc] rounded-2xl p-10 overflow-x-auto">
-              <div className="min-w-[1200px] relative">
-                {/* Top Labels */}
-                <div className="flex justify-between mb-10 px-10">
-                  {journeyStages.map((stage, index) => (
-                    <div key={index} className="flex flex-col items-center w-[180px]">
-                      <div className="flex flex-col items-center gap-3">
-                        {stage.topActivities.map((item: string, i: number) => (
-                          <div key={i} className="flex flex-col items-center">
-                            <div className="w-4 h-4 rounded-full bg-yellow-400 border-4 border-white shadow-lg z-10" />
-
-                            <div className="w-[2px] h-6 bg-gray-300" />
-
-                            <span className="text-xs text-gray-600 whitespace-nowrap">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Journey Stages */}
-                <div className="flex items-center">
-                  {journeyStages.map((stage, index) => (
-                    <div
-                      key={index}
-                      className={`relative flex items-center justify-center h-16 flex-1 text-white font-semibold text-sm tracking-wide
-            ${stage.color}
-            ${index !== 0 ? 'ml-2' : ''}
-          `}
-                      style={{
-                        clipPath:
-                          index !== journeyStages.length - 1
-                            ? 'polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%, 8% 50%)'
-                            : 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 8% 50%)',
-                      }}
-                    >
-                      <div className="flex items-center gap-2 z-10">
-                        <Icon icon={stage.icon} width={20} />
-                        {stage.stage}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom Labels */}
-                <div className="flex justify-between mt-10 px-10">
-                  {journeyStages.map((stage, index) => (
-                    <div key={index} className="flex flex-col items-center w-[180px]">
-                      <div className="flex flex-col items-center gap-3">
-                        {stage.bottomActivities.map((item: string, i: number) => (
-                          <div key={i} className="flex flex-col items-center">
-                            <span className="text-xs text-gray-600 whitespace-nowrap mb-2">
-                              {item}
-                            </span>
-
-                            <div className="w-[2px] h-6 bg-gray-300" />
-
-                            <div className="w-4 h-4 rounded-full bg-pink-500 border-4 border-white shadow-lg z-10" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
+            <CustomerJourneyMap selectedRow={selectedRow} />
             {/* CRM Analytics Dashboard */}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-10">
-              {/* Opportunity Insights */}
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-10">
               <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-blue-500">
                 <div className="flex items-center justify-between">
                   <div>
@@ -445,7 +340,6 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                 </div>
               </div>
 
-              {/* Future Prediction */}
               <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-green-500">
                 <div className="flex items-center justify-between">
                   <div>
@@ -460,7 +354,6 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                 </div>
               </div>
 
-              {/* Buying Behavior */}
               <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-yellow-500">
                 <div className="flex items-center justify-between">
                   <div>
@@ -475,7 +368,6 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                 </div>
               </div>
 
-              {/* Pain Points */}
               <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-red-500">
                 <div className="flex items-center justify-between">
                   <div>
@@ -489,9 +381,8 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                   <Icon icon="solar:danger-outline" width={40} className="text-red-500" />
                 </div>
               </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-              {/* Product Frequency */}
+            </div> */}
+            {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
               <div className="bg-white rounded-2xl shadow p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-lg font-bold text-gray-800">Product Frequency</h3>
@@ -522,7 +413,6 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                 </div>
               </div>
 
-              {/* Dormant Customer */}
               <div className="bg-white rounded-2xl shadow p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-lg font-bold text-gray-800">Dormant Customer Tracking</h3>
@@ -553,6 +443,112 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                     <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full">
                       Medium Risk
                     </span>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+          </TabItem>
+
+          <TabItem
+            title="Customer Overview Card"
+            icon={() => <Icon icon="solar:box-outline" height={20} />}
+          >
+            {/* Customer Overview Card */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl shadow p-6 mt-8 border">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                {/* Left Section */}
+                <div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Icon icon="solar:buildings-2-outline" width={30} className="text-blue-600" />
+                    </div>
+
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">ABC Industries</h2>
+
+                      <div className="flex flex-wrap items-center gap-3 mt-1">
+                        <span className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full">
+                          Paint Industry
+                        </span>
+
+                        <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full">
+                          India
+                        </span>
+
+                        <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full">
+                          Gujarat
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sales Info */}
+                  <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-xl p-4 shadow-sm">
+                      <p className="text-gray-500 text-sm">Total Enquiry</p>
+
+                      <h3 className="text-2xl font-bold text-gray-800 mt-1">14</h3>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-4 shadow-sm">
+                      <p className="text-gray-500 text-sm">Converted</p>
+
+                      <h3 className="text-2xl font-bold text-green-600 mt-1">9</h3>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-4 shadow-sm">
+                      <p className="text-gray-500 text-sm">Lost</p>
+
+                      <h3 className="text-2xl font-bold text-red-500 mt-1">3</h3>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-4 shadow-sm">
+                      <p className="text-gray-500 text-sm">Pending</p>
+
+                      <h3 className="text-2xl font-bold text-yellow-500 mt-1">2</h3>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Section */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
+                  {/* FY Sale */}
+                  <div className="bg-white rounded-2xl shadow-sm p-5 min-w-[180px] border-l-4 border-green-500">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">Total FY Sale</p>
+
+                        <h3 className="text-2xl font-bold text-gray-800 mt-2">₹1.8 Cr</h3>
+                      </div>
+
+                      <Icon icon="solar:dollar-outline" width={32} className="text-green-500" />
+                    </div>
+                  </div>
+
+                  {/* Product */}
+                  <div className="bg-white rounded-2xl shadow-sm p-5 min-w-[220px] border-l-4 border-blue-500">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">Most Purchased Product</p>
+
+                        <h3 className="text-lg font-bold text-gray-800 mt-2">Calcium Carbonate</h3>
+                      </div>
+
+                      <Icon icon="solar:box-outline" width={32} className="text-blue-500" />
+                    </div>
+                  </div>
+
+                  {/* Buying Frequency */}
+                  <div className="bg-white rounded-2xl shadow-sm p-5 min-w-[200px] border-l-4 border-orange-500">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">Buying Frequency</p>
+
+                        <h3 className="text-xl font-bold text-gray-800 mt-2">Every 45 Days</h3>
+                      </div>
+
+                      <Icon icon="solar:refresh-outline" width={32} className="text-orange-500" />
+                    </div>
                   </div>
                 </div>
               </div>

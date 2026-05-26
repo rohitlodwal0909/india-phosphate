@@ -68,10 +68,9 @@ const MeetingViewModal = ({ open, setOpen, meeting, permissions }: any) => {
             <div className="flex gap-3 mt-3 flex-wrap">
               <Badge color={statusColor}>{meeting.status}</Badge>
 
-              <Badge color="info" className="flex items-center gap-1">
-                {/* <Icon icon={platformIcon} width={16} /> */}
+              {/* <Badge color="info" className="flex items-center gap-1">
                 {meeting.platform}
-              </Badge>
+              </Badge> */}
             </div>
           </div>
 

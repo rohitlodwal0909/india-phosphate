@@ -19,14 +19,14 @@ const meetingTypeOptions = [
   { value: 'client', label: 'Client Meeting' },
 ];
 
-const platformOptions = [
-  { value: 'Google Meet', label: 'Google Meet', icon: 'logos:google-meet' },
-  { value: 'Zoom', label: 'Zoom', icon: 'logos:zoom' },
-  { value: 'Microsoft Teams', label: 'Microsoft Teams', icon: 'logos:microsoft-teams' },
-  { value: 'Skype', label: 'Skype', icon: 'logos:skype' },
-  { value: 'Whatsapp', label: 'Whatsapp', icon: 'logos:whatsapp-icon' },
-  { value: 'Telephonic', label: 'Telephonic', icon: 'mdi:phone' },
-];
+// const platformOptions = [
+//   { value: 'Google Meet', label: 'Google Meet', icon: 'logos:google-meet' },
+//   { value: 'Zoom', label: 'Zoom', icon: 'logos:zoom' },
+//   { value: 'Microsoft Teams', label: 'Microsoft Teams', icon: 'logos:microsoft-teams' },
+//   { value: 'Skype', label: 'Skype', icon: 'logos:skype' },
+//   { value: 'Whatsapp', label: 'Whatsapp', icon: 'logos:whatsapp-icon' },
+//   { value: 'Telephonic', label: 'Telephonic', icon: 'mdi:phone' },
+// ];
 
 const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate }) => {
   const dispatch = useDispatch<any>();
@@ -47,13 +47,13 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
   const [formData, setFormData] = useState<any>({
     title: '',
     meeting_type: '',
-    platform: '',
+    // platform: '',
     meeting_date: '',
     meeting_time: '',
     internal_users: [],
-    external_emails: '',
+    // external_emails: '',
     description: '',
-    meeting_link: '',
+    // meeting_link: '',
   });
 
   /* ================= AUTO DATE ================= */
@@ -78,23 +78,23 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
 
   /* ================= LINK GENERATOR ================= */
 
-  const generateMeetingLink = () => {
-    const random = Math.random().toString(36).substring(2, 10);
+  // const generateMeetingLink = () => {
+  //   const random = Math.random().toString(36).substring(2, 10);
 
-    switch (formData.platform) {
-      case 'Google Meet':
-        handleChange('meeting_link', `https://meet.google.com/${random}`);
-        break;
-      case 'Zoom':
-        handleChange('meeting_link', `https://zoom.us/j/${Date.now()}`);
-        break;
-      case 'Microsoft Teams':
-        handleChange('meeting_link', `https://teams.microsoft.com/l/meetup-join/${random}`);
-        break;
-      default:
-        handleChange('meeting_link', '');
-    }
-  };
+  //   switch (formData.platform) {
+  //     case 'Google Meet':
+  //       handleChange('meeting_link', `https://meet.google.com/${random}`);
+  //       break;
+  //     case 'Zoom':
+  //       handleChange('meeting_link', `https://zoom.us/j/${Date.now()}`);
+  //       break;
+  //     case 'Microsoft Teams':
+  //       handleChange('meeting_link', `https://teams.microsoft.com/l/meetup-join/${random}`);
+  //       break;
+  //     default:
+  //       handleChange('meeting_link', '');
+  //   }
+  // };
 
   /* ================= SUBMIT ================= */
 
@@ -110,7 +110,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
 
       if (!formData.meeting_time) return toast.error('Select meeting time');
 
-      if (!formData.platform) return toast.error('Select platform');
+      // if (!formData.platform) return toast.error('Select platform');
 
       if (formData.meeting_type === 'internal' && formData.internal_users.length === 0) {
         return toast.error('Select internal users');
@@ -121,16 +121,16 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
       const payload = {
         meeting_title: formData.title,
         meeting_type: formData.meeting_type,
-        platform: formData.platform,
+        // platform: formData.platform,
         date: formData.meeting_date,
         time: formData.meeting_time,
-        meeting_link: formData.meeting_link,
+        // meeting_link: formData.meeting_link,
         description: formData.description,
         internal_users: formData.internal_users,
-        external_emails: formData.external_emails,
+        // external_emails: formData.external_emails,
       };
 
-      console.log('PAYLOAD', payload);
+      // console.log('PAYLOAD', payload);
 
       /* ================= API CALL ================= */
 
@@ -143,13 +143,13 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
       setFormData({
         title: '',
         meeting_type: '',
-        platform: '',
+        // platform: '',
         meeting_date: '',
         meeting_time: '',
         internal_users: [],
-        external_emails: '',
+        // external_emails: '',
         description: '',
-        meeting_link: '',
+        // meeting_link: '',
       });
 
       setOpenModal(false);
@@ -183,7 +183,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
               />
             </div>
 
-            <div className="col-span-3">
+            <div className="col-span-6">
               <Label value="Meeting Type" />
               <Select
                 options={meetingTypeOptions}
@@ -191,7 +191,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
               />
             </div>
 
-            <div className="col-span-3">
+            {/* <div className="col-span-3">
               <Label value="Platform" />
               <Select
                 options={platformOptions}
@@ -206,7 +206,8 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
                   setTimeout(generateMeetingLink, 200);
                 }}
               />
-            </div>
+            </div> */}
+
             {formData.meeting_type === 'internal' && (
               <div className="col-span-4">
                 <Label value="Invite person" />
@@ -247,19 +248,19 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
 
           {/* INVITE SECTION */}
           <div className="bg-gray-50 p-5 rounded-xl space-y-4">
-            <div>
+            {/* <div>
               <Label value="Invited Persons (Emails comma separated)" />
               <TextInput
                 placeholder="client@gmail.com, team@gmail.com"
                 value={formData.external_emails}
                 onChange={(e) => handleChange('external_emails', e.target.value)}
               />
-            </div>
+            </div> */}
 
-            <div>
+            {/* <div>
               <Label value="Meeting Link" />
               <TextInput value={formData.meeting_link} disabled />
-            </div>
+            </div> */}
 
             <div>
               <Label value="Meeting Description / Agenda" />

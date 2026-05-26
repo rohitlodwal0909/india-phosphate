@@ -12,12 +12,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       application: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.STRING
       },
       company_hq: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.STRING
       },
       company_address: {
         type: DataTypes.STRING,
@@ -62,6 +60,19 @@ module.exports = (sequelize, DataTypes) => {
       },
       user_id: {
         type: DataTypes.INTEGER
+      },
+      potential_opportunity: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      source: {
+        type: DataTypes.STRING
+      },
+      sales_person_id: {
+        type: DataTypes.INTEGER
+      },
+      potential_note: {
+        type: DataTypes.TEXT
       }
     },
     {

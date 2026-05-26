@@ -10,6 +10,7 @@ import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { updateDevelopment } from 'src/features/marketing/DevelopmentSlice';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 import { validateDevelopmentForm } from './Validation';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
 interface Props {
   openModal: boolean;
@@ -24,7 +25,7 @@ const selectStyles = {
   }),
 };
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
+// const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
 
 // const enquiryStatusOptions = [
 //   { value: 'closed', label: 'Closed', color: '#16a34a' },
@@ -55,12 +56,16 @@ const DevelopmentEditModal: React.FC<Props> = ({ openModal, setOpenModal, select
   const customers = useSelector((state: RootState) => state.purchaseOrder.customers);
 
   const { productdata } = useSelector((state: any) => state.products);
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? {};
+
   // const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata ?? []);
   // const users = usersdata.filter((user) => Number(user.role_id) === 9);
 
   useEffect(() => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
+    dispatch(GetGrade());
+
     dispatch(GetUsermodule());
   }, []);
 
@@ -293,9 +298,12 @@ const DevelopmentEditModal: React.FC<Props> = ({ openModal, setOpenModal, select
                       onChange={(e) => handleProductChange(pIndex, 'grade', e.target.value)}
                     >
                       <option value="">Select Grade</option>
-                      {grades.map((g) => (
-                        <option key={g}>{g}</option>
-                      ))}
+                      {Array.isArray(grades) &&
+                        grades.map((g: any) => (
+                          <option key={g.id} value={g.grade}>
+                            {g.grade}
+                          </option>
+                        ))}
                     </select>
                   </div>
 

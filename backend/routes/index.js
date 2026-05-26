@@ -42,6 +42,7 @@ const FinishGoodRoutes = require("../routes/master/FinishGoodRoutes");
 const FormulaRoutes = require("../routes/master/FormulaRoutes");
 const DocumentRoutes = require("../routes/master/DocumentRoutes");
 const ProductRoutes = require("../routes/master/ProductRoutes");
+const GradeRoutes = require("../routes/master/GradeRoutes");
 
 const FprRoutes = require("../routes/inventory/FprRoutes");
 const BmrRoutes = require("../routes/inventory/BmrRecordRoutes");
@@ -74,6 +75,9 @@ const PurchaseStoreRoutes = require("../routes/purchase/PurchaseStoreRoutes");
 const PoRequisitionRoutes = require("../routes/purchase/PoRequisitionRoutes");
 const PoPurchaseRoutes = require("../routes/purchase/PoPurchaseRoutes");
 
+const DashboardCustomer = require("../routes/dashboard/dashboardCustomerRoutes");
+// Dashboard
+
 router.use("/api", authRoutes);
 router.use("/api", authMiddleware, BmrRoutes);
 router.use("/api", userRoutes);
@@ -86,6 +90,7 @@ router.use("/api", productionRoutes);
 router.use("/api", supplierRoutes);
 router.use("/api", categoryRoutes);
 router.use("/api", UnitRoutes);
+router.use("/api", authMiddleware, GradeRoutes);
 router.use("/api", RmCodeRoutes);
 router.use("/api", PmCodeRoutes);
 router.use("/api", authMiddleware, customerRoutes);
@@ -145,5 +150,7 @@ router.use("/api", authMiddleware, SampleRequestRoutes);
 router.use("/api", authMiddleware, MeetingRoutes);
 router.use("/api", authMiddleware, QaDocumentRoutes);
 router.use("/api", authMiddleware, DevelopmentRoutes);
+
+router.use("/api", authMiddleware, DashboardCustomer);
 
 module.exports = router;

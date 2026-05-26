@@ -25,6 +25,8 @@ import DepartmentMasterSlice from '../src/features/master/DepartmentMaster/Depar
 import MakeMasterSlice from '../src/features/master/MakeMaster/MakeMasterSlice';
 import AccountSlice from '../src/features/master/Account/AccountSlice';
 import ProductSlice from '../src/features/master/Product/ProductSlice';
+import GradeSlice from '../src/features/master/Grade/GradeSlice';
+import PotOppertunitySlice from '../src/features/master/Customer/PotentialOpportunitySlice';
 
 import PackingMaterialSlice from '../src/features/master/PackingMaterial/PackingMaterialSlice';
 import TransportSlice from '../src/features/master/Transport/TransportSlice';
@@ -76,9 +78,18 @@ import PurchaseStoreSlice from '../src/features/purchase/store/StoreSlice';
 import PoRequisitionSlice from '../src/features/purchase/porequisition/PoRequisitionSlice';
 import PurchasePoSlice from '../src/features/purchase/po/PurchasePoSlice';
 
+// Dashboard
+import DashboardCustomerSlice from '../src/features/dashboard/DashboardCustomerSlice';
+
 export const store = configureStore({
   reducer: {
+    // dashboard
+
     authentication: AuthenticationSlice,
+
+    // End Dashboard
+
+    customerdashboard: DashboardCustomerSlice,
     usermanagement: UsermanagmentSlice,
     checkininventory: ChechinSlice,
     qcinventory: QcinventorySlice,
@@ -96,9 +107,12 @@ export const store = configureStore({
     supplier: SupplierSlice,
     category: CategorySlice,
     customer: CustomerSlice,
+    potentialopportunity: PotOppertunitySlice,
+
     rmcodes: RmCodeSlice,
     pmcodes: PmCodeSlice,
     unit: UnitSlice,
+    grades: GradeSlice,
     products: ProductSlice,
     staffmaster: StaffMasterSlice,
     designation: DesignationSlice,

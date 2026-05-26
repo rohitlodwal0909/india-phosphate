@@ -43,6 +43,8 @@ import Calander from 'src/views/marketing/calander/Calander';
 import Development from 'src/views/marketing/development/Development';
 import SampleQc from 'src/views/marketing/sampleQc/SampleQc';
 import QaDocument from 'src/views/marketing/qaDocument/QaDocument';
+import Grade from 'src/views/master/Grade/Grade';
+import Opportunity from 'src/views/master/potential-opportunity/Opportunity';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -190,6 +192,8 @@ const fullLayoutChildren = [
   { path: '/master/supplier', element: <Supplier /> },
   { path: '/master/customer', element: <Customer /> },
   { path: '/master/existing-customer', element: <ExistingCustomer /> },
+  { path: '/master/potential-opportunity', element: <Opportunity /> },
+
   { path: '/master/products', element: <Product /> },
   // { path: '/master/category', element: <Category/> },
   { path: '/master/rm-code', element: <RmCode /> },
@@ -211,6 +215,7 @@ const fullLayoutChildren = [
   { path: '/master/purchase', element: <Purchase /> },
   { path: '/master/bmr', element: <BmrMaster /> },
   { path: '/master/unit', element: <Unit /> },
+  { path: '/master/grade-master', element: <Grade /> },
   { path: '/master/staff-master', element: <StaffMaster /> },
   { path: '/master/designation', element: <Designation /> },
   { path: '/master/qualification', element: <Qualification /> },

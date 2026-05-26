@@ -148,17 +148,7 @@ const SidebarContent: MenuItem[] = [
              edit: false,
              delete: false,
           },
-           {
-             name: "Potential Opportunity",
-             icon: "tabler:file-certificate",
-             id: uniqueId(),
-             url: "/marketing/potential-opportunity",
-             subId:9,
-             add: false,
-             view: false,
-             edit: false,
-             delete: false,
-          },
+           
 
     
         ]
@@ -678,6 +668,18 @@ const SidebarContent: MenuItem[] = [
             edit: false,
             delete: false,
           },
+
+           {
+            name: "Potential Opportunity",
+            icon: "icon-park-outline:city",
+            id: uniqueId(),
+            url: "/master/potential-opportunity",
+            subId:36,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
+          },
       
            {
             name: "Accounts",
@@ -861,6 +863,17 @@ const SidebarContent: MenuItem[] = [
             id: uniqueId(),
             url: "/master/department-masters",
             subId:31,
+             add: false,
+        view: false,
+        edit: false,
+        delete: false,
+          },
+           {
+            name: "Grade Master",
+            icon: "icon-park-outline:city",
+            id: uniqueId(),
+            url: "/master/grade-master",
+            subId:35,
              add: false,
         view: false,
         edit: false,

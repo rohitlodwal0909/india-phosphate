@@ -73,12 +73,12 @@ exports.storeMeeting = async (req, res) => {
     const {
       meeting_title,
       meeting_type,
-      platform,
+      // platform,
       date,
       time,
       description,
-      internal_users,
-      external_emails
+      internal_users
+      // external_emails
     } = req.body;
 
     /* ================= VALIDATION ================= */
@@ -99,31 +99,31 @@ exports.storeMeeting = async (req, res) => {
 
     /* ================= CREATE MEETING ================= */
 
-    let meeting_link = null;
+    // let meeting_link = null;
 
-    if (req.body.platform === "Zoom") {
-      const zoomMeeting = await createZoomMeeting(
-        req.body.meeting_title,
-        req.body.date,
-        req.body.time
-      );
+    // if (req.body.platform === "Zoom") {
+    //   const zoomMeeting = await createZoomMeeting(
+    //     req.body.meeting_title,
+    //     req.body.date,
+    //     req.body.time
+    //   );
 
-      meeting_link = zoomMeeting.join_url;
-    }
+    //   meeting_link = zoomMeeting.join_url;
+    // }
 
-    if (platform === "Google Meet") {
-      const meet = await createGoogleMeet(meeting_title, date, time);
-      meeting_link = meet.join_url;
-    }
+    // if (platform === "Google Meet") {
+    //   const meet = await createGoogleMeet(meeting_title, date, time);
+    //   meeting_link = meet.join_url;
+    // }
 
     const meeting = await MeetingModel.create({
       user_id: req.admin.id,
       meeting_title,
       meeting_type,
-      platform,
+      // platform,
       date,
       time,
-      meeting_link,
+      // meeting_link,
       description
     });
 
@@ -153,21 +153,21 @@ exports.storeMeeting = async (req, res) => {
 
     /* ================= SAVE EXTERNAL EMAIL INVITES ================= */
 
-    if (external_emails) {
-      const emails = external_emails.split(",");
+    // if (external_emails) {
+    //   const emails = external_emails.split(",");
 
-      emails.forEach((email) => {
-        inviteRows.push({
-          meeting_id: meeting.id,
-          email: email.trim(),
-          status: "pending"
-        });
-      });
-    }
+    //   emails.forEach((email) => {
+    //     inviteRows.push({
+    //       meeting_id: meeting.id,
+    //       email: email.trim(),
+    //       status: "pending"
+    //     });
+    //   });
+    // }
 
-    if (inviteRows.length > 0) {
-      await MeetingInvitesModel.bulkCreate(inviteRows);
-    }
+    // if (inviteRows.length > 0) {
+    //   await MeetingInvitesModel.bulkCreate(inviteRows);
+    // }
 
     /* ================= RESPONSE ================= */
 

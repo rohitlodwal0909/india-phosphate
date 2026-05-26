@@ -1,7 +1,20 @@
 const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
-const { Customer, User, PurchaseOrderModel, Product } = db;
+const {
+  Customer,
+  User,
+  PurchaseOrderModel,
+  Product,
+  DevelopmentModel,
+  SampleRequestModel,
+  EnquiryModel,
+  WorkOrderModel,
+  FMIssuedModel,
+  DispatchVehicle,
+  Invoice,
+  ReplacementModel
+} = db;
 
 // Create
 exports.createCustomer = async (req, res) => {
@@ -55,7 +68,8 @@ exports.getCustomers = async (req, res) => {
     const customers = await Customer.findAll({
       order: [["id", "DESC"]],
       where: {
-        convert_to_customer: false
+        convert_to_customer: false,
+        potential_opportunity: 0
       }
     });
 
@@ -281,6 +295,148 @@ exports.addNote = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error"
+    });
+  }
+};
+
+exports.customerJourney = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const [customer, development, samplerequest, po, enquiry] =
+      await Promise.all([
+        Customer.findOne({
+          attributes: ["created_at"],
+          where: { id }
+        }),
+
+        DevelopmentModel.findOne({
+          order: [["id", "DESC"]],
+          attributes: ["created_at"],
+          where: { company_id: id }
+        }),
+
+        SampleRequestModel.findOne({
+          order: [["id", "DESC"]],
+          attributes: ["created_at"],
+          where: { company_id: id }
+        }),
+
+        PurchaseOrderModel.findOne({
+          order: [["id", "DESC"]],
+          attributes: ["id", "created_at"],
+          where: { company_id: id }
+        }),
+
+        EnquiryModel.findOne({
+          order: [["id", "DESC"]],
+          attributes: ["created_at"],
+          where: { company_id: id }
+        })
+      ]);
+
+    // =========================
+    // WORK ORDER
+    // =========================
+
+    let workOrder = null;
+
+    if (po?.id) {
+      workOrder = await WorkOrderModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["work_order_no", "created_at"],
+        where: {
+          po_id: po.id,
+          status: "Approved"
+        }
+      });
+    }
+
+    // =========================
+    // MANUFACTURING
+    // =========================
+
+    let manufacturing = null;
+
+    if (workOrder?.work_order_no) {
+      manufacturing = await FMIssuedModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["created_at"],
+        where: {
+          work_order_no: workOrder.work_order_no
+        }
+      });
+    }
+
+    // =========================
+    // DISPATCH
+    // =========================
+
+    let dispatch = null;
+
+    if (po?.id) {
+      dispatch = await DispatchVehicle.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["id", "dispatch_date"],
+        where: {
+          po_id: po.id
+        }
+      });
+    }
+
+    // =========================
+    // ACCOUNTS / INVOICE
+    // =========================
+
+    let accounts = null;
+
+    if (dispatch?.id) {
+      accounts = await Invoice.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["id", "created_at"],
+        where: {
+          dispatch_id: dispatch.id
+        }
+      });
+    }
+
+    // =========================
+    // REJECTION / REPLACEMENT
+    // =========================
+
+    let rejection = null;
+
+    if (accounts?.id) {
+      rejection = await ReplacementModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["created_at"],
+        where: {
+          invoice_no: accounts.id
+        }
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        customer,
+        development,
+        samplerequest,
+        po,
+        enquiry,
+        workOrder,
+        manufacturing,
+        dispatch,
+        accounts,
+        rejection
+      }
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error"
     });
   }
 };
