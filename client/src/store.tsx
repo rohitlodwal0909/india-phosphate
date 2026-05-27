@@ -62,6 +62,8 @@ import SampleRequestSlice from '../src/features/marketing/SampleRequestSlice';
 import MeetingSlice from '../src/features/marketing/CalanderSlice';
 import QaDocumentSlice from '../src/features/marketing/QaDocumentSlice';
 import DevelopmentSlice from '../src/features/marketing/DevelopmentSlice';
+import DisputeSlice from '../src/features/marketing/DisputeSlice';
+import VisitPlannerSlice from '../src/features/marketing/VisitPlannerSlice';
 
 import TaxInvoiceSlice from '../src/features/account/invoice/taxinvoice';
 import ExportInvoiceSlice from '../src/features/account/exportinvoice/exportInvoice';
@@ -165,6 +167,8 @@ export const store = configureStore({
     samplerequest: SampleRequestSlice,
     meetings: MeetingSlice,
     qadocuments: QaDocumentSlice,
+    disputes: DisputeSlice,
+    visitplanner: VisitPlannerSlice,
   },
 });
 
