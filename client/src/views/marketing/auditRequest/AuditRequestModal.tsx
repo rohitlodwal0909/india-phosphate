@@ -8,23 +8,27 @@ import { getAllCustomers } from 'src/features/marketing/PurchaseOrderSlice';
 import { toast } from 'react-toastify';
 import { validateForm } from './Validation';
 import { addAudit, getAudit } from 'src/features/marketing/AuditSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
 interface Props {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
 }
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
+// const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
 
 const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<any>();
 
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const { productdata } = useSelector((s: any) => s.products);
   const customers = useSelector((s: RootState) => s.purchaseOrder.customers);
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
 
   useEffect(() => {
     dispatch(GetProduct());
     dispatch(getAllCustomers());
+    dispatch(GetGrade());
   }, []);
 
   /* ================= FORM ================= */
@@ -86,12 +90,23 @@ const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     if (!validateForm(formData, auditItems)) return;
 
     try {
-      await dispatch(
-        addAudit({
-          ...formData,
-          auditItems,
-        }),
-      ).unwrap();
+      const payload = new FormData();
+
+      payload.append('arrival_date', formData.arrival_date);
+      payload.append('company_id', formData.company_id);
+      payload.append('address', formData.address);
+      payload.append('contact_person', formData.contact_person);
+      payload.append('mobile', formData.mobile);
+      payload.append('audit_agenda', formData.audit_agenda);
+      payload.append('note', formData.note);
+
+      payload.append('auditItems', JSON.stringify(auditItems));
+
+      if (pdfFile) {
+        payload.append('pdf', pdfFile);
+      }
+
+      await dispatch(addAudit(payload)).unwrap();
 
       toast.success('Audit Request Sent to QA & QC ✅');
       dispatch(getAudit());
@@ -128,6 +143,21 @@ const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                 <Label value="Company Name" />
                 <Select options={customerOptions} onChange={handleCustomer} />
               </div>
+
+              <div className="col-span-4">
+                <Label value="Upload PDF" />
+
+                <input
+                  type="file"
+                  accept=".pdf"
+                  className="w-full border rounded-lg  bg-white"
+                  onChange={(e: any) => {
+                    if (e.target.files[0]) {
+                      setPdfFile(e.target.files[0]);
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -153,9 +183,12 @@ const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                     onChange={(e) => handleItem(index, 'grade', e.target.value)}
                   >
                     <option>Select</option>
-                    {grades.map((g) => (
-                      <option key={g}>{g}</option>
-                    ))}
+                    {Array.isArray(grades) &&
+                      grades.map((g: any) => (
+                        <option key={g.id} value={g.grade}>
+                          {g.grade}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
@@ -178,41 +211,6 @@ const AuditRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
               + Add Row
             </Button>
           </div>
-
-          {/* <div className="border rounded-lg p-5 bg-gray-50">
-            <h3 className="font-semibold mb-4">Compliance</h3>
-
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-4">
-                <Label>Compliance Status</Label>
-                <select
-                  className="w-full border p-2 rounded"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      compliance_status: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select</option>
-                  <option value="Complied">Complied</option>
-                  <option value="Not Complied">Not Complied</option>
-                </select>
-              </div>
-
-              <div className="col-span-8">
-                <Label>Compliance Remark</Label>
-                <Textarea
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      compliance_remark: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </div> */}
 
           {/* ================= REMARK ================= */}
 

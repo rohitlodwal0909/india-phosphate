@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
 interface PurchaseOrderEditModalProps {
   openModal: boolean;
@@ -72,6 +73,8 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
   const { productdata } = useSelector((state: any) => state.products);
 
   const { pmcodedata } = useSelector((state: any) => state.pmcodes);
+
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
 
   const packingOptions = pmcodedata?.map((p: any) => ({
     label: p.name, // ya jo bhi field ho
@@ -170,6 +173,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
     dispatch(getAllCustomers());
     dispatch(GetProduct());
     dispatch(GetPmCode());
+    dispatch(GetGrade());
   }, []);
 
   const handleChange = (e: any) => {
@@ -353,11 +357,25 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               {/* Grade */}
               <div className="col-span-2">
                 <Label value="Grade" />
-                <TextInput
+                {/* <TextInput
                   placeholder="Grade"
                   value={product.grade}
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
-                />
+                /> */}
+
+                <select
+                  className="w-full border rounded p-2 text-gray"
+                  value={product.grade}
+                  onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
+                >
+                  <option value="">Select Grade</option>
+                  {Array.isArray(grades) &&
+                    grades.map((g: any) => (
+                      <option key={g.id} value={g.grade}>
+                        {g.grade}
+                      </option>
+                    ))}
+                </select>
               </div>
 
               {/* Quantity */}

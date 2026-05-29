@@ -91,6 +91,13 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                   {selectedRow?.open_field || '-'}
                 </p>
               </div>
+
+              <div className="bg-gray-100 p-4 rounded shadow-sm">
+                <p className="text-gray-700 text-sm font-semibold">Sales Person Name</p>
+                <p className="text-gray-900 font-bold text-base">
+                  {selectedRow?.sales_person?.username || '-'}
+                </p>
+              </div>
             </div>
           </TabItem>
 

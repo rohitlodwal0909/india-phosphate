@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
       doc_name: {
         type: DataTypes.STRING
       },
+      file: {
+        type: DataTypes.STRING
+      },
 
       qa_person_id: {
         type: DataTypes.INTEGER
@@ -73,14 +76,16 @@ module.exports = (sequelize, DataTypes) => {
 
     QaDocumentCoaModel.belongsTo(models.User, {
       foreignKey: "received_marketing_id",
-      sourceKey: "id",
-      as: "received_marketing"
+      targetKey: "id",
+      as: "received_marketing",
+      constraints: false
     });
 
     QaDocumentCoaModel.belongsTo(models.User, {
       foreignKey: "share_customer_by",
-      sourceKey: "id",
-      as: "share_customer"
+      targetKey: "id",
+      as: "share_customer",
+      constraints: false
     });
   };
 

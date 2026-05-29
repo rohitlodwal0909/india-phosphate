@@ -18,18 +18,7 @@ exports.createOpportunity = async (req, res) => {
       addresses: req.body.addresses,
       products: req.body.products,
       user_id: req.admin.id,
-      potential_opportunity: 1,
-      sales_person_id: req.body.sales_person_id
-    });
-
-    const { entry_date, entry_time } = getISTDateTime();
-
-    await Notification.create({
-      user_id: req.body.sales_person_id,
-      title: "New Opportunity Assigned",
-      message: `You have been assigned a new opportunity: ${req.body.company_name}`,
-      is_read: 0,
-      date_time: `${entry_date} ${entry_time}`
+      potential_opportunity: 1
     });
 
     res.status(200).json({
@@ -53,7 +42,14 @@ exports.getOpportunity = async (req, res) => {
       order: [["id", "DESC"]],
       where: {
         potential_opportunity: true
-      }
+      },
+      include: [
+        {
+          model: User,
+          as: "sales_person",
+          attributes: ["username"]
+        }
+      ]
     });
 
     const formattedCustomers = customers.map((customer) => {
@@ -116,7 +112,18 @@ exports.updateOpportunity = async (req, res) => {
       open_field: open_field || "",
       contacts: JSON.stringify(contacts || []),
       addresses: JSON.stringify(addresses || []),
-      products: JSON.stringify(products || [])
+      products: JSON.stringify(products || []),
+      sales_person_id: req.body.sales_person_id
+    });
+
+    const { entry_date, entry_time } = getISTDateTime();
+
+    await Notification.create({
+      user_id: req.body.sales_person_id,
+      title: "New Opportunity Assigned",
+      message: `You have been assigned a new opportunity: ${req.body.company_name}`,
+      is_read: 0,
+      date_time: `${entry_date} ${entry_time}`
     });
 
     return res.status(200).json({

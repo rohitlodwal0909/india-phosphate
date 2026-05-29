@@ -7,7 +7,8 @@ import { toast } from 'react-toastify';
 import { RootState } from 'src/store';
 
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
-import { addDispute, getPoandsample } from 'src/features/marketing/DisputeSlice';
+import { addDispute, getDispute, getPoandsample } from 'src/features/marketing/DisputeSlice';
+import { validateDisputeForm } from './Validation';
 
 interface Props {
   openModal: boolean;
@@ -92,6 +93,8 @@ const formatStatus = (option: any) => (
 
 const DisputeModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<any>();
+
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   /* ================= REDUX ================= */
 
@@ -213,9 +216,27 @@ const DisputeModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
+    if (!validateDisputeForm(formData, formData.followups)) return;
     try {
-      await dispatch(addDispute(formData)).unwrap();
+      const payload = new FormData();
+
+      payload.append('dispute_type', formData.dispute_type);
+      payload.append('dispute_type_id', formData.dispute_type_id);
+      payload.append('dispute_reason', formData.dispute_reason);
+      payload.append('assigned_to', formData.assigned_to);
+      payload.append('priority', formData.priority);
+
+      payload.append('followups', JSON.stringify(formData.followups));
+
+      if (pdfFile) {
+        payload.append('pdf', pdfFile);
+      }
+
+      await dispatch(addDispute(payload)).unwrap();
+      dispatch(getDispute());
+
       toast.success('Dispute Created Successfully ✅');
+
       resetForm();
 
       setOpenModal(false);
@@ -317,7 +338,7 @@ const DisputeModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
               {/* REASON */}
 
-              <div className="col-span-9">
+              <div className="col-span-8">
                 <Label value="Dispute Reason" />
 
                 <Textarea
@@ -330,6 +351,20 @@ const DisputeModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                       dispute_reason: e.target.value,
                     })
                   }
+                />
+              </div>
+              <div className="col-span-4">
+                <Label value="Upload PDF" />
+
+                <input
+                  type="file"
+                  accept=".pdf"
+                  className="w-full border rounded-lg  bg-white"
+                  onChange={(e: any) => {
+                    if (e.target.files[0]) {
+                      setPdfFile(e.target.files[0]);
+                    }
+                  }}
                 />
               </div>
             </div>

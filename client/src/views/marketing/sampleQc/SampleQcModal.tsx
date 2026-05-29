@@ -68,6 +68,16 @@ const SampleQcModal: React.FC<Props> = ({ openModal, setOpenModal, row }) => {
       return;
     }
 
+    if (!formData.coa_file && !row?.qc_coa_pdf) {
+      toast.error('Please upload COA file');
+      return;
+    }
+
+    if (!formData.qc_remark.trim()) {
+      toast.error('QC remark is required');
+      return;
+    }
+
     try {
       const fd = new FormData();
 

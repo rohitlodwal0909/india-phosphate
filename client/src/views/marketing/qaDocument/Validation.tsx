@@ -29,11 +29,6 @@ export const validateQaDocument = (formData: any, coaItems: any[]) => {
       toast.error(`QA person required in row ${i + 1}`);
       return false;
     }
-
-    if (!item.status) {
-      toast.error(`Status required in row ${i + 1}`);
-      return false;
-    }
   }
 
   return true;

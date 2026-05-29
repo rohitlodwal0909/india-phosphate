@@ -11,16 +11,23 @@ import Select from 'react-select';
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from 'src/store';
+import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
+
 import { GetCustomer } from 'src/features/master/Customer/CustomerSlice';
 import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
-import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 import { addPotOppertunity } from 'src/features/master/Customer/PotentialOpportunitySlice';
+
+import { validateOpportunityForm } from './validation';
 
 const AddOpportunityModal = ({ show, setShowmodal }) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const product = useSelector((state: any) => state.products.productdata || []);
+  const grades = useSelector((state: any) => state.grades.gradedata || []);
+
+  const [errors, setErrors] = useState<any>({});
 
   const selectStyles = {
     menuPortal: (base: any) => ({
@@ -29,15 +36,9 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
     }),
   };
 
-  const product = useSelector((state: any) => state.products.productdata);
-  const grades = useSelector((state: any) => state.grades.gradedata);
-  const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
-  const marketingPersons = usersdata.filter((u: any) => Number(u.role_id) === 9);
-
   useEffect(() => {
     dispatch(GetGrade());
     dispatch(GetProduct());
-    dispatch(GetUsermodule());
   }, [dispatch]);
 
   const [formData, setFormData] = useState({
@@ -47,7 +48,6 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
     trader_names: [''],
     open_field: '',
     company_address: '',
-    // company_hq: '',
     contacts: [{ person: '', email: '', number: '' }],
     addresses: [
       {
@@ -59,113 +59,179 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
     products: [{ product: '', grade: '' }],
     convert_to_customer: false,
     note: '',
-    sales_person_id: '',
   });
 
   const productOptions = product.map((p: any) => ({
     label: p.product_name,
-    value: p.id,
+    value: p.product_name,
   }));
 
-  const marketingOptions = marketingPersons.map((p: any) => ({
-    label: p.username,
-    value: p.id,
-  }));
+  /* -------------------- HANDLE CHANGE -------------------- */
 
   const handleChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    setErrors((prev: any) => ({
+      ...prev,
+      [field]: '',
+    }));
   };
 
   /* -------------------- TRADER FUNCTIONS -------------------- */
 
   const addTrader = () => {
-    setFormData({
-      ...formData,
-      trader_names: [...formData.trader_names, ''],
-    });
+    setFormData((prev) => ({
+      ...prev,
+      trader_names: [...prev.trader_names, ''],
+    }));
   };
 
-  const handleTraderChange = (index, value) => {
+  const handleTraderChange = (index: number, value: string) => {
     const updated = [...formData.trader_names];
     updated[index] = value;
-    setFormData({ ...formData, trader_names: updated });
+
+    setFormData((prev) => ({
+      ...prev,
+      trader_names: updated,
+    }));
   };
 
-  const removeTrader = (index) => {
+  const removeTrader = (index: number) => {
     const updated = formData.trader_names.filter((_, i) => i !== index);
-    setFormData({ ...formData, trader_names: updated });
+
+    setFormData((prev) => ({
+      ...prev,
+      trader_names: updated,
+    }));
   };
 
   /* -------------------- CONTACT FUNCTIONS -------------------- */
 
   const addContact = () => {
-    setFormData({
-      ...formData,
-      contacts: [...formData.contacts, { person: '', email: '', number: '' }],
-    });
+    setFormData((prev) => ({
+      ...prev,
+      contacts: [...prev.contacts, { person: '', email: '', number: '' }],
+    }));
   };
 
-  const removeContact = (index) => {
+  const removeContact = (index: number) => {
     const updated = formData.contacts.filter((_, i) => i !== index);
-    setFormData({ ...formData, contacts: updated });
+
+    setFormData((prev) => ({
+      ...prev,
+      contacts: updated,
+    }));
   };
 
-  const handleContactChange = (index, field, value) => {
+  const handleContactChange = (index: number, field: string, value: string) => {
     const updated = [...formData.contacts];
-    updated[index][field] = value;
-    setFormData({ ...formData, contacts: updated });
+
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      contacts: updated,
+    }));
   };
 
   /* -------------------- ADDRESS FUNCTIONS -------------------- */
 
   const addAddress = () => {
-    setFormData({
-      ...formData,
-      addresses: [...formData.addresses, { factory_address: '', city: '', country: '' }],
-    });
+    setFormData((prev) => ({
+      ...prev,
+      addresses: [
+        ...prev.addresses,
+        {
+          factory_address: '',
+          city: '',
+          country: '',
+        },
+      ],
+    }));
   };
 
-  const handleAddressChange = (index, field, value) => {
+  const handleAddressChange = (index: number, field: string, value: string) => {
     const updated = [...formData.addresses];
-    updated[index][field] = value;
-    setFormData({ ...formData, addresses: updated });
+
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      addresses: updated,
+    }));
   };
 
-  const removeAddress = (index) => {
+  const removeAddress = (index: number) => {
     const updated = formData.addresses.filter((_, i) => i !== index);
-    setFormData({ ...formData, addresses: updated });
+
+    setFormData((prev) => ({
+      ...prev,
+      addresses: updated,
+    }));
   };
 
   /* -------------------- PRODUCT FUNCTIONS -------------------- */
 
   const addProduct = () => {
-    setFormData({
-      ...formData,
-      products: [...formData.products, { product: '', grade: '' }],
-    });
+    setFormData((prev) => ({
+      ...prev,
+      products: [...prev.products, { product: '', grade: '' }],
+    }));
   };
 
-  const handleProductChange = (index, field, value) => {
+  const handleProductChange = (index: number, field: string, value: any) => {
     const updated = [...formData.products];
-    updated[index][field] = value;
-    setFormData({ ...formData, products: updated });
+
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      products: updated,
+    }));
   };
 
-  const removeProduct = (index) => {
+  const removeProduct = (index: number) => {
     const updated = formData.products.filter((_, i) => i !== index);
-    setFormData({ ...formData, products: updated });
+
+    setFormData((prev) => ({
+      ...prev,
+      products: updated,
+    }));
   };
 
   /* -------------------- SUBMIT -------------------- */
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    const { errors, isValid } = validateOpportunityForm(formData);
+
+    setErrors(errors);
+
+    if (!isValid) {
+      toast.error('Please fill all required fields properly');
+      return;
+    }
 
     try {
       const result = await dispatch(addPotOppertunity(formData)).unwrap();
+
       toast.success(result.message || 'Customer Created');
 
       dispatch(GetCustomer());
+
       setShowmodal(false);
     } catch (err) {
       toast.error('Something went wrong');
@@ -181,26 +247,39 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
           {/* Company Name */}
 
           <div className="col-span-6">
-            <Label value="Company Name" />
+            <Label value="Company Name *" />
+
             <TextInput
               placeholder="Enter Company Name"
               value={formData.company_name}
               onChange={(e) => handleChange('company_name', e.target.value)}
+              color={errors.company_name ? 'failure' : undefined}
             />
+
+            {errors.company_name && (
+              <p className="text-red-500 text-sm mt-1">{errors.company_name}</p>
+            )}
           </div>
+
+          {/* Source */}
+
           <div className="col-span-6">
-            <Label value="Source" />
+            <Label value="Source *" />
+
             <TextInput
               placeholder="Enter Source"
               value={formData.source}
               onChange={(e) => handleChange('source', e.target.value)}
+              color={errors.source ? 'failure' : undefined}
             />
+
+            {errors.source && <p className="text-red-500 text-sm mt-1">{errors.source}</p>}
           </div>
 
           {/* Customer Type */}
 
           <div className="col-span-6">
-            <Label value="Customer Type" />
+            <Label value="Customer Type *" />
 
             <select
               className="w-full border rounded-md p-2"
@@ -212,32 +291,35 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
               <option value="End Customer">End Customer</option>
               <option value="Open Field">Open Field</option>
             </select>
+
+            {errors.customer_type && (
+              <p className="text-red-500 text-sm mt-1">{errors.customer_type}</p>
+            )}
           </div>
 
+          {/* Company Address */}
+
           <div className="col-span-6">
-            <Label value="Company Address" />
+            <Label value="Company Address *" />
+
             <TextInput
               placeholder="Company Address"
               value={formData.company_address}
               onChange={(e) => handleChange('company_address', e.target.value)}
+              color={errors.company_address ? 'failure' : undefined}
             />
+
+            {errors.company_address && (
+              <p className="text-red-500 text-sm mt-1">{errors.company_address}</p>
+            )}
           </div>
 
-          {/* <div className="col-span-6">
-            <Label value="Company HQ" />
-            <TextInput
-              placeholder="Company HQ"
-              value={formData.company_hq}
-              onChange={(e) => handleChange('company_hq', e.target.value)}
-            />
-          </div> */}
-
-          {/* ---------------- TRADER FIELD ---------------- */}
+          {/* Trader */}
 
           {formData.customer_type === 'Trader' && (
             <>
               <div className="col-span-12">
-                <Label value="Trader Name" />
+                <Label value="Trader Name *" />
               </div>
 
               {formData.trader_names.map((trader, index) => (
@@ -248,15 +330,24 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                       value={trader}
                       onChange={(e) => handleTraderChange(index, e.target.value)}
                     />
+
+                    {errors.trader_names && (
+                      <p className="text-red-500 text-sm mt-1">{errors.trader_names}</p>
+                    )}
                   </div>
 
                   <div className="col-span-2 flex gap-2">
-                    <Button color="primary" size="xs" onClick={addTrader}>
+                    <Button color="primary" size="xs" type="button" onClick={addTrader}>
                       +
                     </Button>
 
                     {index !== 0 && (
-                      <Button size="xs" color="failure" onClick={() => removeTrader(index)}>
+                      <Button
+                        size="xs"
+                        color="failure"
+                        type="button"
+                        onClick={() => removeTrader(index)}
+                      >
                         -
                       </Button>
                     )}
@@ -266,21 +357,26 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
             </>
           )}
 
-          {/* ---------------- OPEN FIELD ---------------- */}
+          {/* Open Field */}
 
           {formData.customer_type === 'Open Field' && (
             <div className="col-span-6">
-              <Label value="Open Field" />
+              <Label value="Open Field *" />
 
               <TextInput
                 placeholder="Enter Value"
                 value={formData.open_field}
                 onChange={(e) => handleChange('open_field', e.target.value)}
+                color={errors.open_field ? 'failure' : undefined}
               />
+
+              {errors.open_field && (
+                <p className="text-red-500 text-sm mt-1">{errors.open_field}</p>
+              )}
             </div>
           )}
 
-          {/* ---------------- CONTACT PERSON ---------------- */}
+          {/* Contacts */}
 
           <div className="col-span-12">
             <Label value="Contact Persons" />
@@ -294,6 +390,10 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                   value={contact.person}
                   onChange={(e) => handleContactChange(index, 'person', e.target.value)}
                 />
+
+                {errors[`person_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`person_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-4">
@@ -302,6 +402,10 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                   value={contact.email}
                   onChange={(e) => handleContactChange(index, 'email', e.target.value)}
                 />
+
+                {errors[`email_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`email_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-3">
@@ -310,15 +414,24 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                   value={contact.number}
                   onChange={(e) => handleContactChange(index, 'number', e.target.value)}
                 />
+
+                {errors[`number_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`number_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-2 flex gap-2">
-                <Button color="primary" size="xs" onClick={addContact}>
+                <Button color="primary" size="xs" type="button" onClick={addContact}>
                   +
                 </Button>
 
                 {index !== 0 && (
-                  <Button size="xs" color="failure" onClick={() => removeContact(index)}>
+                  <Button
+                    size="xs"
+                    color="failure"
+                    type="button"
+                    onClick={() => removeContact(index)}
+                  >
                     -
                   </Button>
                 )}
@@ -326,7 +439,7 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
             </div>
           ))}
 
-          {/* ---------------- ADDRESS ---------------- */}
+          {/* Addresses */}
 
           <div className="col-span-12">
             <Label value="Addresses" />
@@ -340,6 +453,10 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                   value={addr.factory_address}
                   onChange={(e) => handleAddressChange(index, 'factory_address', e.target.value)}
                 />
+
+                {errors[`factory_address_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`factory_address_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-3">
@@ -348,6 +465,10 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                   value={addr.city}
                   onChange={(e) => handleAddressChange(index, 'city', e.target.value)}
                 />
+
+                {errors[`city_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`city_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-3">
@@ -356,15 +477,24 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
                   value={addr.country}
                   onChange={(e) => handleAddressChange(index, 'country', e.target.value)}
                 />
+
+                {errors[`country_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`country_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-2 flex gap-2">
-                <Button color="primary" size="xs" onClick={addAddress}>
+                <Button color="primary" size="xs" type="button" onClick={addAddress}>
                   +
                 </Button>
 
                 {index !== 0 && (
-                  <Button size="xs" color="failure" onClick={() => removeAddress(index)}>
+                  <Button
+                    size="xs"
+                    color="failure"
+                    type="button"
+                    onClick={() => removeAddress(index)}
+                  >
                     -
                   </Button>
                 )}
@@ -372,76 +502,75 @@ const AddOpportunityModal = ({ show, setShowmodal }) => {
             </div>
           ))}
 
-          {/* ---------------- PRODUCTS ---------------- */}
+          {/* Products */}
 
           <div className="col-span-12">
             <Label value="Interested Products" />
           </div>
 
-          {formData.products.map((_, index) => (
+          {formData.products.map((item, index) => (
             <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
               <div className="col-span-5">
                 <Select
                   options={productOptions}
                   menuPortalTarget={document.body}
                   styles={selectStyles}
+                  value={productOptions.find((opt: any) => opt.value === item.product) || null}
                   onChange={(v: any) => handleProductChange(index, 'product', v?.value)}
                 />
+
+                {errors[`product_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`product_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-5">
                 <select
                   className="w-full border rounded-md p-2"
+                  value={item.grade}
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
                 >
                   <option value="">Select Grade</option>
 
-                  {Array.isArray(grades) &&
-                    grades.map((g: any) => (
-                      <option key={g.id} value={g.grade}>
-                        {g.grade}
-                      </option>
-                    ))}
+                  {grades.map((g: any) => (
+                    <option key={g.id} value={g.grade}>
+                      {g.grade}
+                    </option>
+                  ))}
                 </select>
+
+                {errors[`grade_${index}`] && (
+                  <p className="text-red-500 text-sm mt-1">{errors[`grade_${index}`]}</p>
+                )}
               </div>
 
               <div className="col-span-2 flex gap-2">
-                <Button color="primary" size="xs" onClick={addProduct}>
+                <Button color="primary" size="xs" type="button" onClick={addProduct}>
                   +
                 </Button>
 
                 {index !== 0 && (
-                  <Button size="xs" color="failure" onClick={() => removeProduct(index)}>
+                  <Button
+                    size="xs"
+                    color="failure"
+                    type="button"
+                    onClick={() => removeProduct(index)}
+                  >
                     -
                   </Button>
                 )}
               </div>
             </div>
           ))}
-          <div className="col-span-4">
-            <Label value="Sales Person" className="mb-2 block" />
-
-            <Select
-              options={marketingOptions}
-              placeholder="Select Marketing Person"
-              menuPortalTarget={document.body}
-              styles={selectStyles}
-              value={
-                marketingOptions.find((option: any) => option.value === formData.sales_person_id) ||
-                null
-              }
-              onChange={(selected: any) => handleChange('sales_person_id', selected?.value)}
-            />
-          </div>
         </form>
       </ModalBody>
 
       <ModalFooter>
-        <Button color="gray" onClick={() => setShowmodal(false)}>
+        <Button color="gray" type="button" onClick={() => setShowmodal(false)}>
           Cancel
         </Button>
 
-        <Button color="primary" onClick={handleSubmit}>
+        <Button color="primary" type="button" onClick={handleSubmit}>
           Submit
         </Button>
       </ModalFooter>

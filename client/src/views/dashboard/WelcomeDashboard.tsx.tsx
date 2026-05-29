@@ -1,20 +1,18 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import logoimg from '../../assets/logoimg.png';
+// import { motion } from 'framer-motion';
+// import logoimg from '../../assets/logoimg.png';
 import CustomerMap from './CustomerMap';
 
 const WelcomeDashboard: React.FC = () => {
   return (
     <>
-      <div className="flex items-center justify-center  p-4">
-        {/* Animated Card */}
+      {/* <div className="flex items-center justify-center  p-4">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           className="bg-white rounded-3xl w-full px-8 py-20 text-center"
         >
-          {/* Logo / Avatar */}
           <motion.img
             src={logoimg}
             alt="User Avatar"
@@ -24,7 +22,6 @@ const WelcomeDashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
           />
 
-          {/* Text content */}
           <motion.h1
             className="text-4xl font-bold text-gray-800 mb-3"
             initial={{ opacity: 0 }}
@@ -43,7 +40,6 @@ const WelcomeDashboard: React.FC = () => {
             Manage your data, view insights, and navigate your workspace with ease.
           </motion.p>
 
-          {/* Button */}
           <motion.button
             className="bg-indigo-500 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-full transition-all shadow"
             whileHover={{ scale: 1.05 }}
@@ -52,7 +48,7 @@ const WelcomeDashboard: React.FC = () => {
             Get Started
           </motion.button>
         </motion.div>
-      </div>
+      </div> */}
       <CustomerMap />
     </>
   );

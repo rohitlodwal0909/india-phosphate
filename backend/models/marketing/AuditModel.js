@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
+      pdf_file: {
+        type: DataTypes.STRING
+      },
+
       compliance_remark: {
         type: DataTypes.TEXT
       },

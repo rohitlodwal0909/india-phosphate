@@ -22,45 +22,50 @@ const ViewDevelopmentModal = ({
   /* ================= PRODUCT NAME ================= */
 
   /* ================= STATUS OPTIONS ================= */
-  // const enquiryStatusOptions = [
-  //   { value: 'closed', label: 'Closed', color: '#16a34a' },
-  //   { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
-  //   { value: 'quotation', label: 'Pending Quotation', color: '#2563eb' },
-  //   { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
-  //   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
-  //   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
-  //   { value: 'internal_hold', label: 'Internal Hold', color: '#9333ea' },
-  //   { value: 'customer_hold', label: 'Customer Hold', color: '#dc2626' },
-  // ];
+  const enquiryStatusOptions = [
+    { value: 'closed', label: 'Closed', color: '#16a34a' },
+    { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
+    { value: 'quotation', label: 'Pending Quotation', color: '#2563eb' },
+    { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
+    { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
+    { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
 
-  // const getStatusOption = (status: string) => enquiryStatusOptions.find((s) => s.value === status);
+    // Follow Up
+    { value: 'follow_up_order', label: 'Follow Up for Order', color: '#0f766e' },
 
-  // /* ================= STATUS BADGE ================= */
-  // const StatusBadge = ({ status }: any) => {
-  //   const option = getStatusOption(status);
+    // Hold Status
+    { value: 'internal_hold', label: 'Internal Hold', color: '#9333ea' },
+    { value: 'customer_hold', label: 'Customer Hold', color: '#dc2626' },
+  ];
 
-  //   if (!option) return <span>-</span>;
+  const getStatusOption = (status: string) => enquiryStatusOptions.find((s) => s.value === status);
 
-  //   return (
-  //     <span
-  //       className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 w-fit"
-  //       style={{
-  //         backgroundColor: `${option.color}20`,
-  //         color: option.color,
-  //       }}
-  //     >
-  //       <span
-  //         style={{
-  //           background: option.color,
-  //           width: 8,
-  //           height: 8,
-  //           borderRadius: '50%',
-  //         }}
-  //       />
-  //       {option.label}
-  //     </span>
-  //   );
-  // };
+  /* ================= STATUS BADGE ================= */
+  const StatusBadge = ({ status }: any) => {
+    const option = getStatusOption(status);
+
+    if (!option) return <span>-</span>;
+
+    return (
+      <span
+        className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 w-fit"
+        style={{
+          backgroundColor: `${option.color}20`,
+          color: option.color,
+        }}
+      >
+        <span
+          style={{
+            background: option.color,
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+          }}
+        />
+        {option.label}
+      </span>
+    );
+  };
 
   return (
     <Modal
@@ -131,20 +136,19 @@ const ViewDevelopmentModal = ({
                       <thead className="bg-gray-800 text-white text-xs uppercase tracking-wide">
                         <tr>
                           <th className="p-3 text-left">Followup Date</th>
-                          {/* <th className="p-3 text-left">Status</th> */}
+                          <th className="p-3 text-left">Status</th>
                           <th className="p-3 text-left">Note</th>
                         </tr>
                       </thead>
-
                       <tbody>
                         {followups.length ? (
                           followups.map((f: any, i: number) => (
                             <tr key={i} className="border-t hover:bg-gray-50">
                               <td className="p-3 font-medium text-gray-800">{f.followup_date}</td>
 
-                              {/* <td className="p-3">
+                              <td className="p-3">
                                 <StatusBadge status={f.status} />
-                              </td> */}
+                              </td>
 
                               <td className="p-3 text-gray-700">{f.note || '-'}</td>
                             </tr>

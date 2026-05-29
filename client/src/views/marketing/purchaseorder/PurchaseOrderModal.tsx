@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
 interface PurchaseOrderModalProps {
   openModal: boolean;
@@ -70,6 +71,8 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   const { productdata } = useSelector((state: any) => state.products);
 
   const { pmcodedata } = useSelector((state: any) => state.pmcodes);
+
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
 
   const productOptions = productdata?.map((p: any) => ({
     label: p.product_name, // ya jo bhi field ho
@@ -169,6 +172,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     dispatch(getAllCustomers());
     dispatch(GetProduct());
     dispatch(GetPmCode());
+    dispatch(GetGrade());
   }, []);
 
   const handleCustomerChange = (selected: any) => {
@@ -253,7 +257,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       console.error(error);
     }
   };
-  const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
+  // const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'HIS'];
 
   return (
     <Modal show={openModal} onClose={() => setOpenModal(false)} size="5xl">
@@ -338,11 +342,12 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
                 >
                   <option value="">Select Grade</option>
-                  {grades.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
+                  {Array.isArray(grades) &&
+                    grades.map((g: any) => (
+                      <option key={g.id} value={g.grade}>
+                        {g.grade}
+                      </option>
+                    ))}
                 </select>
               </div>
               {/* Quantity */}

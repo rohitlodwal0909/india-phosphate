@@ -1,30 +1,26 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
-import { Button, Modal, Label, TextInput, Textarea, Card } from 'flowbite-react';
+import { Button, Modal, Textarea, Card } from 'flowbite-react';
 
-import Select from 'react-select';
-
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { toast } from 'react-toastify';
 
-import { RootState } from 'src/store';
-
-import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
-
-import { addVisitPlanner, getallCustomer } from 'src/features/marketing/VisitPlannerSlice';
+import { addVisitPlanner, getVisitPlanner } from 'src/features/marketing/VisitPlannerSlice';
 
 import { GoogleMap, Marker, DirectionsRenderer, useJsApiLoader } from '@react-google-maps/api';
+
+import { VisitDetailCard } from './VisitDetailCard';
+
+/* =========================================================
+   TYPES
+========================================================= */
 
 interface Props {
   openModal: boolean;
 
   setOpenModal: (val: boolean) => void;
 }
-
-/* =========================================================
-   MAP CONFIG
-========================================================= */
 
 const containerStyle = {
   width: '100%',
@@ -35,62 +31,6 @@ const containerStyle = {
 const defaultCenter = {
   lat: 22.7196,
   lng: 75.8577,
-};
-
-/* =========================================================
-   PRIORITY
-========================================================= */
-
-const priorityOptions = [
-  {
-    value: 'high',
-    label: 'High',
-    color: '#dc2626',
-  },
-
-  {
-    value: 'medium',
-    label: 'Medium',
-    color: '#f59e0b',
-  },
-
-  {
-    value: 'low',
-    label: 'Low',
-    color: '#16a34a',
-  },
-];
-
-const formatPriority = (option: any) => (
-  <div className="flex items-center gap-2">
-    <span
-      style={{
-        width: 12,
-        height: 12,
-        borderRadius: '50%',
-        background: option.color,
-      }}
-    />
-
-    {option.label}
-  </div>
-);
-
-/* =========================================================
-   SELECT STYLE
-========================================================= */
-
-const selectStyles = {
-  menuPortal: (base: any) => ({
-    ...base,
-    zIndex: 9999,
-  }),
-
-  control: (base: any) => ({
-    ...base,
-    minHeight: '42px',
-    borderRadius: '10px',
-  }),
 };
 
 const VisitPlannerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
@@ -108,80 +48,91 @@ const VisitPlannerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const [markers, setMarkers] = useState<any[]>([]);
 
-  const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
-
   /* =========================================================
      REDUX
   ========================================================= */
 
-  const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) || [];
-
-  const customers = useSelector((state: RootState) => state.visitplanner?.customers) || [];
-
-  const users = usersdata.filter((user: any) => Number(user.role_id) === 9);
-
-  /* =========================================================
-     LOAD
-  ========================================================= */
-
-  useEffect(() => {
-    dispatch(GetUsermodule());
-
-    dispatch(getallCustomer());
-  }, [dispatch]);
-
-  /* =========================================================
-     FORM
-  ========================================================= */
-
   const initialForm = {
-    visit_date: '',
-
-    sales_person_id: '',
-
-    customer_ids: [],
-
-    priority: '',
-
     ai_preparation_brief: '',
   };
 
   const [formData, setFormData] = useState<any>(initialForm);
 
+  const emptyVisitRow = {
+    sales_person_id: '',
+    sales_person_name: '',
+
+    customer_id: '',
+    customer_name: '',
+
+    address: '',
+
+    latitude: '',
+    longitude: '',
+
+    visit_order: 1,
+
+    visit_date: '',
+
+    priority: '',
+
+    meeting_purpose: '',
+    agena: '',
+    discussion_notes: '',
+    productivity: '',
+    next_action: '',
+
+    followup_date: '',
+
+    status: 'planned',
+  };
+
+  const [customerVisitData, setCustomerVisitData] = useState<any[]>([emptyVisitRow]);
+
+  const updateVisitData = (index: number, field: string, value: any) => {
+    const updated = [...customerVisitData];
+
+    updated[index][field] = value;
+
+    setCustomerVisitData(updated);
+  };
+
+  const addMoreVisit = () => {
+    setCustomerVisitData((prev: any) => [
+      ...prev,
+
+      {
+        ...emptyVisitRow,
+
+        visit_order: prev.length + 1,
+      },
+    ]);
+  };
+
   /* =========================================================
-     CUSTOMER VISIT DATA
+     REMOVE
   ========================================================= */
 
-  const [customerVisitData, setCustomerVisitData] = useState<any[]>([]);
+  const removeVisit = (index: number) => {
+    const updated = [...customerVisitData];
 
-  /* =========================================================
-     OPTIONS
-  ========================================================= */
+    updated.splice(index, 1);
 
-  const usersOptions = useMemo(() => {
-    return users.map((u: any) => ({
-      label: u.username,
+    setCustomerVisitData(updated);
 
-      value: u.id,
-    }));
-  }, [users]);
+    const validLocations = updated.filter((x) => x.latitude && x.longitude);
 
-  const customerOptions = useMemo(() => {
-    return customers.map((item: any) => ({
-      label: item.company_name || item.customer_name || item.name,
+    setMarkers(validLocations);
 
-      value: item.id,
-
-      data: item,
-    }));
-  }, [customers]);
+    generateMultiRoute(validLocations);
+  };
 
   /* =========================================================
      AI BRIEF
   ========================================================= */
 
   const generateAIBrief = (customerList: any[]) => {
-    const names = customerList.map((x) => x.company_name || x.customer_name).join(', ');
+    const names = customerList.map((x) => x.customer_name || x.company_name).join(', ');
 
     const brief = `
 Today's Visit Plan
@@ -209,11 +160,12 @@ Optimized shortest route generated automatically.
   };
 
   /* =========================================================
-     MULTI ROUTE
+     ROUTE
   ========================================================= */
 
   const generateMultiRoute = async (customerLocations: any[]) => {
     if (!navigator.geolocation || customerLocations.length === 0) {
+      setDirections(null);
       return;
     }
 
@@ -267,120 +219,62 @@ Optimized shortest route generated automatically.
   };
 
   /* =========================================================
-     CUSTOMER CHANGE
+     CUSTOMER SELECT
   ========================================================= */
 
-  const handleCustomerChange = async (selected: any) => {
-    if (!selected || selected.length === 0) {
-      setSelectedCustomers([]);
+  const handleCustomerSelect = async (selected: any, index: number) => {
+    if (!selected) return;
 
-      setMarkers([]);
-
-      setDirections(null);
-
-      setCustomerVisitData([]);
-
-      return;
-    }
+    const customer = selected.data;
 
     try {
-      setSelectedCustomers(selected);
+      const fullAddress = customer?.company_address || '';
 
-      const customersWithCoords = [];
+      console.log(fullAddress);
 
-      for (const item of selected) {
-        const customer = item.data;
+      let latitude = '';
+      let longitude = '';
 
-        const fullAddress = customer?.company_address || '';
+      const geoRes = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          fullAddress,
+        )}&key=AIzaSyA9WZ75akgvEYdJiPK1UQIpYNhiuStGQhA`,
+      );
 
-        let latitude = '';
+      const geoData = await geoRes.json();
 
-        let longitude = '';
+      if (geoData.results?.length > 0) {
+        latitude = geoData.results[0].geometry.location.lat;
 
-        const geoRes = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-            fullAddress,
-          )}&key=AIzaSyA9WZ75akgvEYdJiPK1UQIpYNhiuStGQhA`,
-        );
-
-        const geoData = await geoRes.json();
-
-        if (geoData.results && geoData.results.length > 0) {
-          latitude = geoData.results[0].geometry.location.lat;
-
-          longitude = geoData.results[0].geometry.location.lng;
-        }
-
-        customersWithCoords.push({
-          ...customer,
-
-          latitude,
-
-          longitude,
-        });
+        longitude = geoData.results[0].geometry.location.lng;
       }
 
-      /* =========================================
-           MAP MARKERS
-        ========================================= */
+      const updated = [...customerVisitData];
 
-      setMarkers(customersWithCoords);
+      updated[index] = {
+        ...updated[index],
 
-      /* =========================================
-           ROUTE
-        ========================================= */
-
-      generateMultiRoute(customersWithCoords);
-
-      /* =========================================
-           FORM
-        ========================================= */
-
-      setFormData((prev: any) => ({
-        ...prev,
-
-        customer_ids: customersWithCoords.map((x) => x.id),
-      }));
-
-      /* =========================================
-           PROFESSIONAL VISIT CARDS
-        ========================================= */
-
-      const visitCards = customersWithCoords.map((customer: any, index: number) => ({
         customer_id: customer.id,
 
         customer_name: customer.company_name || customer.customer_name,
 
         address: customer.company_address,
 
-        latitude: customer.latitude,
+        latitude,
+        longitude,
+      };
 
-        longitude: customer.longitude,
+      setCustomerVisitData(updated);
 
-        visit_order: index + 1,
+      const validLocations = updated.filter((x) => x.latitude && x.longitude);
 
-        meeting_purpose: '',
+      setMarkers(validLocations);
 
-        agenda: '',
+      generateMultiRoute(validLocations);
 
-        discussion_notes: '',
-
-        productivity: '',
-
-        next_action: '',
-
-        followup_date: '',
-
-        status: 'planned',
-      }));
-
-      setCustomerVisitData(visitCards);
-
-      generateAIBrief(customersWithCoords);
+      generateAIBrief(updated);
     } catch (error) {
-      console.log(error);
-
-      toast.error('Unable to generate route');
+      toast.error('Unable to fetch customer location');
     }
   };
 
@@ -395,9 +289,7 @@ Optimized shortest route generated automatically.
 
     setDirections(null);
 
-    setSelectedCustomers([]);
-
-    setCustomerVisitData([]);
+    setCustomerVisitData([emptyVisitRow]);
   };
 
   /* =========================================================
@@ -408,18 +300,25 @@ Optimized shortest route generated automatically.
     e.preventDefault();
 
     try {
-      const payload = {
-        ...formData,
+      const data = new FormData();
 
-        customer_visits: customerVisitData,
-      };
+      data.append('customer_visits', JSON.stringify(customerVisitData));
 
-      await dispatch(addVisitPlanner(payload)).unwrap();
+      data.append('ai_preparation_brief', formData.ai_preparation_brief);
+
+      // files mapping
+      customerVisitData.forEach((item) => {
+        if (item.file) {
+          data.append('files', item.file);
+        }
+      });
+
+      await dispatch(addVisitPlanner(data)).unwrap();
+      dispatch(getVisitPlanner());
 
       toast.success('Visit Planner Created Successfully ✅');
 
       resetForm();
-
       setOpenModal(false);
     } catch (error: any) {
       toast.error(error?.message || 'Failed to create visit planner');
@@ -433,7 +332,7 @@ Optimized shortest route generated automatically.
       <Modal.Body>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* =========================================================
-              HEADER CARD
+              HEADER
           ========================================================= */}
 
           <Card className="shadow-md border-0">
@@ -441,119 +340,14 @@ Optimized shortest route generated automatically.
               <div>
                 <h2 className="text-2xl font-bold">Visit Planning Dashboard</h2>
 
-                <p className="text-gray-500 mt-1">
-                  Manage customer visits, route planning and sales productivity
-                </p>
+                <p className="text-gray-500 mt-1">Manage customer visits & productivity</p>
               </div>
 
-              <div className="flex gap-4">
-                <div className="bg-blue-50 px-5 py-3 rounded-xl">
-                  <div className="text-xs text-gray-500">Total Visits</div>
+              <div className="bg-blue-50 px-5 py-3 rounded-xl">
+                <div className="text-xs text-gray-500">Total Visits</div>
 
-                  <div className="text-2xl font-bold text-blue-700">{customerVisitData.length}</div>
-                </div>
+                <div className="text-2xl font-bold text-blue-700">{customerVisitData.length}</div>
               </div>
-            </div>
-          </Card>
-
-          {/* =========================================================
-              VISIT DETAILS
-          ========================================================= */}
-
-          <Card>
-            <h3 className="text-xl font-semibold mb-5">Visit Details</h3>
-
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-3">
-                <Label value="Visit Date" />
-
-                <TextInput
-                  type="date"
-                  value={formData.visit_date}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-
-                      visit_date: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="col-span-3">
-                <Label value="Sales Person" />
-
-                <Select
-                  options={usersOptions}
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
-                  onChange={(v: any) =>
-                    setFormData({
-                      ...formData,
-
-                      sales_person_id: v?.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="col-span-3">
-                <Label value="Priority" />
-
-                <Select
-                  options={priorityOptions}
-                  styles={selectStyles}
-                  formatOptionLabel={formatPriority}
-                  menuPortalTarget={document.body}
-                  onChange={(v: any) =>
-                    setFormData({
-                      ...formData,
-
-                      priority: v?.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="col-span-3">
-                <Label value="Select Customers" />
-
-                <Select
-                  isMulti
-                  options={customerOptions}
-                  value={selectedCustomers}
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
-                  onChange={handleCustomerChange}
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* =========================================================
-              ROUTE TIMELINE
-          ========================================================= */}
-
-          <Card>
-            <h3 className="text-xl font-semibold mb-5">Visit Timeline</h3>
-
-            <div className="flex flex-wrap gap-3">
-              {customerVisitData.map((item: any, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 bg-gray-100 px-4 py-3 rounded-xl"
-                >
-                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                    {item.visit_order}
-                  </div>
-
-                  <div>
-                    <div className="font-semibold">{item.customer_name}</div>
-
-                    <div className="text-xs text-gray-500">{item.status}</div>
-                  </div>
-                </div>
-              ))}
             </div>
           </Card>
 
@@ -565,10 +359,7 @@ Optimized shortest route generated automatically.
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">Geography Route Map</h3>
 
-              <div className="text-sm text-gray-500">
-                Customers:
-                {markers.length}
-              </div>
+              <div className="text-sm text-gray-500">Customers: {markers.length}</div>
             </div>
 
             {isLoaded && (
@@ -603,184 +394,45 @@ Optimized shortest route generated automatically.
           </Card>
 
           {/* =========================================================
-              CUSTOMER VISIT CARDS
+              VISIT CARDS
           ========================================================= */}
 
           {customerVisitData.map((item: any, index: number) => (
-            <Card key={index} className="shadow-md border">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold">
-                    {item.visit_order}
-                  </div>
+            <Card key={index} className="mb-5">
+              {/* HEADER */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Visit #{index + 1}</h3>
 
-                  <div>
-                    <h3 className="text-xl font-semibold">{item.customer_name}</h3>
-
-                    <p className="text-sm text-gray-500 mt-1">{item.address}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <span
-                    className={`px-4 py-2 rounded-full text-xs font-semibold ${
-                      item.status === 'completed'
-                        ? 'bg-green-100 text-green-700'
-                        : item.status === 'hold'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                    }`}
+                {customerVisitData.length > 1 && (
+                  <Button
+                    color="failure"
+                    size="xs"
+                    type="button"
+                    onClick={() => removeVisit(index)}
                   >
-                    {item.status}
-                  </span>
-                </div>
+                    Remove
+                  </Button>
+                )}
               </div>
-
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-6">
-                  <Label value="Meeting Purpose" />
-
-                  <Textarea
-                    rows={3}
-                    value={item.meeting_purpose}
-                    onChange={(e) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].meeting_purpose = e.target.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-6">
-                  <Label value="Agenda" />
-
-                  <Textarea
-                    rows={3}
-                    value={item.agenda}
-                    onChange={(e) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].agenda = e.target.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-12">
-                  <Label value="Discussion Notes" />
-
-                  <Textarea
-                    rows={4}
-                    value={item.discussion_notes}
-                    onChange={(e) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].discussion_notes = e.target.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-6">
-                  <Label value="Visit Productivity Report" />
-
-                  <Textarea
-                    rows={4}
-                    value={item.productivity}
-                    onChange={(e) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].productivity = e.target.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-6">
-                  <Label value="Next Action Plan" />
-
-                  <Textarea
-                    rows={4}
-                    value={item.next_action}
-                    onChange={(e) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].next_action = e.target.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-4">
-                  <Label value="Followup Date" />
-
-                  <TextInput
-                    type="date"
-                    value={item.followup_date}
-                    onChange={(e) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].followup_date = e.target.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-4">
-                  <Label value="Visit Status" />
-
-                  <Select
-                    options={[
-                      {
-                        label: 'Planned',
-
-                        value: 'planned',
-                      },
-
-                      {
-                        label: 'Completed',
-
-                        value: 'completed',
-                      },
-
-                      {
-                        label: 'Hold',
-
-                        value: 'hold',
-                      },
-                    ]}
-                    value={{
-                      label: item.status,
-
-                      value: item.status,
-                    }}
-                    onChange={(v: any) => {
-                      const updated = [...customerVisitData];
-
-                      updated[index].status = v.value;
-
-                      setCustomerVisitData(updated);
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-4">
-                  <Label value="AI Success Score" />
-
-                  <div className="h-[42px] flex items-center px-4 rounded-lg border bg-blue-50 text-blue-700 font-semibold">
-                    {Math.floor(Math.random() * 40 + 60)}% Success Probability
-                  </div>
-                </div>
-              </div>
+              {/* DETAIL CARD */}
+              <VisitDetailCard
+                item={item}
+                index={index}
+                updateVisitData={updateVisitData}
+                handleCustomerSelect={handleCustomerSelect}
+              />{' '}
             </Card>
           ))}
+
+          {/* =========================================================
+              ADD MORE
+          ========================================================= */}
+
+          <div className="flex justify-center">
+            <Button color="primary" type="button" onClick={addMoreVisit}>
+              + Add More Visit
+            </Button>
+          </div>
 
           {/* =========================================================
               AI BRIEF
@@ -809,7 +461,7 @@ Optimized shortest route generated automatically.
           </Card>
 
           {/* =========================================================
-              ACTION BUTTONS
+              ACTIONS
           ========================================================= */}
 
           <div className="flex justify-end gap-3">
@@ -817,7 +469,9 @@ Optimized shortest route generated automatically.
               Cancel
             </Button>
 
-            <Button type="submit">Save Visit Planner</Button>
+            <Button color="primary" type="submit">
+              Save Visit Planner
+            </Button>
           </div>
         </form>
       </Modal.Body>

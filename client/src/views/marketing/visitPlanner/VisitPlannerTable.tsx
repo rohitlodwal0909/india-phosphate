@@ -23,45 +23,14 @@ import { getPermissions } from 'src/utils/getPermissions';
 // import ViewVisitPlanner from './ViewVisitPlanner';
 // import { deleteDispute, getDispute } from 'src/features/marketing/DisputeSlice';
 import VisitPlannerEditModal from './VisitPlannerEditModal';
-import { getDispute } from 'src/features/marketing/DisputeSlice';
 import VisitPlannerModal from './VisitPlannerModal';
-
-interface FollowupType {
-  followup_date: string;
-  note: string;
-  status: string;
-}
+import { deleteVisitPlanner, getVisitPlanner } from 'src/features/marketing/VisitPlannerSlice';
+import VisitPlannerView from './VisitPlannerView';
 
 interface DisputeDataType {
   id: number;
-
-  dispute_type: string;
-
-  dispute_type_id: any[];
-
-  dispute_reason: string;
-
-  purchase_order?: {
-    id: number;
-    po_no: string;
-  };
-
-  sample_request?: {
-    id: number;
-    sr_no: string;
-  };
-
-  assign_to?: {
-    id: number;
-    username: string;
-  };
-
-  priority: string;
-
-  followups: FollowupType[];
-
+  total_visits: string;
   date: string;
-
   users?: {
     id: number;
     username: string;
@@ -74,8 +43,7 @@ const VisitPlannerTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const disputes = useSelector((state: RootState) => state.disputes.disputes) as any;
-
+  const visitplanner = useSelector((state: RootState) => state.visitplanner.visitplanner) as any;
   const [data, setData] = useState<DisputeDataType[]>([]);
   const [searchText, setSearchText] = useState('');
   const [modals, setModals] = useState({ add: false, edit: false, view: false, delete: false });
@@ -88,11 +56,11 @@ const VisitPlannerTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(disputes) ? disputes : []);
-  }, [disputes]);
+    setData(Array.isArray(visitplanner) ? visitplanner : []);
+  }, [visitplanner]);
 
   useEffect(() => {
-    dispatch(getDispute());
+    dispatch(getVisitPlanner());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: DisputeDataType) => {
@@ -107,9 +75,9 @@ const VisitPlannerTable = () => {
     }
     try {
       const id = selectedRow.id;
-      // await dispatch(deleteDispute(id)).unwrap();
-      toast.success('Dispute Entry deleted!');
-      // dispatch(getDispute());
+      await dispatch(deleteVisitPlanner(id)).unwrap();
+      toast.success('Visit Planner Entry deleted!');
+      dispatch(getVisitPlanner());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
@@ -153,59 +121,29 @@ const VisitPlannerTable = () => {
         header: 'ID',
       }),
 
-      columnHelper.accessor('dispute_type', {
-        header: 'PO / Sample',
+      columnHelper.accessor('total_visits', {
+        header: 'Total Visit',
         cell: (info) => (
           <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.dispute_type == 'po' ? 'PO' : 'Sample No.'}</p>
+            <p>{info.row.original.total_visits}</p>
           </div>
         ),
       }),
 
-      columnHelper.accessor('dispute_type_id', {
-        header: 'Dispute No.',
-        cell: (info) => {
-          const row = info.row.original;
-
-          return (
-            <div className="max-w-[350px] whitespace-normal break-words text-sm">
-              <p>
-                {row.dispute_type === 'po' ? row.purchase_order?.po_no : row.sample_request?.sr_no}
-              </p>
-            </div>
-          );
-        },
-      }),
-
-      columnHelper.accessor('dispute_reason', {
-        header: 'Dispute reason',
-        cell: (info) => (
-          <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.dispute_reason}</p>
-          </div>
-        ),
-      }),
-      columnHelper.accessor('assign_to', {
-        header: 'Assigned To',
-        cell: (info) => (
-          <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.assign_to?.username}</p>
-          </div>
-        ),
-      }),
-      columnHelper.accessor('priority', {
-        header: 'Priority',
-        cell: (info) => (
-          <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.priority}</p>
-          </div>
-        ),
-      }),
       columnHelper.accessor('date', {
         header: 'Date',
         cell: (info) => (
           <div className="max-w-[350px] whitespace-normal break-words text-sm">
             <p>{info.row.original.date}</p>
+          </div>
+        ),
+      }),
+
+      columnHelper.accessor('users', {
+        header: 'Submitted By',
+        cell: (info) => (
+          <div className="max-w-[350px] whitespace-normal break-words text-sm">
+            <p>{info.row.original.users?.username}</p>
           </div>
         ),
       }),
@@ -292,7 +230,7 @@ const VisitPlannerTable = () => {
             size="sm"
             className="border border-primary bg-primary text-white rounded-md"
           >
-            Create Dispute
+            Create Visit Planner
           </Button>
         )}
       </div>
@@ -328,21 +266,21 @@ const VisitPlannerTable = () => {
             isOpen={modals.delete}
             setIsOpen={() => handleModal('delete', false)}
             selectedUser={selectedRow}
-            title="Are you sure you want to Delete this Dispute ?"
+            title="Are you sure you want to Delete this Visit Planner ?"
             handleConfirmDelete={handleConfirmDelete}
           />
         </Portal>
       )}
-      {/* {modals.view && (
+      {modals.view && (
         <Portal>
-          <ViewVisitPlanner
+          <VisitPlannerView
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
             selectedRow={selectedRow}
             modalPlacement="center"
           />
         </Portal>
-      )} */}
+      )}
       {modals.add && (
         <Portal>
           <VisitPlannerModal

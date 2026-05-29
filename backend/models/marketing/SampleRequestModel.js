@@ -35,6 +35,9 @@ module.exports = (sequelize, DataTypes) => {
       address: {
         type: DataTypes.TEXT
       },
+      delivery_address: {
+        type: DataTypes.TEXT
+      },
 
       remark: {
         type: DataTypes.TEXT

@@ -8,6 +8,8 @@ import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { getAudit, updateAudit } from 'src/features/marketing/AuditSlice';
 import { validateForm } from './Validation';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
+import { ImageUrl } from 'src/constants/contant';
 
 interface AuditEditModalProps {
   openModal: boolean;
@@ -16,7 +18,7 @@ interface AuditEditModalProps {
   permissions: any;
 }
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
+// const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
 
 const AuditEditModal: React.FC<AuditEditModalProps> = ({
   openModal,
@@ -30,13 +32,17 @@ const AuditEditModal: React.FC<AuditEditModalProps> = ({
 
   const { productdata } = useSelector((s: any) => s.products);
   const customers = useSelector((s: RootState) => s.purchaseOrder.customers);
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
 
   useEffect(() => {
     dispatch(GetProduct());
     dispatch(getAllCustomers());
+    dispatch(GetGrade());
   }, []);
 
   /* ================= FORM ================= */
+
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState<any>({
     arrival_date: '',
@@ -127,10 +133,25 @@ const AuditEditModal: React.FC<AuditEditModalProps> = ({
 
     if (!validateForm(formData, auditItems)) return;
 
-    const payload = {
-      ...formData,
-      auditItems,
-    };
+    const payload = new FormData();
+
+    payload.append('arrival_date', formData.arrival_date || '');
+    payload.append('company_id', formData.company_id || '');
+    payload.append('audit_agenda', formData.audit_agenda || '');
+    payload.append('note', formData.note || '');
+    payload.append('compliance_status', formData.compliance_status || '');
+    payload.append('compliance_remark', formData.compliance_remark || '');
+
+    payload.append('auditItems', JSON.stringify(auditItems));
+
+    if (pdfFile) {
+      payload.append('pdf', pdfFile);
+    }
+
+    // const payload = {
+    //   ...formData,
+    //   auditItems,
+    // };
 
     try {
       await dispatch(
@@ -180,6 +201,32 @@ const AuditEditModal: React.FC<AuditEditModalProps> = ({
                   }}
                 />{' '}
               </div>
+
+              <div className="col-span-4">
+                <Label value="Upload PDF" />
+
+                <input
+                  type="file"
+                  accept=".pdf"
+                  className="w-full border rounded-lg p-2 bg-white"
+                  onChange={(e: any) => {
+                    if (e.target.files[0]) {
+                      setPdfFile(e.target.files[0]);
+                    }
+                  }}
+                />
+
+                {selectedRow?.pdf_file && (
+                  <a
+                    href={`${ImageUrl}uploads/audit/${selectedRow.pdf_file}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline text-sm mt-2 inline-block"
+                  >
+                    View Current PDF
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
@@ -209,9 +256,12 @@ const AuditEditModal: React.FC<AuditEditModalProps> = ({
                     onChange={(e) => handleItem(index, 'grade', e.target.value)}
                   >
                     <option>Select</option>
-                    {grades.map((g) => (
-                      <option key={g}>{g}</option>
-                    ))}
+                    {Array.isArray(grades) &&
+                      grades.map((g: any) => (
+                        <option key={g.id} value={g.grade}>
+                          {g.grade}
+                        </option>
+                      ))}
                   </select>
                 </div>
 

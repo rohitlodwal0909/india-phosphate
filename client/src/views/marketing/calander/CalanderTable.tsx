@@ -15,15 +15,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import CalanderModal from './CalanderModal';
 import { getMeeting } from 'src/features/marketing/CalanderSlice';
 import MeetingViewModal from './MeetingViewModal';
-// interface MeetingType {
-//   id: number;
-//   title: string;
-//   meeting_date: string;
-//   meeting_time: string;
-//   meeting_type: string;
-//   invited_person: string;
-//   status: string;
-// }
+import UpcomingMeeting from './UpcomingMeeting';
 
 const CalendarTable = () => {
   const dispatch = useDispatch<any>();
@@ -46,37 +38,13 @@ const CalendarTable = () => {
 
   const [selectedMeeting, setSelectedMeeting] = useState<any>(null);
   const [openView, setOpenView] = useState(false);
+  const [upcomingView, setUpcomingView] = useState(false);
 
   /* ================= DEMO DATA ================= */
 
   useEffect(() => {
     dispatch(getMeeting());
   }, [dispatch]);
-
-  // useEffect(() => {
-  //   setMeetings([
-  //     {
-  //       id: 1,
-  //       title: 'Client Discussion',
-  //       meeting_date: '2026-04-29',
-  //       meeting_time: '11:00',
-  //       meeting_type: 'Google Meet',
-  //       invited_person: 'client@gmail.com',
-  //       status: 'Pending',
-  //     },
-  //     {
-  //       id: 2,
-  //       title: 'Internal Sales Meeting',
-  //       meeting_date: '2026-04-30',
-  //       meeting_time: '15:30',
-  //       meeting_type: 'Zoom',
-  //       invited_person: 'team@company.com',
-  //       status: 'Completed',
-  //     },
-  //   ]);
-  // }, []);
-
-  /* ================= CALENDAR EVENTS ================= */
 
   const calendarEvents = useMemo(() => {
     return meetings.map((m) => {
@@ -123,6 +91,8 @@ const CalendarTable = () => {
 
   const upcomingMeetings = meetings.filter((m) => m.date > today).length;
 
+  const upcomingMeeting = meetings.filter((m) => m.date > today);
+
   // const pastMeetings = meetings.filter((m) => m.date < today).length;
 
   /* ================= UI ================= */
@@ -159,7 +129,10 @@ const CalendarTable = () => {
           <h3 className="text-2xl font-semibold">{todayMeetings}</h3>
         </div>
 
-        <div className="bg-white border rounded-2xl p-5 shadow-sm">
+        <div
+          className="bg-white border rounded-2xl p-5 shadow-sm"
+          onClick={() => setUpcomingView(true)}
+        >
           <p className="text-gray-500 text-sm">Upcoming</p>
           <h3 className="text-2xl font-semibold">{upcomingMeetings}</h3>
         </div>
@@ -207,6 +180,14 @@ const CalendarTable = () => {
           setOpen={setOpenView}
           meeting={selectedMeeting}
           permissions={permissions}
+        />
+      )}
+
+      {upcomingView && (
+        <UpcomingMeeting
+          open={upcomingView}
+          setOpen={setUpcomingView}
+          upcomingMeeting={upcomingMeeting}
         />
       )}
     </div>

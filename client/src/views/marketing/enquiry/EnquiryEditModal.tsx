@@ -10,6 +10,7 @@ import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { updateEnquiry } from 'src/features/marketing/EnquirySlice';
 import { validateEnquiryForm } from './Validation';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
 interface Props {
   openModal: boolean;
@@ -24,7 +25,7 @@ const selectStyles = {
   }),
 };
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
+// const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
 
 const enquiryStatusOptions = [
   { value: 'closed', label: 'Closed', color: '#16a34a' },
@@ -56,11 +57,14 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
 
   const { productdata } = useSelector((state: any) => state.products);
   const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata ?? []);
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
+
   const users = usersdata.filter((user) => Number(user.role_id) === 9);
 
   useEffect(() => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
+    dispatch(GetGrade());
     dispatch(GetUsermodule());
   }, []);
 
@@ -293,9 +297,12 @@ const EnquiryEditModal: React.FC<Props> = ({ openModal, setOpenModal, selectedRo
                       onChange={(e) => handleProductChange(pIndex, 'grade', e.target.value)}
                     >
                       <option value="">Select Grade</option>
-                      {grades.map((g) => (
-                        <option key={g}>{g}</option>
-                      ))}
+                      {Array.isArray(grades) &&
+                        grades.map((g: any) => (
+                          <option key={g.id} value={g.grade}>
+                            {g.grade}
+                          </option>
+                        ))}
                     </select>
                   </div>
 

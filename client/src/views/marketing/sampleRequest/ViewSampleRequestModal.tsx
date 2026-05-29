@@ -67,6 +67,8 @@ const ViewSampleModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRo
             <Info label="Contact Person">{selectedRow?.contact_person}</Info>
             <Info label="Mobile">{selectedRow?.mobile || '-'}</Info>
             <Info label="Address">{selectedRow?.address || '-'}</Info>
+            <Info label="Delivery Address">{selectedRow?.delivery_address || '-'}</Info>
+
             <Info label="Submitted By">{selectedRow?.users?.username || '-'}</Info>
             <Info label="Remark">{selectedRow?.remark || '-'}</Info>
             <Info label="QC Sample Status">

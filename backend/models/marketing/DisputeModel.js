@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
+      pdf_file: {
+        type: DataTypes.STRING
+      },
+
       followups: {
         type: DataTypes.TEXT
       },

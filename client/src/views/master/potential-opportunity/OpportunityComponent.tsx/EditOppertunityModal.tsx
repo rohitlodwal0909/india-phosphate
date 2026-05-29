@@ -11,7 +11,7 @@ import Select from 'react-select';
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 import { toast } from 'react-toastify';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { GetGrade } from 'src/features/master/Grade/GradeSlice';
@@ -19,6 +19,7 @@ import {
   getPotOppertunity,
   updatePotOppertunity,
 } from 'src/features/master/Customer/PotentialOpportunitySlice';
+import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 
 const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -49,17 +50,18 @@ const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
       },
     ],
     products: [{ product: '', grade: '' }],
+    sales_person_id: '',
   });
 
   const product = useSelector((state: any) => state.products.productdata);
   const grades = useSelector((state: any) => state.grades.gradedata);
-  // const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
-  // const marketingPersons = usersdata.filter((u: any) => Number(u.role_id) === 9);
+  const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
+  const marketingPersons = usersdata.filter((u: any) => Number(u.role_id) === 9);
 
   useEffect(() => {
     dispatch(GetGrade());
     dispatch(GetProduct());
-    // dispatch(GetUsermodule());
+    dispatch(GetUsermodule());
   }, [dispatch]);
 
   useEffect(() => {
@@ -106,6 +108,7 @@ const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
           ? addresses
           : [{ factory_address: '', city: '', country: '' }],
         products: Array.isArray(products) ? products : [{ product: '', grade: '' }],
+        sales_person_id: CustomerData.sales_person_id || '',
       });
     }
   }, [CustomerData]);
@@ -177,6 +180,7 @@ const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
 
     return Object.keys(newErrors).length === 0;
   };
+
   const removeContact = (index) => {
     const updated = formData.contacts.filter((_, i) => i !== index);
     setFormData({ ...formData, contacts: updated });
@@ -191,6 +195,11 @@ const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
 
   const productOptions = product.map((p: any) => ({
     label: p.product_name,
+    value: p.product_name,
+  }));
+
+  const marketingOptions = marketingPersons.map((p: any) => ({
+    label: p.username,
     value: p.id,
   }));
   /* ---------------- ADDRESS ---------------- */
@@ -309,15 +318,6 @@ const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
               onChange={(e) => handleChange('company_address', e.target.value)}
             />
           </div>
-
-          {/* <div className="col-span-6">
-            <Label value="Company HQ" />
-            <TextInput
-              placeholder="Company HQ"
-              value={formData.company_hq}
-              onChange={(e) => handleChange('company_hq', e.target.value)}
-            />
-          </div> */}
 
           {/* Trader */}
 
@@ -503,6 +503,22 @@ const EditOppertunityModal = ({ show, setShowmodal, CustomerData }) => {
               </div>
             </div>
           ))}
+
+          <div className="col-span-4">
+            {' '}
+            <Label value="Sales Person" className="mb-2 block" />{' '}
+            <Select
+              options={marketingOptions}
+              placeholder="Select Marketing Person"
+              menuPortalTarget={document.body}
+              styles={selectStyles}
+              value={
+                marketingOptions.find((option: any) => option.value === formData.sales_person_id) ||
+                null
+              }
+              onChange={(selected: any) => handleChange('sales_person_id', selected?.value)}
+            />{' '}
+          </div>
         </form>
       </ModalBody>
 

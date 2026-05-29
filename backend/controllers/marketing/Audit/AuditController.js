@@ -75,6 +75,12 @@ exports.storeAudit = async (req, res) => {
           : req.body.auditItems;
     }
 
+    let pdf_file = null;
+
+    if (req.file) {
+      pdf_file = req.file.filename;
+    }
+
     const { entry_date } = getISTDateTime();
 
     /* ================= SR NO GENERATION ================= */
@@ -87,6 +93,7 @@ exports.storeAudit = async (req, res) => {
       compliance_remark: req.body.compliance_remark,
       note: req.body.note,
       audit_agenda: req.body.audit_agenda,
+      pdf_file: pdf_file,
       user_id: req.admin.id
     });
 
@@ -122,6 +129,17 @@ exports.updateAudit = async (req, res) => {
   try {
     const { id } = req.params;
 
+    /* ================= FIND AUDIT ================= */
+
+    const audit = await AuditModel.findByPk(id);
+
+    if (!audit) {
+      return res.status(404).json({
+        success: false,
+        message: "Audit not found"
+      });
+    }
+
     /* ================= PARSE PRODUCTS ================= */
 
     let auditItems = [];
@@ -133,47 +151,59 @@ exports.updateAudit = async (req, res) => {
           : req.body.auditItems;
     }
 
-    /* ================= UPDATE ENQUIRY ================= */
+    /* ================= PDF ================= */
 
-    await AuditModel.update(
-      {
-        company_id: req.body.company_id,
-        compliance_status: req.body.compliance_status,
-        compliance_remark: req.body.compliance_remark
-      },
-      { where: { id } }
-    );
+    let pdf_file = audit.pdf_file;
+
+    if (req.file) {
+      pdf_file = req.file.filename;
+    }
+
+    /* ================= UPDATE AUDIT ================= */
+
+    await audit.update({
+      company_id: req.body.company_id,
+      arrival_date: req.body.arrival_date,
+      audit_agenda: req.body.audit_agenda,
+      note: req.body.note,
+      compliance_status: req.body.compliance_status,
+      compliance_remark: req.body.compliance_remark,
+      pdf_file: pdf_file
+    });
 
     /* ================= DELETE OLD PRODUCTS ================= */
 
     await AuditProductsModel.destroy({
-      where: { audit_id: id }
+      where: {
+        audit_id: id
+      }
     });
 
     /* ================= ADD NEW PRODUCTS ================= */
 
-    const productRows = auditItems.map((p, index) => {
-      return {
+    if (auditItems.length > 0) {
+      const productRows = auditItems.map((p) => ({
         audit_id: id,
         product_id: p.product_id,
         grade: p.grade,
-        auditor_name: p.auditor_name
-      };
-    });
+        auditor_name: p.auditor_name || null
+      }));
 
-    if (productRows.length) {
       await AuditProductsModel.bulkCreate(productRows);
     }
 
     /* ================= RESPONSE ================= */
 
-    res.json({
+    return res.status(200).json({
       success: true,
-      message: "Audit Updated Successfully ✅"
+      message: "Audit Updated Successfully ✅",
+      pdf_file
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.error("UPDATE AUDIT ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
       message: error.message || "Update failed"
     });
   }

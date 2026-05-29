@@ -70,7 +70,14 @@ exports.getCustomers = async (req, res) => {
       where: {
         convert_to_customer: false,
         potential_opportunity: 0
-      }
+      },
+      include: [
+        {
+          model: User,
+          as: "sales_person",
+          attributes: ["username"]
+        }
+      ]
     });
 
     const formattedCustomers = customers.map((customer) => {

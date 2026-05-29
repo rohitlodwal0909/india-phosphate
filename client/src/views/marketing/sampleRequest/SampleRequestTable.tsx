@@ -38,6 +38,8 @@ interface PurchaseOrderDataType {
     company_name: string;
   };
   delivery_address: string;
+  qc_remark: string;
+  docket_remark: string;
   contact_person: string;
   type: string;
   qc_status: string;
@@ -164,12 +166,12 @@ const SampleRequestTable = () => {
         ),
       }),
 
-      columnHelper.accessor('contact_person', {
-        header: 'Contact Person Name',
-        cell: (info) => (
-          <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
-        ),
-      }),
+      // columnHelper.accessor('contact_person', {
+      //   header: 'Contact Person Name',
+      //   cell: (info) => (
+      //     <p className="max-w-[350px] whitespace-normal break-words text-sm">{info.getValue()}</p>
+      //   ),
+      // }),
 
       columnHelper.accessor('qc_status', {
         header: 'QC Status',
@@ -211,15 +213,36 @@ const SampleRequestTable = () => {
           );
         },
       }),
-
-      columnHelper.accessor('user_id', {
-        header: 'Submitted by',
-        cell: (info) => (
-          <div className="truncate">
-            <p>{info.row.original.users?.username}</p>
-          </div>
-        ),
+      columnHelper.accessor('qc_remark', {
+        header: 'QC Remark',
+        cell: (info) => {
+          return (
+            <div className="truncate">
+              <p>{info.row.original?.qc_remark}</p>
+            </div>
+          );
+        },
       }),
+
+      columnHelper.accessor('docket_remark', {
+        header: 'Docket Remark',
+        cell: (info) => {
+          return (
+            <div className="truncate">
+              <p>{info.row.original?.docket_remark}</p>
+            </div>
+          );
+        },
+      }),
+
+      // columnHelper.accessor('user_id', {
+      //   header: 'Submitted by',
+      //   cell: (info) => (
+      //     <div className="truncate">
+      //       <p>{info.row.original.users?.username}</p>
+      //     </div>
+      //   ),
+      // }),
 
       columnHelper.display({
         id: 'actions',

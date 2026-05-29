@@ -108,6 +108,12 @@ exports.storeDispute = async (req, res) => {
 
     const { entry_date } = getISTDateTime();
 
+    let pdf_file = null;
+
+    if (req.file) {
+      pdf_file = req.file.filename;
+    }
+
     /* ================= CREATE DISPUTE ================= */
 
     const dispute = await DisputeModel.create({
@@ -124,6 +130,7 @@ exports.storeDispute = async (req, res) => {
       followups: JSON.stringify(followups),
 
       date: entry_date,
+      pdf_file: pdf_file,
 
       user_id: req.admin.id
     });
@@ -145,63 +152,75 @@ exports.storeDispute = async (req, res) => {
   }
 };
 
-exports.updateAudit = async (req, res) => {
+exports.updateDispute = async (req, res) => {
   try {
     const { id } = req.params;
 
-    /* ================= PARSE PRODUCTS ================= */
+    /* ================= CHECK DISPUTE ================= */
 
-    let auditItems = [];
+    const dispute = await DisputeModel.findByPk(id);
 
-    if (req.body.auditItems) {
-      auditItems =
-        typeof req.body.auditItems === "string"
-          ? JSON.parse(req.body.auditItems)
-          : req.body.auditItems;
+    if (!dispute) {
+      return res.status(404).json({
+        success: false,
+        message: "Dispute not found"
+      });
     }
 
-    /* ================= UPDATE ENQUIRY ================= */
+    /* ================= FOLLOWUPS ================= */
 
-    await AuditModel.update(
+    let followups = [];
+
+    if (req.body.followups) {
+      followups =
+        typeof req.body.followups === "string"
+          ? JSON.parse(req.body.followups)
+          : req.body.followups;
+    }
+
+    /* ================= PDF ================= */
+
+    let pdf_file = dispute.pdf_file;
+
+    if (req.file) {
+      pdf_file = req.file.filename;
+    }
+
+    /* ================= UPDATE DISPUTE ================= */
+
+    await DisputeModel.update(
       {
-        company_id: req.body.company_id,
-        compliance_status: req.body.compliance_status,
-        compliance_remark: req.body.compliance_remark
+        dispute_type: req.body.dispute_type,
+
+        dispute_type_id: req.body.dispute_type_id,
+
+        dispute_reason: req.body.dispute_reason,
+
+        assigned_to: req.body.assigned_to,
+
+        priority: req.body.priority,
+
+        followups: JSON.stringify(followups),
+
+        pdf_file: pdf_file
       },
-      { where: { id } }
+      {
+        where: { id }
+      }
     );
-
-    /* ================= DELETE OLD PRODUCTS ================= */
-
-    await AuditProductsModel.destroy({
-      where: { audit_id: id }
-    });
-
-    /* ================= ADD NEW PRODUCTS ================= */
-
-    const productRows = auditItems.map((p, index) => {
-      return {
-        audit_id: id,
-        product_id: p.product_id,
-        grade: p.grade,
-        auditor_name: p.auditor_name
-      };
-    });
-
-    if (productRows.length) {
-      await AuditProductsModel.bulkCreate(productRows);
-    }
 
     /* ================= RESPONSE ================= */
 
-    res.json({
+    return res.status(200).json({
       success: true,
-      message: "Audit Updated Successfully ✅"
+      message: "Dispute Updated Successfully ✅"
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: error.message || "Update failed"
+    console.error("UPDATE DISPUTE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
@@ -210,19 +229,14 @@ exports.deleteAudit = async (req, res) => {
   try {
     const { id } = req.params;
 
-    /* ================= DELETE CHILD RECORDS ================= */
-    await AuditProductsModel.destroy({
-      where: { audit_id: id }
-    });
-
     /* ================= DELETE MAIN ENQUIRY ================= */
-    await AuditModel.destroy({
+    await DisputeModel.destroy({
       where: { id }
     });
 
     res.json({
       success: true,
-      message: "Audit Deleted Successfully"
+      message: "Dispute Deleted Successfully"
     });
   } catch (error) {
     console.error(error);

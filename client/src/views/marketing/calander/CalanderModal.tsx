@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'src/store';
-import { addMeeting } from 'src/features/marketing/CalanderSlice';
+import { addMeeting, getMeeting } from 'src/features/marketing/CalanderSlice';
 
 interface Props {
   openModal: boolean;
@@ -135,6 +135,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
       /* ================= API CALL ================= */
 
       const response = await dispatch(addMeeting(payload)).unwrap();
+      dispatch(getMeeting());
 
       toast.success(response.message || 'Meeting Scheduled Successfully ✅');
 

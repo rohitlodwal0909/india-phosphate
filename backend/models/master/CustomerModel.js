@@ -85,5 +85,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  Customer.associate = (models) => {
+    Customer.belongsTo(models.User, {
+      foreignKey: "sales_person_id",
+      sourceKey: "id",
+      as: "sales_person"
+    });
+  };
+
   return Customer;
 };

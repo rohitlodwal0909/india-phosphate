@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 import { getQaDocument, updateQaDocument } from 'src/features/marketing/QaDocumentSlice';
 import { validateQaDocument } from './Validation';
+import { ImageUrl } from 'src/constants/contant';
 
 interface Props {
   openModal: boolean;
@@ -48,6 +49,8 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
     share_customer_by: '',
     status: '',
     comment: '',
+    file: null,
+    old_file: '',
   };
 
   const [coaItems, setCoaItems] = useState([defaultRow]);
@@ -86,6 +89,8 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
         share_customer_by: item.share_customer_by || '',
         status: item.status || '',
         comment: item.comment || '',
+        file: null,
+        old_file: item.file || '',
       }));
 
       setCoaItems(items);
@@ -117,24 +122,48 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
   };
 
   /* ================= SUBMIT ================= */
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (!validateQaDocument(formData, coaItems)) return;
 
     try {
+      const form = new FormData();
+
+      form.append('company_id', formData.company_id);
+
+      // JSON DATA
+      form.append(
+        'coaItems',
+        JSON.stringify(
+          coaItems.map((item: any) => ({
+            id: item.id || '',
+            doc_name: item.doc_name,
+            qa_person_id: item.qa_person_id,
+            received_marketing_id: item.received_marketing_id,
+            share_customer_by: item.share_customer_by,
+            status: item.status,
+            comment: item.comment,
+            old_file: item.old_file || '',
+          })),
+        ),
+      );
+
+      // FILES
+      coaItems.forEach((item: any) => {
+        if (item.file) {
+          form.append('files', item.file);
+        }
+      });
+
       await dispatch(
         updateQaDocument({
           id: selectedRow.id,
-          data: {
-            ...formData,
-            coaItems,
-          },
+          data: form,
         }),
       ).unwrap();
 
-      toast.success('QA Document Updated Successfully ✅');
+      toast.success('QA Document Updated Successfully');
 
       dispatch(getQaDocument());
 
@@ -198,155 +227,217 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
               </Button>
             </div>
 
-            {coaItems.map((item, index) => (
-              <div key={index} className="border rounded-2xl p-5 bg-white shadow-sm mb-6">
-                {/* HEADER */}
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <h4 className="font-semibold text-gray-800 text-lg">Document #{index + 1}</h4>
+            {coaItems.map((item, index) => {
+              const step2Enabled = !!selectedRow?.qa_document?.[index]?.doc_name;
 
-                    <p className="text-sm text-gray-500">QA approval workflow</p>
-                  </div>
+              const step3Enabled = !!selectedRow?.qa_document?.[index]?.status;
 
-                  {index > 0 && (
-                    <Button color="failure" size="xs" onClick={() => removeRow(index)}>
-                      Remove
-                    </Button>
-                  )}
-                </div>
+              return (
+                <div key={index} className="border rounded-2xl p-5 bg-white shadow-sm mb-6">
+                  {/* HEADER */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h4 className="font-semibold text-gray-800 text-lg">Document #{index + 1}</h4>
 
-                {/* STEP 1 */}
-                <div className="border rounded-xl p-5 bg-blue-50 mb-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h5 className="font-semibold text-blue-700">Step 1 : Assign QA Person</h5>
-
-                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                      Marketing Team
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-4">
-                    {/* DOC NAME */}
-                    <div className="col-span-6">
-                      <Label value="Document Name" className="mb-2 block" />
-
-                      <TextInput
-                        placeholder="Enter document name"
-                        value={item.doc_name}
-                        onChange={(e) => handleItem(index, 'doc_name', e.target.value)}
-                      />
+                      <p className="text-sm text-gray-500">QA approval workflow</p>
                     </div>
 
-                    {/* QA PERSON */}
-                    <div className="col-span-6">
-                      <Label value="QA Person" className="mb-2 block" />
+                    {index > 0 && (
+                      <Button color="failure" size="xs" onClick={() => removeRow(index)}>
+                        Remove
+                      </Button>
+                    )}
+                  </div>
 
-                      <Select
-                        options={qaOptions}
-                        placeholder="Select QA Person"
-                        value={qaOptions.find(
-                          (o: any) => Number(o.value) === Number(item.qa_person_id),
+                  {/* STEP 1 */}
+                  <div className="border rounded-xl p-5 bg-blue-50 mb-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h5 className="font-semibold text-blue-700">Step 1 : Assign QA Person</h5>
+
+                      <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                        Marketing Team
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-12 gap-4">
+                      {/* DOC NAME */}
+                      <div className="col-span-4">
+                        <Label value="Document Name" className="mb-2 block" />
+
+                        <TextInput
+                          placeholder="Enter document name"
+                          value={item.doc_name}
+                          onChange={(e) => handleItem(index, 'doc_name', e.target.value)}
+                        />
+                      </div>
+
+                      {/* QA PERSON */}
+                      <div className="col-span-4">
+                        <Label value="QA Person" className="mb-2 block" />
+
+                        <Select
+                          options={qaOptions}
+                          placeholder="Select QA Person"
+                          value={qaOptions.find(
+                            (o: any) => Number(o.value) === Number(item.qa_person_id),
+                          )}
+                          onChange={(v: any) => handleItem(index, 'qa_person_id', v?.value)}
+                        />
+                      </div>
+
+                      <div className="col-span-4">
+                        <Label value="Upload Pdf" className="mb-2 block" />
+
+                        <label
+                          htmlFor={`file-${index}`}
+                          className="flex items-center justify-between w-full h-11 px-4 border border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 text-sm text-gray-600"
+                        >
+                          <span className="truncate">
+                            {item.file?.name || item.old_file || 'Upload PDF'}
+                          </span>
+
+                          <span className="text-blue-600 font-medium">Browse</span>
+                        </label>
+
+                        <input
+                          id={`file-${index}`}
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e: any) => {
+                            const file = e.target.files[0];
+
+                            if (!file) return;
+
+                            if (file.type !== 'application/pdf') {
+                              toast.error('Only PDF allowed');
+                              return;
+                            }
+
+                            handleItem(index, 'file', file);
+                          }}
+                        />
+
+                        {/* OLD FILE VIEW */}
+                        {item.old_file && (
+                          <a
+                            href={`${ImageUrl}uploads/qa-documents/${item.old_file}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-blue-600 mt-2 inline-block"
+                          >
+                            View Uploaded PDF
+                          </a>
                         )}
-                        onChange={(v: any) => handleItem(index, 'qa_person_id', v?.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* STEP 2 */}
-                <div className="border rounded-xl p-5 bg-yellow-50 mb-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h5 className="font-semibold text-yellow-700">Step 2 : QA Review</h5>
-
-                    <span className="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                      QA Department
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-4">
-                    {/* STATUS */}
-                    <div className="col-span-4">
-                      <Label value="Document Status" className="mb-2 block" />
-
-                      <div className="flex gap-5 mt-3">
-                        <label className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border cursor-pointer">
-                          <input
-                            type="radio"
-                            name={`status-${index}`}
-                            checked={item.status === 'given'}
-                            onChange={() => handleItem(index, 'status', 'given')}
-                          />
-
-                          <span>Given</span>
-                        </label>
-
-                        <label className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border cursor-pointer">
-                          <input
-                            type="radio"
-                            name={`status-${index}`}
-                            checked={item.status === 'not_given'}
-                            onChange={() => handleItem(index, 'status', 'not_given')}
-                          />
-
-                          <span>Not Given</span>
-                        </label>
                       </div>
                     </div>
+                  </div>
 
-                    {/* COMMENT */}
-                    <div className="col-span-4">
-                      <Label value="Comment" className="mb-2 block" />
+                  {/* STEP 2 */}
+                  <div
+                    className={`border rounded-xl p-5 mb-5 ${
+                      step2Enabled ? 'bg-yellow-50' : 'bg-gray-100 opacity-60 pointer-events-none'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h5 className="font-semibold text-yellow-700">Step 2 : QA Review</h5>
 
-                      <TextInput
-                        placeholder="Enter QA comment"
-                        value={item.comment}
-                        onChange={(e) => handleItem(index, 'comment', e.target.value)}
-                      />
+                      <span className="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
+                        QA Department
+                      </span>
                     </div>
 
-                    {/* RECEIVED */}
-                    <div className="col-span-4">
-                      <Label value="Received By Marketing" className="mb-2 block" />
+                    <div className="grid grid-cols-12 gap-4">
+                      {/* STATUS */}
+                      <div className="col-span-4">
+                        <Label value="Document Status" className="mb-2 block" />
 
-                      <Select
-                        options={marketingOptions}
-                        placeholder="Select Marketing Person"
-                        value={marketingOptions.find(
-                          (o: any) => Number(o.value) === Number(item.received_marketing_id),
-                        )}
-                        onChange={(v: any) => handleItem(index, 'received_marketing_id', v?.value)}
-                      />
+                        <div className="flex gap-5 mt-3">
+                          <label className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`status-${index}`}
+                              checked={item.status === 'given'}
+                              onChange={() => handleItem(index, 'status', 'given')}
+                            />
+
+                            <span>Given</span>
+                          </label>
+
+                          <label className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`status-${index}`}
+                              checked={item.status === 'not_given'}
+                              onChange={() => handleItem(index, 'status', 'not_given')}
+                            />
+
+                            <span>Not Given</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* COMMENT */}
+                      <div className="col-span-4">
+                        <Label value="Comment" className="mb-2 block" />
+
+                        <TextInput
+                          placeholder="Enter QA comment"
+                          value={item.comment}
+                          onChange={(e) => handleItem(index, 'comment', e.target.value)}
+                        />
+                      </div>
+
+                      {/* RECEIVED */}
+                      <div className="col-span-4">
+                        <Label value="Received By Marketing" className="mb-2 block" />
+
+                        <Select
+                          options={marketingOptions}
+                          placeholder="Select Marketing Person"
+                          value={marketingOptions.find(
+                            (o: any) => Number(o.value) === Number(item.received_marketing_id),
+                          )}
+                          onChange={(v: any) =>
+                            handleItem(index, 'received_marketing_id', v?.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* STEP 3 */}
+                  <div
+                    className={`border rounded-xl p-5 ${
+                      step3Enabled ? 'bg-green-50' : 'bg-gray-100 opacity-60 pointer-events-none'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h5 className="font-semibold text-green-700">Step 3 : Share With Customer</h5>
+
+                      <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                        Marketing Team
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-12 gap-4">
+                      <div className="col-span-6">
+                        <Label value="Share Customer By" className="mb-2 block" />
+
+                        <Select
+                          options={marketingOptions}
+                          placeholder="Select Marketing Person"
+                          value={marketingOptions.find(
+                            (o: any) => Number(o.value) === Number(item.share_customer_by),
+                          )}
+                          onChange={(v: any) => handleItem(index, 'share_customer_by', v?.value)}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* STEP 3 */}
-                <div className="border rounded-xl p-5 bg-green-50">
-                  <div className="flex items-center justify-between mb-4">
-                    <h5 className="font-semibold text-green-700">Step 3 : Share With Customer</h5>
-
-                    <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                      Marketing Team
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-6">
-                      <Label value="Share Customer By" className="mb-2 block" />
-
-                      <Select
-                        options={marketingOptions}
-                        placeholder="Select Marketing Person"
-                        value={marketingOptions.find(
-                          (o: any) => Number(o.value) === Number(item.share_customer_by),
-                        )}
-                        onChange={(v: any) => handleItem(index, 'share_customer_by', v?.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* ACTION BUTTONS */}

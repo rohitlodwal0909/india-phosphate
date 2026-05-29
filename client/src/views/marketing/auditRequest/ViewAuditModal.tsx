@@ -1,6 +1,7 @@
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { ImageUrl } from 'src/constants/contant';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { AppDispatch } from 'src/store';
 
@@ -50,14 +51,24 @@ const ViewAuditModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5 text-sm">
             <Info label="Company">{selectedRow?.customers?.company_name}</Info>
-
             <Info label="Arrival Date">{selectedRow?.arrival_date}</Info>
-
             <Info label="Submitted By">{selectedRow?.users?.username}</Info>
-
             <Info label="Compliance Status">{selectedRow?.compliance_status || '-'}</Info>
-
             <Info label="Compliance Remark">{selectedRow?.compliance_remark || '-'}</Info>
+            <Info label="Upload Pdf">
+              {selectedRow?.pdf_file ? (
+                <a
+                  href={`${ImageUrl}uploads/audit/${selectedRow.pdf_file}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  View PDF
+                </a>
+              ) : (
+                '-'
+              )}
+            </Info>{' '}
           </div>
         </div>
 

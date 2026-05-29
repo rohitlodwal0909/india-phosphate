@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { AppDispatch, RootState } from 'src/store';
 import { gettotalCustomer } from 'src/features/dashboard/DashboardCustomerSlice';
+import DashboardInsights from './DashboardInsights';
 
 /* ======================================================
    TYPES
@@ -23,64 +24,111 @@ interface CustomerLocation {
   opportunities: number;
 }
 
-interface CustomerData {
-  potential_opportunity?: number;
-  convert_to_customer?: number;
-}
-
 /* ======================================================
    STATIC DATA
 ====================================================== */
 
-const customerLocations: CustomerLocation[] = [
-  {
-    city: 'Mumbai',
-    state: 'Maharashtra',
-    country: 'India',
-    latitude: 19.076,
-    longitude: 72.8777,
-    totalCustomers: 120,
-    totalLeads: 300,
-    leadsWon: 95,
-    opportunities: 140,
-  },
+// const customerLocations: CustomerLocation[] = [
+//   {
+//     city: 'Mumbai',
+//     state: 'Maharashtra',
+//     country: 'India',
+//     latitude: 19.076,
+//     longitude: 72.8777,
+//     totalCustomers: 120,
+//     totalLeads: 300,
+//     leadsWon: 95,
+//     opportunities: 140,
+//   },
 
-  {
-    city: 'Delhi',
-    state: 'Delhi',
-    country: 'India',
-    latitude: 28.7041,
-    longitude: 77.1025,
-    totalCustomers: 80,
-    totalLeads: 200,
-    leadsWon: 60,
-    opportunities: 100,
-  },
+//   {
+//     city: 'Delhi',
+//     state: 'Delhi',
+//     country: 'India',
+//     latitude: 28.7041,
+//     longitude: 77.1025,
+//     totalCustomers: 80,
+//     totalLeads: 200,
+//     leadsWon: 60,
+//     opportunities: 100,
+//   },
 
-  {
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    country: 'India',
-    latitude: 23.0225,
-    longitude: 72.5714,
-    totalCustomers: 60,
-    totalLeads: 150,
-    leadsWon: 45,
-    opportunities: 75,
-  },
+//   {
+//     city: 'Ahmedabad',
+//     state: 'Gujarat',
+//     country: 'India',
+//     latitude: 23.0225,
+//     longitude: 72.5714,
+//     totalCustomers: 60,
+//     totalLeads: 150,
+//     leadsWon: 45,
+//     opportunities: 75,
+//   },
 
-  {
-    city: 'Bangalore',
-    state: 'Karnataka',
-    country: 'India',
-    latitude: 12.9716,
-    longitude: 77.5946,
-    totalCustomers: 95,
-    totalLeads: 240,
-    leadsWon: 80,
-    opportunities: 120,
-  },
-];
+//   {
+//     city: 'Bangalore',
+//     state: 'Karnataka',
+//     country: 'India',
+//     latitude: 12.9716,
+//     longitude: 77.5946,
+//     totalCustomers: 95,
+//     totalLeads: 240,
+//     leadsWon: 80,
+//     opportunities: 120,
+//   },
+// ];
+
+const getCoordinatesFromAddress = async (address: string) => {
+  try {
+    const geocoder = new window.google.maps.Geocoder();
+
+    return new Promise((resolve) => {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK' && results && results.length > 0) {
+          const result = results[0];
+
+          const location = result.geometry.location;
+
+          let city = '';
+          let state = '';
+          let country = '';
+
+          result.address_components.forEach((component) => {
+            const types = component.types;
+
+            // CITY
+            if (types.includes('locality') || types.includes('administrative_area_level_2')) {
+              city = component.long_name;
+            }
+
+            // STATE
+            if (types.includes('administrative_area_level_1')) {
+              state = component.long_name;
+            }
+
+            // COUNTRY
+            if (types.includes('country')) {
+              country = component.long_name;
+            }
+          });
+
+          resolve({
+            lat: location.lat(),
+            lng: location.lng(),
+            city,
+            state,
+            country,
+          });
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 
 /* ======================================================
    MAP SETTINGS
@@ -141,13 +189,15 @@ const getMarkerColor = (customers: number) => {
 ====================================================== */
 
 const CustomerMap: React.FC = () => {
+  const [customerLocations, setCustomerLocations] = useState<any[]>([]);
+
   const [selectedLocation, setSelectedLocation] = useState<CustomerLocation | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const totalcustomers = useSelector(
-    (state: RootState) => state.customerdashboard.totalcustomers,
-  ) as CustomerData[];
+  const totalcustomer = useSelector((state: RootState) => state.customerdashboard.totalcustomers);
+
+  const totalcustomers = totalcustomer.customers;
 
   useEffect(() => {
     dispatch(gettotalCustomer());
@@ -190,6 +240,78 @@ const CustomerMap: React.FC = () => {
     };
   }, [totalcustomers]);
 
+  useEffect(() => {
+    if (!isLoaded || !totalcustomers?.length) return;
+
+    const loadLocations = async () => {
+      const grouped: any = {};
+
+      for (const item of totalcustomers) {
+        if (!item.company_address) continue;
+
+        const geoData: any = await getCoordinatesFromAddress(item.company_address);
+
+        if (!geoData || !geoData.state) continue;
+
+        // STATE WISE GROUPING
+        const key = `${geoData.state}-${geoData.country}`;
+
+        if (!grouped[key]) {
+          grouped[key] = {
+            city: geoData.city,
+            state: geoData.state,
+            country: geoData.country,
+
+            latitudeSum: 0,
+            longitudeSum: 0,
+            locationCount: 0,
+
+            totalCustomers: 0,
+            totalLeads: 0,
+            leadsWon: 0,
+            opportunities: 0,
+          };
+        }
+
+        grouped[key].latitudeSum += geoData.lat;
+        grouped[key].longitudeSum += geoData.lng;
+        grouped[key].locationCount += 1;
+
+        grouped[key].totalLeads += 1;
+
+        if (item.convert_to_customer == 0 && item.potential_opportunity == 0) {
+          grouped[key].totalCustomers += 1;
+        }
+
+        if (item.convert_to_customer == 1) {
+          grouped[key].leadsWon += 1;
+        }
+
+        if (item.potential_opportunity == 1) {
+          grouped[key].opportunities += 1;
+        }
+      }
+
+      const finalLocations = Object.values(grouped).map((item: any) => ({
+        city: item.state,
+        state: item.state,
+        country: item.country,
+
+        latitude: item.latitudeSum / item.locationCount,
+        longitude: item.longitudeSum / item.locationCount,
+
+        totalCustomers: item.totalCustomers,
+        totalLeads: item.totalLeads,
+        leadsWon: item.leadsWon,
+        opportunities: item.opportunities,
+      }));
+
+      setCustomerLocations(finalLocations);
+    };
+
+    loadLocations();
+  }, [isLoaded, totalcustomers]);
+
   return (
     <div className="space-y-6">
       {/* ======================================================
@@ -226,6 +348,8 @@ const CustomerMap: React.FC = () => {
           bgColor="bg-purple-50"
         />
       </div>
+
+      <DashboardInsights orders={totalcustomer} />
 
       {/* ======================================================
           MAP SECTION

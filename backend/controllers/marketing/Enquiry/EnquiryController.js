@@ -11,7 +11,8 @@ const {
   Customer,
   WorkOrderModel,
   User,
-  Product
+  Product,
+  Notification
 } = db;
 
 exports.getEnquiries = async (req, res) => {
@@ -70,7 +71,7 @@ exports.storeEnquiry = async (req, res) => {
           : req.body.products;
     }
 
-    const { entry_date } = getISTDateTime();
+    const { entry_date, entry_time } = getISTDateTime();
 
     /* ================= SR NO GENERATION ================= */
     const year = new Date().getFullYear();
@@ -103,13 +104,36 @@ exports.storeEnquiry = async (req, res) => {
 
     /* ================= STORE INTERESTED PRODUCTS ================= */
     if (products.length > 0) {
-      const productRows = products.map((p) => ({
-        enquiry_id: enquiry.id,
-        product_id: p.product_id,
-        grade: p.grade,
-        person_name: p.person_name || p.sales_person || null,
-        followups: JSON.stringify(p.followups) || []
-      }));
+      const productRows = [];
+
+      for (const p of products) {
+        productRows.push({
+          enquiry_id: enquiry.id,
+          product_id: p.product_id,
+          grade: p.grade,
+          person_name: p.person_name || p.sales_person || null,
+          sales_person_id: p.sales_person_id || null,
+          followups: JSON.stringify(p.followups || [])
+        });
+
+        /* ================= NOTIFICATION ================= */
+        if (p.sales_person) {
+          const latestFollowup =
+            p.followups && p.followups.length > 0
+              ? p.followups[p.followups.length - 1]
+              : null;
+
+          await Notification.create({
+            user_id: p.sales_person,
+            title: "New Enquiry Assigned",
+            message: `You have been assigned a new enquiry${
+              latestFollowup?.status ? ` (${latestFollowup.status})` : ""
+            }`,
+            is_read: 0,
+            date_time: `${entry_date} ${entry_time}`
+          });
+        }
+      }
 
       await EnquiryIntrestedProductsModel.bulkCreate(productRows);
     }

@@ -22,9 +22,9 @@ import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 // import ViewDisputeModal from './ViewDisputeModal';
 import DisputeModal from './DisputeModal';
-// import { deleteDispute, getDispute } from 'src/features/marketing/DisputeSlice';
 import DisputeEditModal from './DisputeEditModal';
-import { getDispute } from 'src/features/marketing/DisputeSlice';
+import { deleteDispute, getDispute } from 'src/features/marketing/DisputeSlice';
+import ViewDisputeModal from './ViewDisputeModel';
 
 interface FollowupType {
   followup_date: string;
@@ -107,9 +107,9 @@ const DisputeTable = () => {
     }
     try {
       const id = selectedRow.id;
-      // await dispatch(deleteDispute(id)).unwrap();
-      toast.success('Dispute Entry deleted!');
-      // dispatch(getDispute());
+      await dispatch(deleteDispute(id)).unwrap();
+      toast.success('Dispute entry deleted!');
+      dispatch(getDispute());
       setData((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       toast.error(err || 'Delete failed');
@@ -147,10 +147,61 @@ const DisputeTable = () => {
     return data.filter((item) => searchInObject(item, search));
   }, [data, searchText]);
 
+  const priorityOptions = [
+    {
+      value: 'high',
+      label: 'High',
+      color: '#dc2626',
+    },
+    {
+      value: 'medium',
+      label: 'Medium',
+      color: '#f59e0b',
+    },
+    {
+      value: 'low',
+      label: 'Low',
+      color: '#16a34a',
+    },
+  ];
+
+  const getPriority = (priority: string) => priorityOptions.find((p) => p.value === priority);
+
+  const PriorityBadge = ({ priority }: any) => {
+    const option = getPriority(priority);
+
+    if (!option) return <span>-</span>;
+
+    return (
+      <span
+        className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 w-fit"
+        style={{
+          backgroundColor: `${option.color}20`,
+          color: option.color,
+        }}
+      >
+        <span
+          style={{
+            background: option.color,
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+          }}
+        />
+        {option.label}
+      </span>
+    );
+  };
+
   const columns = useMemo(
     () => [
       columnHelper.accessor('id', {
         header: 'ID',
+        cell: (info) => (
+          <div className="max-w-[350px] whitespace-normal break-words text-sm">
+            <p>#{info.row.index + 1}</p>
+          </div>
+        ),
       }),
 
       columnHelper.accessor('dispute_type', {
@@ -197,7 +248,9 @@ const DisputeTable = () => {
         header: 'Priority',
         cell: (info) => (
           <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.priority}</p>
+            <PriorityBadge priority={info.row.original.priority} />
+
+            {/* <p>{info.row.original.priority}</p> */}
           </div>
         ),
       }),
@@ -333,7 +386,7 @@ const DisputeTable = () => {
           />
         </Portal>
       )}
-      {/* {modals.view && (
+      {modals.view && (
         <Portal>
           <ViewDisputeModal
             placeModal={modals.view}
@@ -342,7 +395,7 @@ const DisputeTable = () => {
             modalPlacement="center"
           />
         </Portal>
-      )} */}
+      )}
       {modals.add && (
         <Portal>
           <DisputeModal openModal={modals.add} setOpenModal={() => handleModal('add', false)} />

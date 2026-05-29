@@ -10,6 +10,7 @@ import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { addEnquiry, getEnquiry } from 'src/features/marketing/EnquirySlice';
 import { validateEnquiryForm } from './Validation';
 import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
 interface Props {
   openModal: boolean;
@@ -23,7 +24,7 @@ const selectStyles = {
   }),
 };
 
-const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
+// const grades = ['IP', 'BP', 'EP', 'USP', 'FCC', 'IHS'];
 
 const enquiryStatusOptions = [
   { value: 'closed', label: 'Closed', color: '#16a34a' },
@@ -33,7 +34,10 @@ const enquiryStatusOptions = [
   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
 
-  // ✅ NEW STATUS
+  // Follow Up
+  { value: 'follow_up_order', label: 'Follow Up for Order', color: '#0f766e' },
+
+  // Hold Status
   { value: 'internal_hold', label: 'Internal Hold', color: '#9333ea' },
   { value: 'customer_hold', label: 'Customer Hold', color: '#dc2626' },
 ];
@@ -60,6 +64,7 @@ const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const customers = useSelector((state: RootState) => state.purchaseOrder?.customers) ?? [];
 
   const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
 
   const { productdata = [] } = useSelector((state: RootState) => state.products) ?? {};
 
@@ -69,6 +74,7 @@ const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   useEffect(() => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
+    dispatch(GetGrade());
     dispatch(GetUsermodule());
   }, [dispatch]);
 
@@ -278,9 +284,12 @@ const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                       onChange={(e) => handleProductChange(pIndex, 'grade', e.target.value)}
                     >
                       <option value="">Select Grade</option>
-                      {grades.map((g) => (
-                        <option key={g}>{g}</option>
-                      ))}
+                      {Array.isArray(grades) &&
+                        grades.map((g: any) => (
+                          <option key={g.id} value={g.grade}>
+                            {g.grade}
+                          </option>
+                        ))}
                     </select>
                   </div>
 
