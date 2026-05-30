@@ -1,6 +1,7 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-react';
 import { TabItem, Tabs } from 'flowbite-react';
 import { Icon } from '@iconify/react';
+import CustomerJourneyMap from '../../ExistingCustomer/ExistingComponent.tsx/CustomerJourneymap';
 
 type Props = {
   placeModal: boolean;
@@ -220,6 +221,12 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                 </tbody>
               </table>
             </div>
+          </TabItem>
+          <TabItem
+            title="Customer Journey Maps"
+            icon={() => <Icon icon="solar:chart-outline" height={20} />}
+          >
+            <CustomerJourneyMap selectedRow={selectedRow} />
           </TabItem>
         </Tabs>
       </ModalBody>

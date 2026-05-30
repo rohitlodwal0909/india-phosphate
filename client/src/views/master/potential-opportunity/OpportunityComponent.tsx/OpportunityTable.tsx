@@ -115,7 +115,6 @@ const OpportunityTable = () => {
             }}
           >
             Create Potential Opportunity
-            {/* <Icon icon="ic:baseline-plus" height={18} /> */}
           </Button>
         )}
       </div>
@@ -126,14 +125,16 @@ const OpportunityTable = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  {['Sr.No', 'Company Name', 'Type ', 'Note', 'Action'].map((title) => (
-                    <th
-                      key={title}
-                      className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
-                    >
-                      {title}
-                    </th>
-                  ))}
+                  {['Sr.No', 'Company Name', 'Type ', 'Note', 'Date', 'Created By', 'Action'].map(
+                    (title) => (
+                      <th
+                        key={title}
+                        className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
+                      >
+                        {title}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -159,6 +160,14 @@ const OpportunityTable = () => {
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.note || '-'}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {item?.created_at
+                          ? new Date(item.created_at).toISOString().split('T')[0]
+                          : '-'}{' '}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {item?.users?.username || '-'}
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">

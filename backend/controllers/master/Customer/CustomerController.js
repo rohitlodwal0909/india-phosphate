@@ -76,6 +76,11 @@ exports.getCustomers = async (req, res) => {
           model: User,
           as: "sales_person",
           attributes: ["username"]
+        },
+        {
+          model: User,
+          as: "users",
+          attributes: ["username"]
         }
       ]
     });
@@ -112,7 +117,14 @@ exports.getExistingCustomers = async (req, res) => {
       order: [["id", "DESC"]],
       where: {
         convert_to_customer: true
-      }
+      },
+      include: [
+        {
+          model: User,
+          as: "users",
+          attributes: ["username"]
+        }
+      ]
     });
 
     const formattedCustomers = customers.map((customer) => {

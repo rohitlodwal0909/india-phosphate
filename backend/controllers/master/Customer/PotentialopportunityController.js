@@ -48,6 +48,11 @@ exports.getOpportunity = async (req, res) => {
           model: User,
           as: "sales_person",
           attributes: ["username"]
+        },
+        {
+          model: User,
+          as: "users",
+          attributes: ["username"]
         }
       ]
     });

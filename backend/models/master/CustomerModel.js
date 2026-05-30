@@ -91,6 +91,11 @@ module.exports = (sequelize, DataTypes) => {
       sourceKey: "id",
       as: "sales_person"
     });
+    Customer.belongsTo(models.User, {
+      foreignKey: "user_id",
+      sourceKey: "id",
+      as: "users"
+    });
   };
 
   return Customer;

@@ -48,6 +48,7 @@ import Opportunity from 'src/views/master/potential-opportunity/Opportunity';
 import Dispute from 'src/views/marketing/dispute/Dispute';
 import VisitPlanner from 'src/views/marketing/visitPlanner/VisitPlanner';
 import TaskManager from 'src/views/dashboard/taskmanager/TaskManager';
+import Ledger from 'src/views/accounts/ledger/Ledger';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -173,6 +174,7 @@ const fullLayoutChildren = [
   { path: '/accounts/payment', element: <AccountPayment /> },
   { path: '/accounts/purchase-report/:id', element: <PuchaseReport /> },
   { path: '/accounts/purchase', element: <AccountPurchase /> },
+  { path: '/accounts/ledger', element: <Ledger /> },
 
   // Marketing
 
