@@ -8,7 +8,7 @@ import { RootState } from 'src/store';
 import { getAllCustomers } from 'src/features/marketing/PurchaseOrderSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { validateDevelopmentForm } from './Validation';
-import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
+// import { GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
 import { addDevelopment, getDevelopment } from 'src/features/marketing/DevelopmentSlice';
 import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 
@@ -75,7 +75,7 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     dispatch(getAllCustomers());
     dispatch(GetProduct());
     dispatch(GetGrade());
-    dispatch(GetUsermodule());
+    // dispatch(GetUsermodule());
   }, [dispatch]);
 
   /* ================= FORM ================= */

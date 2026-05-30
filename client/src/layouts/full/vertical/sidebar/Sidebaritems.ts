@@ -37,12 +37,19 @@ const SidebarContent: MenuItem[] = [
               delete: false,
             
           },
-          // {
-          //   name: "Permission",
-          //   icon: "arcticons:permissionsmanager",
-          //   id: uniqueId(),
-          //   url: "/permission",
-          // }
+          {
+            name: "Task Manager",
+            icon: "carbon:report",
+            id: uniqueId(),
+            url: "/task-manager",
+            subId:2,
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            
+          },
+         
         ],
       },
     ],

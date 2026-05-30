@@ -78,6 +78,8 @@ const PoRequisitionRoutes = require("../routes/purchase/PoRequisitionRoutes");
 const PoPurchaseRoutes = require("../routes/purchase/PoPurchaseRoutes");
 
 const DashboardCustomer = require("../routes/dashboard/dashboardCustomerRoutes");
+const taskManagerRoutes = require("../routes/dashboard/taskManagerRoutes");
+
 // Dashboard
 
 router.use("/api", authRoutes);
@@ -156,5 +158,6 @@ router.use("/api", authMiddleware, DisputeRoutes);
 router.use("/api", authMiddleware, VisitPlannerRoutes);
 
 router.use("/api", authMiddleware, DashboardCustomer);
+router.use("/api", authMiddleware, taskManagerRoutes);
 
 module.exports = router;

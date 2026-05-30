@@ -1,9 +1,14 @@
 import React from 'react';
-// import { motion } from 'framer-motion';
-// import logoimg from '../../assets/logoimg.png';
 import CustomerMap from './CustomerMap';
+import EmployeeDashboard from './EmployeeDashboard';
+import { RootState } from 'src/store';
+import { useSelector } from 'react-redux';
 
 const WelcomeDashboard: React.FC = () => {
+  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+
+  const permission = logindata?.admin?.role_id;
+
   return (
     <>
       {/* <div className="flex items-center justify-center  p-4">
@@ -49,7 +54,45 @@ const WelcomeDashboard: React.FC = () => {
           </motion.button>
         </motion.div>
       </div> */}
-      <CustomerMap />
+      <div className="space-y-6">
+        {/* Employee Dashboard */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Employee Dashboard</h1>
+
+            <p className="text-gray-500 mt-1">
+              Complete employee performance & productivity analytics
+            </p>
+          </div>
+
+          {/* <button className="bg-primary text-white px-5 py-3 rounded-2xl shadow-lg font-medium">
+            Marketing Dashboard
+          </button> */}
+        </div>
+
+        <EmployeeDashboard />
+
+        {/* Marketing Dashboard */}
+        {(permission === 9 || permission === 1) && (
+          <>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">Marketing Dashboard</h1>
+
+                <p className="text-gray-500 mt-1">
+                  Complete marketing analytics & customer tracking
+                </p>
+              </div>
+
+              {/* <button className="bg-primary text-white px-5 py-3 rounded-2xl shadow-lg font-medium">
+                Employee Dashboard
+              </button> */}
+            </div>
+
+            <CustomerMap />
+          </>
+        )}
+      </div>
     </>
   );
 };

@@ -4,5 +4,9 @@ const dashboardCustomerController = require("../../controllers/dashboard/dashboa
 
 // List by user_id
 router.get("/get-total-customers", dashboardCustomerController.getallCustomers);
+router.get(
+  "/get-employee-data",
+  dashboardCustomerController.getEmployeeDashboard
+);
 
 module.exports = router;

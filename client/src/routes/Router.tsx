@@ -47,6 +47,7 @@ import Grade from 'src/views/master/Grade/Grade';
 import Opportunity from 'src/views/master/potential-opportunity/Opportunity';
 import Dispute from 'src/views/marketing/dispute/Dispute';
 import VisitPlanner from 'src/views/marketing/visitPlanner/VisitPlanner';
+import TaskManager from 'src/views/dashboard/taskmanager/TaskManager';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -107,6 +108,7 @@ const GuardInventory = Loadable(
 const StoreInventory = Loadable(
   lazy(() => import('src/views/inventory/inventory-store/StoreInventory')),
 );
+
 const QcInventory = Loadable(lazy(() => import('src/views/inventory/qC-inventory/QcInventory')));
 const Userprofile = Loadable(lazy(() => import('src/views/userprofile/Userprofile')));
 const PermissionsTable = Loadable(lazy(() => import('src/views/permission/PermissionsTable')));
@@ -131,6 +133,7 @@ const isAdminRole = logindata?.admin?.role_id == 1;
 
 const fullLayoutChildren = [
   { path: '/', element: <WelcomeDashboard /> },
+  { path: '/task-manager', element: <TaskManager /> },
   { path: '/view-report/:id', element: <ViewReport /> },
   { path: '/inventory/qc-report/:id', element: <AddReport /> },
   { path: '/user-profile', element: <Userprofile /> },
