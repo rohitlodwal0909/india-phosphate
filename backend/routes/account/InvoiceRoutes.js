@@ -40,10 +40,16 @@ const uploadOQ = multer({
 
 // List
 router.get("/get-invoice-entry", InvoiceController.getEntryInvoice);
+router.get("/get-dispatch-po", InvoiceController.getDispatchPo);
+
 router.get("/get-invoice/:id", InvoiceController.getInvoice);
 router.get("/get-invoices", InvoiceController.getInvoices);
 
 router.get("/get-dispatch-batches", InvoiceController.getDispatchBatches);
+
+//Account Payment
+
+router.get("/get-invoice-payment", InvoiceController.getInvoicepayment);
 
 // Create Invoice + OQ Upload
 router.post(

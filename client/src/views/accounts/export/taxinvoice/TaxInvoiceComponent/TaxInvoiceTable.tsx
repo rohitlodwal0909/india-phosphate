@@ -25,6 +25,7 @@ const TaxInvoiceTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewModal, setViewModal] = useState(false);
   const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
   const [viewInvoice, setViewInvoice] = useState(false);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
@@ -68,6 +69,17 @@ const TaxInvoiceTable = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        )}
+        {permissions.add && (
+          <Button
+            onClick={() => setAddModal(true)}
+            color="primary"
+            outline
+            size="sm"
+            className="border border-primary bg-primary text-white rounded-md"
+          >
+            Create Invoice
+          </Button>
         )}
       </div>
       {permissions?.view ? (
@@ -138,7 +150,7 @@ const TaxInvoiceTable = () => {
                             color={'lightsecondary'}
                             className="p-0"
                             onClick={() => {
-                              setAddModal(true);
+                              setEditModal(true);
                               setSelectedRow(item);
                             }}
                             title="Add Invoice"
@@ -213,8 +225,17 @@ const TaxInvoiceTable = () => {
       {addModal && (
         <AddInvoiceTaxModel
           show={addModal}
-          data={selectedrow}
+          data={null}
           setShowmodal={() => setAddModal(false)}
+          type="export"
+        />
+      )}
+
+      {editModal && (
+        <AddInvoiceTaxModel
+          show={editModal}
+          data={selectedrow}
+          setShowmodal={() => setEditModal(false)}
           type="export"
         />
       )}

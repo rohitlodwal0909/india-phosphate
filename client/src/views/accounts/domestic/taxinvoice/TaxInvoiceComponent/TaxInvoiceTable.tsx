@@ -27,6 +27,7 @@ const TaxInvoiceTable = () => {
   const [viewModal, setViewModal] = useState(false);
   const [addModal, setAddModal] = useState(false);
   const [viewInvoice, setViewInvoice] = useState(false);
+  const [editModal, setEditModal] = useState(false);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
@@ -82,6 +83,8 @@ const TaxInvoiceTable = () => {
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const currentItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  // console.log(invoiceentry);
+
   return (
     <div>
       {/* Search Bar */}
@@ -94,6 +97,17 @@ const TaxInvoiceTable = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        )}
+        {permissions.add && (
+          <Button
+            onClick={() => setAddModal(true)}
+            color="primary"
+            outline
+            size="sm"
+            className="border border-primary bg-primary text-white rounded-md"
+          >
+            Create Invoice
+          </Button>
         )}
       </div>
       {permissions?.view ? (
@@ -128,19 +142,18 @@ const TaxInvoiceTable = () => {
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.poentry?.customers?.company_name || '-').replace(
+                        {(item?.DispatchVehicle?.poentry?.customers?.company_name || '-').replace(
                           /^\w/,
                           (c: string) => c.toUpperCase(),
                         )}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.Invoice?.invoice_no || '-').replace(/^\w/, (c: string) =>
-                          c.toUpperCase(),
-                        )}
+                        {(item?.invoice_no || '-').replace(/^\w/, (c: string) => c.toUpperCase())}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.poentry?.po_no || '-').replace(/^\w/, (c: string) =>
-                          c.toUpperCase(),
+                        {(item?.DispatchVehicle?.poentry?.po_no || '-').replace(
+                          /^\w/,
+                          (c: string) => c.toUpperCase(),
                         )}
                       </td>
 
@@ -179,12 +192,12 @@ const TaxInvoiceTable = () => {
                             color={'lightsecondary'}
                             className="p-0"
                             onClick={() => {
-                              setAddModal(true);
+                              setEditModal(true);
                               setSelectedRow(item);
                             }}
                             title="Add Invoice"
                           >
-                            <Icon icon="mdi:plus" height={18} />
+                            <Icon icon="solar:pen-outline" height={18} />
                           </Button>
 
                           <Button
@@ -245,7 +258,7 @@ const TaxInvoiceTable = () => {
         <ViewPurchaseOrderModal
           placeModal={viewModal}
           setPlaceModal={() => setViewModal(false)}
-          selectedRow={selectedrow?.poentry}
+          selectedRow={selectedrow?.DispatchVehicle?.poentry}
           modalPlacement="center"
         />
       )}
@@ -253,8 +266,17 @@ const TaxInvoiceTable = () => {
       {addModal && (
         <AddInvoiceTaxModel
           show={addModal}
-          data={selectedrow}
+          data={null}
           setShowmodal={() => setAddModal(false)}
+          type="domestic"
+        />
+      )}
+
+      {editModal && (
+        <AddInvoiceTaxModel
+          show={editModal}
+          data={selectedrow}
+          setShowmodal={() => setEditModal(false)}
           type="domestic"
         />
       )}
@@ -263,7 +285,7 @@ const TaxInvoiceTable = () => {
         <ViewDispatchModal
           placeModal={dispatchModal}
           setPlaceModal={() => setDispatchModal(false)}
-          selectedRow={selectedrow}
+          selectedRow={selectedrow?.DispatchVehicle}
           modalPlacement="center"
         />
       )}

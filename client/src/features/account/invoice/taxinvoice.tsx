@@ -8,6 +8,8 @@ const initialState = {
   singleinvoice: [],
   dispatchBatches: [],
   invoices: [],
+  invoicepayment: [],
+  dispatchpo: [],
   create: null,
   update: null,
   deleteResult: null,
@@ -73,6 +75,16 @@ export const getInvoice = createAsyncThunk<any, number>('invoice/get', async (id
   }
 });
 
+export const getDispatchPo = createAsyncThunk<any, void>('dispatchpo/get', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get(`/get-dispatch-po`);
+    return response.data;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch invoice.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
 export const getInvoices = createAsyncThunk<any, void>('invoices/get', async (_, thunkAPI) => {
   try {
     const response = await axiosInstance.get(`/get-invoices`);
@@ -82,6 +94,19 @@ export const getInvoices = createAsyncThunk<any, void>('invoices/get', async (_,
     return thunkAPI.rejectWithValue(errorMessage);
   }
 });
+
+export const getInvoicePayment = createAsyncThunk<any, void>(
+  'invoices/payment',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/get-invoice-payment`);
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch invoice.';
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  },
+);
 
 export const getDispatchBatches = createAsyncThunk<any, void>(
   'dispatch/getBatches',
@@ -126,6 +151,32 @@ const TaxInvoiceSlice = createSlice({
         state.invoiceentry = action.payload;
       })
       .addCase(getentryinvoice.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getDispatchPo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getDispatchPo.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dispatchpo = action.payload;
+      })
+      .addCase(getDispatchPo.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getInvoicePayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getInvoicePayment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.invoicepayment = action.payload;
+      })
+      .addCase(getInvoicePayment.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
       })

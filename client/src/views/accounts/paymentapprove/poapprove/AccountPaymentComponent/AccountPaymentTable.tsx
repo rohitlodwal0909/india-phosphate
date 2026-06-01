@@ -19,24 +19,21 @@ import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { AppDispatch, RootState } from 'src/store';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
-import { getPurchaseOrders, paymentApprove } from 'src/features/marketing/PurchaseOrderSlice';
+import { paymentApprove } from 'src/features/marketing/PurchaseOrderSlice';
 import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 import Remark from './AddRemark';
+import { getInvoicePayment } from 'src/features/account/invoice/taxinvoice';
 
 interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
+  invoice_no: string;
   payment_status?: string;
-  customers?: {
-    id: number;
-    company_name: string;
-  };
-  expected_delivery_date: string;
-  users?: {
-    id: number;
-    username: string;
-  };
+  status?: string;
+  DispatchVehicle?: any;
+  customers: any;
+  expected_delivery_date: any;
 }
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
@@ -45,9 +42,7 @@ const AccountPaymentTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const purchaseOrders = useSelector(
-    (state: RootState) => state.purchaseOrder.purchaseOrders,
-  ) as any;
+  const invoices = useSelector((state: RootState) => state.taxinvoices.invoicepayment) as any;
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -60,11 +55,11 @@ const AccountPaymentTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    setData(Array.isArray(purchaseOrders) ? purchaseOrders : []);
-  }, [purchaseOrders]);
+    setData(Array.isArray(invoices) ? invoices : []);
+  }, [invoices]);
 
   useEffect(() => {
-    dispatch(getPurchaseOrders());
+    dispatch(getInvoicePayment());
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: PurchaseOrderDataType) => {
@@ -110,19 +105,39 @@ const AccountPaymentTable = () => {
           </div>
         ),
       }),
-      columnHelper.accessor('po_no', { header: 'PO No.' }),
+
+      columnHelper.accessor('invoice_no', {
+        header: 'Invoice No.',
+        cell: (info) => (
+          <div className="max-w-[350px] whitespace-normal break-words text-sm">
+            <p>{info.row.original.invoice_no}</p>
+          </div>
+        ),
+      }),
+      columnHelper.accessor('po_no', {
+        header: 'PO No.',
+        cell: (info) => (
+          <div className="max-w-[350px] whitespace-normal break-words text-sm">
+            <p>{info.row.original.DispatchVehicle?.poentry?.po_no}</p>
+          </div>
+        ),
+      }),
 
       columnHelper.accessor('customers', {
         header: 'Company Name',
         cell: (info) => (
           <div className="max-w-[350px] whitespace-normal break-words text-sm">
-            <p>{info.row.original.customers?.company_name}</p>
+            <p>{info.row.original.DispatchVehicle?.poentry?.customers?.company_name}</p>
           </div>
         ),
       }),
-
       columnHelper.accessor('expected_delivery_date', {
         header: 'Delivery Date',
+        cell: (info) => (
+          <div className="max-w-[350px] whitespace-normal break-words text-sm">
+            <p>{info.row.original.DispatchVehicle?.poentry?.expected_delivery_date}</p>
+          </div>
+        ),
       }),
 
       columnHelper.display({
@@ -268,7 +283,7 @@ const AccountPaymentTable = () => {
           <ViewPurchaseOrderModal
             placeModal={modals.view}
             setPlaceModal={() => handleModal('view', false)}
-            selectedRow={selectedRow}
+            selectedRow={selectedRow?.DispatchVehicle?.poentry}
             modalPlacement="center"
           />
         </Portal>

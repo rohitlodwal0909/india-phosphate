@@ -18,7 +18,7 @@ const Remark = ({ placeModal, setPlaceModal, selectedRow }: RemarkProps) => {
   // ✅ Set remark when modal opens
   useEffect(() => {
     if (placeModal) {
-      setRemark(selectedRow?.payment_remark || '');
+      setRemark(selectedRow?.account_payment_remark || '');
     }
   }, [placeModal, selectedRow]);
 

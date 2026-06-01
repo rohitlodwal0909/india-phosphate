@@ -64,6 +64,12 @@ module.exports = (sequelize, DataTypes) => {
       terms_delivery: DataTypes.TEXT,
       remark: DataTypes.TEXT,
       eway_pdf: DataTypes.STRING,
+      payment_status: {
+        type: DataTypes.ENUM("Pending", "Approved", "Rejected"),
+        allowNull: false,
+        defaultValue: "Pending"
+      },
+      account_payment_remark: DataTypes.TEXT,
 
       created_at: {
         type: DataTypes.DATE,

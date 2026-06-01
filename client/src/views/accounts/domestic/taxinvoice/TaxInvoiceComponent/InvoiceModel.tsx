@@ -1,26 +1,30 @@
-import { Label, TextInput, Textarea } from 'flowbite-react';
+import { Label, TextInput, Textarea, Select } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { ImageUrl } from 'src/constants/contant';
 
-const InvoiceModel = ({ data, formData, setFormData }) => {
+const InvoiceModel = ({ formData, setFormData, dispatchList, setBatches }) => {
   // 🔹 Invoice Form
 
-  useEffect(() => {
-    if (data) {
-      setFormData((prev) => ({
-        ...prev,
-        invoice_no: data?.invoice_no || '',
-        buyer:
-          (data?.poentry?.customers?.company_name || '') +
-          '\n' +
-          (data?.poentry?.company_address || ''),
-        consignee:
-          (data?.poentry?.customers?.company_name || '') +
-          '\n' +
-          (data?.poentry?.company_address || ''),
-      }));
-    }
-  }, [data]);
+  const handleDispatchChange = (dispatchId: string) => {
+    const selectedDispatch = dispatchList?.find(
+      (item: any) => String(item.id) === String(dispatchId),
+    );
+
+    setBatches(selectedDispatch?.batches || []);
+
+    setFormData((prev) => ({
+      ...prev,
+      dispatch_id: dispatchId,
+      buyer:
+        (selectedDispatch?.poentry?.customers?.company_name || '') +
+        '\n' +
+        (selectedDispatch?.poentry?.company_address || ''),
+      consignee:
+        (selectedDispatch?.poentry?.customers?.company_name || '') +
+        '\n' +
+        (selectedDispatch?.poentry?.company_address || ''),
+    }));
+  };
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({
@@ -46,6 +50,20 @@ const InvoiceModel = ({ data, formData, setFormData }) => {
     <form className="grid grid-cols-12 gap-4">
       {/* 🔹 Invoice */}
       <div className="col-span-12 font-semibold text-lg border-b pb-2">Invoice Details</div>
+
+      <div className="col-span-3">
+        <Label value="PO No" className="text-black" />
+        <Select value={formData.dispatch_id} onChange={(e) => handleDispatchChange(e.target.value)}>
+          <option value="">Select PO No</option>
+
+          {dispatchList?.map((item: any) => (
+            <option key={item.id} value={item.id}>
+              {item?.poentry?.po_no}
+            </option>
+          ))}
+        </Select>
+      </div>
+
       <div className="col-span-3">
         <Label value="Invoice No" className="text-black" />
         <TextInput

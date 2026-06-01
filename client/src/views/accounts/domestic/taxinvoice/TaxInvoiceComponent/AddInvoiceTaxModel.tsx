@@ -5,6 +5,7 @@ import Productsandcharges from './Productsandcharges';
 import { toast } from 'react-toastify';
 import {
   createInvoice,
+  getDispatchPo,
   getInvoice,
   updateInvoice,
 } from '../../../../../features/account/invoice/taxinvoice';
@@ -12,14 +13,55 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 
 const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
+  const initialFormData = {
+    invoice_type: type,
+    dispatch_id: '',
+    invoice_no: '',
+    invoice_date: '',
+    eway_bill: '',
+    delivery_note: '',
+    delivery_note_date: '',
+    oq_upload: '',
+    grade: '',
+    irn: '',
+    ack_no: '',
+    ack_date: '',
+    buyer: '',
+    consignee: '',
+    gst_type: '',
+    payment_mode: '',
+    payment_remark: '',
+    reference_no: '',
+    other_reference: '',
+    buyer_order_no: '',
+    buyer_order_date: '',
+    dispatch_doc_no: '',
+    dispatch_through: '',
+    destination: '',
+    country: '',
+    lut_no: '',
+    from_to: '',
+    gst_rate: '',
+    terms_delivery: '',
+  };
   const [activeTab, setActiveTab] = useState('invoice');
   const dispatch = useDispatch<AppDispatch>();
   const invoice = useSelector((state: RootState) => state.taxinvoices.singleinvoice) as any;
+  const dispatchList = useSelector((state: RootState) => state.taxinvoices.dispatchpo);
+  const [batches, setBatches] = useState([]);
 
-  const batches = data?.batches;
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
-    dispatch(getInvoice(data?.id));
+    if (!data?.id) {
+      setFormData(initialFormData);
+      return;
+    }
+    dispatch(getInvoice(data?.DispatchVehicle?.id));
+  }, [data?.id]);
+
+  useEffect(() => {
+    dispatch(getDispatchPo());
   }, [dispatch]);
 
   useEffect(() => {
@@ -83,54 +125,6 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       });
     }
   }, [invoice]);
-
-  const [formData, setFormData] = useState({
-    // Basic
-    invoice_type: type,
-    dispatch_id: data?.id,
-    invoice_no: '',
-    invoice_date: '',
-    eway_bill: '',
-    delivery_note: '',
-    delivery_note_date: '',
-    oq_upload: '',
-    grade: '',
-    // IRN
-    irn: '',
-    ack_no: '',
-    ack_date: '',
-
-    // Party
-    buyer: '',
-    consignee: '',
-    gst_type: '', // export / domestic
-
-    // Payment
-    payment_mode: '',
-    payment_remark: '',
-
-    // References
-    reference_no: '',
-    other_reference: '',
-    buyer_order_no: '',
-    buyer_order_date: '',
-
-    // Dispatch
-    dispatch_doc_no: '',
-    dispatch_through: '',
-    destination: '',
-    country: '',
-
-    // Export
-    lut_no: '',
-    from_to: '',
-
-    // GST
-    gst_rate: '',
-
-    // Other
-    terms_delivery: '',
-  });
 
   const [products, setProducts] = useState([
     {
@@ -260,7 +254,12 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
         {activeTab === 'invoice' && (
           <>
             <div className="bg-white p-5 rounded-xl shadow-sm border">
-              <InvoiceModel data={data} formData={formData} setFormData={setFormData} />
+              <InvoiceModel
+                formData={formData}
+                setFormData={setFormData}
+                dispatchList={dispatchList}
+                setBatches={setBatches}
+              />
             </div>
           </>
         )}

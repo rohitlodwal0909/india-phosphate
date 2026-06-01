@@ -20,12 +20,113 @@ exports.getEntryInvoice = async (req, res) => {
     let condition = {};
 
     if (status == 1) {
+      condition = { invoice_type: "domestic" };
+    } else if (status == 2) {
+      condition = { invoice_type: "export" };
+    }
+
+    const data = await Invoice.findAll({
+      where: condition,
+
+      include: [
+        {
+          model: DispatchVehicle,
+          where: { deleted_at: null },
+          include: [
+            {
+              model: DispatchBatch,
+              as: "batches",
+              include: [
+                {
+                  model: Qcbatch,
+                  as: "batch",
+                  attributes: [
+                    ["id", "batch_id"],
+                    ["qc_batch_number", "batch_no"]
+                  ]
+                }
+              ]
+            },
+            {
+              model: PurchaseOrderModel,
+              as: "poentry",
+              include: [
+                {
+                  model: User,
+                  as: "users",
+                  attributes: ["id", "username"]
+                },
+                {
+                  model: Customer,
+                  as: "customers"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    // const data = await DispatchVehicle.findAll({
+    //   include: [
+    //     {
+    //       model: DispatchBatch,
+    //       as: "batches",
+    //       include: [
+    //         {
+    //           model: Qcbatch,
+    //           as: "batch",
+    //           attributes: [
+    //             ["id", "batch_id"],
+    //             ["qc_batch_number", "batch_no"]
+    //           ]
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       model: PurchaseOrderModel,
+    //       as: "poentry",
+    //       where: condition,
+    //       include: [
+    //         {
+    //           model: User,
+    //           as: "users",
+    //           attributes: ["id", "username"]
+    //         },
+    //         {
+    //           model: Customer,
+    //           as: "customers"
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       model: Invoice,
+    //       required: true
+    //     }
+    //   ]
+    // });
+
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getDispatchPo = async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    let condition = {};
+
+    if (status == 1) {
       condition = { domestic: true };
     } else if (status == 2) {
       condition = { export: true };
     }
 
     const data = await DispatchVehicle.findAll({
+      order: [["created_at", "DESC"]],
+      attributes: ["id", "po_id"],
       include: [
         {
           model: DispatchBatch,
@@ -45,21 +146,19 @@ exports.getEntryInvoice = async (req, res) => {
           model: PurchaseOrderModel,
           as: "poentry",
           where: condition,
+          attributes: [
+            "po_no",
+            "company_id",
+            "customer_name",
+            "company_address"
+          ],
           include: [
             {
-              model: User,
-              as: "users",
-              attributes: ["id", "username"]
-            },
-            {
               model: Customer,
-              as: "customers"
+              as: "customers",
+              attributes: ["company_name"]
             }
           ]
-        },
-        {
-          model: Invoice,
-          required: false
         }
       ]
     });
@@ -271,6 +370,49 @@ exports.getInvoice = async (req, res) => {
           include: [
             {
               model: Product
+            }
+          ]
+        }
+      ]
+    });
+
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getInvoicepayment = async (req, res) => {
+  try {
+    const data = await Invoice.findAll({
+      order: [["id", "DESC"]],
+      attributes: [
+        "id",
+        "dispatch_id",
+        "payment_status",
+        "account_payment_remark",
+        "invoice_no"
+      ],
+      include: [
+        {
+          model: DispatchVehicle,
+          attributes: ["id"],
+          where: { deleted_at: null },
+          include: [
+            {
+              model: PurchaseOrderModel,
+              as: "poentry",
+              include: [
+                {
+                  model: User,
+                  as: "users",
+                  attributes: ["id", "username"]
+                },
+                {
+                  model: Customer,
+                  as: "customers"
+                }
+              ]
             }
           ]
         }

@@ -3,7 +3,7 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
-const { PurchaseOrderModel, Customer, WorkOrderModel, User } = db;
+const { PurchaseOrderModel, Customer, WorkOrderModel, User, Invoice } = db;
 
 exports.getPurchaseOrders = async (req, res) => {
   try {
@@ -178,7 +178,7 @@ exports.paymentApproved = async (req, res) => {
     const { status } = req.body;
 
     // Find Purchase Order
-    const po = await PurchaseOrderModel.findByPk(id);
+    const po = await Invoice.findByPk(id);
 
     if (!po) {
       return res.status(404).json({
@@ -231,17 +231,17 @@ exports.paymentRemark = async (req, res) => {
     const { remark } = req.body;
 
     // Find Purchase Order
-    const po = await PurchaseOrderModel.findByPk(id);
+    const po = await Invoice.findByPk(id);
 
     if (!po) {
       return res.status(404).json({
         success: false,
-        message: "Purchase Order not found"
+        message: "Invoice not found"
       });
     }
 
     // Update Status
-    await po.update({ payment_remark: remark });
+    await po.update({ account_payment_remark: remark });
 
     // Notification Message
 
