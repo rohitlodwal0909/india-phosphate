@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       qty: DataTypes.FLOAT,
       rate: DataTypes.FLOAT,
       per: DataTypes.STRING,
-      amount: DataTypes.FLOAT
+      amount: DataTypes.STRING
     },
     {
       tableName: "invoice_items",

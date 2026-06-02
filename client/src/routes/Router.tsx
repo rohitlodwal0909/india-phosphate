@@ -49,6 +49,9 @@ import Dispute from 'src/views/marketing/dispute/Dispute';
 import VisitPlanner from 'src/views/marketing/visitPlanner/VisitPlanner';
 import TaskManager from 'src/views/dashboard/taskmanager/TaskManager';
 import Ledger from 'src/views/accounts/ledger/Ledger';
+import Dashboard from 'src/views/usermanagment/Dashboard';
+import Report from 'src/views/accounts/ledger/LedgerComponent/Report';
+import CustomerDashboard from 'src/views/dashboard/customer/CustomerDashboard';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -161,6 +164,8 @@ const fullLayoutChildren = [
   { path: '/inventory/work-order', element: <WorkOrder /> },
   { path: '/inventory/replacement', element: <Replacement /> },
 
+  { path: 'employee-dashboard/:id', element: <Dashboard /> },
+
   // Account Managment
 
   { path: '/accounts/domestic/tax-invoice', element: <TaxInvoice /> },
@@ -175,6 +180,7 @@ const fullLayoutChildren = [
   { path: '/accounts/purchase-report/:id', element: <PuchaseReport /> },
   { path: '/accounts/purchase', element: <AccountPurchase /> },
   { path: '/accounts/ledger', element: <Ledger /> },
+  { path: '/accounts/summary/:id', element: <Report /> },
 
   // Marketing
 
@@ -202,6 +208,7 @@ const fullLayoutChildren = [
   { path: '/master/customer', element: <Customer /> },
   { path: '/master/existing-customer', element: <ExistingCustomer /> },
   { path: '/master/potential-opportunity', element: <Opportunity /> },
+  { path: '/master/customer-dashboard/:id', element: <CustomerDashboard /> },
 
   { path: '/master/products', element: <Product /> },
   // { path: '/master/category', element: <Category/> },

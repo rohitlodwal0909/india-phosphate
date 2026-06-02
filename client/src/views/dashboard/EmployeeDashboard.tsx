@@ -19,13 +19,16 @@ import {
 import { AppDispatch, RootState } from 'src/store';
 import { getemployeedata } from 'src/features/dashboard/DashboardCustomerSlice';
 
-const EmployeeDashboard: React.FC = () => {
+interface EmployeeDashboardProps {
+  id?: number | string;
+}
+const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const employeedata = useSelector((state: RootState) => state.customerdashboard.employeedata);
 
   useEffect(() => {
-    dispatch(getemployeedata());
+    dispatch(getemployeedata(id));
   }, [dispatch]);
 
   /* =========================================================

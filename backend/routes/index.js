@@ -68,6 +68,7 @@ const ExportInvoiceRoutes = require("../routes/account/ExportInvoiceRoutes");
 const PackingListRoutes = require("../routes/account/PackingListRoutes");
 const DraftPackingRoutes = require("../routes/account/DraftPackingRoutes");
 const SampleInvoiceRoutes = require("../routes/account/SampleInvoiceRoutes");
+const LedgerRoutes = require("../routes/account/LedgerRoutes");
 
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -159,5 +160,6 @@ router.use("/api", authMiddleware, VisitPlannerRoutes);
 
 router.use("/api", authMiddleware, DashboardCustomer);
 router.use("/api", authMiddleware, taskManagerRoutes);
+router.use("/api", authMiddleware, LedgerRoutes);
 
 module.exports = router;

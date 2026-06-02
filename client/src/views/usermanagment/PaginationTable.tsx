@@ -32,6 +32,7 @@ export interface PaginationTableType {
   signature?: any;
   role_id?: any;
 }
+import { useNavigate } from 'react-router-dom';
 
 const columnHelper = createColumnHelper<PaginationTableType>();
 
@@ -64,6 +65,12 @@ function PaginationTable({ roleData }) {
     setSelectedRow(row);
     setIsOpen(true);
   };
+  const history = useNavigate();
+
+  const handleViewdashboard = (row: PaginationTableType) => {
+    history(`/employee-dashboard/${row?.id}`);
+  };
+
   const handleConfirmDelete = async (userToDelete: PaginationTableType | null) => {
     if (!userToDelete) return;
 
@@ -160,16 +167,28 @@ function PaginationTable({ roleData }) {
               </Button>
             </Tooltip>
             {rowData?.role_id !== 1 && (
-              <Tooltip content="Delete " placement="bottom">
-                <Button
-                  size="sm"
-                  color={'lighterror'}
-                  className="p-0"
-                  onClick={() => handleDelete(rowData)}
-                >
-                  <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
-                </Button>
-              </Tooltip>
+              <>
+                <Tooltip content="Delete " placement="bottom">
+                  <Button
+                    size="sm"
+                    color={'lighterror'}
+                    className="p-0"
+                    onClick={() => handleDelete(rowData)}
+                  >
+                    <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="View Dashboard" placement="bottom">
+                  <Button
+                    size="sm"
+                    color={'primary'}
+                    className="p-0"
+                    onClick={() => handleViewdashboard(rowData)}
+                  >
+                    <Icon icon="solar:eye-outline" height={18} />
+                  </Button>
+                </Tooltip>
+              </>
             )}
           </div>
         );

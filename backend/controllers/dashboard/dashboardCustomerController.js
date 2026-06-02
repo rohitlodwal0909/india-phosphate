@@ -54,6 +54,7 @@ exports.getallCustomers = async (req, res, next) => {
 
 exports.getEmployeeDashboard = async (req, res) => {
   try {
+    const id = req.params.id;
     /* =========================================================
         TODAY DATE
     ========================================================= */
@@ -73,10 +74,10 @@ exports.getEmployeeDashboard = async (req, res) => {
     const commonWhere = {
       [Op.or]: [
         {
-          user_id: req.admin.id
+          user_id: id
         },
         {
-          assign_to: req.admin.id
+          assign_to: id
         }
       ]
     };

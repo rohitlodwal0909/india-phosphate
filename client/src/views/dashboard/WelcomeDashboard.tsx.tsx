@@ -8,6 +8,7 @@ const WelcomeDashboard: React.FC = () => {
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
   const permission = logindata?.admin?.role_id;
+  const id = logindata?.admin?.id || null;
 
   return (
     <>
@@ -70,7 +71,7 @@ const WelcomeDashboard: React.FC = () => {
           </button> */}
         </div>
 
-        <EmployeeDashboard />
+        <EmployeeDashboard id={id} />
 
         {/* Marketing Dashboard */}
         {(permission === 9 || permission === 1) && (

@@ -40,7 +40,7 @@ const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 
 const AccountPaymentTable = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+  const logindata = useSelector((state: RootState) => state.authentication?.logindata);
 
   const invoices = useSelector((state: RootState) => state.taxinvoices.invoicepayment) as any;
 

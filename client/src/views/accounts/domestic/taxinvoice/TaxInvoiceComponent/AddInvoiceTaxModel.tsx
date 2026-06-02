@@ -57,7 +57,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       setFormData(initialFormData);
       return;
     }
-    dispatch(getInvoice(data?.DispatchVehicle?.id));
+    dispatch(getInvoice(data?.id));
   }, [data?.id]);
 
   useEffect(() => {

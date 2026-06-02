@@ -1,15 +1,18 @@
 import { Button, Label, TextInput } from 'flowbite-react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
-import { AppDispatch } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 
 const Productsandcharges = ({ batches, products, setProducts, charges, setCharges }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { productdata } = useSelector((state: any) => state.products);
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
 
   useEffect(() => {
     dispatch(GetProduct());
+    dispatch(GetGrade());
   }, [dispatch]);
 
   // console.log(dispatchBatches);
@@ -228,13 +231,14 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
                         value={product.grade}
                         onChange={(e) => handleProductChange(pIndex, 'grade', e.target.value)}
                       >
-                        <option value="">Select</option>
-                        <option value="IP">IP</option>
-                        <option value="BP">BP</option>
-                        <option value="EP">EP</option>
-                        <option value="USP">USP</option>
-                        <option value="FCC">FCC</option>
-                        <option value="IHS">IHS</option>
+                        <option value="">Select Grade</option>
+
+                        {Array.isArray(grades) &&
+                          grades.map((g: any) => (
+                            <option key={g.id} value={g.grade}>
+                              {g.grade}
+                            </option>
+                          ))}
                       </select>
                     </td>
                   )}

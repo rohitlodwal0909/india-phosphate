@@ -15,6 +15,7 @@ import { getPermissions } from 'src/utils/getPermissions';
 import NotPermission from 'src/utils/NotPermission';
 import ViewCustomerModal from './ViewCustomerModal';
 import Note from './NoteModal';
+import { useNavigate } from 'react-router';
 
 const CustomerTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -56,6 +57,12 @@ const CustomerTable = () => {
       else if (error?.response?.status === 500) toast.error('Server error. Try again later.');
       else toast.error('Failed to delete user.');
     }
+  };
+
+  const history = useNavigate();
+
+  const handleCustomerView = (row) => {
+    history(`/master/customer-dashboard/${row?.id}`);
   };
 
   const filteredItems = (customerdata || []).filter((item: any) => {
@@ -217,6 +224,18 @@ const CustomerTable = () => {
                                 }}
                               >
                                 <Icon icon="mdi:comment-plus-outline" height={18} />
+                              </Button>
+                            </Tooltip>
+
+                            <Tooltip content="Customer Dashboard">
+                              <Button
+                                size="xs"
+                                color="warning"
+                                onClick={() => {
+                                  handleCustomerView(item);
+                                }}
+                              >
+                                <Icon icon="solar:widget-5-bold" height={18} />
                               </Button>
                             </Tooltip>
                           </>

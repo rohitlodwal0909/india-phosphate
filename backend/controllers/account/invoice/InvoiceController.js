@@ -266,9 +266,19 @@ exports.createInvoice = async (req, res) => {
     /* ================= ITEMS ================= */
 
     const items = products?.map((item) => {
-      if (!item.product_name || !item.rate) {
+      if (!item.rate) {
         throw new Error("Invalid product data");
       }
+
+      const totalQty = (item.batches || []).reduce(
+        (sum, batch) => sum + Number(batch.qty || 0),
+        0
+      );
+
+      const totalAmount = (item.batches || []).reduce(
+        (sum, batch) => sum + Number(batch.amount || 0),
+        0
+      );
 
       return {
         invoice_id: invoice.id,
@@ -278,7 +288,9 @@ exports.createInvoice = async (req, res) => {
         batch_no: JSON.stringify(item.batches),
         hsn: item.hsn,
         rate: item.rate,
-        per: item.per
+        per: item.per,
+        qty: totalQty,
+        amount: totalAmount
       };
     });
 
@@ -331,16 +343,30 @@ exports.updateInvoice = async (req, res) => {
       transaction
     });
 
-    const items = products.map((item) => ({
-      invoice_id: id,
-      product_id: item.product_name,
-      grade: item.grade,
-      kind_of_pkgs: item.kind_of_pkgs,
-      batch_no: JSON.stringify(item.batches),
-      hsn: item.hsn,
-      rate: item.rate,
-      per: item.per
-    }));
+    const items = products?.map((item) => {
+      const totalQty = (item.batches || []).reduce(
+        (sum, batch) => sum + Number(batch.qty || 0),
+        0
+      );
+
+      const totalAmount = (item.batches || []).reduce(
+        (sum, batch) => sum + Number(batch.amount || 0),
+        0
+      );
+
+      return {
+        invoice_id: invoice.id,
+        grade: item.grade,
+        product_id: item.product_name,
+        kind_of_pkgs: item.kind_of_pkgs,
+        batch_no: JSON.stringify(item.batches),
+        hsn: item.hsn,
+        rate: item.rate,
+        per: item.per,
+        qty: totalQty,
+        amount: totalAmount
+      };
+    });
 
     await InvoiceItem.bulkCreate(items, { transaction });
 
@@ -362,7 +388,7 @@ exports.getInvoice = async (req, res) => {
 
     const data = await Invoice.findOne({
       where: {
-        dispatch_id: id
+        id: id
       },
       include: [
         {

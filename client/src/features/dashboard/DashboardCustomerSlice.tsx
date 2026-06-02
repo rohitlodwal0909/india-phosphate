@@ -145,17 +145,20 @@ export const gettotalCustomer = createAsyncThunk('dashboard/fetch', async (_, th
     GET EMPLOYEE DASHBOARD DATA
 ========================================================= */
 
-export const getemployeedata = createAsyncThunk('dashboard/employee', async (_, thunkAPI) => {
-  try {
-    const response = await axiosInstance.get('/get-employee-data');
+export const getemployeedata = createAsyncThunk(
+  'dashboard/employee',
+  async (id: number | string, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/get-employee-data/${id}`);
 
-    return response.data.data;
-  } catch (error: any) {
-    const errorMessage = error.response?.data?.message || 'Failed to fetch employee data.';
+      return response.data.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch employee data.';
 
-    return thunkAPI.rejectWithValue(errorMessage);
-  }
-});
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  },
+);
 
 /* =========================================================
     SLICE
