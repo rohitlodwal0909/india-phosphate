@@ -1,75 +1,35 @@
 import { Icon } from '@iconify/react';
 import { Button } from 'flowbite-react';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { getAllAccountdata } from 'src/features/account/ledger/LedgerSlice';
-import { AppDispatch } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 
 const LedgerTable = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const overalldata = useSelector((state: RootState) => state.ledgers.overalldata);
 
   useEffect(() => {
     dispatch(getAllAccountdata());
   }, [dispatch]);
 
   const financialSummary = {
-    totalDebit: 24500000,
-    totalCredit: 18500000,
-    outstanding: 6000000,
-    totalPO: 32000000,
-    totalInvoice: 28500000,
+    totalDebit: Number(overalldata?.total_debit || 0),
+    totalCredit: Number(overalldata?.total_credit || 0),
+    outstanding: Number(overalldata?.total_debit || 0) - Number(overalldata?.total_credit || 0),
+    totalPO: Number(overalldata?.total_po || 0),
+    totalInvoice: Number(overalldata?.invoice_value || 0),
     totalCompanies: 127,
   };
 
-  const companySummary = [
-    {
-      company: 'ABC Chemicals Pvt Ltd',
-      debit: 4500000,
-      credit: 3200000,
-      balance: 1300000,
-      po: 5000000,
-      invoice: 4500000,
-      transactions: 45,
-    },
-    {
-      company: 'Sunrise Fertilizer',
-      debit: 2800000,
-      credit: 2500000,
-      balance: 300000,
-      po: 3000000,
-      invoice: 2800000,
-      transactions: 21,
-    },
-    {
-      company: 'XYZ Agro Industries',
-      debit: 5500000,
-      credit: 4200000,
-      balance: 1300000,
-      po: 6200000,
-      invoice: 5500000,
-      transactions: 62,
-    },
-  ];
+  const totalPO = Number(overalldata?.total_po || 0);
+  const totalInvoice = Number(overalldata?.invoice_value || 0);
 
-  const productSummary = [
-    { product: 'DAP', amount: 12500000 },
-    { product: 'NPK', amount: 9200000 },
-    { product: 'SSP', amount: 6500000 },
-    { product: 'Rock Phosphate', amount: 3800000 },
-  ];
+  const pending = totalPO - totalInvoice;
 
-  const gradeSummary = [
-    { grade: 'Grade A', amount: 15500000 },
-    { grade: 'Grade B', amount: 8400000 },
-    { grade: 'Grade C', amount: 5100000 },
-  ];
-
-  const outstandingCompanies = [
-    { company: 'ABC Chemicals', amount: 1300000 },
-    { company: 'XYZ Agro', amount: 1100000 },
-    { company: 'Sunrise Fertilizer', amount: 750000 },
-  ];
+  const completionPercentage =
+    totalPO > 0 ? Math.min(100, (totalInvoice / totalPO) * 100).toFixed(1) : '0.0';
 
   const formatCurrency = (amount: number) => {
     if (amount >= 10000000) {
@@ -80,7 +40,7 @@ const LedgerTable = () => {
       return `₹${(amount / 100000).toFixed(2)} Lac`;
     }
 
-    return `₹${amount.toLocaleString()}`;
+    return `₹${amount?.toLocaleString()}`;
   };
 
   const history = useNavigate();
@@ -176,29 +136,36 @@ const LedgerTable = () => {
           <h3 className="text-lg font-semibold">PO vs Invoice Performance</h3>
 
           <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-            89% Completed
+            {completionPercentage}% Completed
           </span>
         </div>
 
         <div className="grid md:grid-cols-3 gap-5 mb-5">
           <div>
             <p className="text-gray-500">Total PO</p>
-            <h3 className="text-2xl font-bold text-blue-600">₹3.20 Cr</h3>
+            <h3 className="text-2xl font-bold text-blue-600">{formatCurrency(totalPO)}</h3>
           </div>
 
           <div>
             <p className="text-gray-500">Invoice Generated</p>
-            <h3 className="text-2xl font-bold text-green-600">₹2.85 Cr</h3>
+            <h3 className="text-2xl font-bold text-green-600">{formatCurrency(totalInvoice)}</h3>
           </div>
 
           <div>
             <p className="text-gray-500">Pending</p>
-            <h3 className="text-2xl font-bold text-red-600">₹35 Lac</h3>
+            <h3 className="text-2xl font-bold text-red-600">
+              {formatCurrency(Math.max(0, pending))}
+            </h3>
           </div>
         </div>
 
         <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-          <div className="h-full bg-green-500" style={{ width: '89%' }} />
+          <div
+            className="h-full bg-green-500 transition-all duration-500"
+            style={{
+              width: `${Math.min(100, Number(completionPercentage))}%`,
+            }}
+          />
         </div>
       </div>
 
@@ -222,21 +189,23 @@ const LedgerTable = () => {
             </thead>
 
             <tbody>
-              {companySummary.map((item) => (
+              {overalldata?.company_wise?.map((item) => (
                 <tr key={item.company} className="border-b hover:bg-gray-50">
-                  <td className="p-3 font-medium">{item.company}</td>
+                  <td className="p-3 font-medium">{item.company_name}</td>
 
-                  <td className="text-center">{formatCurrency(item.po)}</td>
+                  <td className="text-center">{formatCurrency(0)}</td>
 
-                  <td className="text-center">{formatCurrency(item.invoice)}</td>
+                  <td className="text-center">{formatCurrency(item.totalInvoice)}</td>
 
-                  <td className="text-center text-red-600">{formatCurrency(item.debit)}</td>
+                  <td className="text-center text-red-600">{formatCurrency(0)}</td>
 
-                  <td className="text-center text-green-600">{formatCurrency(item.credit)}</td>
+                  <td className="text-center text-green-600">
+                    {formatCurrency(item.receivedAmount)}
+                  </td>
 
-                  <td className="text-center font-semibold">{formatCurrency(item.balance)}</td>
+                  <td className="text-center font-semibold">{formatCurrency(item.outstanding)}</td>
 
-                  <td className="text-center">{item.transactions}</td>
+                  <td className="text-center">{item.txn}</td>
                   <td className="text-center">
                     <Button
                       onClick={() => handleView(item)}
@@ -260,15 +229,15 @@ const LedgerTable = () => {
         <div className="bg-white rounded-2xl border shadow-sm p-6">
           <h3 className="font-semibold text-lg mb-5">Product Wise Business</h3>
 
-          {productSummary.map((item) => {
-            const percent = (item.amount / 12500000) * 100;
+          {overalldata?.product_wise?.map((item) => {
+            const percent = (item.totalAmount / 12500000) * 100;
 
             return (
-              <div key={item.product} className="mb-5">
+              <div key={item.product_name} className="mb-5">
                 <div className="flex justify-between mb-2">
-                  <span>{item.product}</span>
+                  <span>{item.product_name}</span>
 
-                  <span className="font-medium">{formatCurrency(item.amount)}</span>
+                  <span className="font-medium">{formatCurrency(item.totalAmount)}</span>
                 </div>
 
                 <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -282,15 +251,15 @@ const LedgerTable = () => {
         <div className="bg-white rounded-2xl border shadow-sm p-6">
           <h3 className="font-semibold text-lg mb-5">Grade Wise Business</h3>
 
-          {gradeSummary.map((item) => {
-            const percent = (item.amount / 15500000) * 100;
+          {overalldata?.grade_wise?.map((item) => {
+            const percent = (item.totalAmount / 15500000) * 100;
 
             return (
               <div key={item.grade} className="mb-5">
                 <div className="flex justify-between mb-2">
                   <span>{item.grade}</span>
 
-                  <span className="font-medium">{formatCurrency(item.amount)}</span>
+                  <span className="font-medium">{formatCurrency(item?.totalAmount)}</span>
                 </div>
 
                 <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -306,9 +275,9 @@ const LedgerTable = () => {
       <div className="bg-white rounded-2xl border shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-5">Top Outstanding Companies</h3>
 
-        {outstandingCompanies.map((item, index) => (
+        {overalldata?.topOutstandingCompanies?.map((item, index) => (
           <div
-            key={item.company}
+            key={item.company_name}
             className="flex justify-between items-center py-4 border-b last:border-0"
           >
             <div className="flex items-center gap-3">
@@ -316,10 +285,10 @@ const LedgerTable = () => {
                 {index + 1}
               </div>
 
-              <span>{item.company}</span>
+              <span>{item.company_name}</span>
             </div>
 
-            <span className="font-bold text-red-600">{formatCurrency(item.amount)}</span>
+            <span className="font-bold text-red-600">{formatCurrency(item.outstanding)}</span>
           </div>
         ))}
       </div>

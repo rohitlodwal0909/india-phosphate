@@ -2,8 +2,6 @@ import { Button, Modal, ModalFooter, ModalHeader } from 'flowbite-react';
 import { useEffect, useRef, useState } from 'react';
 import logoimg from '../../../../assets/logoimg.png';
 import { numberToWordsIndian } from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceComponent/numberToWordsIndian';
-import { AppDispatch } from 'src/store';
-import { useDispatch } from 'react-redux';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import html2pdf from 'html2pdf.js';
 
@@ -14,37 +12,29 @@ type Props = {
 };
 
 const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
-  const dispatch = useDispatch<AppDispatch>();
-
   const reportRef = useRef(null);
 
-  const [products, setProducts] = useState([
-    {
-      packing: '',
-      product_name: '',
-      qty: '',
-      rate: '',
-      gst: 18,
-      amount: 0,
-      discount_rate: 0,
-      currency: '',
-      unit: '',
-      gst_amount: 0,
-      total: 0,
-    },
-  ]);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    if (selectedRow?.products) {
+    if (selectedRow?.purchasePo) {
       try {
-        const pro = JSON.parse(selectedRow.products);
-        setProducts(pro);
+        const parsedProducts =
+          typeof selectedRow.purchasePo === 'string'
+            ? JSON.parse(selectedRow.purchasePo)
+            : selectedRow.purchasePo;
+
+        setProducts(parsedProducts || []);
       } catch (error) {
         console.error('Invalid JSON:', error);
         setProducts([]);
       }
+    } else {
+      setProducts([]);
     }
-  }, [dispatch, selectedRow]);
+  }, [selectedRow]);
+
+  // console.log(products);
 
   const grandTotal = products.reduce((sum, item) => sum + item.total, 0);
 
@@ -249,8 +239,8 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                   <td className="border border-black text-center">{i + 1}</td>
 
                   {/* PRODUCT */}
-                  <td className="border border-black p-2">{p.packing}</td>
-                  <td className="border border-black p-2">{p.product_name}</td>
+                  <td className="border border-black p-2">{p.packing?.name}</td>
+                  <td className="border border-black p-2">{p.product?.product_name}</td>
 
                   {/* DATE */}
                   <td className="border border-black">{p.gst}</td>

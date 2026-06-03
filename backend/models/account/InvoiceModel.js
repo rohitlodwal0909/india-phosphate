@@ -59,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
 
       // 🔹 GST
       gst: DataTypes.STRING,
+      payment_date: DataTypes.STRING,
 
       // 🔹 Other
       terms_delivery: DataTypes.TEXT,

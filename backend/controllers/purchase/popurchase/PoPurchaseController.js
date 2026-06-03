@@ -10,7 +10,9 @@ const {
   Equipment,
   PoRequisitionModel,
   Product,
-  PurchasePoModel
+  PurchasePoModel,
+  PurchasePoProductsModel,
+  PackingMaterial
 } = db;
 
 /* ======================================================
@@ -18,31 +20,64 @@ const {
 ====================================================== */
 
 exports.createPoPurchase = async (req, res) => {
-  try {
-    const data = await PurchasePoModel.create({
-      user_id: req.admin.id,
-      po_no: req.body.po_no,
-      bill_to: req.body.bill_to,
-      delivery_address: req.body.delivery_address,
-      date: req.body.date,
-      expected_arrival_date: req.body.expected_arrival_date,
-      shipping_term: req.body.shipping_term,
-      payment_term: req.body.payment_term,
-      destination: req.body.destination,
+  const transaction = await db.sequelize.transaction();
 
-      // ✅ FIX HERE
-      products: JSON.stringify(req.body.products)
-    });
+  try {
+    const products = req.body.products || [];
+
+    // console.log(products);
+
+    // return;
+
+    const po = await PurchasePoModel.create(
+      {
+        user_id: req.admin.id,
+        po_no: req.body.po_no,
+        bill_to: req.body.bill_to,
+        delivery_address: req.body.delivery_address,
+        date: req.body.date,
+        expected_arrival_date: req.body.expected_arrival_date,
+        shipping_term: req.body.shipping_term,
+        payment_term: req.body.payment_term,
+        destination: req.body.destination
+      },
+      { transaction }
+    );
+
+    if (products && products.length > 0) {
+      const productData = products.map((item) => ({
+        purchase_po_id: po.id,
+        packing_id: item.packing_id,
+        product_id: item.product_id,
+        qty: item.qty,
+        rate: item.rate,
+        discount_rate: item.discount_rate || 0,
+        gst: item.gst || 0,
+        amount: item.amount,
+        unit: item.unit,
+        currency: item.currency || "INR",
+        gst_amount: item.gst_amount || 0,
+        total: item.total
+      }));
+
+      await PurchasePoProductsModel.bulkCreate(productData, {
+        transaction
+      });
+    }
+
+    await transaction.commit();
 
     return res.status(200).json({
       message: "Purchase PO created successfully",
-      data
+      data: po
     });
   } catch (error) {
+    await transaction.rollback();
+
     console.error("Create Error:", error);
 
     return res.status(500).json({
-      message: "PO Purchase creation failed"
+      message: error.message || "PO Purchase creation failed"
     });
   }
 };
@@ -101,7 +136,23 @@ exports.updatePoRequisition = async (req, res) => {
 exports.getPurchasePo = async (req, res) => {
   try {
     const data = await PurchasePoModel.findAll({
-      order: [["id", "DESC"]]
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: PurchasePoProductsModel,
+          as: "purchasePo",
+          include: [
+            {
+              model: Product,
+              as: "product"
+            },
+            {
+              model: PmCode,
+              as: "packing"
+            }
+          ]
+        }
+      ]
     });
 
     return res.status(200).json({

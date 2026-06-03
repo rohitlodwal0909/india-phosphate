@@ -38,11 +38,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
 
-      products: {
-        type: DataTypes.TEXT, // ✅ important
-        allowNull: false
-      },
-
       bill_to: {
         type: DataTypes.TEXT,
         allowNull: true
@@ -76,6 +71,13 @@ module.exports = (sequelize, DataTypes) => {
       paranoid: true
     }
   );
+
+  PurchasePoModel.associate = (models) => {
+    PurchasePoModel.hasMany(models.PurchasePoProductsModel, {
+      foreignKey: "purchase_po_id",
+      as: "purchasePo"
+    });
+  };
 
   return PurchasePoModel;
 };

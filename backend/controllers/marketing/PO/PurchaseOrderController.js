@@ -4,6 +4,7 @@ const {
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
 const { PurchaseOrderModel, Customer, WorkOrderModel, User, Invoice } = db;
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
 exports.getPurchaseOrders = async (req, res) => {
   try {
@@ -186,9 +187,10 @@ exports.paymentApproved = async (req, res) => {
         message: "Purchase Order not found"
       });
     }
+    const { entry_date } = getISTDateTime();
 
     // Update Status
-    await po.update({ payment_status: status });
+    await po.update({ payment_status: status, payment_date: entry_date });
 
     // Notification Message
     let title = "Purchase Order Payment Status";

@@ -19,8 +19,8 @@ interface Props {
 }
 
 interface ProductRow {
-  packing: string;
-  product_name: string;
+  packing_id: string;
+  product_id: string;
   qty: number;
   rate: number;
   discount_rate: number;
@@ -33,8 +33,8 @@ interface ProductRow {
 }
 
 const emptyProduct: ProductRow = {
-  packing: '',
-  product_name: '',
+  packing_id: '',
+  product_id: '',
   qty: 0,
   rate: 0,
   discount_rate: 0,
@@ -111,7 +111,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
     for (let i = 0; i < products.length; i++) {
       const p = products[i];
 
-      if (!p.product_name) return `Product missing row ${i + 1}`;
+      if (!p.product_id) return `Product missing row ${i + 1}`;
       if (p.qty <= 0) return `Qty invalid row ${i + 1}`;
       if (p.rate <= 0) return `Rate invalid row ${i + 1}`;
       if (!p.unit) return `Unit required row ${i + 1}`;
@@ -343,7 +343,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                   <td className="border border-black p-2">
                     <Select
                       options={packingOptions}
-                      onChange={(e) => handleProductChange(i, 'packing', e?.label)}
+                      onChange={(e) => handleProductChange(i, 'packing_id', e?.value)}
                     />
                   </td>
 
@@ -351,7 +351,7 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                   <td className="border border-black p-2">
                     <Select
                       options={productOptions}
-                      onChange={(e) => handleProductChange(i, 'product_name', e?.label)}
+                      onChange={(e) => handleProductChange(i, 'product_id', e?.value)}
                     />
                   </td>
 
