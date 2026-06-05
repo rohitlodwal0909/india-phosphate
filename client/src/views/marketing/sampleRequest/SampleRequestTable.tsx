@@ -235,14 +235,14 @@ const SampleRequestTable = () => {
         },
       }),
 
-      // columnHelper.accessor('user_id', {
-      //   header: 'Submitted by',
-      //   cell: (info) => (
-      //     <div className="truncate">
-      //       <p>{info.row.original.users?.username}</p>
-      //     </div>
-      //   ),
-      // }),
+      columnHelper.accessor('user_id', {
+        header: 'Submitted by',
+        cell: (info) => (
+          <div className="truncate">
+            <p>{info.row.original.users?.username}</p>
+          </div>
+        ),
+      }),
 
       columnHelper.display({
         id: 'actions',

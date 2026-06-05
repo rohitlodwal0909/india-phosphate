@@ -1,6 +1,7 @@
 const { where } = require("sequelize");
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 const {
   Customer,
   User,
@@ -23,6 +24,7 @@ exports.createCustomer = async (req, res) => {
       company_name: req.body.company_name,
       application: req.body.application,
       company_hq: req.body.company_hq,
+      priority: req.body.priority,
       company_address: req.body.company_address,
       customer_type: req.body.customer_type,
       trader_names: req.body.trader_names,
@@ -290,6 +292,7 @@ exports.addNote = async (req, res) => {
     const { id, note } = req.body;
 
     const customer = await Customer.findByPk(id);
+    const { entry_date } = getISTDateTime();
 
     if (!customer) {
       return res.status(404).json({
@@ -300,6 +303,7 @@ exports.addNote = async (req, res) => {
 
     await customer.update({
       note: note || "",
+      existing_date: entry_date,
       convert_to_customer: true
     });
 
@@ -322,37 +326,48 @@ exports.customerJourney = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const [customer, development, samplerequest, po, enquiry] =
-      await Promise.all([
-        Customer.findOne({
-          attributes: ["created_at"],
-          where: { id }
-        }),
+    const [
+      customer,
+      development,
+      samplerequest,
+      po,
+      existingCustomer,
+      enquiry
+    ] = await Promise.all([
+      Customer.findOne({
+        attributes: ["created_at"],
+        where: { id }
+      }),
 
-        DevelopmentModel.findOne({
-          order: [["id", "DESC"]],
-          attributes: ["created_at"],
-          where: { company_id: id }
-        }),
+      DevelopmentModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["created_at"],
+        where: { company_id: id }
+      }),
 
-        SampleRequestModel.findOne({
-          order: [["id", "DESC"]],
-          attributes: ["created_at"],
-          where: { company_id: id }
-        }),
+      SampleRequestModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["created_at"],
+        where: { company_id: id }
+      }),
 
-        PurchaseOrderModel.findOne({
-          order: [["id", "DESC"]],
-          attributes: ["id", "created_at"],
-          where: { company_id: id }
-        }),
+      PurchaseOrderModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["id", "created_at"],
+        where: { company_id: id }
+      }),
 
-        EnquiryModel.findOne({
-          order: [["id", "DESC"]],
-          attributes: ["created_at"],
-          where: { company_id: id }
-        })
-      ]);
+      Customer.findOne({
+        attributes: ["existing_date"],
+        where: { id: id, convert_to_customer: 1 }
+      }),
+
+      EnquiryModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["created_at"],
+        where: { company_id: id }
+      })
+    ]);
 
     // =========================
     // WORK ORDER

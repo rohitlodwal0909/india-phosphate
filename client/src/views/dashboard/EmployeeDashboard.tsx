@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CountUp from 'react-countup';
 import { Icon } from '@iconify/react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +18,9 @@ import {
 
 import { AppDispatch, RootState } from 'src/store';
 import { getemployeedata } from 'src/features/dashboard/DashboardCustomerSlice';
+import PendingTaskList from './employee/PendiingTaskList';
+import { getPendingTask } from 'src/features/dashboard/DashboardEmployeeSlice';
+import { Button } from 'flowbite-react';
 
 interface EmployeeDashboardProps {
   id?: number | string;
@@ -26,14 +29,32 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const employeedata = useSelector((state: RootState) => state.customerdashboard.employeedata);
+  const pendingTasks = useSelector((state: RootState) => state.employeedashboard.pendingtask);
+  const [openPendingModal, setOpenPendingModal] = useState(false);
+
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   useEffect(() => {
-    dispatch(getemployeedata(id));
-  }, [dispatch]);
+    if (id) {
+      dispatch(
+        getemployeedata({
+          id,
+          fromDate,
+          toDate,
+        }),
+      );
+    }
+  }, [id, fromDate, toDate]);
 
-  /* =========================================================
-      MAIN STATS
-  ========================================================= */
+  const handlePendingTask = async () => {
+    try {
+      await dispatch(getPendingTask(id as number | string)).unwrap();
+      setOpenPendingModal(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const stats = useMemo(() => {
     const totalLeads = employeedata?.totalTasks || 0;
@@ -67,10 +88,6 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
     };
   }, [employeedata]);
 
-  /* =========================================================
-      PIE CHART
-  ========================================================= */
-
   const pieData = [
     {
       name: 'Completed',
@@ -94,222 +111,273 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
     },
   ];
 
-  /* =========================================================
-      PRODUCTIVITY CHART
-  ========================================================= */
-
-  //   const productivityData = [
-  //     { name: 'Mon', task: 24 },
-  //     { name: 'Tue', task: 18 },
-  //     { name: 'Wed', task: 30 },
-  //     { name: 'Thu', task: 22 },
-  //     { name: 'Fri', task: 28 },
-  //     { name: 'Sat', task: 12 },
-  //   ];
-
   return (
-    <div className="space-y-8">
-      {/* =========================================================
-          HEADER
-      ========================================================= */}
+    <>
+      <div className="bg-white rounded-3xl shadow-sm border p-6 mb-6">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Employee Dashboard</h1>
 
-      {/* =========================================================
-          TOP KPI CARDS
-      ========================================================= */}
+            <p className="text-gray-500 mt-1">
+              Complete employee performance & productivity analytics
+            </p>
+          </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <DashboardCard
-          title="Completed Tasks"
-          value={stats.completedTasks}
-          icon="solar:check-circle-bold"
-          bg="bg-green-50"
-          iconbg="bg-green-100"
-          color="text-green-600"
-          border="border-green-500"
-        />
+          {/* Filters */}
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">From Date</label>
 
-        <DashboardCard
-          title="Remaining Tasks"
-          value={stats.remainingTasks}
-          icon="solar:clock-circle-bold"
-          bg="bg-yellow-50"
-          iconbg="bg-yellow-100"
-          color="text-yellow-600"
-          border="border-yellow-500"
-        />
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-[180px] rounded-xl border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+              />
+            </div>
 
-        <DashboardCard
-          title="Pending Cases"
-          value={stats.pendingCases}
-          icon="solar:danger-circle-bold"
-          bg="bg-red-50"
-          iconbg="bg-red-100"
-          color="text-red-600"
-          border="border-red-500"
-        />
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">To Date</label>
 
-        <DashboardCard
-          title="Revenue Impact"
-          value={stats.revenueImpact}
-          icon="solar:dollar-bold"
-          bg="bg-blue-50"
-          iconbg="bg-blue-100"
-          color="text-blue-600"
-          border="border-blue-500"
-          isString
-        />
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-[180px] rounded-xl border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"
+              />
+            </div>
+
+            <Button
+              color="light"
+              className="h-[42px]"
+              onClick={() => {
+                setFromDate('');
+                setToDate('');
+              }}
+            >
+              <Icon icon="solar:restart-bold" className="mr-2" />
+              Reset
+            </Button>
+          </div>
+        </div>
+
+        {/* Selected Range */}
+        {fromDate && toDate && (
+          <div className="mt-5 border-t pt-4">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
+              <Icon icon="solar:calendar-bold" width={18} />
+              Showing Data :
+              <span className="font-semibold">
+                {new Date(fromDate).toLocaleDateString('en-GB')}
+              </span>
+              →<span className="font-semibold">{new Date(toDate).toLocaleDateString('en-GB')}</span>
+            </div>
+          </div>
+        )}
       </div>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <DashboardCard
+            title="Completed Tasks"
+            value={stats.completedTasks}
+            icon="solar:check-circle-bold"
+            bg="bg-green-50"
+            iconbg="bg-green-100"
+            color="text-green-600"
+            border="border-green-500"
+          />
 
-      {/* =========================================================
+          <DashboardCard
+            title="Remaining Tasks"
+            value={stats.remainingTasks}
+            icon="solar:clock-circle-bold"
+            bg="bg-yellow-50"
+            iconbg="bg-yellow-100"
+            color="text-yellow-600"
+            border="border-yellow-500"
+          />
+
+          <DashboardCard
+            onClick={handlePendingTask}
+            title="Pending Errors"
+            value={stats.pendingCases}
+            icon="solar:danger-circle-bold"
+            bg="bg-red-50"
+            iconbg="bg-red-100"
+            color="text-red-600"
+            border="border-red-500"
+          />
+
+          <DashboardCard
+            title="Revenue Impact"
+            value={stats.revenueImpact}
+            icon="solar:dollar-bold"
+            bg="bg-blue-50"
+            iconbg="bg-blue-100"
+            color="text-blue-600"
+            border="border-blue-500"
+            isString
+          />
+        </div>
+
+        {/* =========================================================
           SECOND ROW
       ========================================================= */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <MiniCard title="Task Count" value={stats.totalLeads} icon="solar:clipboard-list-bold" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <MiniCard title="Task Count" value={stats.totalLeads} icon="solar:clipboard-list-bold" />
 
-        <MiniCard title="Overdue Count" value={stats.overdueItems} icon="solar:alarm-bold" />
+          <MiniCard title="Overdue Count" value={stats.overdueItems} icon="solar:alarm-bold" />
 
-        <MiniCard title="SLA Breaches" value={stats.slaBreaches} icon="solar:shield-warning-bold" />
+          <MiniCard
+            title="SLA Breaches"
+            value={stats.slaBreaches}
+            icon="solar:shield-warning-bold"
+          />
 
-        <MiniCard
-          title="Conversion Value"
-          value={`${stats.conversionValue}%`}
-          icon="solar:graph-up-bold"
-          isString
-        />
-      </div>
+          <MiniCard
+            title="Conversion Value"
+            value={`${stats.conversionValue}%`}
+            icon="solar:graph-up-bold"
+            isString
+          />
+        </div>
 
-      {/* =========================================================
+        {/* =========================================================
           CHARTS SECTION
       ========================================================= */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* PIE CHART */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* PIE CHART */}
 
-        <div className="bg-white rounded-3xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h3 className="text-xl font-bold text-gray-800">Work Distribution</h3>
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">Work Distribution</h3>
 
-              <p className="text-sm text-gray-500">Overall employee work analytics</p>
+                <p className="text-sm text-gray-500">Overall employee work analytics</p>
+              </div>
+
+              <Icon icon="solar:pie-chart-3-bold" width={28} className="text-primary" />
             </div>
 
-            <Icon icon="solar:pie-chart-3-bold" width={28} className="text-primary" />
-          </div>
+            <div className="h-[320px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    innerRadius={70}
+                    outerRadius={110}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
 
-          <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  innerRadius={70}
-                  outerRadius={110}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* PRODUCTIVITY */}
-
-        <div className="xl:col-span-2 bg-white rounded-3xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h3 className="text-xl font-bold text-gray-800">Employee Productivity</h3>
-
-              <p className="text-sm text-gray-500">Daily task performance</p>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
+          </div>
 
-            {/* <div className="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-semibold">
+          {/* PRODUCTIVITY */}
+
+          <div className="xl:col-span-2 bg-white rounded-3xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">Employee Productivity</h3>
+
+                <p className="text-sm text-gray-500">Daily task performance</p>
+              </div>
+
+              {/* <div className="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-semibold">
               +18.2%
             </div> */}
-          </div>
+            </div>
 
-          <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.weeklyProductivity}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="task" fill="#3b82f6" radius={[10, 10, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-[320px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.weeklyProductivity}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="task" fill="#3b82f6" radius={[10, 10, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* =========================================================
+        {/* =========================================================
           DAILY DIGEST + WORK HOURS
       ========================================================= */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* DAILY DIGEST */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* DAILY DIGEST */}
 
-        <div className="bg-white rounded-3xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-5">Daily Pending Task Digest</h3>
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-5">Daily Pending Task Digest</h3>
 
-          <div className="space-y-4">
-            {stats.todayTasks?.length > 0 ? (
-              stats.todayTasks.map((row: any) => (
-                <DigestCard
-                  key={row.id}
-                  title={row.task_title}
-                  status={row.status}
-                  priority={row.priority}
-                />
-              ))
-            ) : (
-              <div className="text-center py-10 text-gray-500">No tasks available today</div>
-            )}
+            <div className="space-y-4">
+              {stats.todayTasks?.length > 0 ? (
+                stats.todayTasks.map((row: any) => (
+                  <DigestCard
+                    key={row.id}
+                    title={row.task_title}
+                    status={row.status}
+                    priority={row.priority}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-500">No tasks available today</div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* WORK HOURS */}
+          {/* WORK HOURS */}
 
-        <div className="bg-white rounded-3xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-6">Employee Performance Metrics</h3>
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-6">Employee Performance Metrics</h3>
 
-          <div className="grid grid-cols-2 gap-5">
-            <MetricCard
-              title="Working Hours"
-              value={`${stats.workingHours} Hrs`}
-              icon="solar:clock-circle-bold"
-            />
+            <div className="grid grid-cols-2 gap-5">
+              <MetricCard
+                title="Working Hours"
+                value={`${stats.workingHours} Hrs`}
+                icon="solar:clock-circle-bold"
+              />
 
-            <MetricCard
-              title="Accepted Time"
-              value={stats.acceptedTime}
-              icon="solar:check-circle-bold"
-            />
+              <MetricCard
+                title="Accepted Time"
+                value={stats.acceptedTime}
+                icon="solar:check-circle-bold"
+              />
 
-            <MetricCard
-              title="First Response"
-              value={stats.avgResponse}
-              icon="solar:chat-round-bold"
-            />
+              <MetricCard
+                title="First Response"
+                value={stats.avgResponse}
+                icon="solar:chat-round-bold"
+              />
 
-            <MetricCard title="Follow Ups" value={stats.followUps} icon="solar:bell-bold" />
+              <MetricCard title="Follow Ups" value={stats.followUps} icon="solar:bell-bold" />
+            </div>
           </div>
+
+          <PendingTaskList
+            open={openPendingModal}
+            onClose={() => setOpenPendingModal(false)}
+            tasks={pendingTasks || []}
+          />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 export default EmployeeDashboard;
-
-/* =========================================================
-    KPI CARD
-========================================================= */
 
 const DashboardCard = ({
   title,
@@ -320,10 +388,14 @@ const DashboardCard = ({
   color,
   border,
   isString = false,
+  onClick,
 }: any) => {
   return (
     <div
-      className={`${bg} ${border} border-l-4 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300`}
+      onClick={onClick}
+      className={`${bg} ${border} border-l-4 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
     >
       <div className="flex items-center justify-between">
         <div>
@@ -341,10 +413,6 @@ const DashboardCard = ({
     </div>
   );
 };
-
-/* =========================================================
-    MINI CARD
-========================================================= */
 
 const MiniCard = ({ title, value, icon, isString = false }: any) => {
   return (
@@ -366,17 +434,12 @@ const MiniCard = ({ title, value, icon, isString = false }: any) => {
   );
 };
 
-/* =========================================================
-    DIGEST CARD
-========================================================= */
-
 const DigestCard = ({ title, status, priority }: any) => {
   return (
     <div className="border rounded-2xl p-4 hover:bg-gray-50 transition-all">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="font-semibold text-gray-800">{title}</h4>
-
           <p className="text-sm text-gray-500 mt-1">Status : {status}</p>
         </div>
 

@@ -21,9 +21,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-
+      existing_date: {
+        type: DataTypes.DATE
+      },
       customer_type: {
         type: DataTypes.ENUM("Trader", "End Customer", "Open Field")
+      },
+      priority: {
+        type: DataTypes.ENUM("High", "Medium", "Low")
       },
 
       trader_names: {
@@ -73,6 +78,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       potential_note: {
         type: DataTypes.TEXT
+      },
+      potential_status: {
+        type: DataTypes.STRING
       }
     },
     {

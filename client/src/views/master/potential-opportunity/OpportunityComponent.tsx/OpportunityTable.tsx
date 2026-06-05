@@ -125,16 +125,24 @@ const OpportunityTable = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  {['Sr.No', 'Company Name', 'Type ', 'Note', 'Date', 'Created By', 'Action'].map(
-                    (title) => (
-                      <th
-                        key={title}
-                        className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
-                      >
-                        {title}
-                      </th>
-                    ),
-                  )}
+                  {[
+                    'Sr.No',
+                    'Company Name',
+                    'Type ',
+                    'Note',
+                    'Date',
+                    'Products',
+                    'Contact Person',
+                    'Created By',
+                    'Action',
+                  ].map((title) => (
+                    <th
+                      key={title}
+                      className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
+                    >
+                      {title}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -165,6 +173,56 @@ const OpportunityTable = () => {
                         {item?.created_at
                           ? new Date(item.created_at).toISOString().split('T')[0]
                           : '-'}{' '}
+                      </td>
+                      <td>
+                        <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+                          {item.products.length > 0 ? (
+                            JSON.parse(item.products)?.map((item: any, index: number) => (
+                              <div key={index} className="border-b pb-1">
+                                <p>
+                                  <strong>Product:</strong> {item.product}
+                                </p>
+
+                                <p>
+                                  <strong>Grade:</strong> {item.grade}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+                          {Array.isArray(item?.contacts) && item.contacts.length > 0 ? (
+                            item.contacts.map((c: any, index: number) => (
+                              <div key={index} className="border-b pb-1">
+                                <p>
+                                  <strong>Name:</strong> {c.person}
+                                </p>
+
+                                <p>
+                                  <strong>Number:</strong> {c.number}
+                                </p>
+                              </div>
+                            ))
+                          ) : typeof item?.contacts === 'string' && item?.contacts ? (
+                            JSON.parse(item.contacts)?.map((c: any, index: number) => (
+                              <div key={index} className="border-b pb-1">
+                                <p>
+                                  <strong>Name:</strong> {c.person}
+                                </p>
+
+                                <p>
+                                  <strong>Number:</strong> {c.number}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <span>-</span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {item?.users?.username || '-'}

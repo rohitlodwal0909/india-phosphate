@@ -36,16 +36,9 @@ const createJourneyData = (data: any) => {
       color: 'bg-yellow-500',
       active: !!data?.customer,
       date: data?.customer?.created_at,
-      left: '5%',
-      top: '220px',
+      left: '4%',
+      top: '120px', // सीधे रैखिक (Linear) फ़्लो के लिए टॉप एलाइनमेंट सुधारा गया
     },
-
-    /*
-    =========================================
-    ENQUIRY AFTER PO
-    =========================================
-    */
-
     {
       key: 'development',
       title: 'Development',
@@ -53,50 +46,50 @@ const createJourneyData = (data: any) => {
       color: 'bg-pink-500',
       active: !!data?.development,
       date: data?.development?.created_at,
-      left: '18%',
-      top: '110px',
+      left: '14%',
+      top: '280px',
     },
-
     {
       key: 'samplerequest',
-      title: 'Sample Request',
+      title: 'Sample / Doc / Quotation', // इमेज के अनुसार नाम बदला गया
       icon: 'solar:file-text-outline',
       color: 'bg-fuchsia-500',
       active: !!data?.samplerequest,
       date: data?.samplerequest?.created_at,
-      left: '30%',
-      top: '300px',
+      left: '24%',
+      top: '120px',
     },
-
     {
       key: 'po',
-      title: 'Purchase Order',
+      title: 'PO (Purchase Order)',
       icon: 'solar:bag-check-outline',
       color: 'bg-emerald-500',
       active: !!data?.po,
       date: data?.po?.created_at,
-      left: '45%',
-      top: '140px',
+      left: '34%',
+      top: '280px',
       extra: data?.po?.id ? `PO-${data.po.id}` : null,
     },
-
-    /*
-    =========================================
-    ENQUIRY AFTER PO
-    =========================================
-    */
-
+    {
+      key: 'existingCustomer',
+      title: 'Existing Customer', // इमेज में यह एक महत्वपूर्ण डिसीजन/चेकपॉइंट है
+      icon: 'solar:user-check-outline',
+      color: 'bg-purple-500',
+      active: !!data?.existingCustomer,
+      date: data?.existingCustomer?.existing_date,
+      left: '44%',
+      top: '120px',
+    },
     {
       key: 'enquiry',
-      title: 'Enquiry',
+      title: 'Enquiry', // इमेज के अनुसार: Existing Customer से Enquiry निकलकर वापस ऊपर 'Sample/Doc/Quotation' में जाती है
       icon: 'solar:chat-round-dots-outline',
       color: 'bg-orange-500',
       active: !!data?.enquiry,
       date: data?.enquiry?.created_at,
-      left: '56%',
+      left: '54%',
       top: '280px',
     },
-
     {
       key: 'workOrder',
       title: 'Work Order',
@@ -104,11 +97,10 @@ const createJourneyData = (data: any) => {
       color: 'bg-cyan-500',
       active: !!data?.workOrder,
       date: data?.workOrder?.created_at,
-      left: '66%',
+      left: '64%',
       top: '120px',
       extra: data?.workOrder?.work_order_no,
     },
-
     {
       key: 'manufacturing',
       title: 'Manufacturing',
@@ -116,10 +108,9 @@ const createJourneyData = (data: any) => {
       color: 'bg-indigo-500',
       active: !!data?.manufacturing,
       date: data?.manufacturing?.created_at,
-      left: '76%',
-      top: '290px',
+      left: '74%',
+      top: '280px',
     },
-
     {
       key: 'dispatch',
       title: 'Dispatch',
@@ -127,10 +118,9 @@ const createJourneyData = (data: any) => {
       color: 'bg-blue-500',
       active: !!data?.dispatch,
       date: data?.dispatch?.dispatch_date,
-      left: '86%',
+      left: '84%',
       top: '120px',
     },
-
     {
       key: 'accounts',
       title: 'Accounts',
@@ -138,26 +128,19 @@ const createJourneyData = (data: any) => {
       color: 'bg-green-600',
       active: !!data?.accounts,
       date: data?.accounts?.created_at,
-      left: '93%',
-      top: '260px',
+      left: '94%',
+      top: '280px',
     },
-
-    /*
-    =========================================
-    REJECTION
-    =========================================
-    */
-
     {
       key: 'rejection',
-      title: 'Rejection',
+      title: 'Rejection', // इमेज में Rejection सबसे आखिरी स्टेज है (निचला सिरा)
       icon: 'solar:danger-triangle-outline',
       color: 'bg-red-500',
       active: !!data?.rejection,
       date: data?.rejection?.created_at,
-      left: '70%',
-      bottom: '90px',
-      isBottom: true,
+      left: '85%',
+      bottom: '50px',
+      isBottom: true, // नीचे की ओर दिखाने के लिए
     },
   ];
 };

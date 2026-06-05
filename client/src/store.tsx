@@ -83,6 +83,7 @@ import PurchasePoSlice from '../src/features/purchase/po/PurchasePoSlice';
 
 // Dashboard
 import DashboardCustomerSlice from '../src/features/dashboard/DashboardCustomerSlice';
+import DashboardEmployeeSlice from '../src/features/dashboard/DashboardEmployeeSlice';
 import TaskManagerSlice from '../src/features/dashboard/TaskManagerSlice';
 
 export const store = configureStore({
@@ -94,6 +95,7 @@ export const store = configureStore({
     // End Dashboard
 
     customerdashboard: DashboardCustomerSlice,
+    employeedashboard: DashboardEmployeeSlice,
     tasks: TaskManagerSlice,
     usermanagement: UsermanagmentSlice,
     checkininventory: ChechinSlice,

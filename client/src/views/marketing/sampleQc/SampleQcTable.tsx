@@ -41,6 +41,10 @@ interface PurchaseOrderDataType {
   type: string;
   sample_status: string;
   docket_remark: string;
+  users?: {
+    id: number;
+    username: string;
+  };
 }
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
@@ -232,6 +236,15 @@ const SampleQcTable = () => {
             </div>
           );
         },
+      }),
+
+      columnHelper.accessor('user_id', {
+        header: 'Submitted by',
+        cell: (info) => (
+          <div className="truncate">
+            <p>{info.row.original.users?.username}</p>
+          </div>
+        ),
       }),
 
       columnHelper.display({

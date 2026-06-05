@@ -14,6 +14,7 @@ import { getPermissions } from 'src/utils/getPermissions';
 import NotPermission from 'src/utils/NotPermission';
 import ViewCustomerModal from './ViewCustomerModal';
 import EditCustomerModal from '../../Customer/CustomerComponent.tsx/EditCustomerModal';
+import { useNavigate } from 'react-router';
 
 const CustomerTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -87,6 +88,12 @@ const CustomerTable = () => {
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const currentItems = filteredItems.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const history = useNavigate();
+
+  const handleCustomerView = (row) => {
+    history(`/master/customer-dashboard/${row?.id}`);
+  };
 
   return (
     <div>
@@ -196,6 +203,17 @@ const CustomerTable = () => {
                                 </Button>
                               </Tooltip>
                             )}
+                            <Tooltip content="Customer Dashboard">
+                              <Button
+                                size="xs"
+                                color="warning"
+                                onClick={() => {
+                                  handleCustomerView(item);
+                                }}
+                              >
+                                <Icon icon="solar:widget-5-bold" height={18} />
+                              </Button>
+                            </Tooltip>
                           </>
                         </div>
                       </td>

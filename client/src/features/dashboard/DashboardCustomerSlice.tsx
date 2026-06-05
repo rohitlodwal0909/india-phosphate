@@ -11,8 +11,40 @@ interface CustomerData {
   convert_to_customer?: number;
 }
 
+interface AllCustomerData {
+  avgOrderValue?: string;
+  buyingCycle?: number;
+  fyTotalValue?: number;
+  productWiseData: any;
+  gradeWiseData: string;
+  potentialRevenue: number;
+  dormantCustomers: number;
+  conversionRate: number;
+  revivedCustomers: number;
+  recoveryRate: number;
+  customer_conversation: any;
+  revivalQueue: any[];
+  customersRevenueMap: any[];
+}
+
+interface CustomerDashboardData {
+  enquiry: number;
+  sample: number;
+  order: number;
+  po_value: string;
+  customer: any;
+  fyTotalValue: string;
+  avgOrderValue: string;
+  lastOrder: any;
+  buyingCycle: string;
+  productWiseData: any;
+  gradeWiseData: string;
+  potentialRevenue: number;
+}
+
 interface TotalCustomersState {
   customers: CustomerData[];
+  customer: AllCustomerData;
   message: string;
   pending_orders: number;
   total_disputes: number;
@@ -61,7 +93,7 @@ interface DashboardState {
   totalcustomers: TotalCustomersState;
 
   employeedata: EmployeeDashboardData;
-
+  customer: CustomerDashboardData;
   addResult: any;
 
   updateResult: any;
@@ -80,13 +112,32 @@ const initialState: DashboardState = {
 
   totalcustomers: {
     customers: [],
-
+    customer: {
+      avgOrderValue: '',
+      buyingCycle: 0,
+      fyTotalValue: 0,
+      productWiseData: [],
+      gradeWiseData: '',
+      potentialRevenue: 0,
+      dormantCustomers: 0,
+      conversionRate: 0,
+      revivedCustomers: 0,
+      recoveryRate: 0,
+      customer_conversation: {
+        identifiedCompanies: 0,
+        contacted: 0,
+        enquiry: 0,
+        quotation: 0,
+        sample: 0,
+        order: 0,
+        lost: 0,
+      },
+      customersRevenueMap: [],
+      revivalQueue: [],
+    },
     message: '',
-
     pending_orders: 0,
-
     total_disputes: 0,
-
     total_orders: 0,
   },
 
@@ -118,6 +169,21 @@ const initialState: DashboardState = {
     weeklyProductivity: [],
   },
 
+  customer: {
+    customer: {},
+    enquiry: 0,
+    sample: 0,
+    order: 0,
+    po_value: '',
+    fyTotalValue: '',
+    avgOrderValue: '',
+    lastOrder: '',
+    buyingCycle: '',
+    productWiseData: [],
+    gradeWiseData: '',
+    potentialRevenue: 0,
+  },
+
   addResult: null,
 
   updateResult: null,
@@ -147,11 +213,42 @@ export const gettotalCustomer = createAsyncThunk('dashboard/fetch', async (_, th
 
 export const getemployeedata = createAsyncThunk(
   'dashboard/employee',
-  async (id: number | string, thunkAPI) => {
+  async (
+    {
+      id,
+      fromDate,
+      toDate,
+    }: {
+      id: number | string;
+      fromDate?: string;
+      toDate?: string;
+    },
+    thunkAPI,
+  ) => {
     try {
-      const response = await axiosInstance.get(`/get-employee-data/${id}`);
+      const response = await axiosInstance.get(`/get-employee-data/${id}`, {
+        params: {
+          fromDate,
+          toDate,
+        },
+      });
 
       return response.data.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch employee data.';
+
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  },
+);
+
+export const getsinglecustomer = createAsyncThunk(
+  'dashboard/customer',
+  async (id: number | string, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/get-customer-data/${id}`);
+
+      return response.data;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to fetch employee data.';
 
@@ -211,6 +308,21 @@ const DashboardCustomerSlice = createSlice({
       .addCase(getemployeedata.rejected, (state, action) => {
         state.loading = false;
 
+        state.error = action.payload as string;
+      })
+
+      .addCase(getsinglecustomer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(getsinglecustomer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customer = action.payload;
+      })
+
+      .addCase(getsinglecustomer.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
   },

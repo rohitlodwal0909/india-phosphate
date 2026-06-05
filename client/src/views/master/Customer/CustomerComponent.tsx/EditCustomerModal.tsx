@@ -22,6 +22,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
     company_name: '',
     application: '',
     company_hq: '',
+    priority: '',
     company_address: '',
     customer_type: '',
     trader_names: [''],
@@ -74,6 +75,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
         application: CustomerData.application || '',
         customer_type: CustomerData.customer_type || '',
         company_hq: CustomerData.company_hq || '',
+        priority: CustomerData.priority || '',
         company_address: CustomerData.company_address || '',
         trader_names: Array.isArray(traders) ? traders : [''],
         open_field: CustomerData.open_field || '',
@@ -289,6 +291,21 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
               value={formData.company_hq}
               onChange={(e) => handleChange('company_hq', e.target.value)}
             />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Priority" />
+
+            <select
+              className="w-full border rounded-md p-2"
+              value={formData.priority}
+              onChange={(e) => handleChange('priority', e.target.value)}
+            >
+              <option value="">Select</option>
+              <option value="High">High</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+            </select>
           </div>
 
           {/* Trader */}

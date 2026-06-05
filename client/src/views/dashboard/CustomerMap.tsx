@@ -2,10 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { GoogleMap, InfoWindow, OverlayView, useJsApiLoader } from '@react-google-maps/api';
 
 import CountUp from 'react-countup';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { AppDispatch, RootState } from 'src/store';
-import { gettotalCustomer } from 'src/features/dashboard/DashboardCustomerSlice';
 import DashboardInsights from './DashboardInsights';
 
 /* ======================================================
@@ -24,60 +21,9 @@ interface CustomerLocation {
   opportunities: number;
 }
 
-/* ======================================================
-   STATIC DATA
-====================================================== */
-
-// const customerLocations: CustomerLocation[] = [
-//   {
-//     city: 'Mumbai',
-//     state: 'Maharashtra',
-//     country: 'India',
-//     latitude: 19.076,
-//     longitude: 72.8777,
-//     totalCustomers: 120,
-//     totalLeads: 300,
-//     leadsWon: 95,
-//     opportunities: 140,
-//   },
-
-//   {
-//     city: 'Delhi',
-//     state: 'Delhi',
-//     country: 'India',
-//     latitude: 28.7041,
-//     longitude: 77.1025,
-//     totalCustomers: 80,
-//     totalLeads: 200,
-//     leadsWon: 60,
-//     opportunities: 100,
-//   },
-
-//   {
-//     city: 'Ahmedabad',
-//     state: 'Gujarat',
-//     country: 'India',
-//     latitude: 23.0225,
-//     longitude: 72.5714,
-//     totalCustomers: 60,
-//     totalLeads: 150,
-//     leadsWon: 45,
-//     opportunities: 75,
-//   },
-
-//   {
-//     city: 'Bangalore',
-//     state: 'Karnataka',
-//     country: 'India',
-//     latitude: 12.9716,
-//     longitude: 77.5946,
-//     totalCustomers: 95,
-//     totalLeads: 240,
-//     leadsWon: 80,
-//     opportunities: 120,
-//   },
-// ];
-
+interface CustomerMapProps {
+  totalcustomers: any[];
+}
 const getCoordinatesFromAddress = async (address: string) => {
   try {
     const geocoder = new window.google.maps.Geocoder();
@@ -188,20 +134,10 @@ const getMarkerColor = (customers: number) => {
    MAIN COMPONENT
 ====================================================== */
 
-const CustomerMap: React.FC = () => {
+const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers }) => {
   const [customerLocations, setCustomerLocations] = useState<any[]>([]);
 
   const [selectedLocation, setSelectedLocation] = useState<CustomerLocation | null>(null);
-
-  const dispatch = useDispatch<AppDispatch>();
-
-  const totalcustomer = useSelector((state: RootState) => state.customerdashboard.totalcustomers);
-
-  const totalcustomers = totalcustomer.customers;
-
-  useEffect(() => {
-    dispatch(gettotalCustomer());
-  }, [dispatch]);
 
   /* ======================================================
      GOOGLE MAP LOAD
@@ -349,8 +285,7 @@ const CustomerMap: React.FC = () => {
         />
       </div>
 
-      <DashboardInsights orders={totalcustomer} />
-
+      <DashboardInsights orders={totalcustomers} />
       {/* ======================================================
           MAP SECTION
       ====================================================== */}

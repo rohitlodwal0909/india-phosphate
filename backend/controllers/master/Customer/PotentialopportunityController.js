@@ -148,7 +148,7 @@ exports.updateOpportunity = async (req, res) => {
 
 exports.addNote = async (req, res) => {
   try {
-    const { id, note } = req.body;
+    const { id, note, status } = req.body;
 
     const customer = await Customer.findByPk(id);
 
@@ -158,10 +158,12 @@ exports.addNote = async (req, res) => {
         message: "Customer not found"
       });
     }
+    const check = status == "Close" ? 1 : 0;
 
     await customer.update({
       potential_note: note || "",
-      potential_opportunity: 0
+      potential_status: status,
+      potential_opportunity: check
     });
 
     return res.status(200).json({

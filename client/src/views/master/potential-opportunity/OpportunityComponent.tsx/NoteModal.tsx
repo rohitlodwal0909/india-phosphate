@@ -1,12 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Label,
-  Textarea,
-} from 'flowbite-react';
+import { Button, Modal, ModalBody, ModalHeader, Label, Textarea, Select } from 'flowbite-react';
 
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
@@ -23,6 +15,7 @@ const Note: React.FC<AddModalProps> = ({ placeModal, setPlaceModal, selectedRow 
   const dispatch = useDispatch<any>();
 
   const [note, setNote] = useState('');
+  const [status, setStatus] = useState<'Enquiry' | 'Close' | ''>('');
 
   useEffect(() => {
     if (selectedRow?.note) {
@@ -30,10 +23,17 @@ const Note: React.FC<AddModalProps> = ({ placeModal, setPlaceModal, selectedRow 
     } else {
       setNote('');
     }
+
+    setStatus(selectedRow?.status || '');
   }, [selectedRow]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!status) {
+      toast.error('Status is required');
+      return;
+    }
 
     if (!note) {
       toast.error('Note is required');
@@ -43,36 +43,45 @@ const Note: React.FC<AddModalProps> = ({ placeModal, setPlaceModal, selectedRow 
     try {
       const payload = {
         id: selectedRow?.id || null,
-        note: note,
+        note,
+        status,
       };
 
       const result = await dispatch(addpotentialNote(payload)).unwrap();
 
-      toast.success(result?.message || 'Note submitted!');
+      toast.success(result?.message || 'Saved successfully!');
       setPlaceModal(false);
       setNote('');
+      setStatus('');
     } catch (err: any) {
       toast.error(err || 'Something went wrong');
     }
   };
 
   return (
-    <Modal
-      show={placeModal}
-      position="center"
-      onClose={() => setPlaceModal(false)}
-      className="large"
-    >
+    <Modal show={placeModal} position="center" onClose={() => setPlaceModal(false)}>
       <ModalHeader className="pb-0">Add Note</ModalHeader>
 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-6">
+          {/* STATUS */}
           <div className="col-span-12">
-            <Label htmlFor="note" value="Note" />
+            <Label value="Status" />
+            <span className="text-red-700 ps-1">*</span>
+
+            <Select value={status} onChange={(e) => setStatus(e.target.value as any)}>
+              <option value="">Select Status</option>
+              <option value="Enquiry">Enquiry</option>
+              <option value="Close">Close</option>
+            </Select>
+          </div>
+
+          {/* NOTE */}
+          <div className="col-span-12">
+            <Label value="Note" />
             <span className="text-red-700 ps-1">*</span>
 
             <Textarea
-              id="note"
               placeholder="Enter Note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -80,8 +89,9 @@ const Note: React.FC<AddModalProps> = ({ placeModal, setPlaceModal, selectedRow 
             />
           </div>
 
-          <div className="col-span-12 flex justify-end items-center gap-4">
-            <Button type="button" color="error" onClick={() => setPlaceModal(false)}>
+          {/* BUTTONS */}
+          <div className="col-span-12 flex justify-end gap-4">
+            <Button type="button" color="failure" onClick={() => setPlaceModal(false)}>
               Cancel
             </Button>
 
@@ -91,8 +101,6 @@ const Note: React.FC<AddModalProps> = ({ placeModal, setPlaceModal, selectedRow 
           </div>
         </form>
       </ModalBody>
-
-      <ModalFooter />
     </Modal>
   );
 };

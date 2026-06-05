@@ -1,14 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CustomerMap from './CustomerMap';
 import EmployeeDashboard from './EmployeeDashboard';
-import { RootState } from 'src/store';
-import { useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
+import { useDispatch, useSelector } from 'react-redux';
+import CustomerCard from './companycustomers/CustomerCard';
+import { gettotalCustomer } from 'src/features/dashboard/DashboardCustomerSlice';
+import CustomerConversation from './companycustomers/CustomerConversation';
+import CustomerMapRevenue from './companycustomers/CustomerMapRevenue';
+import RevivalQueue from './companycustomers/RevivalQueue';
 
 const WelcomeDashboard: React.FC = () => {
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
   const permission = logindata?.admin?.role_id;
   const id = logindata?.admin?.id || null;
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const totalcustomer = useSelector((state: RootState) => state.customerdashboard.totalcustomers);
+
+  useEffect(() => {
+    dispatch(gettotalCustomer());
+  }, [dispatch]);
+
+  const totalcustomers = totalcustomer.customers;
+  const customer = totalcustomer.customer;
+  const customer_conversation = totalcustomer.customer.customer_conversation;
+  const customersRevenueMap = totalcustomer.customer.customersRevenueMap;
+  const revivalQueue = totalcustomer.customer.revivalQueue;
 
   return (
     <>
@@ -57,19 +76,6 @@ const WelcomeDashboard: React.FC = () => {
       </div> */}
       <div className="space-y-6">
         {/* Employee Dashboard */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Employee Dashboard</h1>
-
-            <p className="text-gray-500 mt-1">
-              Complete employee performance & productivity analytics
-            </p>
-          </div>
-
-          {/* <button className="bg-primary text-white px-5 py-3 rounded-2xl shadow-lg font-medium">
-            Marketing Dashboard
-          </button> */}
-        </div>
 
         <EmployeeDashboard id={id} />
 
@@ -90,7 +96,11 @@ const WelcomeDashboard: React.FC = () => {
               </button> */}
             </div>
 
-            <CustomerMap />
+            <CustomerMap totalcustomers={totalcustomers} />
+            <CustomerCard customer={customer} />
+            <CustomerConversation customer={customer_conversation} />
+            <CustomerMapRevenue customer={customersRevenueMap} />
+            <RevivalQueue revivalQueue={revivalQueue} />
           </>
         )}
       </div>

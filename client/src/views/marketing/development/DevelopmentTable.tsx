@@ -172,6 +172,53 @@ const DevelopmentTable = () => {
         },
       }),
 
+      columnHelper.accessor('status', {
+        header: 'Status',
+        cell: (info) => {
+          const enquiryStatusOptions = [
+            { value: 'closed', label: 'Closed', color: '#16a34a' },
+            { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
+            { value: 'quotation', label: 'Pending Quotation', color: '#2563eb' },
+            { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
+            { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
+            { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
+          ];
+
+          const products = info.row.original.interested_products || [];
+
+          return (
+            <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
+              {products.length > 0 ? (
+                products.map((item: any, index: number) => {
+                  const followups = JSON.parse(item.followups || '[]');
+
+                  const latestStatus =
+                    followups.length > 0 ? followups[followups.length - 1].status : '-';
+
+                  const statusObj = enquiryStatusOptions.find((s) => s.value === latestStatus);
+
+                  return (
+                    <div key={index} className="border-b pb-1">
+                      <span
+                        className="px-2 py-1 rounded text-xs font-medium"
+                        style={{
+                          backgroundColor: `${statusObj?.color}20`,
+                          color: statusObj?.color || '#6b7280',
+                        }}
+                      >
+                        {statusObj?.label || latestStatus}
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <span>-</span>
+              )}
+            </div>
+          );
+        },
+      }),
+
       columnHelper.display({
         id: 'actions',
         header: 'Actions',

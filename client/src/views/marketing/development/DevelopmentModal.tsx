@@ -105,6 +105,7 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const customerOptions = customers.map((c: any) => ({
     label: c.company_name,
     value: c.id,
+    source: c.source,
   }));
 
   // const usersOptions = users.map((u: any) => ({
@@ -165,6 +166,8 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
       },
     ]);
   };
+
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -238,12 +241,22 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* BASIC INFO */}
           <div className="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-lg">
-            <div className="col-span-8">
+            <div className="col-span-6">
               <Label value="Company Name" />
               <Select
                 options={customerOptions}
-                onChange={(v: any) => setFormData({ ...formData, company_id: v?.value })}
+                onChange={(v: any) => {
+                  setSelectedCustomer(v);
+                  setFormData({
+                    ...formData,
+                    company_id: v?.value,
+                  });
+                }}
               />
+            </div>
+            <div className="col-span-6">
+              <Label value="Source" />
+              <TextInput value={selectedCustomer?.source || ''} disabled />
             </div>
           </div>
 

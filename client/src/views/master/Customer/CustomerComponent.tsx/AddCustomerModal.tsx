@@ -24,6 +24,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
     open_field: '',
     company_address: '',
     company_hq: '',
+    priority: '',
     contacts: [{ person: '', email: '', number: '' }],
     addresses: [
       {
@@ -196,6 +197,21 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
               value={formData.company_hq}
               onChange={(e) => handleChange('company_hq', e.target.value)}
             />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Priority" />
+
+            <select
+              className="w-full border rounded-md p-2"
+              value={formData.priority}
+              onChange={(e) => handleChange('priority', e.target.value)}
+            >
+              <option value="">Select</option>
+              <option value="High">High</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+            </select>
           </div>
 
           {/* ---------------- TRADER FIELD ---------------- */}
