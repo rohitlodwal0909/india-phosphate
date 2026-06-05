@@ -181,11 +181,11 @@ const OpportunityTable = () => {
                             item.products.map((c: any, index: number) => (
                               <div key={index} className="border-b pb-1">
                                 <p>
-                                  <strong>Name:</strong> {c.person}
+                                  <strong>Product:</strong> {c.product}
                                 </p>
 
                                 <p>
-                                  <strong>Number:</strong> {c.number}
+                                  <strong>Grade:</strong> {c.grade}
                                 </p>
                               </div>
                             ))
