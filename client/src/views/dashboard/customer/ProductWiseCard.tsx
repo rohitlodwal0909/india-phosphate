@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import FormatCurrency from 'src/views/accounts/ledger/LedgerComponent/components/formatCurrency';
+import FormatCurrency from 'src/views/accounts/ledger/LedgerComponent/components/FormatCurrency';
 
 const ProductWiseCard = ({ products = [] }: any) => {
   return (

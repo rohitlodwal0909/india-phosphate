@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
 import CountUp from 'react-countup';
-import FormatCurrency from 'src/views/accounts/ledger/LedgerComponent/components/formatCurrency';
+import FormatCurrency from 'src/views/accounts/ledger/LedgerComponent/components/FormatCurrency';
 import ProductWiseCard from '../customer/ProductWiseCard';
 import GradeWiseCard from '../customer/GradeWiseCard';
 
