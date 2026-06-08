@@ -27,14 +27,14 @@ const DashboardInsights = ({ orders }) => {
           border="border-orange-300"
         />
 
-        <AnalyticsCard
+        {/* <AnalyticsCard
           title="Opportunity Insights"
           value={18}
           subtitle="High conversion opportunities"
           icon="solar:graph-up-bold"
           bg="bg-green-50"
           border="border-green-300"
-        />
+        /> */}
 
         <AnalyticsCard
           title="Dispute Alerts"

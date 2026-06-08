@@ -35,6 +35,22 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
+  const formatDuration = (minutes) => {
+    if (!minutes || minutes <= 0) return '0 min';
+
+    const days = Math.floor(minutes / (24 * 60));
+    const hours = Math.floor((minutes % (24 * 60)) / 60);
+    const mins = minutes % 60;
+
+    const parts = [];
+
+    if (days) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+    if (hours) parts.push(`${hours} hr`);
+    if (mins) parts.push(`${mins} min`);
+
+    return parts.join(' ');
+  };
+
   useEffect(() => {
     if (id) {
       dispatch(
@@ -64,9 +80,9 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
     const followUps = employeedata?.inProgressTasks;
     const overdueItems = employeedata?.overdueTasks;
     const slaBreaches = employeedata?.slaBreaches;
-    const workingHours = 186;
-    const avgResponse = '18 Min';
-    const acceptedTime = '12 Min';
+    const workingHours = employeedata?.workingHours;
+    const avgResponse = employeedata?.avgResponse || 0;
+    const acceptedTime = employeedata?.acceptedTime || 0;
     const todayTasks = employeedata?.todayTasks;
     const weeklyProductivity = employeedata?.weeklyProductivity;
 
@@ -177,7 +193,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
         )}
       </div>
       <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           <DashboardCard
             title="Completed Tasks"
             value={stats.completedTasks}
@@ -209,7 +225,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
             border="border-red-500"
           />
 
-          <DashboardCard
+          {/* <DashboardCard
             title="Revenue Impact"
             value={stats.revenueImpact}
             icon="solar:dollar-bold"
@@ -218,7 +234,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
             color="text-blue-600"
             border="border-blue-500"
             isString
-          />
+          /> */}
         </div>
 
         {/* =========================================================
@@ -346,19 +362,19 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
             <div className="grid grid-cols-2 gap-5">
               <MetricCard
                 title="Working Hours"
-                value={`${stats.workingHours} Hrs`}
+                value={`${stats.workingHours}`}
                 icon="solar:clock-circle-bold"
               />
 
               <MetricCard
                 title="Accepted Time"
-                value={stats.acceptedTime}
+                value={formatDuration(stats?.acceptedTime)}
                 icon="solar:check-circle-bold"
               />
 
               <MetricCard
                 title="First Response"
-                value={stats.avgResponse}
+                value={formatDuration(stats?.avgResponse)}
                 icon="solar:chat-round-bold"
               />
 

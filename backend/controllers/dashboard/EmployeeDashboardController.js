@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../../models");
-const { Op, where, fn, col, literal } = require("sequelize");
+const { Op, fn, col, literal, Sequelize, where } = require("sequelize");
+const { getISTDateTime } = require("../../helper/dateTimeHelper");
 
 const { TaskModel, Product, User } = db;
 
@@ -101,7 +102,7 @@ exports.getEmployeeDashboard = async (req, res) => {
     ========================================================= */
 
     const todayTasks = await TaskModel.findAll({
-      where: finalWhere,
+      where: { ...finalWhere, status: "Pending" },
       attributes: [
         "id",
         "task_title",
@@ -111,6 +112,18 @@ exports.getEmployeeDashboard = async (req, res) => {
         "created_at"
       ],
       order: [["created_at", "DESC"]]
+    });
+
+    const avgAcceptedTime = await TaskModel.findOne({
+      attributes: [[fn("AVG", col("accepted_time")), "avgAcceptedTime"]],
+      where: finalWhere,
+      raw: true
+    });
+
+    const avgFirstResponse = await TaskModel.findOne({
+      attributes: [[fn("AVG", col("first_response")), "avgFirstResponse"]],
+      where: finalWhere,
+      raw: true
     });
 
     /* =========================================================
@@ -133,6 +146,35 @@ exports.getEmployeeDashboard = async (req, res) => {
       task: Number(item.task)
     }));
 
+    const { entry_date, entry_time } = getISTDateTime();
+
+    const user = await User.findOne({
+      where: { id: id }
+    });
+
+    let workingHours = "0 hr 0 min";
+
+    if (user?.login_time) {
+      const loginDateTime = new Date(
+        user.login_time.replace(
+          /^(\d{4}-\d{2}-\d{2})(\d{2}:\d{2}:\d{2})$/,
+          "$1T$2"
+        )
+      );
+
+      const currentDateTime = new Date();
+
+      const totalMinutes = Math.floor(
+        (currentDateTime.getTime() - loginDateTime.getTime()) / (1000 * 60)
+      );
+
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+
+      // yahan const hata do
+      workingHours = `${hours} hr ${minutes} min`;
+    }
+
     return res.status(200).json({
       success: true,
       data: {
@@ -143,9 +185,9 @@ exports.getEmployeeDashboard = async (req, res) => {
         inProgressTasks,
         overdueTasks,
         slaBreaches,
-        workingHours: 186,
-        avgResponse: "18 Min",
-        acceptedTime: "12 Min",
+        workingHours: workingHours,
+        avgResponse: avgFirstResponse?.avgFirstResponse,
+        acceptedTime: avgAcceptedTime?.avgAcceptedTime,
         revenueImpact: "₹12.5L",
         todayTasks,
         weeklyProductivity,

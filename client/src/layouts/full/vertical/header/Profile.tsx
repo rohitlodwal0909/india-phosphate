@@ -8,22 +8,34 @@ import { Link, useNavigate } from 'react-router';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import Logoutmodel from './Logoutmodel';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ImageUrl } from 'src/constants/contant';
+import { AppDispatch } from 'src/store';
+import { logout } from 'src/features/authentication/AuthenticationSlice';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   // const { setIsCollapse, isCollapse } = useContext(CustomizerContext);
   // const logindata = JSON.parse(localStorage.getItem('logincheck') || '{}');
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
+  const id = logindata?.admin?.id || 0;
   const [isOpen, setIsOpen] = useState(false);
-  const handlelogout = () => {
-    localStorage.removeItem('logincheck');
-    localStorage.removeItem('token');
 
-    toast.success('Logout ');
-    navigate('/admin/login');
+  const handlelogout = async () => {
+    try {
+      await dispatch(logout(id)).unwrap();
+
+      localStorage.removeItem('logincheck');
+      localStorage.removeItem('token');
+
+      toast.success('Logout Successfully');
+
+      navigate('/admin/login');
+    } catch (error) {
+      toast.error(error?.message || 'Logout failed');
+    }
   };
 
   const handleprofile = () => {

@@ -56,6 +56,12 @@ module.exports = (sequelize, DataTypes) => {
         ),
         defaultValue: "Pending"
       },
+      accepted_time: {
+        type: DataTypes.STRING
+      },
+      first_response: {
+        type: DataTypes.STRING
+      },
 
       created_at: {
         type: DataTypes.DATE,

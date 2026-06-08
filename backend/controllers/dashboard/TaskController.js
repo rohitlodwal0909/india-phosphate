@@ -71,7 +71,8 @@ exports.storeTask = async (req, res) => {
       priority: req.body.priority,
       assign_to: req.body.assign_to,
       task_description: req.body.task_description,
-      user_id: req.admin.id
+      user_id: req.admin.id,
+      created_at: `${entry_date} ${entry_time}`
     });
 
     /* ================= CREATE NOTIFICATION ================= */
@@ -166,6 +167,8 @@ exports.changestatusTask = async (req, res) => {
 
     /* ================= VALIDATE STATUS ================= */
 
+    const status = req.body.status;
+
     if (!req.body.status) {
       return res.status(400).json({
         success: false,
@@ -182,11 +185,30 @@ exports.changestatusTask = async (req, res) => {
       });
     }
 
+    const now = new Date();
+    const createdAt = new Date(task.created_at);
+
+    const totalMinutes = Math.floor((now - createdAt) / (1000 * 60));
+
+    const updateData = {
+      status
+    };
+
     /* ================= UPDATE STATUS ================= */
 
-    await task.update({
-      status: req.body.status
-    });
+    if (["Pending", "In Progress"].includes(status) && !task.accepted_time) {
+      updateData.accepted_time = totalMinutes;
+    }
+
+    // if (!task.first_response_time) {
+    //   updateData.first_response_time = totalMinutes;
+    // }
+
+    if (status == "Completed" && !task.first_response) {
+      updateData.first_response = totalMinutes;
+    }
+
+    await task.update(updateData);
 
     /* ================= SEND NOTIFICATION ================= */
 

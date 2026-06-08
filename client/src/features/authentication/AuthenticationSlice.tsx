@@ -7,6 +7,7 @@ import axiosInstance from 'src/constants/axiosInstance';
 const initialState = {
   loading: false,
   error: null,
+  logout: null,
   logindata: [],
   poPassword: [],
   logdata: [],
@@ -129,6 +130,16 @@ export const forgotpassword = createAsyncThunk(
   },
 );
 
+export const logout = createAsyncThunk('auth/logout', async (id: any, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.put(`logout/${id}`);
+    return response.data;
+  } catch (error) {
+    // Throw error data back to catch block
+    return rejectWithValue(error.response?.data || { message: 'Unknown error' });
+  }
+});
+
 const AuthenticationSlice = createSlice({
   name: 'sidebar',
   initialState,
@@ -178,6 +189,17 @@ const AuthenticationSlice = createSlice({
         state.logdata = action.payload;
       })
       .addCase(GetallLogs.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(logout.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(logout.fulfilled, (state, action) => {
+        state.loading = false;
+        state.logout = action.payload;
+      })
+      .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

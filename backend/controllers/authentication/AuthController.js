@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const db = require("../../models");
+const { getISTDateTime } = require("../../helper/dateTimeHelper");
 const { User, RolePermissionModel, Log } = db;
 
 exports.login = async (req, res, next) => {
@@ -20,8 +21,12 @@ exports.login = async (req, res, next) => {
       error.status = 401;
       return next(error); // send to global handler
     }
+    const { entry_date, entry_time } = getISTDateTime();
 
-    await admin.update({ status: "active" });
+    await admin.update({
+      status: "active",
+      login_time: entry_date + entry_time
+    });
 
     //  Generate JWT Token
     const token = jwt.sign(
@@ -254,6 +259,23 @@ exports.getAllLogs = async (req, res, next) => {
     res.status(200).json({
       message: "Logs fetched successfully",
       data: logs
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const admin = await User.findOne({ where: { id: id } });
+
+    const { entry_date, entry_time } = getISTDateTime();
+
+    await admin.update({ logout_time: entry_date + entry_time });
+
+    res.json({
+      message: "Logout successfully"
     });
   } catch (error) {
     next(error);

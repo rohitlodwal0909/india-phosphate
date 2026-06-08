@@ -33,4 +33,6 @@ router.put(
 
 router.get("/get-log", AuthController.getAllLogs);
 router.post("/forgot-password", AuthController.forgotPassword);
+router.put("/logout/:id", AuthController.logout);
+
 module.exports = router;
