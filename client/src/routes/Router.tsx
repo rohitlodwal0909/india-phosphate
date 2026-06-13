@@ -52,6 +52,7 @@ import Ledger from 'src/views/accounts/ledger/Ledger';
 import Dashboard from 'src/views/usermanagment/Dashboard';
 import Report from 'src/views/accounts/ledger/LedgerComponent/Report';
 import CustomerDashboard from 'src/views/dashboard/customer/CustomerDashboard';
+import BillInvoice from 'src/views/accounts/domestic/bill/BillInvoice';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -118,6 +119,7 @@ const Userprofile = Loadable(lazy(() => import('src/views/userprofile/Userprofil
 const PermissionsTable = Loadable(lazy(() => import('src/views/permission/PermissionsTable')));
 const ViewReport = Loadable(lazy(() => import('src/views/Report/ViewReport')));
 /* Layouts */
+
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
 
@@ -170,6 +172,7 @@ const fullLayoutChildren = [
 
   { path: '/accounts/domestic/tax-invoice', element: <TaxInvoice /> },
   { path: '/accounts/domestic/e-way-bill', element: <Ewaybill /> },
+  { path: '/accounts/domestic/bill', element: <BillInvoice /> },
 
   { path: '/accounts/export/tax-invoice', element: <TaxInvoiceExport /> },
   { path: '/accounts/export/export-invoice', element: <ExportInvoice /> },

@@ -217,6 +217,17 @@ const SidebarContent: MenuItem[] = [
               edit: false,
               delete: false,
             },
+             {
+              subId: 113,
+              name: "Debit Bill",
+              icon: "tabler:receipt-tax",
+              id: uniqueId(),
+              url: "/accounts/domestic/bill",
+              add: false,
+              view: false,
+              edit: false,
+              delete: false,
+            },
             {
               subId: 112,
               name: "E-Way Bill",

@@ -257,6 +257,22 @@ export const getsinglecustomer = createAsyncThunk(
   },
 );
 
+export const getGstdetails = createAsyncThunk('dashboard/gst', async (_, thunkAPI) => {
+  try {
+    const data = {
+      company_name: 'Hindustan Phosphates Pvt. Ltd.',
+      state_code: 'MH',
+    };
+    const response = await axiosInstance.post('/get-gstdetails', data);
+
+    return response.data;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch customers.';
+
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
 /* =========================================================
     SLICE
 ========================================================= */

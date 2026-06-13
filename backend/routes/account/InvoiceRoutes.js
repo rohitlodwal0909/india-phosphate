@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const InvoiceController = require("../../controllers/account/invoice/InvoiceController");
+const GstController = require("../../controllers/account/invoice/GstController");
 const multer = require("multer");
 const path = require("path");
 
@@ -50,6 +51,8 @@ router.get("/get-dispatch-batches", InvoiceController.getDispatchBatches);
 //Account Payment
 
 router.get("/get-invoice-payment", InvoiceController.getInvoicepayment);
+
+router.post("/get-gstdetails", GstController.getGstData);
 
 // Create Invoice + OQ Upload
 router.post(
