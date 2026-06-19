@@ -14,7 +14,8 @@ const {
   FMIssuedModel,
   DispatchVehicle,
   Invoice,
-  ReplacementModel
+  ReplacementModel,
+  DisputeModel
 } = db;
 
 // Create
@@ -450,6 +451,19 @@ exports.customerJourney = async (req, res) => {
       });
     }
 
+    let dispute = null;
+
+    if (po?.id || samplerequest?.id) {
+      dispute = await DisputeModel.findOne({
+        order: [["id", "DESC"]],
+        attributes: ["created_at"],
+        where: {
+          dispute_type: po?.id ? "po" : "sample",
+          dispute_type_id: po?.id ? po.id : samplerequest.id
+        }
+      });
+    }
+
     return res.status(200).json({
       success: true,
       data: {
@@ -462,7 +476,8 @@ exports.customerJourney = async (req, res) => {
         manufacturing,
         dispatch,
         accounts,
-        rejection
+        rejection,
+        dispute
       }
     });
   } catch (error) {

@@ -20,6 +20,7 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
   const handleChange = (field: string, value: any) => {
     setCharges((prev) => ({ ...prev, [field]: value }));
   };
+
   const addBatch = (productIndex) => {
     const updated = [...products];
 

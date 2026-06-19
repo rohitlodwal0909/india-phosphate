@@ -86,7 +86,7 @@ const LedgerTable = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 mb-6">
         <SummaryCard
           title="Total Debit"
           value={formatCurrency(financialSummary.totalDebit)}
@@ -122,12 +122,12 @@ const LedgerTable = () => {
           icon="solar:bill-list-bold"
         />
 
-        <SummaryCard
+        {/* <SummaryCard
           title="Companies"
           value={financialSummary.totalCompanies.toString()}
           color="text-slate-700"
           icon="solar:buildings-bold"
-        />
+        /> */}
       </div>
 
       {/* PO vs Invoice */}
@@ -178,9 +178,9 @@ const LedgerTable = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-3 text-left">Company</th>
-                <th className="p-3 text-center">PO</th>
+                {/* <th className="p-3 text-center">PO</th> */}
                 <th className="p-3 text-center">Invoice</th>
-                <th className="p-3 text-center">Debit</th>
+                {/* <th className="p-3 text-center">Debit</th> */}
                 <th className="p-3 text-center">Credit</th>
                 <th className="p-3 text-center">Balance</th>
                 <th className="p-3 text-center">Txn</th>
@@ -193,11 +193,11 @@ const LedgerTable = () => {
                 <tr key={item.company} className="border-b hover:bg-gray-50">
                   <td className="p-3 font-medium">{item.company_name}</td>
 
-                  <td className="text-center">{formatCurrency(0)}</td>
+                  {/* <td className="text-center">{formatCurrency(0)}</td> */}
 
                   <td className="text-center">{formatCurrency(item.totalInvoice)}</td>
 
-                  <td className="text-center text-red-600">{formatCurrency(0)}</td>
+                  {/* <td className="text-center text-red-600">{formatCurrency(0)}</td> */}
 
                   <td className="text-center text-green-600">
                     {formatCurrency(item.receivedAmount)}

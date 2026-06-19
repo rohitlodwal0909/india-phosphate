@@ -9,8 +9,16 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       dispatch_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true
+        type: DataTypes.INTEGER
+      },
+      company_id: {
+        type: DataTypes.INTEGER
+      },
+      party_type: {
+        type: DataTypes.STRING
+      },
+      transaction_type: {
+        type: DataTypes.STRING
       },
 
       // 🔹 Basic

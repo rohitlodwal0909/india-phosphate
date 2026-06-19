@@ -3,14 +3,11 @@ import { GoogleMap, InfoWindow, OverlayView, useJsApiLoader } from '@react-googl
 
 interface CustomerLocation {
   label: string;
-
   city?: string;
   state?: string;
   country?: string;
-
   latitude: number;
   longitude: number;
-
   totalAmount: number;
 }
 

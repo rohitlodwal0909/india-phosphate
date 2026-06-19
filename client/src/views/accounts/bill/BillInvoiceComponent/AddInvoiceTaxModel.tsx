@@ -3,26 +3,23 @@ import { useEffect, useState } from 'react';
 import InvoiceModel from './InvoiceModel';
 import Productsandcharges from './Productsandcharges';
 import { toast } from 'react-toastify';
-import {
-  createInvoice,
-  getDispatchPo,
-  getInvoice,
-  updateInvoice,
-} from '../../../../../features/account/invoice/taxinvoice';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
+import { createBill, getBill, updateBill } from 'src/features/account/bill/bill';
 
 const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   const initialFormData = {
     invoice_type: type,
-    dispatch_id: '',
+    company_id: '',
     invoice_no: '',
+    party_type: '',
+    po_no: '',
     invoice_date: '',
     eway_bill: '',
     delivery_note: '',
     delivery_note_date: '',
     oq_upload: '',
-    grade: '',
     irn: '',
     ack_no: '',
     ack_date: '',
@@ -44,11 +41,10 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
     gst_rate: '',
     terms_delivery: '',
   };
+
   const [activeTab, setActiveTab] = useState('invoice');
   const dispatch = useDispatch<AppDispatch>();
-  const invoice = useSelector((state: RootState) => state.taxinvoices.singleinvoice) as any;
-  const dispatchList = useSelector((state: RootState) => state.taxinvoices.dispatchpo);
-  const [batches, setBatches] = useState([]);
+  const invoice = useSelector((state: RootState) => state.bills.singlebill) as any;
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -57,12 +53,8 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       setFormData(initialFormData);
       return;
     }
-    dispatch(getInvoice(data?.id));
+    dispatch(getBill(data?.id));
   }, [data?.id]);
-
-  useEffect(() => {
-    dispatch(getDispatchPo());
-  }, [dispatch]);
 
   useEffect(() => {
     if (invoice) {
@@ -72,8 +64,8 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
       }));
 
       /* ================= PRODUCTS ================= */
-      if (invoice?.InvoiceItems?.length) {
-        const formattedProducts = invoice.InvoiceItems.map((item) => {
+      if (invoice?.BillModelItems?.length) {
+        const formattedProducts = invoice.BillModelItems.map((item) => {
           // ✅ Parse batch JSON per item
           let batches = [];
 
@@ -199,7 +191,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
     try {
       if (invoice?.id) {
         await dispatch(
-          updateInvoice({
+          updateBill({
             id: invoice.id,
             data: form,
           }),
@@ -207,7 +199,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
 
         toast.success('Invoice updated successfully');
       } else {
-        await dispatch(createInvoice(form)).unwrap();
+        await dispatch(createBill(form)).unwrap();
 
         toast.success('Invoice created successfully');
       }
@@ -221,7 +213,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   return (
     <Modal show={show} onClose={setShowmodal} size="8xl">
       <ModalHeader className="text-xl font-semibold text-gray-800">
-        {invoice?.id ? 'Update Tax Invoice' : 'Debit Tax Invoice'}
+        {invoice?.id ? 'Update Tax Invoice' : 'Tax Invoice'}
       </ModalHeader>
 
       <ModalBody className="bg-gray-50 rounded-lg">
@@ -254,12 +246,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
         {activeTab === 'invoice' && (
           <>
             <div className="bg-white p-5 rounded-xl shadow-sm border">
-              <InvoiceModel
-                formData={formData}
-                setFormData={setFormData}
-                dispatchList={dispatchList}
-                setBatches={setBatches}
-              />
+              <InvoiceModel formData={formData} setFormData={setFormData} />
             </div>
           </>
         )}
@@ -269,7 +256,6 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
             <div className="bg-white p-5 rounded-xl shadow-sm border">
               <Productsandcharges
                 products={products}
-                batches={batches}
                 setProducts={setProducts}
                 charges={charges}
                 setCharges={setCharges}

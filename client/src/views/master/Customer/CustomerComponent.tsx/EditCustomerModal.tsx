@@ -8,10 +8,21 @@ import {
   TextInput,
 } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from 'src/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
 import { toast } from 'react-toastify';
 import { updateCustomer, GetCustomer } from 'src/features/master/Customer/CustomerSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
+
+import Select from 'react-select';
+
+const selectStyles = {
+  menuPortal: (base: any) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
 const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -166,6 +177,20 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
       contacts: prev.contacts.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     }));
   };
+
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
+
+  const { productdata = [] } = useSelector((state: RootState) => state.products) ?? {};
+
+  useEffect(() => {
+    dispatch(GetProduct());
+    dispatch(GetGrade());
+  }, [dispatch]);
+
+  const productOptions = productdata.map((p: any) => ({
+    label: p.product_name,
+    value: p.id,
+  }));
 
   /* ---------------- ADDRESS ---------------- */
 
@@ -449,30 +474,52 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
           </div>
 
           {formData.products.map((item, index) => (
-            <div className="grid grid-cols-12 gap-2 col-span-12" key={`product-${index}`}>
+            <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
               <div className="col-span-5">
-                <TextInput
-                  placeholder="Product"
-                  value={item.product}
-                  onChange={(e) => handleProductChange(index, 'product', e.target.value)}
+                <Label value="Product" />
+                <Select
+                  options={productOptions}
+                  value={productOptions.find((option) => option.value === item.product) || null}
+                  menuPortalTarget={document.body}
+                  styles={selectStyles}
+                  onChange={(v: any) => handleProductChange(index, 'product', v?.value)}
                 />
               </div>
 
               <div className="col-span-5">
-                <TextInput
-                  placeholder="Grade"
+                <Label value="Grade" />
+                <select
+                  className="w-full border rounded-md p-2"
                   value={item.grade}
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
-                />
+                >
+                  <option value="">Select Grade</option>
+                  {Array.isArray(grades) &&
+                    grades.map((g: any) => (
+                      <option key={g.id} value={g.grade}>
+                        {g.grade}
+                      </option>
+                    ))}
+                </select>
               </div>
 
-              <div className="col-span-2 flex gap-2">
-                <Button color="primary" size="xs" onClick={addProduct}>
+              <div className="col-span-2 flex items-end gap-2">
+                <Button
+                  color="primary"
+                  size="sm"
+                  className="h-[42px] min-w-[42px]"
+                  onClick={addProduct}
+                >
                   +
                 </Button>
 
                 {index !== 0 && (
-                  <Button size="xs" color="failure" onClick={() => removeProduct(index)}>
+                  <Button
+                    color="failure"
+                    size="sm"
+                    className="h-[42px] min-w-[42px]"
+                    onClick={() => removeProduct(index)}
+                  >
                     -
                   </Button>
                 )}

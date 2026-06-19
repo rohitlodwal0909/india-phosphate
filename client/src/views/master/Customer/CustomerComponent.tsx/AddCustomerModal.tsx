@@ -7,11 +7,21 @@ import {
   Label,
   TextInput,
 } from 'flowbite-react';
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from 'src/store';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
 import { toast } from 'react-toastify';
 import { addCustomer, GetCustomer } from 'src/features/master/Customer/CustomerSlice';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
+import { GetGrade } from 'src/features/master/Grade/GradeSlice';
+import Select from 'react-select';
+
+const selectStyles = {
+  menuPortal: (base: any) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
 
 const AddCustomerModal = ({ show, setShowmodal }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,10 +48,23 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
     note: '',
   });
 
+  const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
+
+  const { productdata = [] } = useSelector((state: RootState) => state.products) ?? {};
+
+  useEffect(() => {
+    dispatch(GetProduct());
+    dispatch(GetGrade());
+  }, [dispatch]);
+
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const productOptions = productdata.map((p: any) => ({
+    label: p.product_name,
+    value: p.id,
+  }));
   /* -------------------- TRADER FUNCTIONS -------------------- */
 
   const addTrader = () => {
@@ -363,37 +386,49 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
           {formData.products.map((item, index) => (
             <div className="grid grid-cols-12 gap-2 col-span-12" key={index}>
               <div className="col-span-5">
-                <TextInput
-                  placeholder="Interested Product"
-                  value={item.product}
-                  onChange={(e) => handleProductChange(index, 'product', e.target.value)}
+                <Label value="Product" />
+                <Select
+                  options={productOptions}
+                  menuPortalTarget={document.body}
+                  styles={selectStyles}
+                  onChange={(v: any) => handleProductChange(index, 'product', v?.value)}
                 />
               </div>
 
               <div className="col-span-5">
+                <Label value="Grade" />
                 <select
                   className="w-full border rounded-md p-2"
                   value={item.grade}
                   onChange={(e) => handleProductChange(index, 'grade', e.target.value)}
                 >
                   <option value="">Select Grade</option>
-                  <option value="IP">IP</option>
-                  <option value="BP">BP</option>
-                  <option value="EP">EP</option>
-                  <option value="USP">USP</option>
-                  <option value="FCC">FCC</option>
-                  <option value="DC">DC</option>
-                  <option value="IHS">IHS</option>
+                  {Array.isArray(grades) &&
+                    grades.map((g: any) => (
+                      <option key={g.id} value={g.grade}>
+                        {g.grade}
+                      </option>
+                    ))}
                 </select>
               </div>
 
-              <div className="col-span-2 flex gap-2">
-                <Button color="primary" size="xs" onClick={addProduct}>
+              <div className="col-span-2 flex items-end gap-2">
+                <Button
+                  color="primary"
+                  size="sm"
+                  className="h-[42px] min-w-[42px]"
+                  onClick={addProduct}
+                >
                   +
                 </Button>
 
                 {index !== 0 && (
-                  <Button size="xs" color="failure" onClick={() => removeProduct(index)}>
+                  <Button
+                    color="failure"
+                    size="sm"
+                    className="h-[42px] min-w-[42px]"
+                    onClick={() => removeProduct(index)}
+                  >
                     -
                   </Button>
                 )}

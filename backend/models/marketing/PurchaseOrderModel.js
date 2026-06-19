@@ -151,6 +151,12 @@ module.exports = (sequelize, DataTypes) => {
       sourceKey: "id",
       as: "users"
     });
+    PurchaseOrderModel.hasMany(models.DispatchVehicle, {
+      foreignKey: "po_id",
+      sourceKey: "id",
+      as: "dispatchVehicle"
+    });
+
     PurchaseOrderModel.belongsTo(models.Customer, {
       foreignKey: "company_id",
       sourceKey: "id",

@@ -3,6 +3,11 @@ import CountUp from 'react-countup';
 import FormatCurrency from 'src/views/accounts/ledger/LedgerComponent/components/FormatCurrency';
 import ProductWiseCard from '../customer/ProductWiseCard';
 import GradeWiseCard from '../customer/GradeWiseCard';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
+import DormantCustomerList from './DormantCustomerList';
+import { getDormantCustomer } from 'src/features/dashboard/DashboardCustomerSlice';
 
 const DashboardCard = ({
   title,
@@ -13,11 +18,14 @@ const DashboardCard = ({
   color,
   border,
   isString = false,
+  onClick,
 }: any) => {
   return (
     <div
+      onClick={onClick}
       className={`
         ${bg}
+        
         border border-gray-100
         ${border}
         rounded-2xl
@@ -53,6 +61,18 @@ const DashboardCard = ({
   );
 };
 const CustomerCard = ({ customer }) => {
+  const [openDormant, setOpenDormantModal] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const dormantList = useSelector((state: RootState) => state.customerdashboard.dormantList);
+
+  const handleDormantCustomer = async () => {
+    try {
+      await dispatch(getDormantCustomer()).unwrap();
+      setOpenDormantModal(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -100,12 +120,12 @@ const CustomerCard = ({ customer }) => {
         <DashboardCard
           title="Dormant Customers"
           value={customer?.dormantCustomers || 0}
+          onClick={handleDormantCustomer}
           icon="solar:user-block-bold"
           bg="bg-red-50"
           iconbg="bg-red-100"
           color="text-red-600"
           border="border-red-500"
-          isString
         />
 
         <DashboardCard
@@ -142,6 +162,12 @@ const CustomerCard = ({ customer }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
         <ProductWiseCard products={customer?.productWiseData} />
         <GradeWiseCard grades={customer?.gradeWiseData} />
+
+        <DormantCustomerList
+          open={openDormant}
+          onClose={() => setOpenDormantModal(false)}
+          tasks={dormantList?.customers || []}
+        />
       </div>
     </>
   );

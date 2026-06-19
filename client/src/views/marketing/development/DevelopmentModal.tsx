@@ -30,7 +30,10 @@ const enquiryStatusOptions = [
   { value: 'closed', label: 'Closed', color: '#16a34a' },
   { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
   { value: 'quotation', label: 'Pending Quotation', color: '#2563eb' },
+
   { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
+  { value: 'pscoa', label: 'PSCOA & Document', color: '#eab308' },
+
   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
 

@@ -23,6 +23,7 @@ interface CustomerLocation {
 
 interface CustomerMapProps {
   totalcustomers: any[];
+  orders: any;
 }
 const getCoordinatesFromAddress = async (address: string) => {
   try {
@@ -134,11 +135,12 @@ const getMarkerColor = (customers: number) => {
    MAIN COMPONENT
 ====================================================== */
 
-const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers }) => {
+const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => {
   const [customerLocations, setCustomerLocations] = useState<any[]>([]);
 
   const [selectedLocation, setSelectedLocation] = useState<CustomerLocation | null>(null);
 
+  const [selectedState, setSelectedState] = useState('');
   /* ======================================================
      GOOGLE MAP LOAD
   ====================================================== */
@@ -250,6 +252,16 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers }) => {
 
   return (
     <div className="space-y-6">
+      <select
+        value={selectedState}
+        onChange={(e) => setSelectedState(e.target.value)}
+        className="border rounded-lg px-3 py-2"
+      >
+        <option value="">All States</option>
+        <option value="Rajasthan">Rajasthan</option>
+        <option value="Gujarat">Gujarat</option>
+        <option value="Maharashtra">Maharashtra</option>
+      </select>
       {/* ======================================================
           TOP CARDS
       ====================================================== */}
@@ -285,7 +297,7 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers }) => {
         />
       </div>
 
-      <DashboardInsights orders={totalcustomers} />
+      <DashboardInsights orders={orders} />
       {/* ======================================================
           MAP SECTION
       ====================================================== */}

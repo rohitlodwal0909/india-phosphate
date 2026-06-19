@@ -14,5 +14,12 @@ router.get(
 // Employee
 router.get("/get-employee-data/:id", employeeController.getEmployeeDashboard);
 router.get("/get-pending-task/:id", employeeController.getPendingTask);
+router.get("/get-remaining-task/:id", employeeController.getRemainingTask);
 
+router.get(
+  "/get-dormant-customers",
+  dashboardCustomerController.getDormantCustomer
+);
+
+router.get("/get-pending-orders", dashboardCustomerController.getPendingOrder);
 module.exports = router;

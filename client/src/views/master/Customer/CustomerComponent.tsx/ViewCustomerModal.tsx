@@ -2,6 +2,10 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-rea
 import { TabItem, Tabs } from 'flowbite-react';
 import { Icon } from '@iconify/react';
 import CustomerJourneyMap from '../../ExistingCustomer/ExistingComponent.tsx/CustomerJourneymap';
+import { useEffect, useState } from 'react';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
 
 type Props = {
   placeModal: boolean;
@@ -11,6 +15,28 @@ type Props = {
 };
 
 const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow }: Props) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { productdata = [] } = useSelector((state: RootState) => state.products) ?? {};
+
+  const [size, setSize] = useState<'6xl' | '7xl'>('6xl');
+  const [activeTab, setActiveTab] = useState(0);
+
+  const productOptions = productdata.map((p: any) => ({
+    label: p.product_name,
+    value: p.id,
+  }));
+
+  useEffect(() => {
+    dispatch(GetProduct());
+  }, [dispatch]);
+
+  const getProductName = (productId: any) => {
+    return (
+      productOptions.find((option) => Number(option.value) === Number(productId))?.label || '-'
+    );
+  };
+
   const traders = Array.isArray(selectedRow?.trader_names)
     ? selectedRow.trader_names
     : typeof selectedRow?.trader_names === 'string'
@@ -37,15 +63,28 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
 
   return (
     <Modal
-      size="6xl"
+      size={size}
       show={placeModal}
       position={modalPlacement}
       onClose={() => setPlaceModal(false)}
+      className={activeTab === 5 ? '[&>div]:max-w-[95vw]' : '[&>div]:max-w-6xl'}
     >
       <ModalHeader className="text-2xl font-bold text-gray-900">Customer Details</ModalHeader>
 
       <ModalBody>
-        <Tabs variant="underline">
+        <Tabs
+          variant="underline"
+          onActiveTabChange={(tab) => {
+            setActiveTab(tab);
+
+            // Customer Journey Maps tab
+            if (tab === 5) {
+              setSize('7xl');
+            } else {
+              setSize('6xl');
+            }
+          }}
+        >
           {/* CUSTOMER INFO */}
 
           <TabItem
@@ -210,7 +249,7 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                     products.map((p: any, index: number) => (
                       <tr key={index}>
                         <td className="p-2 border">{index + 1}</td>
-                        <td className="p-2 border font-medium">{p.product}</td>
+                        <td className="p-2 border font-medium">{getProductName(p.product)}</td>
                         <td className="p-2 border">{p.grade}</td>
                       </tr>
                     ))
@@ -230,7 +269,9 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
             title="Customer Journey Maps"
             icon={() => <Icon icon="solar:chart-outline" height={20} />}
           >
-            <CustomerJourneyMap selectedRow={selectedRow} />
+            <div className="w-full min-h-[600px]">
+              <CustomerJourneyMap selectedRow={selectedRow} />
+            </div>
           </TabItem>
         </Tabs>
       </ModalBody>

@@ -7,6 +7,7 @@ interface DashboardState {
 
   employeedata: any;
   pendingtask: any[];
+  remainingtask: any[];
 
   addResult: any;
   updateResult: any;
@@ -19,6 +20,7 @@ const initialState: DashboardState = {
 
   employeedata: null,
   pendingtask: [],
+  remainingtask: [],
 
   addResult: null,
   updateResult: null,
@@ -39,6 +41,21 @@ export const getPendingTask = createAsyncThunk(
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error?.response?.data?.message || 'Failed to fetch pending tasks',
+      );
+    }
+  },
+);
+
+export const getRemainingTask = createAsyncThunk(
+  'dashboard/getRemainingTask',
+  async (id: number | string, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`/get-remaining-task/${id}`);
+
+      return response.data.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error?.response?.data?.message || 'Failed to fetch remaining tasks',
       );
     }
   },
@@ -67,6 +84,20 @@ const DashboardEmployeeSlice = createSlice({
       })
 
       .addCase(getPendingTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getRemainingTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(getRemainingTask.fulfilled, (state, action) => {
+        state.loading = false;
+        state.remainingtask = action.payload || [];
+      })
+
+      .addCase(getRemainingTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

@@ -52,7 +52,7 @@ import Ledger from 'src/views/accounts/ledger/Ledger';
 import Dashboard from 'src/views/usermanagment/Dashboard';
 import Report from 'src/views/accounts/ledger/LedgerComponent/Report';
 import CustomerDashboard from 'src/views/dashboard/customer/CustomerDashboard';
-import BillInvoice from 'src/views/accounts/domestic/bill/BillInvoice';
+import BillInvoice from 'src/views/accounts/bill/BillInvoice';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));

@@ -19,7 +19,7 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = () => {
   const customer = useSelector((state: RootState) => state.customerdashboard.customer);
 
   useEffect(() => {
-    const data = 'India Phosphate';
+    // const data = 'India Phosphate';
     dispatch(getsinglecustomer(id));
     dispatch(getGstdetails());
   }, [dispatch]);

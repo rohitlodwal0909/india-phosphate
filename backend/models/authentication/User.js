@@ -28,8 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       po_password: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.STRING
       },
       signature: {
         type: DataTypes.STRING,

@@ -19,8 +19,9 @@ import {
 import { AppDispatch, RootState } from 'src/store';
 import { getemployeedata } from 'src/features/dashboard/DashboardCustomerSlice';
 import PendingTaskList from './employee/PendiingTaskList';
-import { getPendingTask } from 'src/features/dashboard/DashboardEmployeeSlice';
+import { getPendingTask, getRemainingTask } from 'src/features/dashboard/DashboardEmployeeSlice';
 import { Button } from 'flowbite-react';
+import RemainingTaskList from './employee/RemainingTaskList';
 
 interface EmployeeDashboardProps {
   id?: number | string;
@@ -30,7 +31,9 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
 
   const employeedata = useSelector((state: RootState) => state.customerdashboard.employeedata);
   const pendingTasks = useSelector((state: RootState) => state.employeedashboard.pendingtask);
+  const remainingTask = useSelector((state: RootState) => state.employeedashboard.remainingtask);
   const [openPendingModal, setOpenPendingModal] = useState(false);
+  const [openRemainingModal, setOpenRemainingModal] = useState(false);
 
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -67,6 +70,15 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
     try {
       await dispatch(getPendingTask(id as number | string)).unwrap();
       setOpenPendingModal(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleRemainingTask = async () => {
+    try {
+      await dispatch(getRemainingTask(id as number | string)).unwrap();
+      setOpenRemainingModal(true);
     } catch (error) {
       console.error(error);
     }
@@ -207,6 +219,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
           <DashboardCard
             title="Remaining Tasks"
             value={stats.remainingTasks}
+            onClick={handleRemainingTask}
             icon="solar:clock-circle-bold"
             bg="bg-yellow-50"
             iconbg="bg-yellow-100"
@@ -244,7 +257,7 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           <MiniCard title="Task Count" value={stats.totalLeads} icon="solar:clipboard-list-bold" />
 
-          <MiniCard title="Overdue Count" value={stats.overdueItems} icon="solar:alarm-bold" />
+          <MiniCard title="Ongoing" value={stats.overdueItems} icon="solar:alarm-bold" />
 
           <MiniCard
             title="SLA Breaches"
@@ -305,7 +318,6 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h3 className="text-xl font-bold text-gray-800">Employee Productivity</h3>
-
                 <p className="text-sm text-gray-500">Daily task performance</p>
               </div>
 
@@ -386,6 +398,11 @@ const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ id }) => {
             open={openPendingModal}
             onClose={() => setOpenPendingModal(false)}
             tasks={pendingTasks || []}
+          />
+          <RemainingTaskList
+            open={openRemainingModal}
+            onClose={() => setOpenRemainingModal(false)}
+            tasks={remainingTask || []}
           />
         </div>
       </div>

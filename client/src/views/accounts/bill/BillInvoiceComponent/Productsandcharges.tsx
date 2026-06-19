@@ -5,7 +5,7 @@ import { GetGrade } from 'src/features/master/Grade/GradeSlice';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { AppDispatch, RootState } from 'src/store';
 
-const Productsandcharges = ({ batches, products, setProducts, charges, setCharges }) => {
+const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { productdata } = useSelector((state: any) => state.products);
   const grades = useSelector((state: RootState) => state.grades.gradedata) ?? [];
@@ -245,21 +245,14 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
 
                   {/* Batch */}
                   <td className="border p-2">
-                    <select
-                      className="w-full border p-2 rounded"
+                    <TextInput
+                      type="text"
                       value={batch.batch_no}
+                      placeholder="Enter Batch No."
                       onChange={(e) =>
                         handleBatchChange(pIndex, bIndex, 'batch_no', e.target.value)
                       }
-                    >
-                      <option value="">Select Batch</option>
-                      {batches.length > 0 &&
-                        batches?.map((p) => (
-                          <option key={p.id} value={p.batch?.batch_no}>
-                            {p.batch?.batch_no}
-                          </option>
-                        ))}
-                    </select>
+                    />
                   </td>
 
                   {/* MFG */}
@@ -283,7 +276,14 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
                   {/* HSN */}
                   {bIndex === 0 && (
                     <td rowSpan={product.batches.length} className="border text-center">
-                      {product.hsn}
+                      <TextInput
+                        type="text"
+                        value={product.hsn}
+                        placeholder="Enter HSN No."
+                        onChange={(e) =>
+                          handleBatchChange(pIndex, bIndex, 'hsn_no', e.target.value)
+                        }
+                      />
                     </td>
                   )}
 
@@ -292,6 +292,7 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
                     <TextInput
                       type="number"
                       value={batch.qty}
+                      placeholder="Enter Qty No."
                       onChange={(e) => {
                         let value = Number(e.target.value);
                         if (value < 0) value = 0;
@@ -307,6 +308,7 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
                       <TextInput
                         type="number"
                         value={product.rate}
+                        placeholder="Enter Rate."
                         onChange={(e) => handleProductChange(pIndex, 'rate', e.target.value)}
                       />
                     </td>
@@ -389,50 +391,51 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
       <div className="col-span-4 space-y-2">
         <Label value="GST Details" />
 
-        {charges?.gst?.map((gst, index) => (
-          <div key={index} className="flex gap-2 items-center">
-            {/* GST TYPE */}
-            <select
-              className="border p-2 rounded"
-              value={gst.type}
-              onChange={(e) => handleGSTChange(index, 'type', e.target.value)}
-            >
-              {GST_TYPES?.map((type) => (
-                <option
-                  key={type}
-                  value={type}
-                  disabled={charges.gst.some((g, i) => g.type === type && i !== index)}
-                >
-                  {type}
-                </option>
-              ))}
-            </select>
+        {charges?.length > 0 &&
+          charges?.gst?.map((gst, index) => (
+            <div key={index} className="flex gap-2 items-center">
+              {/* GST TYPE */}
+              <select
+                className="border p-2 rounded"
+                value={gst.type}
+                onChange={(e) => handleGSTChange(index, 'type', e.target.value)}
+              >
+                {GST_TYPES?.map((type) => (
+                  <option
+                    key={type}
+                    value={type}
+                    disabled={charges.gst.some((g, i) => g.type === type && i !== index)}
+                  >
+                    {type}
+                  </option>
+                ))}
+              </select>
 
-            {/* RATE */}
-            <select
-              className="border p-2 rounded"
-              value={gst.rate}
-              onChange={(e) => handleGSTChange(index, 'rate', e.target.value)}
-            >
-              <option value="">GST %</option>
-              <option value="0.1">0.1%</option>
-              <option value="0.5">0.5%</option>
+              {/* RATE */}
+              <select
+                className="border p-2 rounded"
+                value={gst.rate}
+                onChange={(e) => handleGSTChange(index, 'rate', e.target.value)}
+              >
+                <option value="">GST %</option>
+                <option value="0.1">0.1%</option>
+                <option value="0.5">0.5%</option>
 
-              {/* Standard */}
-              <option value="5">5%</option>
-              <option value="6">6%</option>
-              <option value="9">9%</option>
-              <option value="12">12%</option>
-              <option value="14">14%</option>
-              <option value="18">18%</option>
-              <option value="28">28%</option>
-            </select>
+                {/* Standard */}
+                <option value="5">5%</option>
+                <option value="6">6%</option>
+                <option value="9">9%</option>
+                <option value="12">12%</option>
+                <option value="14">14%</option>
+                <option value="18">18%</option>
+                <option value="28">28%</option>
+              </select>
 
-            <Button size="xs" color="failure" onClick={() => removeGST(index)}>
-              X
-            </Button>
-          </div>
-        ))}
+              <Button size="xs" color="failure" onClick={() => removeGST(index)}>
+                X
+              </Button>
+            </div>
+          ))}
 
         {/* ADD GST */}
         <Button size="xs" color="success" onClick={addGST}>

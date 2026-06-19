@@ -69,6 +69,7 @@ const PackingListRoutes = require("../routes/account/PackingListRoutes");
 const DraftPackingRoutes = require("../routes/account/DraftPackingRoutes");
 const SampleInvoiceRoutes = require("../routes/account/SampleInvoiceRoutes");
 const LedgerRoutes = require("../routes/account/LedgerRoutes");
+const BillRoutes = require("../routes/account/BillRoutes");
 
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -142,6 +143,7 @@ router.use("/api", authMiddleware, ExportInvoiceRoutes);
 router.use("/api", authMiddleware, PackingListRoutes);
 router.use("/api", authMiddleware, DraftPackingRoutes);
 router.use("/api", authMiddleware, SampleInvoiceRoutes);
+router.use("/api", authMiddleware, BillRoutes);
 
 // Purchase
 router.use("/api", authMiddleware, QuotationRoutes);

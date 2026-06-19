@@ -1,7 +1,6 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { Badge } from 'flowbite-react';
 
-const CompanyHeader = ({ company, summary }) => {
+const CompanyHeader = ({ company, summary, lastPurchase, lastPayment, analytics }) => {
   const safeParse = (data) => {
     try {
       return JSON.parse(data || '[]');
@@ -25,6 +24,18 @@ const CompanyHeader = ({ company, summary }) => {
       : summary?.receivedAmount >= 3000000
         ? 'Medium'
         : 'Low';
+
+  const formatDate = (date: string) => {
+    if (!date) return '-';
+
+    return new Date(date)
+      .toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+      .replace(/ /g, '-');
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -69,7 +80,7 @@ const CompanyHeader = ({ company, summary }) => {
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-wrap gap-3">
+        {/* <div className="flex flex-wrap gap-3">
           <Badge color="success" size="lg">
             Active Customer
           </Badge>
@@ -81,7 +92,7 @@ const CompanyHeader = ({ company, summary }) => {
           <Badge color="info" size="lg">
             Credit Limit ₹50 Lac
           </Badge>
-        </div>
+        </div> */}
       </div>
 
       {/* Bottom Stats */}
@@ -113,17 +124,19 @@ const CompanyHeader = ({ company, summary }) => {
 
         <div>
           <p className="text-gray-500 text-sm">Payment Behaviour</p>
-          <h4 className="font-semibold text-orange-500">Average (18 Days)</h4>
+          <h4 className="font-semibold text-orange-500">
+            Average ({analytics?.avgPaymentCycle} Days)
+          </h4>
         </div>
 
         <div>
           <p className="text-gray-500 text-sm">Last Purchase</p>
-          <h4 className="font-semibold">20-May-2026</h4>
+          <h4 className="font-semibold">{formatDate(lastPurchase?.created_at)}</h4>
         </div>
 
         <div>
           <p className="text-gray-500 text-sm">Last Payment</p>
-          <h4 className="font-semibold">25-May-2026</h4>
+          <h4 className="font-semibold">{formatDate(lastPayment?.payment_date)}</h4>
         </div>
       </div>
     </div>

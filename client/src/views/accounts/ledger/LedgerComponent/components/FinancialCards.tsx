@@ -1,24 +1,37 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
+import FormatCurrency from './FormatCurrency';
 
-const formatCurrency = (amount: number) => {
-  amount = Number(amount || 0);
+const FinancialCards = ({ summary, poHistorysD, ledger }) => {
+  const sortedLedger = [...(ledger || [])].sort(
+    (a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime(),
+  );
 
-  if (amount >= 10000000) {
-    return `₹${(amount / 10000000).toFixed(2)} Cr`;
-  }
+  let runningBalance = 0;
 
-  if (amount >= 100000) {
-    return `₹${(amount / 100000).toFixed(2)} Lac`;
-  }
+  const ledgerWithBalance = sortedLedger.map((item) => {
+    runningBalance += Number(item.debit || 0);
+    runningBalance -= Number(item.credit || 0);
 
-  return `₹${amount.toLocaleString('en-IN')}`;
-};
+    return {
+      ...item,
+      running_balance: runningBalance,
+    };
+  });
 
-const FinancialCards = ({ summary }) => {
+  const totalDebit = ledgerWithBalance.reduce((sum, item) => sum + Number(item.debit || 0), 0);
+
+  const totalCredit = ledgerWithBalance.reduce((sum, item) => sum + Number(item.credit || 0), 0);
+
+  const totalPOValue = poHistorysD?.reduce(
+    (sum, po) =>
+      sum + (po.products?.reduce((productSum, p) => productSum + Number(p.amount || 0), 0) || 0),
+    0,
+  );
+
   const cardData = [
     {
       title: 'Total PO Value',
-      value: '₹ 0 ',
+      value: FormatCurrency(totalPOValue || 0),
       icon: 'mdi:file-document-outline',
       bg: 'bg-blue-50',
       iconColor: 'text-blue-600',
@@ -26,7 +39,7 @@ const FinancialCards = ({ summary }) => {
     },
     {
       title: 'Invoice Value',
-      value: formatCurrency(summary?.totalInvoice),
+      value: FormatCurrency(summary?.totalInvoice || 0),
       icon: 'mdi:receipt-text-outline',
       bg: 'bg-purple-50',
       iconColor: 'text-purple-600',
@@ -34,7 +47,7 @@ const FinancialCards = ({ summary }) => {
     },
     {
       title: 'Total Debit',
-      value: '₹ 0',
+      value: FormatCurrency(totalDebit || 0),
       icon: 'mdi:arrow-down-bold-circle',
       bg: 'bg-red-50',
       iconColor: 'text-red-600',
@@ -42,7 +55,7 @@ const FinancialCards = ({ summary }) => {
     },
     {
       title: 'Total Credit',
-      value: formatCurrency(summary?.receivedAmount),
+      value: FormatCurrency(totalCredit || 0),
       icon: 'mdi:arrow-up-bold-circle',
       bg: 'bg-green-50',
       iconColor: 'text-green-600',
@@ -50,7 +63,7 @@ const FinancialCards = ({ summary }) => {
     },
     {
       title: 'Outstanding',
-      value: formatCurrency(summary?.outstanding),
+      value: FormatCurrency(summary?.outstanding || 0),
       icon: 'mdi:alert-circle-outline',
       bg: 'bg-orange-50',
       iconColor: 'text-orange-600',
@@ -58,7 +71,7 @@ const FinancialCards = ({ summary }) => {
     },
     {
       title: 'Transactions',
-      value: summary?.invoiceCount,
+      value: ledger?.length || 0,
       icon: 'mdi:swap-horizontal-bold',
       bg: 'bg-cyan-50',
       iconColor: 'text-cyan-600',

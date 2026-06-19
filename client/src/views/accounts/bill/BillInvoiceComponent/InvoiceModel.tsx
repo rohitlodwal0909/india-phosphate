@@ -1,39 +1,51 @@
-import { Label, TextInput, Textarea, Select } from 'flowbite-react';
+import { Label, TextInput, Textarea } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ImageUrl } from 'src/constants/contant';
 import { GetCustomer } from 'src/features/master/Customer/CustomerSlice';
+import { GetSupplier } from 'src/features/master/Supplier/SupplierSlice';
 import { AppDispatch, RootState } from 'src/store';
+import Select from 'react-select';
 
-const InvoiceModel = ({ formData, setFormData, dispatchList, setBatches }) => {
+const selectStyles = {
+  menuPortal: (base: any) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
+
+const InvoiceModel = ({ formData, setFormData }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { existscustomer } = useSelector((state: RootState) => state.customer) as any;
+  const existscustomer = useSelector((state: RootState) => state.customer.existscustomer) as any;
+  const suppliers = useSelector((state: RootState) => state.supplier.supplierdata) as any;
+
+  const mergedData = [
+    ...(existscustomer || []).map((item: any) => ({
+      id: item.id,
+      name: item.company_name,
+      type: 'Customer',
+      originalData: item,
+    })),
+
+    ...(suppliers || []).map((item: any) => ({
+      id: item.id,
+      name: item.supplier_name,
+      type: 'Supplier',
+      originalData: item,
+    })),
+  ];
+
+  const options = mergedData.map((item) => ({
+    value: item.id,
+    label: `${item.name} (${item.type})`,
+    type: item.type,
+    data: item.originalData,
+  }));
 
   useEffect(() => {
     dispatch(GetCustomer());
+    dispatch(GetSupplier());
   }, [dispatch]);
-  // 🔹 Invoice Form
-
-  const handleDispatchChange = (dispatchId: string) => {
-    const selectedDispatch = dispatchList?.find(
-      (item: any) => String(item.id) === String(dispatchId),
-    );
-
-    setBatches(selectedDispatch?.batches || []);
-
-    setFormData((prev) => ({
-      ...prev,
-      dispatch_id: dispatchId,
-      buyer:
-        (selectedDispatch?.poentry?.customers?.company_name || '') +
-        '\n' +
-        (selectedDispatch?.poentry?.company_address || ''),
-      consignee:
-        (selectedDispatch?.poentry?.customers?.company_name || '') +
-        '\n' +
-        (selectedDispatch?.poentry?.company_address || ''),
-    }));
-  };
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({
@@ -61,23 +73,51 @@ const InvoiceModel = ({ formData, setFormData, dispatchList, setBatches }) => {
       <div className="col-span-12 font-semibold text-lg border-b pb-2">Invoice Details</div>
 
       <div className="col-span-3">
-        <Label value="Company Name" className="text-black" />
-        <Select value={formData.dispatch_id} onChange={(e) => handleDispatchChange(e.target.value)}>
-          <option value="">Select Company Name</option>
+        <Label value="Customer / Supplier" className="text-black" />{' '}
+        <Select
+          options={options}
+          menuPortalTarget={document.body}
+          styles={selectStyles}
+          placeholder="Select Customer / Supplier"
+          value={
+            options.find(
+              (option) =>
+                option.value === formData.company_id && option.type === formData.party_type,
+            ) || null
+          }
+          onChange={(selectedOption: any) => {
+            setFormData({
+              ...formData,
+              company_id: selectedOption?.value,
+              party_type: selectedOption?.type,
+            });
+          }}
+        />
+      </div>
 
-          {existscustomer?.map((item: any) => (
-            <option key={item.id} value={item.id}>
-              {item?.company_name}
-            </option>
-          ))}
-        </Select>
+      <div className="col-span-3">
+        <Label value="Credit / Debit Type" />
+        <select
+          className="w-full border rounded-md p-2"
+          value={formData.transaction_type}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              transaction_type: e.target.value,
+            })
+          }
+        >
+          <option value="">Select Type</option>
+          <option value="credit">Credit</option>
+          <option value="debit">Debit</option>
+        </select>
       </div>
 
       <div className="col-span-3">
         <Label value="PO No" className="text-black" />
         <TextInput
-          value={formData.invoice_no}
-          onChange={(e) => handleChange('invoice_no', e.target.value)}
+          value={formData.po_no}
+          onChange={(e) => handleChange('po_no', e.target.value)}
           placeholder="Enter PO No"
         />
       </div>

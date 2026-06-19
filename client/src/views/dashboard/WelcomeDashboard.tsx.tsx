@@ -19,6 +19,12 @@ const WelcomeDashboard: React.FC = () => {
 
   const totalcustomer = useSelector((state: RootState) => state.customerdashboard.totalcustomers);
 
+  const orders = {
+    pending_orders: totalcustomer.pending_orders,
+    total_disputes: totalcustomer.total_disputes,
+    total_orders: totalcustomer.total_orders,
+  };
+
   useEffect(() => {
     dispatch(gettotalCustomer());
   }, [dispatch]);
@@ -96,7 +102,7 @@ const WelcomeDashboard: React.FC = () => {
               </button> */}
             </div>
 
-            <CustomerMap totalcustomers={totalcustomers} />
+            <CustomerMap totalcustomers={totalcustomers} orders={orders} />
             <CustomerCard customer={customer} />
             <CustomerConversation customer={customer_conversation} />
             <CustomerMapRevenue customer={customersRevenueMap} />

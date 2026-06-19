@@ -3,16 +3,14 @@ import SupplierTable from './SuplierComponent.tsx/SupplierTable';
 import CardBox from 'src/components/shared/CardBox';
 
 const Supplier = () => {
-  
   return (
     <>
-      <BreadcrumbComp    items={[{ title: "Supplier ", to: "/" }]}
-        title="Supplier"/>
-         <CardBox>
-        <SupplierTable/>
-        </CardBox>
-        </>
-  )
-}
+      <BreadcrumbComp items={[{ title: 'Supplier ', to: '/' }]} title="Supplier" />
+      <CardBox>
+        <SupplierTable />
+      </CardBox>
+    </>
+  );
+};
 
-export default Supplier
+export default Supplier;

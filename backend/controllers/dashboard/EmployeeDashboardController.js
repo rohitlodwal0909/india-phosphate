@@ -80,7 +80,7 @@ exports.getEmployeeDashboard = async (req, res) => {
           [Op.lt]: today
         },
         status: {
-          [Op.ne]: "Completed"
+          [Op.notIn]: ["Completed", "Cancelled", "Pending"]
         }
       }
     });
@@ -236,6 +236,48 @@ exports.getPendingTask = async (req, res) => {
     return res.status(200).json({
       success: true,
       data: pendingtasks
+    });
+  } catch (error) {
+    console.error("PENDING TASK ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+exports.getRemainingTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const remainingTaskList = await TaskModel.findAll({
+      where: {
+        status: {
+          [Op.ne]: "Completed"
+        },
+        [Op.or]: [
+          {
+            user_id: id
+          },
+          {
+            assign_to: id
+          }
+        ]
+      },
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "assign_task",
+          attributes: ["username"]
+        }
+      ]
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: remainingTaskList
     });
   } catch (error) {
     console.error("PENDING TASK ERROR:", error);

@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
+import DisputeAlertList from './DisputeAlertList';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
+import { getDispute } from 'src/features/marketing/DisputeSlice';
+import PendingOrderList from './PendingOrderList';
+import { getPendingOrder } from 'src/features/dashboard/DashboardCustomerSlice';
 
 /* ======================================================
    MAIN COMPONENT
 ====================================================== */
 
 const DashboardInsights = ({ orders }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [pendingOrderModal, setPendingOrderModal] = useState(false);
+  const [disputeModal, setDisputeModal] = useState(false);
+
+  const disputeList = useSelector((state: RootState) => state.disputes.disputes);
+  const pendingOrders = useSelector((state: RootState) => state.customerdashboard.pendingOrders);
+
+  useEffect(() => {
+    dispatch(getDispute());
+  }, [disputeModal]);
+
+  useEffect(() => {
+    dispatch(getPendingOrder());
+  }, [pendingOrderModal]);
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
@@ -25,16 +47,8 @@ const DashboardInsights = ({ orders }) => {
           icon="solar:clipboard-list-bold"
           bg="bg-orange-50"
           border="border-orange-300"
+          onClick={() => setPendingOrderModal(true)}
         />
-
-        {/* <AnalyticsCard
-          title="Opportunity Insights"
-          value={18}
-          subtitle="High conversion opportunities"
-          icon="solar:graph-up-bold"
-          bg="bg-green-50"
-          border="border-green-300"
-        /> */}
 
         <AnalyticsCard
           title="Dispute Alerts"
@@ -43,146 +57,20 @@ const DashboardInsights = ({ orders }) => {
           icon="solar:danger-triangle-bold"
           bg="bg-red-50"
           border="border-red-300"
+          onClick={() => setDisputeModal(true)}
         />
       </div>
 
-      {/* ======================================================
-          INSIGHTS SECTION
-      ====================================================== */}
-
-      {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
-          <div className="p-5 border-b bg-gray-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">Pending Order List</h2>
-
-                <p className="text-sm text-gray-500 mt-1">Orders awaiting processing</p>
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <Icon icon="solar:clipboard-list-bold" width={24} className="text-orange-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="divide-y">
-            {pendingOrders.map((item, index) => (
-              <div key={index} className="p-4 hover:bg-gray-50 transition-all duration-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{item.customer}</h3>
-
-                    <p className="text-sm text-gray-500">Quantity: {item.qty}</p>
-                  </div>
-
-                  <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold">
-                    {item.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
-          <div className="p-5 border-b bg-gray-50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">Opportunity Insights</h2>
-
-                <p className="text-sm text-gray-500 mt-1">High priority customer opportunities</p>
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
-                <Icon icon="solar:graph-up-bold" width={24} className="text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="divide-y">
-            {opportunityInsights.map((item, index) => (
-              <div key={index} className="p-4 hover:bg-gray-50 transition-all duration-200">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{item.customer}</h3>
-
-                    <p className="text-sm text-gray-500 mt-1">{item.opportunity}</p>
-                  </div>
-
-                  <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
-                    {item.value}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div> */}
-
-      {/* <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
-        <div className="p-5 border-b bg-gray-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">Dispute Alerts</h2>
-
-              <p className="text-sm text-gray-500 mt-1">
-                Urgent disputes requiring immediate action
-              </p>
-            </div>
-
-            <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
-              <Icon icon="solar:danger-triangle-bold" width={24} className="text-red-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-4 text-left text-sm font-semibold text-gray-700">Customer</th>
-
-                <th className="p-4 text-left text-sm font-semibold text-gray-700">Issue</th>
-
-                <th className="p-4 text-left text-sm font-semibold text-gray-700">Severity</th>
-
-                <th className="p-4 text-left text-sm font-semibold text-gray-700">Status</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y">
-              {disputeAlerts.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="p-4 font-semibold text-gray-800">{item.customer}</td>
-
-                  <td className="p-4 text-gray-600">{item.issue}</td>
-
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        item.severity === 'High'
-                          ? 'bg-red-100 text-red-700'
-                          : item.severity === 'Medium'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-green-100 text-green-700'
-                      }`}
-                    >
-                      {item.severity}
-                    </span>
-                  </td>
-
-                  <td className="p-4">
-                    <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">
-                      {item.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div> */}
+      <DisputeAlertList
+        open={disputeModal}
+        onClose={() => setDisputeModal(false)}
+        data={disputeList}
+      />
+      <PendingOrderList
+        open={pendingOrderModal}
+        onClose={() => setPendingOrderModal(false)}
+        data={pendingOrders}
+      />
     </div>
   );
 };
@@ -200,6 +88,7 @@ interface AnalyticsCardProps {
   icon: string;
   bg: string;
   border: string;
+  onClick?: () => void;
 }
 
 const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
@@ -209,10 +98,17 @@ const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
   icon,
   bg,
   border,
+  onClick,
 }) => {
   return (
     <div
-      className={`rounded-3xl border ${border} ${bg} p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1`}
+      onClick={onClick}
+      className={`
+        rounded-3xl border ${border} ${bg} p-6 shadow-lg
+        hover:shadow-2xl hover:-translate-y-1
+        transition-all duration-300
+        ${onClick ? 'cursor-pointer' : ''}
+      `}
     >
       <div className="flex items-start justify-between">
         <div>

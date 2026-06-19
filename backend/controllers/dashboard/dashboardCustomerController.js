@@ -337,13 +337,18 @@ exports.getallCustomers = async (req, res, next) => {
 
     const total_orders = await PurchaseOrderModel.count();
 
-    const pending_orders = await DispatchVehicle.count({
+    const pending_orders = await PurchaseOrderModel.count({
       include: [
         {
-          model: PurchaseOrderModel,
-          as: "poentry"
+          model: DispatchVehicle,
+          as: "dispatchVehicle",
+          required: false,
+          attributes: []
         }
-      ]
+      ],
+      where: {
+        "$dispatchVehicle.id$": null
+      }
     });
 
     const total_disputes = await DisputeModel.findAll({
@@ -480,6 +485,29 @@ exports.getCustomerDashboard = async (req, res, next) => {
 
     const potentialRevenue = avgOrderValue * expectedOrders;
 
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    const annualDemandPOs = await PurchaseOrderModel.findAll({
+      where: {
+        company_id: id,
+        created_at: {
+          [Op.gte]: oneYearAgo
+        }
+      },
+      attributes: ["products"]
+    });
+
+    let annualDemand = 0;
+
+    annualDemandPOs.forEach((po) => {
+      const products = JSON.parse(po.products || "[]");
+
+      products.forEach((product) => {
+        annualDemand += Number(product.quantity || 0);
+      });
+    });
+
     await res.status(200).json({
       customer,
       enquiry,
@@ -492,8 +520,66 @@ exports.getCustomerDashboard = async (req, res, next) => {
       buyingCycle,
       productWiseData,
       gradeWiseData,
-      potentialRevenue
+      potentialRevenue,
+      annualDemand
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getDormantCustomer = async (req, res, next) => {
+  try {
+    const date = new Date();
+    date.setDate(date.getDate() - 180);
+
+    const customers = await Customer.findAll({
+      where: {
+        created_at: {
+          [Op.lte]: date
+        }
+      },
+      order: [["created_at", "DESC"]]
+    });
+
+    res.status(200).json({
+      message: "Dormant customers fetched successfully",
+      customers
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getPendingOrder = async (req, res, next) => {
+  try {
+    const pending_orders = await PurchaseOrderModel.findAll({
+      attributes: [
+        "id",
+        "po_no",
+        "company_id",
+        "expected_delivery_date",
+        "priority"
+      ],
+      include: [
+        {
+          model: DispatchVehicle,
+          as: "dispatchVehicle",
+          required: false,
+          attributes: []
+        },
+        {
+          model: Customer,
+          as: "customers",
+          attributes: ["company_name"]
+        }
+      ],
+      where: {
+        "$dispatchVehicle.id$": null
+      }
+    });
+
+    res.status(200).json(pending_orders);
   } catch (error) {
     next(error);
   }

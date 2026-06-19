@@ -71,7 +71,7 @@ import ExportPackingSlice from '../src/features/account/exportinvoice/packinglis
 import DraftPackingListSlice from '../src/features/account/exportinvoice/draft';
 import SampleInvoiceSlice from '../src/features/account/exportinvoice/sampleinvoice';
 import LedgerSlice from '../src/features/account/ledger/LedgerSlice';
-
+import BillSlice from '../src/features/account/bill/bill';
 import ReplacementSlice from '../src/features/Inventorymodule/replacement/ReplacementSlice';
 import ProdutionPlaningSlice from '../src/features/Inventorymodule/planing/ProdutionPlaningSlice';
 // Puchase
@@ -159,6 +159,7 @@ export const store = configureStore({
     replacements: ReplacementSlice,
     productionplanning: ProdutionPlaningSlice,
     ledgers: LedgerSlice,
+    bills: BillSlice,
 
     // Purchase
     quotation: QuotationSlice,

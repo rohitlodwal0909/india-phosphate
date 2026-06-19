@@ -63,6 +63,7 @@ interface EmployeeDashboardData {
   inProgressTasks: number;
   overdueTasks: number;
   slaBreaches: number;
+  annualDemand: number;
 
   workingHours: number;
   avgResponse: string;
@@ -95,7 +96,8 @@ interface DashboardState {
   employeedata: EmployeeDashboardData;
   customer: CustomerDashboardData;
   addResult: any;
-
+  dormantList: any;
+  pendingOrders: any;
   updateResult: any;
 
   deleteResult: any;
@@ -145,6 +147,7 @@ const initialState: DashboardState = {
     totalTasks: 0,
 
     completedTasks: 0,
+    annualDemand: 0,
 
     remainingTasks: 0,
 
@@ -183,6 +186,8 @@ const initialState: DashboardState = {
     gradeWiseData: '',
     potentialRevenue: 0,
   },
+  dormantList: null,
+  pendingOrders: null,
 
   addResult: null,
 
@@ -198,11 +203,9 @@ const initialState: DashboardState = {
 export const gettotalCustomer = createAsyncThunk('dashboard/fetch', async (_, thunkAPI) => {
   try {
     const response = await axiosInstance.get('/get-total-customers');
-
     return response.data;
   } catch (error: any) {
     const errorMessage = error.response?.data?.message || 'Failed to fetch customers.';
-
     return thunkAPI.rejectWithValue(errorMessage);
   }
 });
@@ -273,6 +276,26 @@ export const getGstdetails = createAsyncThunk('dashboard/gst', async (_, thunkAP
   }
 });
 
+export const getDormantCustomer = createAsyncThunk('dashboard/dormant', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get('/get-dormant-customers');
+    return response.data;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch customers.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
+export const getPendingOrder = createAsyncThunk('dashboard/pendingorder', async (_, thunkAPI) => {
+  try {
+    const response = await axiosInstance.get('/get-pending-orders');
+    return response.data;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Failed to fetch customers.';
+    return thunkAPI.rejectWithValue(errorMessage);
+  }
+});
+
 /* =========================================================
     SLICE
 ========================================================= */
@@ -317,11 +340,44 @@ const DashboardCustomerSlice = createSlice({
 
       .addCase(getemployeedata.fulfilled, (state, action) => {
         state.loading = false;
-
         state.employeedata = action.payload;
       })
 
       .addCase(getemployeedata.rejected, (state, action) => {
+        state.loading = false;
+
+        state.error = action.payload as string;
+      })
+
+      .addCase(getDormantCustomer.pending, (state) => {
+        state.loading = true;
+
+        state.error = null;
+      })
+
+      .addCase(getDormantCustomer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dormantList = action.payload;
+      })
+
+      .addCase(getDormantCustomer.rejected, (state, action) => {
+        state.loading = false;
+
+        state.error = action.payload as string;
+      })
+
+      .addCase(getPendingOrder.pending, (state) => {
+        state.loading = true;
+
+        state.error = null;
+      })
+
+      .addCase(getPendingOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.pendingOrders = action.payload;
+      })
+
+      .addCase(getPendingOrder.rejected, (state, action) => {
         state.loading = false;
 
         state.error = action.payload as string;

@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../constants/contant';
 import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
@@ -25,7 +23,7 @@ export const GetUsermodule = createAsyncThunk('users/fetch', async (_, thunkAPI)
 
 export const addUser = createAsyncThunk('users/add', async (formdata: any, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${apiUrl}/register`, formdata, {
+    const response = await axiosInstance.post(`/register`, formdata, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
@@ -41,7 +39,7 @@ export const updateUserPassword = createAsyncThunk(
   'users/update-password',
   async (formdata: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`${apiUrl}/update-password`, formdata, {
+      const response = await axiosInstance.put(`/update-password`, formdata, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
@@ -55,8 +53,8 @@ export const updateUser = createAsyncThunk(
   'users/update',
   async (updatedUser: any, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        `${apiUrl}/update-profile/${updatedUser?.user_id}`,
+      const response = await axiosInstance.put(
+        `/update-profile/${updatedUser?.user_id}`,
         updatedUser,
         {
           headers: {
@@ -75,7 +73,7 @@ export const deleteUser = createAsyncThunk(
   'users/delete',
   async (userId: string | number, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/user/delete/${userId}`);
+      await axiosInstance.delete(`/user/delete/${userId}`);
       return userId; // success
     } catch (error: any) {
       // If the error has a response from server

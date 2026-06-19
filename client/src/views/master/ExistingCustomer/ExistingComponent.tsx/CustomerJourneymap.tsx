@@ -133,14 +133,26 @@ const createJourneyData = (data: any) => {
     },
     {
       key: 'rejection',
-      title: 'Rejection', // इमेज में Rejection सबसे आखिरी स्टेज है (निचला सिरा)
+      title: 'Rejection',
       icon: 'solar:danger-triangle-outline',
       color: 'bg-red-500',
       active: !!data?.rejection,
       date: data?.rejection?.created_at,
       left: '85%',
       bottom: '50px',
-      isBottom: true, // नीचे की ओर दिखाने के लिए
+      isBottom: true,
+    },
+
+    {
+      key: 'dispute',
+      title: 'Dispute',
+      icon: 'solar:danger-triangle-outline',
+      color: 'bg-red-500',
+      active: !!data?.dispute,
+      date: data?.dispute?.created_at,
+      left: '93%',
+      bottom: '50px',
+      isBottom: true,
     },
   ];
 };

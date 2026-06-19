@@ -164,6 +164,16 @@ const CustomerCard = ({ customer }) => {
         border="border-t-amber-500"
         isString
       />
+      <DashboardCard
+        title="Annual Demand"
+        value={`${customer?.annualDemand || 0} KG`}
+        icon="solar:box-bold"
+        bg="bg-cyan-50"
+        iconbg="bg-cyan-100"
+        color="text-cyan-600"
+        border="border-cyan-500"
+        isString
+      />
     </div>
   );
 };

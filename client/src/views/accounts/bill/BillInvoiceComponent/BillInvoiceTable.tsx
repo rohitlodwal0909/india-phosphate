@@ -8,16 +8,16 @@ import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import NotPermission from 'src/utils/NotPermission';
 import CommonPagination from 'src/utils/CommonPagination';
-// import { getentryinvoice } from 'src/features/account/invoice/taxinvoice';
-import ViewDispatchModal from 'src/views/inventory/dispatch-inventory/ViewDispatchModal';
+
 import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 import AddInvoiceTaxModel from './AddInvoiceTaxModel';
 // import InvoiceViewModel from './InvoiceViewModel';
 import { ImageUrl } from 'src/constants/contant';
+import { getBills } from 'src/features/account/bill/bill';
 
 const BillInvoiceTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
-  const { invoiceentry, loading } = useSelector((state: RootState) => state.taxinvoices) as any;
+  const { bills, loading } = useSelector((state: RootState) => state.bills) as any;
 
   const dispatch = useDispatch<AppDispatch>();
   const [selectedrow, setSelectedRow] = useState<any>();
@@ -36,9 +36,8 @@ const BillInvoiceTable = () => {
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
-    // dispatch(getentryinvoice(1));
+    dispatch(getBills());
   }, [dispatch]);
-  const [dispatchModal, setDispatchModal] = useState(false);
 
   const handleDownload = async (row) => {
     const pdf = row?.Invoice?.oq_upload;
@@ -66,12 +65,12 @@ const BillInvoiceTable = () => {
     }
   };
 
-  const filteredItems = (invoiceentry || []).filter((item: any) => {
+  const filteredItems = (bills || []).filter((item: any) => {
     const searchText = searchTerm.toLowerCase();
 
-    const company_name = item?.poentry?.customers?.company_name || '';
-    const po_no = item?.poentry?.po_no || '';
-    const invoice_no = item?.Invoice?.invoice_no || '';
+    const company_name = item?.customers?.company_name || '';
+    const po_no = item?.po_no || '';
+    const invoice_no = item?.invoice_no || '';
 
     return (
       company_name.toString().toLowerCase().includes(searchText) ||
@@ -106,7 +105,7 @@ const BillInvoiceTable = () => {
             size="sm"
             className="border border-primary bg-primary text-white rounded-md"
           >
-            Create Invoice
+            Create Bill
           </Button>
         )}
       </div>
@@ -116,7 +115,14 @@ const BillInvoiceTable = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  {['Sr.No', 'Company Name', 'Invoice No.', 'Po No.', 'Action'].map((title) => (
+                  {[
+                    'Sr.No',
+                    'Company Name',
+                    'Invoice No.',
+                    'Po No.',
+                    'Transaction Type',
+                    'Action',
+                  ].map((title) => (
                     <th
                       key={title}
                       className="text-base font-semibold py-3 text-left border-b px-4 text-gray-700 dark:text-gray-200"
@@ -142,18 +148,19 @@ const BillInvoiceTable = () => {
                       </td>
 
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.DispatchVehicle?.poentry?.customers?.company_name || '-').replace(
-                          /^\w/,
-                          (c: string) => c.toUpperCase(),
-                        )}
+                        {item?.party_type === 'Customer'
+                          ? item?.Customer?.company_name || '-'
+                          : item?.Supplier?.supplier_name}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         {(item?.invoice_no || '-').replace(/^\w/, (c: string) => c.toUpperCase())}
                       </td>
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
-                        {(item?.DispatchVehicle?.poentry?.po_no || '-').replace(
-                          /^\w/,
-                          (c: string) => c.toUpperCase(),
+                        {(item?.po_no || '-').replace(/^\w/, (c: string) => c.toUpperCase())}
+                      </td>
+                      <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
+                        {(item?.transaction_type || '-').replace(/^\w/, (c: string) =>
+                          c.toUpperCase(),
                         )}
                       </td>
 
@@ -212,20 +219,6 @@ const BillInvoiceTable = () => {
                           >
                             <Icon icon="hugeicons:view" height={18} />
                           </Button>
-
-                          {/* Dispatch Details View */}
-                          <Button
-                            size="sm"
-                            color={'lightsuccess'}
-                            className="p-0"
-                            onClick={() => {
-                              setDispatchModal(true);
-                              setSelectedRow(item);
-                            }}
-                            title="View Dispatch Details"
-                          >
-                            <Icon icon="hugeicons:truck" height={18} />
-                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -281,14 +274,6 @@ const BillInvoiceTable = () => {
         />
       )}
 
-      {dispatchModal && (
-        <ViewDispatchModal
-          placeModal={dispatchModal}
-          setPlaceModal={() => setDispatchModal(false)}
-          selectedRow={selectedrow?.DispatchVehicle}
-          modalPlacement="center"
-        />
-      )}
       {/* {viewInvoice && (
         <InvoiceViewModel
           placeModal={viewInvoice}
