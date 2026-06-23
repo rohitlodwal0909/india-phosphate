@@ -20,9 +20,10 @@ app.use("/uploads", express.static("uploads"));
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"] // or your frontend URL
+    methods: ["GET", "POST"]
   }
 });
+
 // Make io available globally
 global.io = io;
 

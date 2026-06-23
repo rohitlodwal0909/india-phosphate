@@ -262,17 +262,15 @@ export const getsinglecustomer = createAsyncThunk(
 
 export const getGstdetails = createAsyncThunk('dashboard/gst', async (_, thunkAPI) => {
   try {
-    const data = {
-      company_name: 'Hindustan Phosphates Pvt. Ltd.',
-      state_code: 'MH',
-    };
-    const response = await axiosInstance.post('/get-gstdetails', data);
+    const response = await axiosInstance.post('/get-gstdetails', {
+      gstin: '27AAACH1294K1Z1',
+    });
 
     return response.data;
   } catch (error: any) {
-    const errorMessage = error.response?.data?.message || 'Failed to fetch customers.';
-
-    return thunkAPI.rejectWithValue(errorMessage);
+    return thunkAPI.rejectWithValue(
+      error.response?.data?.message || 'Failed to fetch GST details.',
+    );
   }
 });
 
