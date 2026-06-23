@@ -1,0 +1,28 @@
+name: ERP Auto Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+
+          script: |
+            cd /root/india-phosphate
+
+            git pull origin master
+
+            docker compose down
+
+            docker compose up -d --build
