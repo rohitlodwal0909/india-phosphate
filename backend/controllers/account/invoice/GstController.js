@@ -36,8 +36,8 @@ async function getAccessToken() {
 // ==============================
 async function getGstDetails(token) {
   try {
+    // const
     const gstin = "23AAJCM0239R2Z4";
-
     const response = await axios.post(
       `${BASE_URL}/gst/compliance/public/gstin/search`,
       {
