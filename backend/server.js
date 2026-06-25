@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 });
 
-const allowedIPs = ["172.18.0.1", "127.0.0.1"];
+const allowedIPs = ["192.168.1.10", "172.18.0.1", "127.0.0.1"];
 
 app.use((req, res, next) => {
   let clientIP =
