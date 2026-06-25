@@ -1,6 +1,6 @@
 const axios = require("axios");
-const API_KEY = "key_live_28d7ee1401b24f329e42cb3028986dde";
-const API_SECRET = "secret_live_d414a44c3f814f4884beff22004c2693";
+const API_KEY = "key_live_4ac219f9e7f140cfb6811e9e8b180ea6";
+const API_SECRET = "secret_live_0f17a3504d6540aba0ad80bafbfdb39c";
 
 // ==============================
 // Get Access Token
