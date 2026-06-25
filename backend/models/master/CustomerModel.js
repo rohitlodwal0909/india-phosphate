@@ -50,6 +50,9 @@ module.exports = (sequelize, DataTypes) => {
       products: {
         type: DataTypes.JSON
       },
+      gstin: {
+        type: DataTypes.STRING
+      },
 
       convert_to_customer: {
         type: DataTypes.BOOLEAN,

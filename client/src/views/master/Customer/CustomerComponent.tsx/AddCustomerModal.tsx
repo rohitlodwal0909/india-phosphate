@@ -28,6 +28,7 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
 
   const [formData, setFormData] = useState({
     company_name: '',
+    gstin: '',
     application: '',
     customer_type: '',
     trader_names: [''],
@@ -219,6 +220,14 @@ const AddCustomerModal = ({ show, setShowmodal }) => {
               placeholder="Company HQ"
               value={formData.company_hq}
               onChange={(e) => handleChange('company_hq', e.target.value)}
+            />
+          </div>
+          <div className="col-span-6">
+            <Label value="GSTIN" />
+            <TextInput
+              placeholder="Enter Gst No."
+              value={formData.gstin}
+              onChange={(e) => handleChange('gstin', e.target.value)}
             />
           </div>
 

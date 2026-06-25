@@ -52,8 +52,6 @@ router.get("/get-dispatch-batches", InvoiceController.getDispatchBatches);
 
 router.get("/get-invoice-payment", InvoiceController.getInvoicepayment);
 
-router.post("/get-gstdetails", GstController.getGstData);
-
 // Create Invoice + OQ Upload
 router.post(
   "/create-invoice",
@@ -74,5 +72,8 @@ router.post(
   uploadEway.single("eway_pdf"),
   InvoiceController.uploadEwayPdf
 );
+
+// GST details get
+router.post("/get-gstdetails", GstController.getGstData);
 
 module.exports = router;

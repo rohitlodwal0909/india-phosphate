@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppDispatch, RootState } from 'src/store';
-import { getGstdetails, getsinglecustomer } from 'src/features/dashboard/DashboardCustomerSlice';
+import { getsinglecustomer } from 'src/features/dashboard/DashboardCustomerSlice';
 import CustomerCard from './CustomerCard';
 import { useParams } from 'react-router';
 import ProductWiseCard from './ProductWiseCard';
@@ -21,7 +21,6 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = () => {
   useEffect(() => {
     // const data = 'India Phosphate';
     dispatch(getsinglecustomer(id));
-    dispatch(getGstdetails());
   }, [dispatch]);
 
   const safeParse = (data) => {

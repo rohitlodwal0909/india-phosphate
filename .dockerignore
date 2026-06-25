@@ -1,16 +1,10 @@
 node_modules
 **/node_modules
-
 .git
 .gitignore
-
 client/dist
 client/build
-
 backend/logs
-
 uploads
-
 .vscode
-
 .env

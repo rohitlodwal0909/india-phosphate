@@ -6,52 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getProductWithPO } from 'src/features/master/Customer/CustomerSlice';
 import { AppDispatch } from 'src/store';
 import CustomerJourneyMap from './CustomerJourneymap';
-// import {
-//   LineChart,
-//   Line,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   ResponsiveContainer,
-//   PieChart,
-//   Pie,
-//   Cell,
-//   Legend,
-// } from 'recharts';
-
-// const journeyStages = [
-//   {
-//     stage: 'Awareness',
-//     color: 'bg-yellow-500',
-//     topActivities: ['Print Content', 'Search Data'],
-//     bottomActivities: ['Word of Mouth', 'Radio / TV'],
-//   },
-//   {
-//     stage: 'Consideration',
-//     color: 'bg-pink-500',
-//     topActivities: ['Landing Page', 'Social Media'],
-//     bottomActivities: ['Direct Mail', 'Store & Branch'],
-//   },
-//   {
-//     stage: 'Purchase',
-//     color: 'bg-green-500',
-//     topActivities: ['Website'],
-//     bottomActivities: ['Agent & Broker'],
-//   },
-//   {
-//     stage: 'Retention',
-//     color: 'bg-cyan-500',
-//     topActivities: ['Web Service', 'Community'],
-//     bottomActivities: ['Mailing', 'Offer & Invoice'],
-//   },
-//   {
-//     stage: 'Advocacy',
-//     color: 'bg-blue-600',
-//     topActivities: ['Offer to Customers', 'Loyalty Program'],
-//     bottomActivities: ['Referrals'],
-//   },
-// ];
+import { getGstDetails } from 'src/features/dashboard/DashboardCustomerSlice';
 
 type Props = {
   placeModal: boolean;
@@ -63,6 +18,7 @@ type Props = {
 const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRow }: Props) => {
   const dispatch = useDispatch<AppDispatch>(); // ✅ IMPORTANT
   const { productswithpo } = useSelector((state: any) => state.customer);
+  const { gstData, gstLoading, gstError } = useSelector((state: any) => state.customerdashboard);
 
   const traders = Array.isArray(selectedRow?.trader_names)
     ? selectedRow.trader_names
@@ -93,6 +49,9 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
 
     try {
       await dispatch(getProductWithPO({ id: selectedRow.id })).unwrap();
+      if (selectedRow?.gstin) {
+        dispatch(getGstDetails({ gstin: selectedRow.gstin, forceRefresh: true }));
+      }
     } catch (err) {
       console.error(err);
     }
@@ -331,129 +290,202 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
             icon={() => <Icon icon="solar:chart-outline" height={20} />}
           >
             <CustomerJourneyMap selectedRow={selectedRow} />
-            {/* CRM Analytics Dashboard */}
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-10">
-              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Opportunity Insights</p>
-
-                    <h2 className="text-3xl font-bold text-gray-800 mt-2">78%</h2>
-
-                    <p className="text-green-600 text-sm mt-2">High conversion probability</p>
-                  </div>
-
-                  <Icon icon="solar:graph-up-outline" width={40} className="text-blue-500" />
-                </div>
+          </TabItem>
+          <TabItem
+            title="GST Details"
+            icon={() => <Icon icon="solar:document-text-outline" height={20} />}
+          >
+            {gstLoading ? (
+              <div className="text-center py-8 text-gray-500">Loading GST details...</div>
+            ) : gstError ? (
+              <div className="bg-red-50 border border-red-200 text-red-600 rounded p-4">
+                {gstError}
               </div>
-
-              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-green-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Future Requirement Prediction</p>
-
-                    <h2 className="text-2xl font-bold text-gray-800 mt-2">Calcium Carbonate</h2>
-
-                    <p className="text-green-600 text-sm mt-2">Expected next month</p>
-                  </div>
-
-                  <Icon icon="solar:lightbulb-outline" width={40} className="text-green-500" />
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-yellow-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Buying Behavior</p>
-
-                    <h2 className="text-2xl font-bold text-gray-800 mt-2">Bulk Orders</h2>
-
-                    <p className="text-yellow-600 text-sm mt-2">Quarterly purchase cycle</p>
-                  </div>
-
-                  <Icon icon="solar:cart-large-outline" width={40} className="text-yellow-500" />
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-5 shadow border-l-4 border-red-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Pain Points</p>
-
-                    <h2 className="text-2xl font-bold text-gray-800 mt-2">Delivery Delay</h2>
-
-                    <p className="text-red-600 text-sm mt-2">Frequent complaint detected</p>
-                  </div>
-
-                  <Icon icon="solar:danger-outline" width={40} className="text-red-500" />
-                </div>
-              </div>
-            </div> */}
-            {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-              <div className="bg-white rounded-2xl shadow p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-lg font-bold text-gray-800">Product Frequency</h3>
-
-                  <Icon icon="solar:box-outline" width={24} className="text-blue-500" />
+            ) : gstData ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Basic Info */}
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">GSTIN</p>
+                  <p className="text-gray-900 font-bold text-base">{gstData?.gstin || '-'}</p>
                 </div>
 
-                <div className="space-y-4">
-                  {[
-                    { name: 'Calcium Carbonate', value: 90 },
-                    { name: 'Hydrated Lime', value: 70 },
-                    { name: 'Dolomite Powder', value: 45 },
-                  ].map((item, index) => (
-                    <div key={index}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>{item.name}</span>
-                        <span>{item.value}%</span>
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">PAN Number</p>
+                  <p className="text-gray-900 font-bold text-base">{gstData?.pan_number || '-'}</p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">GST Status</p>
+                  <p className="text-gray-900 font-bold text-base">{gstData?.gst_status || '-'}</p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm md:col-span-2">
+                  <p className="text-gray-700 text-sm font-semibold">Legal Name</p>
+                  <p className="text-gray-900 font-bold text-base">{gstData?.legal_name || '-'}</p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm md:col-span-1">
+                  <p className="text-gray-700 text-sm font-semibold">Trade Name</p>
+                  <p className="text-gray-900 font-bold text-base">{gstData?.trade_name || '-'}</p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Constitution</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.constitution || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Taxpayer Type</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.taxpayer_type || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Registration Date</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.registration_date || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Last GST Update</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.gst_last_updated || '-'}
+                  </p>
+                </div>
+
+                {/* Jurisdiction */}
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Center Jurisdiction</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.center_jurisdiction || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Center Jurisdiction Code</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.center_jurisdiction_code || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">State Jurisdiction</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.state_jurisdiction || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">State Jurisdiction Code</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.state_jurisdiction_code || '-'}
+                  </p>
+                </div>
+
+                {/* Address Fields */}
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Building Name</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_building_name || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Building No</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_building_no || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Floor No</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_floor_no || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm md:col-span-2">
+                  <p className="text-gray-700 text-sm font-semibold">Street</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_street || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Location</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_location || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">District</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_district || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">State</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_state || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Pincode</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_pincode || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm">
+                  <p className="text-gray-700 text-sm font-semibold">Landmark</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.address_landmark || '-'}
+                  </p>
+                </div>
+
+                <div className="bg-gray-100 p-4 rounded shadow-sm md:col-span-3">
+                  <p className="text-gray-700 text-sm font-semibold">Full Address</p>
+                  <p className="text-gray-900 font-bold text-base">
+                    {gstData?.full_address || '-'}
+                  </p>
+                </div>
+
+                {/* Nature of Business */}
+                <div className="bg-gray-100 p-4 rounded shadow-sm md:col-span-3">
+                  <p className="text-gray-700 text-sm font-semibold mb-2">Nature of Business</p>
+
+                  {Array.isArray(gstData?.business_nature) ? (
+                    gstData.business_nature.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {gstData.business_nature.map((item: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
+                          >
+                            {item}
+                          </span>
+                        ))}
                       </div>
-
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className="bg-blue-500 h-3 rounded-full"
-                          style={{ width: `${item.value}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <p className="text-gray-900 font-bold text-base">-</p>
+                    )
+                  ) : typeof gstData?.business_nature === 'string' ? (
+                    <p className="text-gray-900 font-bold text-base">{gstData.business_nature}</p>
+                  ) : (
+                    <p className="text-gray-900 font-bold text-base">-</p>
+                  )}
                 </div>
               </div>
-
-              <div className="bg-white rounded-2xl shadow p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-lg font-bold text-gray-800">Dormant Customer Tracking</h3>
-
-                  <Icon icon="solar:clock-circle-outline" width={24} className="text-red-500" />
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <div>
-                      <p className="font-semibold text-gray-800">ABC Industries</p>
-
-                      <p className="text-sm text-gray-500">Last order: 93 days ago</p>
-                    </div>
-
-                    <span className="bg-red-100 text-red-600 text-xs px-3 py-1 rounded-full">
-                      High Risk
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <div>
-                      <p className="font-semibold text-gray-800">XYZ Minerals</p>
-
-                      <p className="text-sm text-gray-500">Last order: 61 days ago</p>
-                    </div>
-
-                    <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full">
-                      Medium Risk
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div> */}
+            ) : (
+              <div className="text-center py-8 text-gray-500">No GST details found</div>
+            )}
           </TabItem>
         </Tabs>
       </ModalBody>

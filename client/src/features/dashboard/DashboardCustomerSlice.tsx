@@ -99,6 +99,7 @@ interface DashboardState {
   dormantList: any;
   pendingOrders: any;
   updateResult: any;
+  gstData: any;
 
   deleteResult: any;
 }
@@ -106,6 +107,10 @@ interface DashboardState {
 /* =========================================================
     INITIAL STATE
 ========================================================= */
+interface GetGstPayload {
+  gstin: string;
+  forceRefresh?: boolean;
+}
 
 const initialState: DashboardState = {
   loading: false,
@@ -188,7 +193,7 @@ const initialState: DashboardState = {
   },
   dormantList: null,
   pendingOrders: null,
-
+  gstData: null,
   addResult: null,
 
   updateResult: null,
@@ -260,19 +265,23 @@ export const getsinglecustomer = createAsyncThunk(
   },
 );
 
-export const getGstdetails = createAsyncThunk('dashboard/gst', async (_, thunkAPI) => {
-  try {
-    const response = await axiosInstance.post('/get-gstdetails', {
-      gstin: '27AAACH1294K1Z1',
-    });
+export const getGstDetails = createAsyncThunk(
+  'dashboard/gst',
+  async ({ gstin, forceRefresh = false }: GetGstPayload, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post('/get-gstdetails', {
+        gstin,
+        forceRefresh,
+      });
 
-    return response.data;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(
-      error.response?.data?.message || 'Failed to fetch GST details.',
-    );
-  }
-});
+      return response.data.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Failed to fetch GST details.',
+      );
+    }
+  },
+);
 
 export const getDormantCustomer = createAsyncThunk('dashboard/dormant', async (_, thunkAPI) => {
   try {
@@ -332,7 +341,6 @@ const DashboardCustomerSlice = createSlice({
 
       .addCase(getemployeedata.pending, (state) => {
         state.loading = true;
-
         state.error = null;
       })
 
@@ -343,13 +351,11 @@ const DashboardCustomerSlice = createSlice({
 
       .addCase(getemployeedata.rejected, (state, action) => {
         state.loading = false;
-
         state.error = action.payload as string;
       })
 
       .addCase(getDormantCustomer.pending, (state) => {
         state.loading = true;
-
         state.error = null;
       })
 
@@ -360,13 +366,11 @@ const DashboardCustomerSlice = createSlice({
 
       .addCase(getDormantCustomer.rejected, (state, action) => {
         state.loading = false;
-
         state.error = action.payload as string;
       })
 
       .addCase(getPendingOrder.pending, (state) => {
         state.loading = true;
-
         state.error = null;
       })
 
@@ -377,7 +381,6 @@ const DashboardCustomerSlice = createSlice({
 
       .addCase(getPendingOrder.rejected, (state, action) => {
         state.loading = false;
-
         state.error = action.payload as string;
       })
 
@@ -385,13 +388,24 @@ const DashboardCustomerSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-
       .addCase(getsinglecustomer.fulfilled, (state, action) => {
         state.loading = false;
         state.customer = action.payload;
       })
-
       .addCase(getsinglecustomer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(getGstDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getGstDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.gstData = action.payload;
+      })
+      .addCase(getGstDetails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

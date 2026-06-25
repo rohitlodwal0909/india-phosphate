@@ -33,6 +33,7 @@ exports.createCustomer = async (req, res) => {
       contacts: req.body.contacts,
       addresses: req.body.addresses,
       products: req.body.products,
+      gstin: req.body.gstin,
       user_id: req.admin.id
     });
 
@@ -233,6 +234,7 @@ exports.updateCustomer = async (req, res) => {
 
     await customer.update({
       company_name: company_name || "",
+      gstin: req.body.gstin || "",
       application: application || "",
       customer_type: customer_type || "",
       company_hq: company_hq || "",

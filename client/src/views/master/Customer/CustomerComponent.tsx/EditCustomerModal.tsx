@@ -33,6 +33,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
     company_name: '',
     application: '',
     company_hq: '',
+    gstin: '',
     priority: '',
     company_address: '',
     customer_type: '',
@@ -86,6 +87,7 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
         application: CustomerData.application || '',
         customer_type: CustomerData.customer_type || '',
         company_hq: CustomerData.company_hq || '',
+        gstin: CustomerData.gstin || '',
         priority: CustomerData.priority || '',
         company_address: CustomerData.company_address || '',
         trader_names: Array.isArray(traders) ? traders : [''],
@@ -315,6 +317,15 @@ const EditCustomerModal = ({ show, setShowmodal, CustomerData }) => {
               placeholder="Company HQ"
               value={formData.company_hq}
               onChange={(e) => handleChange('company_hq', e.target.value)}
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="GSTIN" />
+            <TextInput
+              placeholder="Enter Gst No."
+              value={formData.gstin}
+              onChange={(e) => handleChange('gstin', e.target.value)}
             />
           </div>
 

@@ -1,6 +1,13 @@
 import { Icon } from '@iconify/react/dist/iconify.js';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getGstDetails } from 'src/features/dashboard/DashboardCustomerSlice';
+import { AppDispatch } from 'src/store';
 
 const CompanyHeader = ({ company, summary, lastPurchase, lastPayment, analytics }) => {
+  const dispatch = useDispatch<AppDispatch>(); // ✅ IMPORTANT
+  const { gstData } = useSelector((state: any) => state.customerdashboard);
+
   const safeParse = (data) => {
     try {
       return JSON.parse(data || '[]');
@@ -8,6 +15,22 @@ const CompanyHeader = ({ company, summary, lastPurchase, lastPayment, analytics 
       return [];
     }
   };
+
+  const fetchData = async () => {
+    if (!company?.id) return;
+
+    try {
+      if (company?.gstin) {
+        dispatch(getGstDetails({ gstin: company.gstin, forceRefresh: true }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [company]);
 
   const addresses = safeParse(company?.addresses);
   const contacts = safeParse(company?.contacts);
@@ -55,9 +78,9 @@ const CompanyHeader = ({ company, summary, lastPurchase, lastPayment, analytics 
             <h2 className="text-2xl font-bold text-gray-800">{company?.company_name}</h2>
 
             <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-500">
-              <span>GST: 23ABCDE1234F1Z5</span>
-              <span>PAN: ABCDE1234F</span>
-              <span>Customer Since: Jan 2024</span>
+              <span>GST: {gstData?.gstin}</span>
+              <span>PAN: {gstData?.pan_number}</span>
+              <span>Customer Since: {gstData?.registration_date}</span>
             </div>
 
             <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-500">

@@ -18,7 +18,7 @@ services:
       - ./backend/.env
 
     volumes:
-      - ./uploads:/app/uploads
+      - ./backend/uploads:/app/uploads
 
   frontend:
 
