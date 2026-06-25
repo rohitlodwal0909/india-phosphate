@@ -12,6 +12,8 @@ const app = express();
 const server = http.createServer(app);
 //  Body parser middleware
 
+// Nnao Primary Key
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
