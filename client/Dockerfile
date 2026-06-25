@@ -4,7 +4,9 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --legacy-peer-deps
+RUN rm -rf node_modules package-lock.json
+RUN npm install
+RUN npm install @rollup/rollup-linux-x64-gnu --save-dev
 
 COPY . .
 
