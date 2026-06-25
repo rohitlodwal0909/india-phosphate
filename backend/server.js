@@ -33,6 +33,33 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 });
 
+const allowedIPs = ["1.187.173.17", "127.0.0.1"];
+
+app.use((req, res, next) => {
+  let clientIP =
+    req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.ip;
+
+  if (clientIP.includes("::ffff:")) {
+    clientIP = clientIP.replace("::ffff:", "");
+  }
+
+  if (clientIP.includes(",")) {
+    clientIP = clientIP.split(",")[0].trim();
+  }
+
+  console.log("Client IP:", clientIP);
+
+  if (allowedIPs.includes(clientIP)) {
+    return next();
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: "ERP Access Allowed Only From Company WiFi",
+    clientIP
+  });
+});
+
 app.use("/", router);
 
 app.use((err, req, res, next) => {
