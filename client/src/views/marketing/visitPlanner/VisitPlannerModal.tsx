@@ -41,7 +41,7 @@ const VisitPlannerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   ========================================================= */
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyA9WZ75akgvEYdJiPK1UQIpYNhiuStGQhA',
+    googleMapsApiKey: 'AIzaSyDCMSpgVe_hEoTs5__0f2yoiaHDKm0D7AI',
   });
 
   const [directions, setDirections] = useState<any>(null);

@@ -147,7 +147,7 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyA9WZ75akgvEYdJiPK1UQIpYNhiuStGQhA',
+    googleMapsApiKey: 'AIzaSyDCMSpgVe_hEoTs5__0f2yoiaHDKm0D7AI',
   });
 
   /* ======================================================
