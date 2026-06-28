@@ -19,11 +19,25 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
 
           script: |
+            set -e
+
             cd /root/india-phosphate
+
+            # Backup backend/.env if it exists
+            if [ -f backend/.env ]; then
+              cp backend/.env /tmp/backend.env
+            fi
 
             git fetch origin
             git reset --hard origin/master
 
+            # Restore backend/.env
+            if [ -f /tmp/backend.env ]; then
+              cp /tmp/backend.env backend/.env
+            fi
+
             docker compose down
             docker compose build --no-cache
             docker compose up -d
+
+            docker image prune -f
