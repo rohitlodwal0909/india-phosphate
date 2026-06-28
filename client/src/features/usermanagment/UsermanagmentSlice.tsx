@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   userdata: [],
   addResult: null,
+  access: null,
   updateResult: null,
   updatePassword: null,
   deleteResult: null,
@@ -126,6 +127,13 @@ const UsermanagmentSlice = createSlice({
         state.addResult = action.payload;
       })
       .addCase(addUser.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+
+      .addCase(updateUserAccess.fulfilled, (state, action) => {
+        state.access = action.payload;
+      })
+      .addCase(updateUserAccess.rejected, (state, action) => {
         state.error = action.error.message;
       })
 
