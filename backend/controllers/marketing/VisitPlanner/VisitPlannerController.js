@@ -5,6 +5,7 @@ const {
 const db = require("../../../models");
 const { Op } = require("sequelize");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
+const { aiCustomerSummary } = require("../../../helper/openAi");
 
 const { VisitPlannerModel, VisitPlannerDetail, User, Notification, Customer } =
   db;
@@ -44,6 +45,23 @@ exports.getVisitPlanner = async (req, res) => {
     return res.status(200).json(data);
   } catch (error) {
     console.error("GET QA DOCUMENT ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+exports.getMeetingSummary = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const data = await aiCustomerSummary(id);
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("GET  ERROR:", error);
 
     return res.status(500).json({
       success: false,

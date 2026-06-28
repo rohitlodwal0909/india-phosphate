@@ -48,6 +48,8 @@ const upload = multer({
 // Get All QA Documents
 router.get("/get-visitplanners", VisitPlannerController.getVisitPlanner);
 
+router.get("/meeting-summary/:id", VisitPlannerController.getMeetingSummary);
+
 // Create QA Document
 router.post(
   "/store-visitplanner",

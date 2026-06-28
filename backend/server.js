@@ -1,7 +1,10 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({
+  path: path.join(__dirname, ".env")
+});
+
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 const http = require("http");
 const { Server } = require("socket.io");
 const sequelize = require("./config/db");
@@ -31,33 +34,6 @@ global.io = io;
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
-});
-
-const allowedIPs = ["192.168.1.10", "172.18.0.1", "127.0.0.1"];
-
-app.use((req, res, next) => {
-  let clientIP =
-    req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.ip;
-
-  if (clientIP.includes("::ffff:")) {
-    clientIP = clientIP.replace("::ffff:", "");
-  }
-
-  if (clientIP.includes(",")) {
-    clientIP = clientIP.split(",")[0].trim();
-  }
-
-  console.log("Client IP:", clientIP);
-
-  if (allowedIPs.includes(clientIP)) {
-    return next();
-  }
-
-  return res.status(403).json({
-    success: false,
-    message: "ERP Access Allowed Only From Company WiFi",
-    clientIP
-  });
 });
 
 app.use("/", router);

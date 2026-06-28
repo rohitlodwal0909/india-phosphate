@@ -15,7 +15,11 @@ import s1 from '../../../src/assets/images/profile/user-1.jpg';
 import Deleteusermodal from './Deleteusermodal';
 import Editusermodal from './Editusermodal';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteUser, GetUsermodule } from 'src/features/usermanagment/UsermanagmentSlice';
+import {
+  deleteUser,
+  GetUsermodule,
+  updateUserAccess,
+} from 'src/features/usermanagment/UsermanagmentSlice';
 import { triggerGoogleTranslateRescan } from 'src/utils/triggerTranslateRescan';
 import { toast } from 'react-toastify';
 import PaginationComponent from 'src/utils/PaginationComponent';
@@ -31,6 +35,7 @@ export interface PaginationTableType {
   password?: string;
   signature?: any;
   role_id?: any;
+  access?: boolean | number;
 }
 import { useNavigate } from 'react-router-dom';
 
@@ -145,6 +150,44 @@ function PaginationTable({ roleData }) {
           />
         ) : (
           <span className="text-sm text-gray-400">No Signature</span>
+        );
+      },
+    }),
+
+    columnHelper.accessor('access', {
+      header: () => <span>Login Access</span>,
+      cell: ({ row, getValue }) => {
+        const [checked, setChecked] = useState(Boolean(getValue()));
+
+        const handleToggle = async (e: React.ChangeEvent<HTMLInputElement>) => {
+          const newValue = e.target.checked;
+
+          setChecked(newValue); // UI instantly update
+
+          try {
+            await dispatch(
+              updateUserAccess({
+                id: Number(row.original.id),
+                access: newValue,
+              }),
+            ).unwrap();
+          } catch (error) {
+            setChecked(!newValue); // rollback on error
+            console.error(error);
+          }
+        };
+
+        return (
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={handleToggle}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 rounded-full bg-gray-300 peer-checked:bg-green-500"></div>
+            <div className="absolute left-1 top-1 h-4 w-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+          </label>
         );
       },
     }),

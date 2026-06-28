@@ -24,7 +24,11 @@ import { getPermissions } from 'src/utils/getPermissions';
 // import { deleteDispute, getDispute } from 'src/features/marketing/DisputeSlice';
 import VisitPlannerEditModal from './VisitPlannerEditModal';
 import VisitPlannerModal from './VisitPlannerModal';
-import { deleteVisitPlanner, getVisitPlanner } from 'src/features/marketing/VisitPlannerSlice';
+import {
+  deleteVisitPlanner,
+  getAiSummary,
+  getVisitPlanner,
+} from 'src/features/marketing/VisitPlannerSlice';
 import VisitPlannerView from './VisitPlannerView';
 
 interface DisputeDataType {
@@ -61,6 +65,7 @@ const VisitPlannerTable = () => {
 
   useEffect(() => {
     dispatch(getVisitPlanner());
+    dispatch(getAiSummary(9));
   }, [dispatch]);
 
   const handleModal = (type: keyof typeof modals, value: boolean, row?: DisputeDataType) => {

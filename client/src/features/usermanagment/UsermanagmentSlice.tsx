@@ -69,6 +69,19 @@ export const updateUser = createAsyncThunk(
   },
 );
 
+export const updateUserAccess = createAsyncThunk(
+  'users/access',
+  async ({ id, access }: { id: number; access: boolean }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/update-access/${id}`, { access });
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || { message: 'Update failed' });
+    }
+  },
+);
+
 export const deleteUser = createAsyncThunk(
   'users/delete',
   async (userId: string | number, { rejectWithValue }) => {

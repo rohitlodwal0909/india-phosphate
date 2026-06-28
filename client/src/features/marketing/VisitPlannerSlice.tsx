@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   visitplanner: [],
   customers: [],
+  meetingSummary: [],
   addResult: null,
   updateResult: null,
   deleteResult: null,
@@ -66,6 +67,18 @@ export const deleteVisitPlanner = createAsyncThunk<any, number, { rejectValue: a
   },
 );
 
+export const getAiSummary = createAsyncThunk<any, number, { rejectValue: any }>(
+  'visitplanner/aisummary',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/meeting-summary/${id}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to meeting summary.');
+    }
+  },
+);
+
 const VisitPlannerSlice = createSlice({
   name: 'visitplanner',
   initialState,
@@ -83,6 +96,20 @@ const VisitPlannerSlice = createSlice({
       })
 
       .addCase(getVisitPlanner.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getAiSummary.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAiSummary.fulfilled, (state, action) => {
+        state.loading = false;
+        state.meetingSummary = action.payload;
+      })
+
+      .addCase(getAiSummary.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
       })

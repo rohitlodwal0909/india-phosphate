@@ -25,6 +25,8 @@ router.put(
   AuthController.updateProfile
 );
 router.put("/change-password/:id", AuthController.changePassword);
+router.put("/update-access/:id", AuthController.updateAccess);
+
 router.put(
   "/change-po-password",
   authMiddleware,

@@ -58,6 +58,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true
       },
+      access: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false // optional
+      },
       login_time: {
         type: DataTypes.STRING
       },

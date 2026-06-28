@@ -155,6 +155,28 @@ exports.updateProfile = async (req, res, next) => {
   }
 };
 
+exports.updateAccess = async (req, res, next) => {
+  try {
+    const id = req.params.id; // Assuming user ID is set by auth middleware
+
+    const admin = await User.findByPk(id);
+    if (!admin) {
+      const error = new Error("Admin not found");
+      error.status = 401;
+      return next(error);
+    }
+    await admin.update({
+      access: req.body.access
+    });
+
+    res.status(200).json({
+      message: "Access updated successfully"
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.changePassword = async (req, res, next) => {
   try {
     const userId = req.params.id;

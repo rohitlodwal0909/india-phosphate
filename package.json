@@ -24,6 +24,7 @@
         "jsonwebtoken": "^9.0.2",
         "multer": "^2.0.1",
         "mysql2": "^3.14.1",
+        "openai": "^6.45.0",
         "react-clock": "^6.0.0",
         "react-flags-select": "^2.5.0",
         "react-hot-toast": "^2.5.2",
