@@ -16,7 +16,8 @@ const WelcomeDashboard: React.FC = () => {
   const id = logindata?.admin?.id || null;
 
   const dispatch = useDispatch<AppDispatch>();
-  //
+
+  //afeqv
 
   const totalcustomer = useSelector((state: RootState) => state.customerdashboard.totalcustomers);
 
