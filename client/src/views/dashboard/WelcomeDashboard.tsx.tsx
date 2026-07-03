@@ -12,7 +12,7 @@ import RevivalQueue from './companycustomers/RevivalQueue';
 const WelcomeDashboard: React.FC = () => {
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
 
-  const permission = logindata?.admin?.role_id;
+  const permission = logindata?.admin?.role_id || null;
   const id = logindata?.admin?.id || null;
 
   const dispatch = useDispatch<AppDispatch>();
