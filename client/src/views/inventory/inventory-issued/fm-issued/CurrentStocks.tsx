@@ -31,7 +31,7 @@ const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
               finishedstock.map((item: any) => (
                 <div key={item.id} className="border p-4 rounded-md">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {item.product_name}
+                    {item.batch_no}
                   </label>
                   <p className="text-gray-900 font-semibold">
                     Available: {item.remaining_qty ?? 0}

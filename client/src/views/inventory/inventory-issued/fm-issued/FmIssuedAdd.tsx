@@ -40,7 +40,7 @@ const FmIssuedAdd: React.FC<FmIssuedAddProps> = ({ openModal, setOpenModal }) =>
   const batchOptions =
     batches?.map((item: any) => ({
       value: item.finishing?.id,
-      label: `${item.qc_batch_number}`,
+      label: `${item.qc_batch_number}` || item.batch_no,
       remaining_qty: item.remaining_qty,
     })) || [];
 

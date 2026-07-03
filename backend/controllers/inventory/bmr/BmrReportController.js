@@ -847,9 +847,12 @@ exports.saveProductRelease = async (req, res) => {
     const records = Array.isArray(req.body) ? req.body : [req.body];
 
     const savedData = [];
+    let bmrId = null;
 
     for (const item of records) {
       const { id, bmr_id, department, date, user_id, release_date } = item;
+
+      bmrId = bmr_id;
 
       const payload = {
         bmr_id,
@@ -862,7 +865,6 @@ exports.saveProductRelease = async (req, res) => {
 
       let data;
 
-      // 🔹 UPDATE
       if (id) {
         data = await BmrProductRelease.findByPk(id);
 
@@ -871,20 +873,23 @@ exports.saveProductRelease = async (req, res) => {
         }
 
         await data.update(payload);
-      }
-      // 🔹 CREATE
-      else {
+      } else {
         data = await BmrProductRelease.create(payload);
       }
 
       savedData.push(data);
     }
 
-    const update = await BmrRecordsModel.findByPk({ where: { id: bmr_id } });
+    // Update BMR status
+    if (bmrId) {
+      const updateRecord = await BmrRecordsModel.findByPk(bmrId);
 
-    update.update({
-      status: "approved"
-    });
+      if (updateRecord) {
+        await updateRecord.update({
+          status: "approved"
+        });
+      }
+    }
 
     return res.status(201).json({
       success: true,
@@ -892,10 +897,11 @@ exports.saveProductRelease = async (req, res) => {
       data: savedData
     });
   } catch (error) {
-    console.error("Product error:", error);
+    console.error("Product Release Error:", error);
+
     return res.status(500).json({
       success: false,
-      message: "Server error"
+      message: error.message
     });
   }
 };

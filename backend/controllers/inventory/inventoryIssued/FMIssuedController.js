@@ -14,6 +14,65 @@ const {
   BatchReleaseModel
 } = db;
 
+const openingStock = {
+  "25LM14": 800,
+  "25LM09": 500,
+  "25LM10": 1250,
+  "26GA01": 700,
+  "26KCL104": 5000,
+  "25DPP01": 350,
+  "26DA03": 2000,
+  "26IPC09": 500,
+  "26ZSM09": 750,
+  "26ZSM12": 1000,
+  "26FAC02": 1500,
+  "26FAC04": 625,
+  "26CC04": 2000,
+  "26CC05": 2000,
+  "26CC06": 1000,
+  "26CC03": 500,
+  "26CCM02": 100,
+  "25TCP53": 1250,
+  "26DSC07": 150,
+  "26CAC03": 150,
+  "26CAC04": 2000,
+  "26CAC05": 1000,
+  "26CAC14": 1200,
+  "26CAC13": 1200,
+  "26DCPA42": 2000,
+  "26DCPA39": 700,
+  "26DCPA41": 2000,
+  "26DCPA43": 1000,
+  "26DCPA44": 1000,
+  "26TCP11": 2000,
+  "26TCP12": 2000,
+  "26TCP13": 2000,
+  "26KCL103": 2000,
+  "26NACL100": 5000,
+  "26NACL99": 5000,
+  "26NACL97": 3000,
+  "26SCA06": 650,
+  "26CSA01": 300,
+  "26CSA02": 1000,
+  "26CSA03": 1000,
+  "26CSA04": 1000,
+  "26DCPD23": 1000,
+  "26DSPDO07": 1000,
+  "26MS09": 1500,
+  "26PC09": 825,
+  "26AMCL04": 1000,
+  "26AMCL05": 1000,
+  "26DFS40": 1000,
+  "26SB03": 700,
+  "26FA09": 225,
+  "26DSPA05": 50,
+  "26CAM15": 300,
+  "26DSPD03": 1000,
+  "26MPP01": 500,
+  "26SC190": 5000,
+  "26ZSH03": 500
+};
+
 exports.getBatches = async (req, res, next) => {
   try {
     const data = await Qcbatch.findAll({
@@ -43,46 +102,73 @@ exports.getBatches = async (req, res, next) => {
       order: [["created_at", "DESC"]]
     });
 
-    const formattedData = data
-      .map((batch) => {
-        const batchJSON = batch.toJSON();
+    const formattedData = [];
+    const existingBatchs = new Set();
 
-        /* =====================
-           TOTAL FINISH QTY
-        ===================== */
-        const totalFinishQty =
-          batchJSON?.finishing?.FinishQties?.reduce(
-            (sum, item) => sum + Number(item.finishing_qty || 0),
-            0
-          ) || 0;
+    for (const batch of data) {
+      const batchJSON = batch.toJSON();
 
-        /* =====================
-           TOTAL ISSUED QTY
-        ===================== */
-        const totalIssuedQty =
-          batchJSON?.finishing?.FMIssuedModels?.reduce(
-            (sum, item) => sum + Number(item.quantity || 0),
-            0
-          ) || 0;
+      const totalFinishQty =
+        batchJSON.finishing?.FinishQties?.reduce(
+          (sum, item) => sum + Number(item.finishing_qty || 0),
+          0
+        ) || 0;
 
-        const remainingQty = totalFinishQty - totalIssuedQty;
+      const totalIssuedQty =
+        batchJSON.finishing?.FMIssuedModels?.reduce(
+          (sum, item) => sum + Number(item.quantity || 0),
+          0
+        ) || 0;
 
-        return {
+      // 👇 Apne actual field ka naam use kare
+      const batchNo = batchJSON.batch_no;
+
+      existingBatchs.add(batchNo);
+
+      const openingQty = openingStock[batchNo] || 0;
+
+      const remainingQty = totalFinishQty + openingQty - totalIssuedQty;
+
+      if (remainingQty > 0) {
+        formattedData.push({
           ...batchJSON,
+          opening_stock: openingQty,
           total_finish_qty: totalFinishQty,
           total_issued_qty: totalIssuedQty,
-          remaining_qty: remainingQty
-        };
-      })
+          remaining_qty: remainingQty,
+          is_opening_stock: false
+        });
+      }
+    }
 
-      // ✅ ONLY AVAILABLE BATCHES
-      .filter((batch) => batch.remaining_qty > 0);
+    // =============================
+    // Add Opening Stock batches
+    // which are not available in DB
+    // =============================
+
+    for (const [batchNo, qty] of Object.entries(openingStock)) {
+      if (!existingBatchs.has(batchNo)) {
+        formattedData.push({
+          id: null,
+          qc_batch_number: batchNo,
+          opening_stock: qty,
+          total_finish_qty: 0,
+          total_issued_qty: 0,
+          remaining_qty: qty,
+          is_opening_stock: true,
+          finishing: null,
+          batch_releases: []
+        });
+      }
+    }
 
     res.status(200).json({
-      message: "Batches Fetched",
+      success: true,
+      message: "Batches Fetched Successfully",
       data: formattedData
     });
   } catch (error) {
+    console.error("getBatches Error:", error);
     next(error);
   }
 };
@@ -120,31 +206,64 @@ exports.getFinishedStock = async (req, res, next) => {
     });
 
     // ✅ STEP 1: Batch-wise calculation
-    const formattedData = data.map((batch) => {
-      const batchJSON = batch.toJSON();
+    const dbStock = data
+      .map((batch) => {
+        const batchJSON = batch.toJSON();
 
-      const totalFinishQty =
-        batchJSON?.finishing?.FinishQties?.reduce(
-          (sum, item) => sum + Number(item.finishing_qty || 0),
-          0
-        ) || 0;
+        const totalFinishQty =
+          batchJSON.finishing?.FinishQties?.reduce(
+            (sum, item) => sum + Number(item.finishing_qty || 0),
+            0
+          ) || 0;
 
-      const totalIssuedQty =
-        batchJSON?.finishing?.FMIssuedModels?.reduce(
-          (sum, item) => sum + Number(item.quantity || 0),
-          0
-        ) || 0;
+        const totalIssuedQty =
+          batchJSON.finishing?.FMIssuedModels?.reduce(
+            (sum, item) => sum + Number(item.quantity || 0),
+            0
+          ) || 0;
 
-      const remainingQty = totalFinishQty - totalIssuedQty;
+        const remainingQty = totalFinishQty - totalIssuedQty;
 
-      return {
-        product_name: batchJSON.qc_batch_number,
-        remaining_qty: remainingQty
+        return {
+          batch_no: (batchJSON.qc_batch_number || "").trim().toUpperCase(),
+          product_name: batchJSON.product_name,
+          remaining_qty: remainingQty
+        };
+      })
+      .filter((item) => item.remaining_qty > 0);
+
+    const stockMap = {};
+
+    Object.entries(openingStock).forEach(([batch, qty]) => {
+      stockMap[batch.toUpperCase()] = {
+        batch_no: batch.toUpperCase(),
+        product_name: "",
+        remaining_qty: qty
       };
     });
 
-    const finalData = formattedData.filter((item) => item.remaining_qty > 0);
+    // Add DB Stock
+    dbStock.forEach((item) => {
+      const batch = item.batch_no;
 
+      if (stockMap[batch]) {
+        stockMap[batch].remaining_qty += item.remaining_qty;
+
+        if (!stockMap[batch].product_name) {
+          stockMap[batch].product_name = item.product_name;
+        }
+      } else {
+        stockMap[batch] = {
+          batch_no: batch,
+          product_name: item.product_name,
+          remaining_qty: item.remaining_qty
+        };
+      }
+    });
+
+    const finalData = Object.values(stockMap).sort((a, b) =>
+      a.batch_no.localeCompare(b.batch_no)
+    );
     // ✅ STEP 2: Group by product_name
 
     res.status(200).json({
