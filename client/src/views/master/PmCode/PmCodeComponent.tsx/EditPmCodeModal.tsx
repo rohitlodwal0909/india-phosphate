@@ -13,22 +13,23 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 
-import {
-  GetPmCode,
-  updatePmCode,
-} from 'src/features/master/PmCode/PmCodeSlice';
+import { GetPmCode, updatePmCode } from 'src/features/master/PmCode/PmCodeSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const permission = logindata?.admin?.id;
+
   const [formData, setFormData] = useState({
     id: '',
-    user_id: logindata?.admin?.id,
     name: '',
     packaging_type: '',
+    opening_stock: '',
+    unit: '',
   });
 
- const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<any>({});
 
   useEffect(() => {
     if (RmCodeData) {
@@ -36,7 +37,8 @@ const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
         id: RmCodeData?.id || '',
         name: RmCodeData?.name || '',
         packaging_type: RmCodeData?.packaging_type || '',
-        user_id: logindata?.admin?.id,
+        opening_stock: RmCodeData?.opening_stock || '',
+        unit: RmCodeData?.unit || '',
       });
     }
   }, [RmCodeData, logindata]);
@@ -89,7 +91,6 @@ const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-
           {/* Name */}
           <div className="col-span-6">
             <Label htmlFor="name" value="Name" />
@@ -104,11 +105,8 @@ const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
               color={errors.name ? 'failure' : 'gray'}
             />
 
-            {errors.name && (
-              <p className="text-red-500 text-xs">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
           </div>
-
           {/* Packaging Type */}
           <div className="col-span-6">
             <Label htmlFor="packaging_type" value="Packaging Type" />
@@ -117,9 +115,7 @@ const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
             <Select
               id="packaging_type"
               value={formData.packaging_type}
-              onChange={(e) =>
-                handleChange('packaging_type', e.target.value)
-              }
+              onChange={(e) => handleChange('packaging_type', e.target.value)}
               color={errors.packaging_type ? 'failure' : 'gray'}
             >
               <option value="">Select Packaging Type</option>
@@ -128,12 +124,37 @@ const EditPmCodeModal = ({ show, setShowmodal, RmCodeData, logindata }) => {
             </Select>
 
             {errors.packaging_type && (
-              <p className="text-red-500 text-xs">
-                {errors.packaging_type}
-              </p>
+              <p className="text-red-500 text-xs">{errors.packaging_type}</p>
             )}
           </div>
+          {permission === 5 && (
+            <div className="col-span-12">
+              <Label value="Quantity (Net)" />
 
+              <div className="flex rounded-md shadow-sm mt-1">
+                <input
+                  type="text"
+                  placeholder="Enter quantity"
+                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
+                  value={formData.opening_stock}
+                  onChange={(e) => handleChange('opening_stock', e.target.value)}
+                />
+
+                <select
+                  value={formData.unit}
+                  onChange={(e) => handleChange('unit', e.target.value)}
+                  className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
+                >
+                  <option value="">Unit</option>
+                  {allUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </form>
       </ModalBody>
 

@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      opening_stock: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      unit: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       category: {
         type: DataTypes.STRING,
         allowNull: false

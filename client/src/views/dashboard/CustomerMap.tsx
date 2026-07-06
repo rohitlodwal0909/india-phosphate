@@ -140,7 +140,7 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
 
   const [selectedLocation, setSelectedLocation] = useState<CustomerLocation | null>(null);
 
-  const [selectedState, setSelectedState] = useState('');
+  // const [selectedState, setSelectedState] = useState('');
   /* ======================================================
      GOOGLE MAP LOAD
   ====================================================== */
@@ -169,11 +169,8 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
 
     return {
       totalCustomers,
-
       totalLeads,
-
       leadsWon: totalLeads > 0 ? (wonLeads / totalLeads) * 100 : 0,
-
       totalOpportunities,
     };
   }, [totalcustomers]);
@@ -252,7 +249,7 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
 
   return (
     <div className="space-y-6">
-      <select
+      {/* <select
         value={selectedState}
         onChange={(e) => setSelectedState(e.target.value)}
         className="border rounded-lg px-3 py-2"
@@ -261,7 +258,7 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
         <option value="Rajasthan">Rajasthan</option>
         <option value="Gujarat">Gujarat</option>
         <option value="Maharashtra">Maharashtra</option>
-      </select>
+      </select> */}
       {/* ======================================================
           TOP CARDS
       ====================================================== */}

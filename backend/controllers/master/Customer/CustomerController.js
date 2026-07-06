@@ -271,13 +271,13 @@ exports.deleteCustomer = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
+
     const user_id = req.body?.user_id || customer?.user_id;
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
+
     const user = await User.findByPk(user_id);
     const username = user ? user?.username : "Unknown User";
-    const logMessage = `Customer Name ${customer?.customer_name}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
+    const logMessage = `Customer Name ${customer?.company_name}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;
     await createLogEntry({
       user_id,
       message: logMessage

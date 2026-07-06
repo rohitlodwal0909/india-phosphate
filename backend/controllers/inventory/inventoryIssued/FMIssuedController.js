@@ -108,11 +108,12 @@ exports.getBatches = async (req, res, next) => {
     for (const batch of data) {
       const batchJSON = batch.toJSON();
 
-      const totalFinishQty =
-        batchJSON.finishing?.FinishQties?.reduce(
-          (sum, item) => sum + Number(item.finishing_qty || 0),
-          0
-        ) || 0;
+      const finishQtyList = batchJSON.finishing?.FinishQties || [];
+
+      const lastFinishQty =
+        finishQtyList.length > 0
+          ? Number(finishQtyList[finishQtyList.length - 1].finishing_qty || 0)
+          : 0;
 
       const totalIssuedQty =
         batchJSON.finishing?.FMIssuedModels?.reduce(
@@ -127,13 +128,13 @@ exports.getBatches = async (req, res, next) => {
 
       const openingQty = openingStock[batchNo] || 0;
 
-      const remainingQty = totalFinishQty + openingQty - totalIssuedQty;
+      const remainingQty = lastFinishQty + openingQty - totalIssuedQty;
 
       if (remainingQty > 0) {
         formattedData.push({
           ...batchJSON,
           opening_stock: openingQty,
-          total_finish_qty: totalFinishQty,
+          total_finish_qty: lastFinishQty,
           total_issued_qty: totalIssuedQty,
           remaining_qty: remainingQty,
           is_opening_stock: false
@@ -210,11 +211,12 @@ exports.getFinishedStock = async (req, res, next) => {
       .map((batch) => {
         const batchJSON = batch.toJSON();
 
-        const totalFinishQty =
-          batchJSON.finishing?.FinishQties?.reduce(
-            (sum, item) => sum + Number(item.finishing_qty || 0),
-            0
-          ) || 0;
+        const finishQtyList = batchJSON.finishing?.FinishQties || [];
+
+        const lastFinishQty =
+          finishQtyList.length > 0
+            ? Number(finishQtyList[finishQtyList.length - 1].finishing_qty || 0)
+            : 0;
 
         const totalIssuedQty =
           batchJSON.finishing?.FMIssuedModels?.reduce(
@@ -222,7 +224,7 @@ exports.getFinishedStock = async (req, res, next) => {
             0
           ) || 0;
 
-        const remainingQty = totalFinishQty - totalIssuedQty;
+        const remainingQty = lastFinishQty - totalIssuedQty;
 
         return {
           batch_no: (batchJSON.qc_batch_number || "").trim().toUpperCase(),
@@ -326,11 +328,18 @@ exports.getIssueFM = async (req, res, next) => {
       /* ==============================
          TOTAL FINISH QTY
       ============================== */
+      // const totalFinishQty =
+      //   batchJSON?.finishing?.FinishQties?.reduce(
+      //     (sum, item) => sum + Number(item.finishing_qty || 0),
+      //     0
+      //   ) || 0;
+
+      const finishQtyList = batchJSON.finishing?.FinishQties || [];
+
       const totalFinishQty =
-        batchJSON?.finishing?.FinishQties?.reduce(
-          (sum, item) => sum + Number(item.finishing_qty || 0),
-          0
-        ) || 0;
+        finishQtyList.length > 0
+          ? Number(finishQtyList[finishQtyList.length - 1].finishing_qty || 0)
+          : 0;
 
       /* ==============================
          TOTAL ISSUED FM QTY

@@ -1,12 +1,11 @@
-const { where, Sequelize } = require("sequelize");
-const {
-  createNotificationByRoleId
-} = require("../../../helper/SendNotification");
 const db = require("../../../models");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
 const { GrnEntry, PmCode, PMIssueModel, Qcbatch, ProductionResult } = db;
 
+// ==============================
+// Get Store PM Stock
+// ==============================
 exports.getStorePM = async (req, res, next) => {
   try {
     const equipments = await PmCode.findAll({
@@ -15,8 +14,11 @@ exports.getStorePM = async (req, res, next) => {
           model: GrnEntry,
           as: "pmcodes",
           attributes: ["quantity", "unit"],
-          where: { type: "pm", qa_qc_status: "APPROVED" },
-          required: true
+          where: {
+            type: "pm",
+            qa_qc_status: "APPROVED"
+          },
+          required: false
         },
         {
           model: PMIssueModel,
@@ -29,30 +31,32 @@ exports.getStorePM = async (req, res, next) => {
 
     const data = equipments.map((eq) => {
       const grnTotal = eq.pmcodes.reduce(
-        (sum, g) => sum + Number(g.quantity),
+        (sum, item) => sum + Number(item.quantity || 0),
         0
       );
 
+      const openingStock = Number(eq.opening_stock || 0);
+
       const issuedTotal = eq.issuedPM.reduce(
-        (sum, i) => sum + Number(i.quantity),
+        (sum, item) => sum + Number(item.quantity || 0),
         0
       );
 
       const returnedTotal = eq.issuedPM.reduce(
-        (sum, i) => sum + Number(i.return_bag || 0),
+        (sum, item) => sum + Number(item.return_bag || 0),
         0
       );
 
       return {
         id: eq.id,
         name: eq.name,
-        unit: eq.pmcodes[0]?.unit || null,
-        total_quantity: grnTotal - issuedTotal + returnedTotal
+        unit: eq.pmcodes[0]?.unit || eq?.unit,
+        total_quantity: grnTotal + openingStock - issuedTotal + returnedTotal
       };
     });
 
-    res.status(200).json({
-      message: "Store PM Fetched",
+    return res.status(200).json({
+      message: "Store PM fetched successfully.",
       data
     });
   } catch (error) {
@@ -60,6 +64,9 @@ exports.getStorePM = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Save Issued PM
+// ==============================
 exports.saveIssuedPM = async (req, res, next) => {
   try {
     const { entry_date, entry_time } = getISTDateTime();
@@ -67,10 +74,11 @@ exports.saveIssuedPM = async (req, res, next) => {
     const data = await PMIssueModel.create({
       ...req.body,
       user_id: req.admin.id,
-      date: entry_date + entry_time
+      date: `${entry_date} ${entry_time}`
     });
-    res.status(201).json({
-      message: "PM issue successfully",
+
+    return res.status(201).json({
+      message: "PM issued successfully.",
       data
     });
   } catch (error) {
@@ -78,6 +86,9 @@ exports.saveIssuedPM = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Get Batches
+// ==============================
 exports.getBatches = async (req, res, next) => {
   try {
     const batches = await Qcbatch.findAll({
@@ -97,12 +108,18 @@ exports.getBatches = async (req, res, next) => {
       ]
     });
 
-    res.status(200).json({ message: "Issued PM Fetched", data: batches });
+    return res.status(200).json({
+      message: "Batches fetched successfully.",
+      data: batches
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// ==============================
+// Get Issued PM List
+// ==============================
 exports.getIssuePM = async (req, res, next) => {
   try {
     const data = await PMIssueModel.findAll({
@@ -117,28 +134,41 @@ exports.getIssuePM = async (req, res, next) => {
       ]
     });
 
-    res.status(200).json({ message: "Issued PM Fetched", data: data });
+    return res.status(200).json({
+      message: "Issued PM fetched successfully.",
+      data
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// ==============================
+// Delete Issued PM
+// ==============================
 exports.deleteIssuedPM = async (req, res, next) => {
   try {
     const entry = await PMIssueModel.findByPk(req.params.id);
+
     if (!entry) {
-      const error = new Error("PM Entry not found");
-      error.status = 400;
+      const error = new Error("PM issue entry not found.");
+      error.status = 404;
       return next(error);
     }
 
     await entry.destroy();
-    res.status(200).json({ message: "PM Entry deleted" });
+
+    return res.status(200).json({
+      message: "PM issue deleted successfully."
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// ==============================
+// Return PM
+// ==============================
 exports.returnPM = async (req, res, next) => {
   try {
     const { id, return_bag, returned_by } = req.body;
@@ -147,45 +177,41 @@ exports.returnPM = async (req, res, next) => {
 
     if (!entry) {
       return res.status(404).json({
-        message: "Equipment issue entry not found"
+        message: "PM issue entry not found."
       });
     }
 
-    // total issued quantity
-    const issuedQty = entry.quantity;
-    const alreadyReturned = entry.return_bag || 0;
+    const issuedQty = Number(entry.quantity);
+    const alreadyReturned = Number(entry.return_bag || 0);
+    const currentReturn = Number(return_bag);
 
-    // validation
-    if (return_bag < alreadyReturned) {
+    if (currentReturn < alreadyReturned) {
       return res.status(400).json({
         message:
-          "Returned quantity cannot be less than already returned quantity"
+          "Returned quantity cannot be less than already returned quantity."
       });
     }
 
-    if (return_bag > issuedQty) {
+    if (currentReturn > issuedQty) {
       return res.status(400).json({
-        message: "Returned quantity cannot be greater than issued quantity"
+        message: "Returned quantity cannot exceed issued quantity."
       });
     }
 
-    const newlyReturned = return_bag - alreadyReturned;
-
-    // nothing new to return
-    if (newlyReturned === 0) {
+    if (currentReturn === alreadyReturned) {
       return res.status(200).json({
-        message: "No new equipment returned",
+        message: "No new PM returned.",
         data: entry
       });
     }
 
     await entry.update({
-      return_bag,
+      return_bag: currentReturn,
       returned_by
     });
 
-    res.status(200).json({
-      message: "PM returned successfully",
+    return res.status(200).json({
+      message: "PM returned successfully.",
       data: entry
     });
   } catch (error) {
@@ -193,23 +219,25 @@ exports.returnPM = async (req, res, next) => {
   }
 };
 
+// ==============================
+// Update Issued PM
+// ==============================
 exports.updateIssuedPM = async (req, res, next) => {
   try {
-    const { id } = req.body; // 🔑 id from URL
+    const { id, ...updateData } = req.body;
+
     const entry = await PMIssueModel.findByPk(id);
 
     if (!entry) {
-      const error = new Error("PM issue entry not found");
+      const error = new Error("PM issue entry not found.");
       error.status = 404;
       return next(error);
     }
 
-    await entry.update({
-      ...req.body
-    });
+    await entry.update(updateData);
 
-    res.status(200).json({
-      message: "PM issue updated successfully",
+    return res.status(200).json({
+      message: "PM issue updated successfully.",
       data: entry
     });
   } catch (error) {

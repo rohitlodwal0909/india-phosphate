@@ -5,6 +5,3 @@ export const ImageUrl = 'https://erp.indiaphosphate.com/';
 // export const apiUrl = 'http://127.0.0.1:5000/api';
 // export const fakeUrl = 'https://fake-json-api.mock.beeceptor.com/users';
 // export const ImageUrl = 'http://127.0.0.1:5000/';
-// export const ImageUrl = 'http://127.0.0.1:5000/';
-
-// jjjj

@@ -12,18 +12,18 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  addPmCode,
-  GetPmCode,
-} from 'src/features/master/PmCode/PmCodeSlice';
+import { addPmCode, GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 const AddPmCodeModal = ({ show, setShowmodal, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const permission = logindata?.admin?.id;
 
   const [formData, setFormData] = useState({
-    user_id: logindata?.admin?.id,
     name: '',
     packaging_type: '',
+    opening_stock: '',
+    unit: '',
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -66,9 +66,10 @@ const AddPmCodeModal = ({ show, setShowmodal, logindata }) => {
       dispatch(GetPmCode());
 
       setFormData({
-        user_id: logindata?.admin?.id,
         name: '',
         packaging_type: '',
+        opening_stock: '',
+        unit: '',
       });
 
       setShowmodal(false);
@@ -83,7 +84,6 @@ const AddPmCodeModal = ({ show, setShowmodal, logindata }) => {
 
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-
           {/* Name */}
           <div className="col-span-6">
             <Label htmlFor="name" value="Name" />
@@ -98,9 +98,7 @@ const AddPmCodeModal = ({ show, setShowmodal, logindata }) => {
               color={errors.name ? 'failure' : 'gray'}
             />
 
-            {errors.name && (
-              <p className="text-red-500 text-xs">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
           </div>
 
           {/* Packaging Type */}
@@ -111,9 +109,7 @@ const AddPmCodeModal = ({ show, setShowmodal, logindata }) => {
             <Select
               id="packaging_type"
               value={formData.packaging_type}
-              onChange={(e) =>
-                handleChange('packaging_type', e.target.value)
-              }
+              onChange={(e) => handleChange('packaging_type', e.target.value)}
               color={errors.packaging_type ? 'failure' : 'gray'}
             >
               <option value="">Select Packaging Type</option>
@@ -122,12 +118,37 @@ const AddPmCodeModal = ({ show, setShowmodal, logindata }) => {
             </Select>
 
             {errors.packaging_type && (
-              <p className="text-red-500 text-xs">
-                {errors.packaging_type}
-              </p>
+              <p className="text-red-500 text-xs">{errors.packaging_type}</p>
             )}
           </div>
+          {permission === 5 && (
+            <div className="col-span-12">
+              <Label value="Quantity (Net)" />
 
+              <div className="flex rounded-md shadow-sm mt-1">
+                <input
+                  type="text"
+                  placeholder="Enter quantity"
+                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
+                  value={formData.opening_stock}
+                  onChange={(e) => handleChange('opening_stock', e.target.value)}
+                />
+
+                <select
+                  value={formData.unit}
+                  onChange={(e) => handleChange('unit', e.target.value)}
+                  className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
+                >
+                  <option value="">Unit</option>
+                  {allUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </form>
       </ModalBody>
 

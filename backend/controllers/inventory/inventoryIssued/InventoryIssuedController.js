@@ -16,7 +16,7 @@ exports.getStoreEquipment = async (req, res, next) => {
           as: "grnEntries",
           attributes: ["quantity", "unit"],
           where: { type: "equipment", qa_qc_status: "APPROVED" },
-          required: true
+          required: false
         },
         {
           model: EquipmentIssueModel,
@@ -34,6 +34,8 @@ exports.getStoreEquipment = async (req, res, next) => {
         0
       );
 
+      const openingQty = eq.opening_stock || 0;
+
       // 🔹 Total Issued Quantity
       const issuedTotal = eq.issuedEquipments.reduce(
         (sum, i) => sum + Number(i.quantity || 0),
@@ -49,8 +51,8 @@ exports.getStoreEquipment = async (req, res, next) => {
       return {
         id: eq.id,
         name: eq.name,
-        unit: eq.grnEntries[0]?.unit || null,
-        total_quantity: grnTotal - issuedTotal + returnedTotal
+        unit: eq.grnEntries[0]?.unit || eq?.unit,
+        total_quantity: grnTotal + openingQty - issuedTotal + returnedTotal
       };
     });
 

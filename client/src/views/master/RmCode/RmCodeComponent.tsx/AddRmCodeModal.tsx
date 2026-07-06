@@ -11,36 +11,36 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  addRmCode,
-  GetRmCode,
-} from 'src/features/master/RmCode/RmCodeSlice';
+import { addRmCode, GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 const AddRmCodeModal = ({ show, setShowmodal, logindata }) => {
+  const permission = logindata?.admin?.id;
   const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormData] = useState({
-    user_id:logindata?.admin.id,
     name: '',
     rm_code: '',
+    opening_stock: '',
+    unit: '',
   });
 
   const [errors, setErrors] = useState<any>({});
 
- const handleChange = (field, value) => {
-  const newValue = field === 'rm_code' ? value.toUpperCase() : value;
+  const handleChange = (field, value) => {
+    const newValue = field === 'rm_code' ? value.toUpperCase() : value;
 
-  setFormData((prevData) => ({
-    ...prevData,
-    [field]: newValue,
-  }));
-
-  if (errors[field]) {
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [field]: '',
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: newValue,
     }));
-  }
-};
+
+    if (errors[field]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: '',
+      }));
+    }
+  };
 
   const validateForm = () => {
     const required = ['name', 'rm_code'];
@@ -61,13 +61,14 @@ const AddRmCodeModal = ({ show, setShowmodal, logindata }) => {
       toast.success(result.message || 'Rm code created successfully');
       dispatch(GetRmCode());
       setFormData({
-          name: '',
-         rm_code: '',
-        user_id: logindata?.admin?.id,
+        name: '',
+        rm_code: '',
+        opening_stock: '',
+        unit: '',
       });
       setShowmodal(false);
     } catch (err) {
-      toast.error(err||"something is went wrong");
+      toast.error(err || 'something is went wrong');
     }
   };
 
@@ -77,18 +78,18 @@ const AddRmCodeModal = ({ show, setShowmodal, logindata }) => {
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
           {[
-             {
+            {
               id: 'name',
               label: ' Name',
               type: 'text',
               placeholder: 'Enter  name',
             },
-             {
+            {
               id: 'rm_code',
               label: 'RM Code',
               type: 'text',
               placeholder: 'Enter Rm Code name',
-            }
+            },
           ].map(({ id, label, type, placeholder }) => (
             <div className="col-span-6" key={id}>
               <Label htmlFor={id} value={label} />
@@ -106,6 +107,34 @@ const AddRmCodeModal = ({ show, setShowmodal, logindata }) => {
             </div>
           ))}
 
+          {permission === 5 && (
+            <div className="col-span-12">
+              <Label value="Quantity (Net)" />
+
+              <div className="flex rounded-md shadow-sm mt-1">
+                <input
+                  type="text"
+                  placeholder="Enter quantity"
+                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
+                  value={formData.opening_stock}
+                  onChange={(e) => handleChange('opening_stock', e.target.value)}
+                />
+
+                <select
+                  value={formData.unit}
+                  onChange={(e) => handleChange('unit', e.target.value)}
+                  className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
+                >
+                  <option value="">Unit</option>
+                  {allUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

@@ -16,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(100),
         allowNull: false
       },
+      opening_stock: {
+        type: DataTypes.STRING(100),
+        allowNull: false
+      },
+      unit: {
+        type: DataTypes.STRING(100),
+        allowNull: false
+      },
       name: {
         type: DataTypes.STRING(255),
         allowNull: false

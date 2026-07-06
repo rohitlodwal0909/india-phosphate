@@ -14,9 +14,12 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
 import { updateEquipment, GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  const permission = logindata?.admin?.id;
 
   const [formData, setFormData] = useState({
     id: '',
@@ -24,7 +27,8 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) =>
     category: '',
     description: '',
     status: true,
-    created_by: logindata?.admin?.id,
+    opening_stock: '',
+    unit: '',
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -37,7 +41,8 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) =>
         category: EquipmentData?.category || '',
         description: EquipmentData?.description || '',
         status: EquipmentData?.status ?? true,
-        created_by: logindata?.admin?.id,
+        opening_stock: EquipmentData?.opening_stock || '',
+        unit: EquipmentData?.unit || '',
       });
     }
   }, [EquipmentData]);
@@ -145,6 +150,35 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) =>
               />
             </div>
           </div>
+
+          {permission === 5 && (
+            <div className="col-span-12">
+              <Label value="Quantity (Net)" />
+
+              <div className="flex rounded-md shadow-sm mt-1">
+                <input
+                  type="text"
+                  placeholder="Enter quantity"
+                  className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm bg-gray-100"
+                  value={formData.opening_stock}
+                  onChange={(e) => handleChange('opening_stock', e.target.value)}
+                />
+
+                <select
+                  value={formData.unit}
+                  onChange={(e) => handleChange('unit', e.target.value)}
+                  className="rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 py-2 text-sm text-gray-700"
+                >
+                  <option value="">Unit</option>
+                  {allUnits.map((unit) => (
+                    <option key={unit.value} value={unit.value}>
+                      {unit.value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </form>
       </ModalBody>
       <ModalFooter className="justify-end">

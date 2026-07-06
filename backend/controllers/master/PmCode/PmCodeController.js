@@ -1,21 +1,22 @@
 const { createLogEntry } = require("../../../helper/createLogEntry");
 const db = require("../../../models");
 const { PmCode, PmRawMaterial, User } = db;
+const { getISTDateTime } = require("../../../helper/dateTimeHelper");
 
 // Create
 exports.createPmCode = async (req, res, next) => {
   try {
-    const { name, packaging_type, user_id } = req.body;
+    const { name, packaging_type, opening_stock, unit } = req.body;
+    const user_id = req.admin.id;
     const newPmCode = await PmCode.create({
       name,
       packaging_type,
-      user_id
+      opening_stock,
+      unit
     });
 
     // Log entry setup
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const { entry_date, entry_time } = getISTDateTime();
 
     // Fetch user name
     const user = await User.findByPk(user_id);
@@ -99,20 +100,21 @@ exports.updatePmCode = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    const { name, packaging_type, user_id } = req.body;
+    const { name, packaging_type, opening_stock, unit } = req.body;
 
     await pmCode.update({
       name,
-      packaging_type
+      packaging_type,
+      opening_stock,
+      unit
     });
 
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const user_id = req.admin.id;
+
+    const { entry_date, entry_time } = getISTDateTime();
 
     const user = await User.findByPk(user_id);
     const username = user ? user.username : "Unknown User";
-
     const logMessage = `Pm Code '${name}' was updated by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
@@ -135,10 +137,9 @@ exports.deletePmCode = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    const user_id = req.body?.user_id || pmcodes?.user_id;
-    const now = new Date();
-    const entry_date = now.toISOString().split("T")[0]; // yyyy-mm-dd
-    const entry_time = now.toTimeString().split(" ")[0]; // HH:mm:ss
+    const user_id = req.admin.id;
+    const { entry_date, entry_time } = getISTDateTime();
+
     const user = await User.findByPk(user_id);
     const username = user ? user?.username : "Unknown User";
     const logMessage = `Rm Code  ${pmcodes?.name}  was deleted by ${username} on ${entry_date} at ${entry_time}.`;

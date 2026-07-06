@@ -58,7 +58,7 @@ const CustomerDashboard: React.FC<CustomerDashboardProps> = () => {
           <div>
             <h2 className="text-3xl font-bold">{customer?.customer?.company_name}</h2>
             <p className="mt-2 opacity-90">
-              Customer Since {new Date(customer?.customer.created_at).getFullYear()} • {city} •{' '}
+              Customer Since {new Date(customer?.customer?.created_at).getFullYear()} • {city} •{' '}
               {country}
             </p>
 

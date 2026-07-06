@@ -7,12 +7,14 @@ const { RmCode, RawMaterial, User } = db;
 // Create
 exports.createRmCode = async (req, res, next) => {
   try {
-    const { name, rm_code, user_id } = req.body;
+    const { name, rm_code, opening_stock, unit } = req.body;
 
     const newRmCode = await RmCode.create({
       name,
       rm_code,
-      user_id
+      opening_stock,
+      unit,
+      user_id: req.admin.id
     });
 
     const { entry_date, entry_time } = getISTDateTime();
@@ -78,22 +80,24 @@ exports.updateRmCode = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    const { name, rm_code, user_id } = req.body;
+    const { name, rm_code, opening_stock, unit } = req.body;
 
     await rmCode.update({
       name,
-      rm_code
+      rm_code,
+      opening_stock,
+      unit
     });
 
     const { entry_date, entry_time } = getISTDateTime();
 
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(req.admin.id);
     const username = user ? user.username : "Unknown User";
 
     const logMessage = `Rm Code '${rm_code}' was updated by ${username} on ${entry_date} at ${entry_time}.`;
 
     await createLogEntry({
-      user_id,
+      user_id: req.admin.id,
       message: logMessage
     });
 

@@ -20,6 +20,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(255),
         allowNull: false
       },
+      opening_stock: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      },
+      unit: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      },
       created_at: {
         type: DataTypes.DATE,
         defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
