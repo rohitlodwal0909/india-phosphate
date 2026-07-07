@@ -15,7 +15,10 @@ exports.getStoreRM = async (req, res, next) => {
           model: GrnEntry,
           as: "rmcodes",
           attributes: ["quantity", "unit"],
-          where: { type: "material", qa_qc_status: "APPROVED" },
+          where: {
+            type: "material",
+            qa_qc_status: "APPROVED"
+          },
           required: false
         },
         {
@@ -28,33 +31,35 @@ exports.getStoreRM = async (req, res, next) => {
     });
 
     const data = equipments.map((eq) => {
-      const code = eq.rm_code;
+      const openingQty = Number(eq.opening_stock || 0);
 
-      // ✅ Opening
-      const openingQty = eq.opening_stock || 0;
+      const grnTotal = (eq.rmcodes || []).reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0
+      );
 
-      // ✅ GRN Total (IN)
-      const grnTotal =
-        eq.rmcodes?.reduce((sum, g) => sum + Number(g.quantity || 0), 0) || 0;
+      const issuedTotal = (eq.issuedRawMaterial || []).reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0
+      );
 
-      // ✅ Issued Total (OUT)
-      const issuedTotal =
-        eq.issuedRawMaterial?.reduce(
-          (sum, i) => sum + Number(i.quantity || 0),
-          0
-        ) || 0;
+      const totalQuantity = openingQty + grnTotal - issuedTotal;
 
       return {
         id: eq.id,
-        code: code,
+        code: eq.rm_code,
         name: eq.rm_name || eq.rm_code,
-        unit: eq.rmcodes?.[0]?.unit || "KG",
-        total_quantity: openingQty + grnTotal - issuedTotal
+        unit: eq.rmcodes?.length ? eq.rmcodes[0].unit : null,
+        opening_stock: openingQty,
+        grn_quantity: grnTotal,
+        issued_quantity: issuedTotal,
+        total_quantity: totalQuantity
       };
     });
 
-    res.status(200).json({
-      message: "Store RM Fetched",
+    return res.status(200).json({
+      success: true,
+      message: "Store RM fetched successfully",
       data
     });
   } catch (error) {

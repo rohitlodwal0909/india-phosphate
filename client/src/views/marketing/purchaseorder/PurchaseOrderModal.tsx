@@ -417,7 +417,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                 /> */}
               </div>
               {/* IHS File */}
-              {product.grade === 'HIS' && (
+              {product.grade === 'IHS' && (
                 <div className="col-span-3">
                   <Label value="HIS Upload" />
                   <input

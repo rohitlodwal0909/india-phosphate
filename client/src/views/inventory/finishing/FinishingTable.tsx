@@ -32,6 +32,7 @@ export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
   product_name: string;
+  size: string;
   rm_code: any;
   quantity: any;
   finishing: any;
@@ -54,6 +55,7 @@ function FinishingTable() {
   const [selectedRow, setSelectedRow] = useState<PaginationTableType | null>(null);
   const [addmodal, setaddmodal] = useState(false);
   const [editmodal, setEditModal] = useState(false);
+  const [size, setSize] = useState(null);
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
@@ -173,7 +175,6 @@ function FinishingTable() {
     columnHelper.accessor('product_name', {
       cell: (info) => {
         const rowData = info.row.original;
-
         return <p>{rowData?.product_name || 'No Code'}</p>;
       },
       header: () => <span>Product Name</span>,
@@ -247,6 +248,7 @@ function FinishingTable() {
       cell: (info) => {
         const rowData = info?.row?.original;
         const data = rowData?.production_results?.[0];
+        const size = rowData?.size;
         const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <div className="flex gap-2">
@@ -255,7 +257,10 @@ function FinishingTable() {
                   <Button
                     color="secondary"
                     onClick={() => {
-                      (setEditModal(true), triggerGoogleTranslateRescan(), setSelectedRow(data));
+                      setEditModal(true);
+                      triggerGoogleTranslateRescan();
+                      setSelectedRow(data);
+                      setSize(size);
                     }}
                     outline
                     size="xs"
@@ -267,7 +272,10 @@ function FinishingTable() {
               : permissions?.add && (
                   <Button
                     onClick={() => {
-                      (setaddmodal(true), triggerGoogleTranslateRescan(), setSelectedRow(data));
+                      setEditModal(true);
+                      triggerGoogleTranslateRescan();
+                      setSelectedRow(data);
+                      setSize(size);
                     }}
                     color="secondary"
                     outline
@@ -342,6 +350,7 @@ function FinishingTable() {
           openModal={editmodal}
           setOpenModal={setEditModal}
           selectedRow={selectedRow}
+          size={size}
           handleupdatedentry={handleupdatedentry}
           permissions={permissions}
         />

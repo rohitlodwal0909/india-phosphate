@@ -17,6 +17,8 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
   const [batchNumber, setBatchNumber] = useState('');
   const qty = selectedRow?.rm_quantity;
 
+  console.log(selectedRow);
+
   const [rows, setRows] = useState([{ finish_quantity: '', unfinish_quantity: '' }]);
 
   // Set batch number

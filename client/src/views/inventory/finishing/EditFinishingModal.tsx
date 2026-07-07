@@ -8,6 +8,7 @@ interface FinishingEditModalProps {
   selectedRow: any;
   handleupdatedentry: any;
   permissions: any;
+  size: string;
 }
 
 const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
@@ -16,6 +17,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
   selectedRow,
   handleupdatedentry,
   permissions,
+  size,
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
   const canAdd = permissions?.add;
@@ -31,6 +33,10 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
       isNew: true,
     },
   ]);
+
+  const [qty1, unit] = size?.split(' ');
+
+  const quantity = parseInt(qty1, 10); // 5000 (number)
 
   // LOAD EDIT DATA
   useEffect(() => {
@@ -59,16 +65,27 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
     if (name !== 'time' && Number(value) < 0) return;
 
     const updated = [...rows];
-    updated[index][name] = value;
 
-    if (value > qty) {
-      alert(`Total finished cannot exceed ${qty}`);
+    updated[index] = {
+      ...updated[index],
+      [name]: value,
+    };
+
+    // Total Finish Qty
+    const totalFinished = updated.reduce((sum, row) => sum + Number(row.finish_quantity || 0), 0);
+
+    if (totalFinished > quantity) {
+      alert(`Total finished quantity cannot exceed ${quantity} ${unit}`);
+      return;
+    }
+
+    if (totalFinished > qty) {
+      alert(`Total finished quantity cannot exceed ${qty}`);
       return;
     }
 
     setRows(updated);
   };
-
   // ADD ROW
   const addRow = () => {
     setRows([
