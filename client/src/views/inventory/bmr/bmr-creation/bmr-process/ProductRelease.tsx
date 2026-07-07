@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
+import { ImageUrl } from 'src/constants/contant';
 import { saveProductRelease } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 
 const ProductRelease = ({ users = [], bmr, data, isReadOnly }) => {
@@ -25,24 +26,43 @@ const ProductRelease = ({ users = [], bmr, data, isReadOnly }) => {
     }));
   };
 
+  const handleUserChange = (dept, userId) => {
+    const selectedUser = users.find((u) => Number(u.id) === Number(userId));
+
+    setReview((prev) => ({
+      ...prev,
+      [dept]: {
+        ...prev[dept],
+        user_id: userId,
+        signature: selectedUser?.signature || '',
+      },
+    }));
+  };
+
   useEffect(() => {
     if (Array.isArray(data) && data.length > 0) {
-      const updated = { ...review };
+      const updated = {
+        PRODUCTION: { user_id: '', signature: '', date: '' },
+        'QUALITY CONTROL': { user_id: '', signature: '', date: '' },
+        'QUALITY ASSURANCE': { user_id: '', signature: '', date: '' },
+      };
 
       data.forEach((row) => {
+        const user = users.find((u) => Number(u.id) === Number(row.created_by));
+
         if (updated[row.department]) {
           updated[row.department] = {
             id: row.id,
             user_id: row.created_by || '',
-            signature: row.signature || '',
-            date: row.product_release || row.product_release || '',
+            signature: user?.signature || '',
+            date: row.release_date || '',
           };
         }
       });
 
       setReview(updated);
     }
-  }, [data]);
+  }, [data, users]);
 
   const handleSubmit = async () => {
     try {
@@ -115,23 +135,28 @@ const ProductRelease = ({ users = [], bmr, data, isReadOnly }) => {
                         <td className="border p-2">
                           <Select
                             value={review[dept].user_id}
-                            onChange={(e) => handleChange(dept, 'user_id', e.target.value)}
+                            onChange={(e) => handleUserChange(dept, e.target.value)}
                           >
                             <option value="">Select User</option>
+
                             {users.map((u) => (
                               <option key={u.id} value={u.id}>
-                                {u.username}
+                                {u.name || u.username}
                               </option>
                             ))}
                           </Select>
                         </td>
 
                         <td className="border p-2">
-                          <TextInput
-                            value={review[dept].signature}
-                            onChange={(e) => handleChange(dept, 'signature', e.target.value)}
-                            placeholder="Signature"
-                          />
+                          {review[dept].signature ? (
+                            <img
+                              src={`${ImageUrl}uploads/signatures/${review[dept].signature}`}
+                              alt="User Signature"
+                              className="h-16 w-auto border rounded"
+                            />
+                          ) : (
+                            <span className="text-sm text-gray-400">No Signature</span>
+                          )}
                         </td>
 
                         <td className="border p-2">

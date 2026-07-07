@@ -37,7 +37,7 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
     created_by: logindata?.admin?.id || '',
   });
 
-  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [cityOptions, setCityOptions] = useState<any[]>([]);
   const [errors, setErrors] = useState<any>({});
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -47,17 +47,27 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
 
   const handleStateChange = (value: string) => {
     handleChange('state', value);
-    const selected = Statedata.find((item: any) => item.id === parseInt(value));
-    if (selected && selected.cities?.length > 0) {
-      try {
-        const parsedCities = JSON.parse(selected.cities[0]?.city_name || '[]');
-        setCityOptions(parsedCities);
-      } catch (error) {
-        setCityOptions([]);
-      }
-    } else {
+
+    const selected = Statedata.find((item: any) => item.id === Number(value));
+
+    if (!selected) {
       setCityOptions([]);
+      return;
     }
+
+    let cities = [];
+
+    if (Array.isArray(selected.cities)) {
+      cities = selected.cities;
+    } else if (typeof selected.cities === 'string') {
+      try {
+        cities = JSON.parse(selected.cities);
+      } catch {
+        cities = [];
+      }
+    }
+
+    setCityOptions(cities);
   };
 
   const validateForm = () => {
@@ -208,9 +218,10 @@ const AddTransportModal = ({ show, setShowmodal, logindata, Statedata }) => {
               onChange={(e) => handleChange('city', e.target.value)}
             >
               <option value="">Select City</option>
-              {cityOptions.map((city, idx) => (
-                <option key={idx} value={city}>
-                  {city}
+
+              {cityOptions.map((city: any) => (
+                <option key={city.id} value={city.id}>
+                  {city.city_name}
                 </option>
               ))}
             </select>

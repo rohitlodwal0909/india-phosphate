@@ -134,22 +134,26 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                 <td className="w-1/2 align-top border-r border-black p-2">
                   {/* COMPANY */}
                   <b>India Phosphate & Allied Industries Pvt. Ltd.</b>
-                  <p>India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
+                  {/* <p>India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010</p> */}
                   <p>19C-D-E-F & Part of 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
 
                   <p>D.L. No. 25/25/2008</p>
                   <p>
-                    <b>Contact.No:</b>+91 9993622522, 9109250792
+                    <b>Contact.No:</b>+91 9109250792, 9993622522
                   </p>
                   <p>
                     <b>Email:</b>Purchase@indiaphosphate.com
                   </p>
-                  <p>UDYAM UDYAM-MP-49-0087269 (Micro)</p>
+                  <p> UDYAM-MP-49-0087269 (Micro)</p>
                   <p>
                     <b>GSTIN/UIN:</b> 23AAHCI4308K1ZN
                   </p>
                   <p>
                     <b>State Name:</b> Madhya Pradesh, Code: 23
+                  </p>
+
+                  <p>
+                    <b>Company's PAN:</b> AAHCI4308K
                   </p>
 
                   <br />
@@ -172,7 +176,12 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                       {/* ROW 1 */}
                       <tr>
                         <td className="border p-2">
-                          <b className="text-gray-600">Date</b>:{selectedRow.date}
+                          <b className="text-gray-600">Date</b>:{' '}
+                          {new Date(selectedRow.date).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: '2-digit',
+                          })}{' '}
                         </td>
                       </tr>
                       <tr>
@@ -243,7 +252,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                   <td className="border border-black p-2">{p.product?.product_name}</td>
 
                   {/* DATE */}
-                  <td className="border border-black">{p.gst}</td>
+                  <td className="border border-black">{p.gst} %</td>
 
                   {/* QTY */}
                   <td className="border border-black">{p.qty}</td>
@@ -275,7 +284,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                 </td>
                 <td className="border border-black text-right p-2">
                   {' '}
-                  {Number(grandTotal).toLocaleString()}
+                  {Number(grandTotal || 0).toFixed(2)}
                 </td>
               </tr>
             </tbody>
@@ -294,9 +303,6 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                 {/* Remarks */}
 
                 {/* PAN / IEC */}
-                <p>
-                  <b>Company's PAN:</b> AAHCI4308K
-                </p>
 
                 {/* Declaration */}
                 <div>

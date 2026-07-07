@@ -187,22 +187,25 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                 <td className="w-1/2 align-top border-r border-black p-2">
                   {/* COMPANY */}
                   <b>India Phosphate & Allied Industries Pvt. Ltd.</b>
-                  <p>India Phosphate 19/E 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
                   <p>19C-D-E-F & Part of 20A, Industrial Area, Maxi Road, Ujjain 456010</p>
 
                   <p>D.L. No. 25/25/2008</p>
                   <p>
-                    <b>Contact.No:</b>+91 9993622522, 9109250792
+                    <b>Contact.No:</b>+91 9109250792,9993622522
                   </p>
                   <p>
                     <b>Email:</b>Purchase@indiaphosphate.com
                   </p>
-                  <p>UDYAM UDYAM-MP-49-0087269 (Micro)</p>
+                  <p> UDYAM-MP-49-0087269 (Micro)</p>
                   <p>
                     <b>GSTIN/UIN:</b> 23AAHCI4308K1ZN
                   </p>
                   <p>
                     <b>State Name:</b> Madhya Pradesh, Code: 23
+                  </p>
+
+                  <p>
+                    <b>Company's PAN:</b> AAHCI4308K
                   </p>
 
                   <br />
@@ -477,9 +480,6 @@ const CreateModel: React.FC<Props> = ({ placeModal, setPlaceModal }) => {
                 {/* Remarks */}
 
                 {/* PAN / IEC */}
-                <p>
-                  <b>Company's PAN:</b> AAHCI4308K
-                </p>
 
                 {/* Declaration */}
                 <div>

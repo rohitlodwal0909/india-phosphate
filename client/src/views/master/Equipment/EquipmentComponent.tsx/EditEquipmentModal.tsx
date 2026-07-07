@@ -18,7 +18,6 @@ import { allUnits } from 'src/utils/AllUnit';
 
 const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) => {
   const dispatch = useDispatch<AppDispatch>();
-
   const permission = logindata?.admin?.id;
 
   const [formData, setFormData] = useState({
@@ -110,6 +109,7 @@ const EditEquipmentModal = ({ show, setShowmodal, EquipmentData, logindata }) =>
             >
               <option value="">Select Category</option>
               <option value="Lab Equipment">Lab Equipment</option>
+              <option value="Production Equipment">Production Equipment</option>
               <option value="Electrical Parts">Electrical Parts</option>
               <option value="Mechanical Spare Parts">Mechanical Spare Parts</option>
               <option value="Instrumentation">Instrumentation</option>

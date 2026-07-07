@@ -1,7 +1,3 @@
-
-
-
-
 import {
   Button,
   Modal,
@@ -12,24 +8,20 @@ import {
   TextInput,
   ToggleSwitch,
 } from 'flowbite-react';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-import {
-  
-  GetTransport,
-  updateTransport,
-} from 'src/features/master/Transport/TransportSlice';
+import { GetTransport, updateTransport } from 'src/features/master/Transport/TransportSlice';
 // import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 // import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // import dayjs from 'dayjs';
-const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,TransportData}) => {
+const EditTransportModal = ({ show, setShowmodal, logindata, Statedata, TransportData }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
-    id:'',
+    id: '',
     transporter_name: '',
     contact_person: '',
     contact_number: '',
@@ -51,53 +43,44 @@ const EditTransportModal = ({ show, setShowmodal, logindata, Statedata ,Transpor
     // time: '',
   });
 
-  const [cityOptions, setCityOptions] = useState<string[]>([]);
+  const [cityOptions, setCityOptions] = useState<any[]>([]);
   const [errors, setErrors] = useState<any>({});
 
-useEffect(() => {
-  if (TransportData) {
-   
-    setFormData({
-      id: TransportData.transporter_id ?? '',
-      transporter_name: TransportData.transporter_name ?? '',
-      contact_person: TransportData.contact_person ?? '',
-      address: TransportData.address ?? '',
-      city: TransportData.city ?? '',
-      state: TransportData.state ?? '',
-      pincode: TransportData.pincode ?? '',
-      email: TransportData.email ?? '',
-      gst_number: TransportData.gst_number ?? '',
-      pan_number: TransportData.pan_number ?? '',
-      created_by: logindata?.admin?.id ?? '',
-      is_active: TransportData.is_active ?? false,
-      contact_number: TransportData.contact_number ?? '',
-      alternate_number: TransportData.alternate_number ?? '',
-      vehicle_types: TransportData.vehicle_types ?? '',
-      preferred_routes: TransportData.preferred_routes ?? '',
-       payment_terms: TransportData.payment_terms ?? '',
-      freight_rate_type: TransportData.freight_rate_type ?? '',
-      // date: TransportData.date ?? '',
-      // time: TransportData.time ?? '',
-    });
+  useEffect(() => {
+    if (TransportData) {
+      setFormData({
+        id: TransportData.id ?? '',
+        transporter_name: TransportData.transporter_name ?? '',
+        contact_person: TransportData.contact_person ?? '',
+        address: TransportData.address ?? '',
+        city: TransportData.city ?? '',
+        state: TransportData.state ?? '',
+        pincode: TransportData.pincode ?? '',
+        email: TransportData.email ?? '',
+        gst_number: TransportData.gst_number ?? '',
+        pan_number: TransportData.pan_number ?? '',
+        created_by: logindata?.admin?.id ?? '',
+        is_active: TransportData.is_active ?? false,
+        contact_number: TransportData.contact_number ?? '',
+        alternate_number: TransportData.alternate_number ?? '',
+        vehicle_types: TransportData.vehicle_types ?? '',
+        preferred_routes: TransportData.preferred_routes ?? '',
+        payment_terms: TransportData.payment_terms ?? '',
+        freight_rate_type: TransportData.freight_rate_type ?? '',
+        // date: TransportData.date ?? '',
+        // time: TransportData.time ?? '',
+      });
 
-    // Set city options based on selected state
-     const selectedState = Statedata.find(
-      (item: any) => item.id == TransportData.state
-    );
+      // Set city options based on selected state
+      const selectedState = Statedata.find(
+        (state: any) => Number(state.id) === Number(TransportData.state),
+      );
 
-    if (selectedState && selectedState.cities?.length > 0) {
-      try {
-        const parsedCities = JSON.parse(selectedState.cities[0]?.city_name || '[]');
-        setCityOptions(Array.isArray(parsedCities) ? parsedCities : []);
-      } catch (error) {
-        console.error('Error parsing city_name:', error);
-        setCityOptions([]);
+      if (selectedState) {
+        setCityOptions(selectedState.cities || []);
       }
-    } else {
-      setCityOptions([]);
     }
-  }
-}, [TransportData, Statedata, logindata]);
+  }, [TransportData, Statedata, logindata]);
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -105,18 +88,15 @@ useEffect(() => {
   };
 
   const handleStateChange = (value: string) => {
-    handleChange('state', value);
-    const selected = Statedata.find((item: any) => item.id === parseInt(value));
-    if (selected && selected.cities?.length > 0) {
-      try {
-        const parsedCities = JSON.parse(selected.cities[0]?.city_name || '[]');
-        setCityOptions(parsedCities);
-      } catch (error) {
-        setCityOptions([]);
-      }
-    } else {
-      setCityOptions([]);
-    }
+    setFormData((prev) => ({
+      ...prev,
+      state: value,
+      city: '',
+    }));
+
+    const selectedState = Statedata.find((item: any) => Number(item.id) === Number(value));
+
+    setCityOptions(selectedState?.cities || []);
   };
 
   const validateForm = () => {
@@ -178,7 +158,7 @@ useEffect(() => {
       toast.error(err?.message || 'Something went wrong');
     }
   };
-  
+
   return (
     <Modal show={show} onClose={() => setShowmodal(false)} size="4xl">
       <ModalHeader>Edit Transport Mode</ModalHeader>
@@ -200,32 +180,32 @@ useEffect(() => {
           ].map(({ id, label, type }) => (
             <div className="col-span-4" key={id}>
               <Label htmlFor={id} value={label} />
-                <span className="text-red-700 ps-1">*</span>
-               { id === 'vehicle_types' ? (
-      <select
-        id={id}
-        value={formData[id]}
-        onChange={(e) => handleChange("vehicle_types", e.target.value)}
-        className="w-full rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
-      >
-        <option value="">Select Vehicle Type</option>
-        <option value="Truck">Truck</option>
-        <option value="Tanker">Tanker</option>
-        <option value="Trailer">Trailer</option>
-        <option value="Pickup">Pickup</option>
-        <option value="Other">Other</option>
-      </select>
-    ) : (
-              <TextInput
-                id={id}
-                type={type}
-                value={formData[id]}
-                placeholder={`Enter ${label}`}
-                className='form-rounded-md'
-                onChange={(e) => handleChange(id, e.target.value)}
-                color={errors[id] ? 'failure' : 'gray'}
-              />
-    )}
+              <span className="text-red-700 ps-1">*</span>
+              {id === 'vehicle_types' ? (
+                <select
+                  id={id}
+                  value={formData[id]}
+                  onChange={(e) => handleChange('vehicle_types', e.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
+                >
+                  <option value="">Select Vehicle Type</option>
+                  <option value="Truck">Truck</option>
+                  <option value="Tanker">Tanker</option>
+                  <option value="Trailer">Trailer</option>
+                  <option value="Pickup">Pickup</option>
+                  <option value="Other">Other</option>
+                </select>
+              ) : (
+                <TextInput
+                  id={id}
+                  type={type}
+                  value={formData[id]}
+                  placeholder={`Enter ${label}`}
+                  className="form-rounded-md"
+                  onChange={(e) => handleChange(id, e.target.value)}
+                  color={errors[id] ? 'failure' : 'gray'}
+                />
+              )}
               {errors[id] && <p className="text-red-500 text-xs">{errors[id]}</p>}
             </div>
           ))}
@@ -233,7 +213,7 @@ useEffect(() => {
           {/* State Dropdown */}
           <div className="col-span-4">
             <Label htmlFor="state" value="State" />
-              <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <select
               id="state"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -253,7 +233,7 @@ useEffect(() => {
           {/* City Dropdown */}
           <div className="col-span-4">
             <Label htmlFor="city" value="City" />
-              <span className="text-red-700 ps-1">*</span>
+            <span className="text-red-700 ps-1">*</span>
             <select
               id="city"
               className="w-full border border-gray-300 p-2 rounded-md"
@@ -261,9 +241,10 @@ useEffect(() => {
               onChange={(e) => handleChange('city', e.target.value)}
             >
               <option value="">Select City</option>
-              {cityOptions.map((city, idx) => (
-                <option key={idx} value={city}>
-                  {city}
+
+              {cityOptions.map((city: any) => (
+                <option key={city.id} value={city.id}>
+                  {city.city_name}
                 </option>
               ))}
             </select>
@@ -273,7 +254,7 @@ useEffect(() => {
           {/* Toggle is_active */}
           <div className="col-span-4">
             <Label htmlFor="is_active" value="Status" />
-            
+
             <div className="flex items-center pt-3">
               <ToggleSwitch
                 checked={formData.is_active}
@@ -283,7 +264,7 @@ useEffect(() => {
             </div>
           </div>
 
-           {/* <div className="col-span-6">
+          {/* <div className="col-span-6">
                       <Label htmlFor="time" value="Time" />
                         <span className="text-red-700 ps-1">*</span>
                          <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -371,4 +352,3 @@ useEffect(() => {
 };
 
 export default EditTransportModal;
-

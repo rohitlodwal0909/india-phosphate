@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
+import { ImageUrl } from 'src/constants/contant';
 import { savePostProductionReview } from 'src/features/Inventorymodule/BMR/BmrCreation/BmrReportSlice';
 
 const selectStyles = {
@@ -31,6 +32,7 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
     users?.map((u) => ({
       value: u.id,
       label: u.name || u.username,
+      signature: u.signature || u.signature,
     })) || [];
 
   const handleChange = (dept, field, value) => {
@@ -56,7 +58,7 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
           bmr_id: id,
           department: 'PRODUCTION',
           checked_by: review.production.user.value,
-          signature: review.production.signature,
+          signature: review.production.user.signature,
           date: review.production.date,
         },
         {
@@ -64,7 +66,7 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
           bmr_id: id,
           department: 'QUALITY_ASSURANCE',
           checked_by: review.qa.user.value,
-          signature: review.qa.signature,
+          signature: review.qa.user.signature,
           date: review.qa.date,
         },
       ],
@@ -93,8 +95,14 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
         setReview((prev) => ({
           ...prev,
           production: {
-            user: user ? { value: user.id, label: user.name || user.username } : null,
-            signature: production.signature || '',
+            user: user
+              ? {
+                  value: user.id,
+                  label: user.name || user.username,
+                  signature: user.signature,
+                }
+              : null,
+            signature: user?.signature || '',
             date: production.date || '',
           },
         }));
@@ -106,8 +114,14 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
         setReview((prev) => ({
           ...prev,
           qa: {
-            user: user ? { value: user.id, label: user.name || user.username } : null,
-            signature: qa.signature || '',
+            user: user
+              ? {
+                  value: user.id,
+                  label: user.name || user.username,
+                  signature: user.signature,
+                }
+              : null,
+            signature: user?.signature || '',
             date: qa.date || '',
           },
         }));
@@ -150,18 +164,31 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
                           placeholder="Select User"
                           options={userOptions}
                           value={review.production.user}
-                          onChange={(val) => handleChange('production', 'user', val)}
+                          onChange={(val: any) => {
+                            setReview((prev) => ({
+                              ...prev,
+                              production: {
+                                ...prev.production,
+                                user: val,
+                                signature: val?.signature || '',
+                              },
+                            }));
+                          }}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
                       </td>
 
                       <td className="border p-2">
-                        <TextInput
-                          placeholder="Signature"
-                          value={review.production.signature}
-                          onChange={(e) => handleChange('production', 'signature', e.target.value)}
-                        />
+                        {review.production.signature ? (
+                          <img
+                            src={`${ImageUrl}uploads/signatures/${review.production.signature}`}
+                            alt="Production Signature"
+                            className="h-16 w-auto border rounded"
+                          />
+                        ) : (
+                          <span className="text-sm text-gray-400">No Signature</span>
+                        )}
                       </td>
 
                       <td className="border p-2">
@@ -182,18 +209,31 @@ const PostProductionReview = ({ users, data, isReadOnly }) => {
                           placeholder="Select User"
                           options={userOptions}
                           value={review.qa.user}
-                          onChange={(val) => handleChange('qa', 'user', val)}
+                          onChange={(val: any) => {
+                            setReview((prev) => ({
+                              ...prev,
+                              qa: {
+                                ...prev.qa,
+                                user: val,
+                                signature: val?.signature || '',
+                              },
+                            }));
+                          }}
                           styles={selectStyles}
                           menuPortalTarget={document.body}
                         />
                       </td>
 
                       <td className="border p-2">
-                        <TextInput
-                          placeholder="Signature"
-                          value={review.qa.signature}
-                          onChange={(e) => handleChange('qa', 'signature', e.target.value)}
-                        />
+                        {review.qa.signature ? (
+                          <img
+                            src={`${ImageUrl}uploads/signatures/${review.qa.signature}`}
+                            alt="QA Signature"
+                            className="h-16 w-auto border rounded"
+                          />
+                        ) : (
+                          <span className="text-sm text-gray-400">No Signature</span>
+                        )}
                       </td>
 
                       <td className="border p-2">

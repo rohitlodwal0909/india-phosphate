@@ -1,14 +1,13 @@
 // components/CommonPagination.tsx
-import { Button } from "flowbite-react";
-import { IconChevronLeft, IconChevronsLeft, IconChevronRight, IconChevronsRight } from "@tabler/icons-react";
+import { Button } from 'flowbite-react';
+import {
+  IconChevronLeft,
+  IconChevronsLeft,
+  IconChevronRight,
+  IconChevronsRight,
+} from '@tabler/icons-react';
 
-const CommonPagination = ({
-  currentPage,
-  totalPages,
-  pageSize,
-  setCurrentPage,
-  setPageSize,
-}) => {
+const CommonPagination = ({ currentPage, totalPages, pageSize, setCurrentPage, setPageSize }) => {
   return (
     <div className="sm:flex py-3 items-center justify-center">
       <div className="sm:flex items-center gap-2 sm:mt-0 mt-3">
@@ -43,7 +42,7 @@ const CommonPagination = ({
             }}
             className="border w-20 px-2 py-1 text-sm rounded"
           >
-            {[10, 15, 20, 25].map((size) => (
+            {[10, 15, 20, 25, 50, 100].map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
@@ -82,7 +81,7 @@ const CommonPagination = ({
             disabled={currentPage === totalPages}
             className="bg-lightgray dark:bg-dark hover:bg-lightprimary dark:hover:bg-lightprimary disabled:opacity-70"
           >
-            <IconChevronsRight size={20} className="text-gray-900 dark:text-gray-300"/>
+            <IconChevronsRight size={20} className="text-gray-900 dark:text-gray-300" />
           </Button>
         </div>
       </div>
