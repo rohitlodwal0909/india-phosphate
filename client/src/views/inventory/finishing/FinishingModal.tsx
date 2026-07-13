@@ -19,7 +19,7 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
 
-  const rmQuantity = Number(selectedRow?.rm_quantity || 0);
+  // const rmQuantity = Number(selectedRow?.rm_quantity || 0);
 
   const [qty1] = size?.split(' ') || [];
   const packSize = Number(qty1 || 0);
@@ -53,11 +53,6 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
     if (name === 'finish_quantity') {
       if (numericValue > packSize) {
         alert(`Finish quantity cannot exceed ${packSize}`);
-        return;
-      }
-
-      if (numericValue > Number(rmQuantity)) {
-        alert(`Finish quantity cannot exceed ${rmQuantity}`);
         return;
       }
     }

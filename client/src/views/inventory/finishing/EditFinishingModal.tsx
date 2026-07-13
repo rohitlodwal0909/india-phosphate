@@ -22,7 +22,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
   const [batchNumber, setBatchNumber] = useState('');
   const canAdd = permissions?.add;
   // const canEdit = permissions?.edit;
-  const qty = selectedRow?.rm_quantity;
+  // const qty = selectedRow?.rm_quantity;
 
   const [rows, setRows] = useState<any[]>([
     {
@@ -72,10 +72,10 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
         return;
       }
 
-      if (numericValue > Number(qty)) {
-        alert(`Finish quantity cannot exceed ${qty}`);
-        return;
-      }
+      // if (numericValue > Number(qty)) {
+      //   alert(`Finish quantity cannot exceed ${qty}`);
+      //   return;
+      // }
     }
 
     const updated = [...rows];
