@@ -34,7 +34,7 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
     },
   ]);
 
-  const [qty1, unit] = size?.split(' ');
+  const [qty1] = size?.split(' ');
 
   const quantity = parseInt(qty1, 10); // 5000 (number)
 
@@ -64,25 +64,26 @@ const EditFinishingModal: React.FC<FinishingEditModalProps> = ({
 
     if (name !== 'time' && Number(value) < 0) return;
 
+    const numericValue = Number(value);
+
+    if (name === 'finish_quantity') {
+      if (numericValue > quantity) {
+        alert(`Finish quantity cannot exceed ${quantity}`);
+        return;
+      }
+
+      if (numericValue > Number(qty)) {
+        alert(`Finish quantity cannot exceed ${qty}`);
+        return;
+      }
+    }
+
     const updated = [...rows];
 
     updated[index] = {
       ...updated[index],
       [name]: value,
     };
-
-    // Total Finish Qty
-    const totalFinished = updated.reduce((sum, row) => sum + Number(row.finish_quantity || 0), 0);
-
-    if (totalFinished > quantity) {
-      alert(`Total finished quantity cannot exceed ${quantity} ${unit}`);
-      return;
-    }
-
-    if (totalFinished > qty) {
-      alert(`Total finished quantity cannot exceed ${qty}`);
-      return;
-    }
 
     setRows(updated);
   };

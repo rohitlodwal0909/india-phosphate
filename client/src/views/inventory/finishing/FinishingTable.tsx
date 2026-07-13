@@ -272,7 +272,7 @@ function FinishingTable() {
               : permissions?.add && (
                   <Button
                     onClick={() => {
-                      setEditModal(true);
+                      setaddmodal(true);
                       triggerGoogleTranslateRescan();
                       setSelectedRow(data);
                       setSize(size);
@@ -342,6 +342,7 @@ function FinishingTable() {
           openModal={addmodal}
           setOpenModal={setaddmodal}
           selectedRow={selectedRow}
+          size={size}
           handlesubmit={handlesubmit}
         />
       )}

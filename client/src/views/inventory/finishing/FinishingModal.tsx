@@ -5,6 +5,8 @@ interface VehicleDispatchModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
+  size: string;
+
   handlesubmit: (data: any) => void;
 }
 
@@ -12,12 +14,15 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
   openModal,
   setOpenModal,
   selectedRow,
+  size,
   handlesubmit,
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
-  const qty = selectedRow?.rm_quantity;
 
-  console.log(selectedRow);
+  const rmQuantity = Number(selectedRow?.rm_quantity || 0);
+
+  const [qty1] = size?.split(' ') || [];
+  const packSize = Number(qty1 || 0);
 
   const [rows, setRows] = useState([{ finish_quantity: '', unfinish_quantity: '' }]);
 
@@ -35,13 +40,29 @@ const FinishingModal: React.FC<VehicleDispatchModalProps> = ({
     if (Number(value) < 0) return;
 
     const updated = [...rows];
-    updated[index][name] = value;
-    setRows(updated);
 
-    if (value > qty) {
-      alert(`Total finished cannot exceed ${qty}`);
-      return;
+    updated[index] = {
+      ...updated[index],
+      [name]: value,
+    };
+
+    if (name !== 'time' && Number(value) < 0) return;
+
+    const numericValue = Number(value);
+
+    if (name === 'finish_quantity') {
+      if (numericValue > packSize) {
+        alert(`Finish quantity cannot exceed ${packSize}`);
+        return;
+      }
+
+      if (numericValue > Number(rmQuantity)) {
+        alert(`Finish quantity cannot exceed ${rmQuantity}`);
+        return;
+      }
     }
+
+    setRows(updated);
   };
 
   // Add Row
