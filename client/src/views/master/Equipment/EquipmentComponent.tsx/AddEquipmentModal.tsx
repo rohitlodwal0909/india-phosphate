@@ -112,6 +112,7 @@ const AddEquipmentModal = ({ show, setShowmodal, logindata }) => {
               <option value="Warehouse Equipment">Warehouse Equipment</option>
               <option value="Calibration Instruments">Calibration Instruments</option>
               <option value="Maintenance Tools">Maintenance Tools</option>
+              <option value="Production Equipment">Production Equipment</option>
             </Select>
             {errors.category && <p className="text-red-500 text-xs">{errors.category}</p>}
           </div>

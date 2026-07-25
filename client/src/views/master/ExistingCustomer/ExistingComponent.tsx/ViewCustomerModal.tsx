@@ -4,9 +4,10 @@ import { Icon } from '@iconify/react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductWithPO } from 'src/features/master/Customer/CustomerSlice';
-import { AppDispatch } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 import CustomerJourneyMap from './CustomerJourneymap';
 import { getGstDetails } from 'src/features/dashboard/DashboardCustomerSlice';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
 
 type Props = {
   placeModal: boolean;
@@ -55,6 +56,23 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const { productdata = [] } = useSelector((state: RootState) => state.products) ?? {};
+
+  const productOptions = productdata.map((p: any) => ({
+    label: p.product_name,
+    value: p.id,
+  }));
+
+  useEffect(() => {
+    dispatch(GetProduct());
+  }, [dispatch]);
+
+  const getProductName = (productId: any) => {
+    return (
+      productOptions.find((option) => Number(option.value) === Number(productId))?.label || '-'
+    );
   };
 
   useEffect(() => {
@@ -236,7 +254,7 @@ const ViewCustomerModal = ({ placeModal, modalPlacement, setPlaceModal, selected
                     products.map((p: any, index: number) => (
                       <tr key={index}>
                         <td className="p-2 border">{index + 1}</td>
-                        <td className="p-2 border font-medium">{p.product}</td>
+                        <td className="p-2 border font-medium">{getProductName(p.product)}</td>
                         <td className="p-2 border">{p.grade}</td>
                       </tr>
                     ))

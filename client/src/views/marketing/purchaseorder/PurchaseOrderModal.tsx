@@ -13,6 +13,7 @@ import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 import { GetGrade } from 'src/features/master/Grade/GradeSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 interface PurchaseOrderModalProps {
   openModal: boolean;
@@ -97,10 +98,13 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       product_name: '',
       grade: '',
       quantity: '',
+      unit: '',
       rate: '',
       gst: '',
       total: '',
       packing: '',
+      currency: '',
+      pro_freight: '',
       file: null,
     },
   ]);
@@ -112,10 +116,15 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     const qty = parseFloat(updated[index].quantity) || 0;
     const rate = parseFloat(updated[index].rate) || 0;
     const gst = parseFloat(updated[index].gst) || 0;
+    const pro_freight = parseFloat(updated[index].pro_freight) || 0;
 
-    const subtotal = qty * rate;
+    const subtotal = qty * rate + pro_freight;
     const gstAmount = subtotal * (gst / 100);
-    updated[index].total = (subtotal + gstAmount).toFixed(2);
+
+    const total = subtotal + gstAmount + pro_freight;
+
+    updated[index].total = total.toFixed(2);
+    // updated[index].total = (subtotal + gstAmount).toFixed(2);
 
     setProducts(updated);
   };
@@ -127,9 +136,12 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
         product_name: '',
         grade: '',
         quantity: '',
+        unit: '',
         rate: '',
         gst: '',
         total: '',
+        currency: '',
+        pro_freight: '',
         packing: '',
         file: null,
       },
@@ -231,6 +243,8 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
         gst: p.gst,
         total: p.total,
         packing: p.packing,
+        currency: p.currency,
+        pro_freight: p.pro_freight,
         file_key: p.file ? `file_${index}` : null,
       }));
 
@@ -351,23 +365,41 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                 </select>
               </div>
               {/* Quantity */}
-              <div className="col-span-2">
+              <div className="col-span-4">
                 <Label value="Qty" />
-                <TextInput
-                  type="number"
-                  min={0}
-                  placeholder="Qty"
-                  value={product.quantity}
-                  onChange={(e) => {
-                    let value = e.target.value;
 
-                    // ❌ minus block
-                    if (value.includes('-')) return;
+                <div className="flex rounded-md shadow-sm">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Enter quantity"
+                    className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm"
+                    value={product.quantity}
+                    onChange={(e) => {
+                      let value = e.target.value;
 
-                    handleProductChange(index, 'quantity', value);
-                  }}
-                />
+                      // ❌ minus block
+                      if (value.includes('-')) return;
+
+                      handleProductChange(index, 'quantity', value);
+                    }}
+                  />
+
+                  <select
+                    value={product.unit}
+                    onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
+                    className="rounded-r-md border border-l-0 border-gray-300 px-2 py-2 text-sm text-gray-700"
+                  >
+                    <option value="">Unit</option>
+                    {allUnits.map((unit) => (
+                      <option key={unit.value} value={unit.value}>
+                        {unit.value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
               {/* Rate */}
               <div className="col-span-2">
                 <Label value="Rate" />
@@ -385,6 +417,18 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   }}
                 />
               </div>
+              <div className="col-span-2">
+                <Label value="Currency" />
+                <select
+                  name="currency"
+                  className="w-full border border-gray-500 p-2 rounded-md"
+                  onChange={handleChange}
+                >
+                  <option value="">Select Currency</option>
+                  <option value="rs">RS</option>
+                  <option value="usd">USD</option>
+                </select>
+              </div>
               {/* GST */}
               <div className="col-span-2">
                 <Label value="GST" />
@@ -393,13 +437,30 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   onChange={(val: any) => handleProductChange(index, 'gst', val.value)}
                 />
               </div>
+
+              <div className="col-span-2">
+                <Label value="Freight" />
+                <TextInput
+                  type="text"
+                  name="pro_freight"
+                  value={product.pro_freight}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    if (value.includes('-')) return;
+
+                    handleProductChange(index, 'pro_freight', value);
+                  }}
+                />
+              </div>
+
               {/* Total */}
               <div className="col-span-2">
                 <Label value="Total" />
                 <TextInput value={product.total} readOnly />
               </div>
               {/* Packing */}
-              <div className="col-span-3">
+              <div className="col-span-4">
                 <Label value="Packing" />
 
                 <Select
@@ -435,7 +496,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                   </Button>
                 )}
               </div>
-              <div className="col-span-6"></div>
+              <div className="col-span-8"></div>
             </React.Fragment>
           ))}
           <div className="col-span-12">
