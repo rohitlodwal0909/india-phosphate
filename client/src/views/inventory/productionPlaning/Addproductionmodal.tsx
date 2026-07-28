@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Label, TextInput } from 'flowbite-react';
+import { Button, Modal, TextInput } from 'flowbite-react';
 import Select from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from 'src/store';
 import { toast } from 'react-toastify';
-// import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
+
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
-import { allUnits } from 'src/utils/AllUnit';
 import {
   createProductionPlaning,
   getProductionPlanning,
@@ -17,272 +16,560 @@ interface Props {
   setOpenModal: (val: boolean) => void;
 }
 
+/* =====================================================
+   MULTIPLE ROW DATA
+===================================================== */
+
+interface ProductionRow {
+  equipment_id: string;
+  material_id: string;
+  quality: string;
+  batch_no: string;
+  work_order_no: string;
+  labours: string;
+  output_morning: string;
+  output_evening: string;
+}
+
+/* =====================================================
+   INITIAL ROW
+===================================================== */
+
+const initialRow: ProductionRow = {
+  equipment_id: '',
+  material_id: '',
+  quality: '',
+  batch_no: '',
+  work_order_no: '',
+  labours: '',
+  output_morning: '',
+  output_evening: '',
+};
+
 const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  /* ================= REDUX ================= */
-
-  // const equipments = useSelector((state: any) => state.equipment.Equipmentdata) || [];
+  /* =====================================================
+     PRODUCTS
+  ===================================================== */
 
   const materials = useSelector((state: any) => state.products.productdata) || [];
 
-  /* ================= INITIAL STATE ================= */
+  /* =====================================================
+     DATE - SINGLE
+  ===================================================== */
 
-  const initialState = {
-    // equipment_id: '',
-    material_id: '',
-    quantity: '',
-    unit: '',
-    quality: '',
-    batch_no: '',
-    work_order_no: '',
-    expected_fpr_date: '',
-    labours: '',
-    output: '',
-  };
+  const [date, setDate] = useState('');
 
-  const [formData, setFormData] = useState(initialState);
+  /* =====================================================
+     MULTIPLE ROWS
+  ===================================================== */
+
+  const [rows, setRows] = useState<ProductionRow[]>([{ ...initialRow }]);
+
   const [errors, setErrors] = useState<any>({});
 
-  /* ================= OPTIONS ================= */
+  /* =====================================================
+     MATERIAL OPTIONS
+  ===================================================== */
 
-  // const equipmentOptions = equipments.map((i: any) => ({
-  //   value: i.id,
-  //   label: i.name,
-  // }));
-
-  const materialOptions = materials.map((i: any) => ({
-    value: i.id,
-    label: i.product_name,
+  const materialOptions = materials.map((item: any) => ({
+    value: item.id,
+    label: item.product_name,
   }));
 
-  /* ================= LOAD DATA ================= */
+  /* =====================================================
+     EQUIPMENT OPTIONS
+
+     Replace this with your Equipment API data
+  ===================================================== */
+
+  const equipmentOptions = [
+    {
+      value: 'equipment_1',
+      label: 'Equipment 1',
+    },
+    {
+      value: 'equipment_2',
+      label: 'Equipment 2',
+    },
+    {
+      value: 'equipment_3',
+      label: 'Equipment 3',
+    },
+  ];
+
+  /* =====================================================
+     LOAD DATA
+  ===================================================== */
 
   useEffect(() => {
-    // dispatch(GetEquipment());
     dispatch(GetProduct());
+
+    // dispatch(GetEquipment());
   }, [dispatch]);
 
-  /* ================= RESET FORM ================= */
+  /* =====================================================
+     RESET
+  ===================================================== */
 
   useEffect(() => {
     if (!openModal) {
-      setFormData(initialState);
+      setDate('');
+      setRows([{ ...initialRow }]);
       setErrors({});
     }
   }, [openModal]);
 
-  /* ================= HANDLE CHANGE ================= */
+  /* =====================================================
+     DATE CHANGE
+  ===================================================== */
 
-  const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value ?? '',
-    }));
+  const handleDateChange = (value: string) => {
+    setDate(value);
 
     setErrors((prev: any) => ({
       ...prev,
-      [name]: '',
+      date: '',
     }));
   };
 
-  /* ================= VALIDATION ================= */
+  /* =====================================================
+     ROW CHANGE
+  ===================================================== */
+
+  const handleRowChange = (index: number, field: keyof ProductionRow, value: string) => {
+    setRows((prev) => {
+      const updated = [...prev];
+
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+
+      return updated;
+    });
+
+    setErrors((prev: any) => ({
+      ...prev,
+      [`${field}_${index}`]: '',
+    }));
+  };
+
+  /* =====================================================
+     ADD ROW
+  ===================================================== */
+
+  const addRow = () => {
+    setRows((prev) => [...prev, { ...initialRow }]);
+  };
+
+  /* =====================================================
+     REMOVE ROW
+  ===================================================== */
+
+  const removeRow = (index: number) => {
+    if (rows.length === 1) {
+      toast.warning('At least one row is required');
+      return;
+    }
+
+    setRows((prev) => prev.filter((_, i) => i !== index));
+
+    setErrors({});
+  };
+
+  /* =====================================================
+     VALIDATION
+  ===================================================== */
 
   const validateForm = () => {
-    let newErrors: any = {};
+    const newErrors: any = {};
 
-    // if (!formData.equipment_id) newErrors.equipment_id = 'Equipment is required';
+    if (!date) {
+      newErrors.date = 'Date is required';
+    }
 
-    if (!formData.material_id) newErrors.material_id = 'Material is required';
+    rows.forEach((row, index) => {
+      if (!row.equipment_id) {
+        newErrors[`equipment_id_${index}`] = 'Required';
+      }
 
-    if (!formData.quantity) newErrors.quantity = 'Quantity required';
-    else if (Number(formData.quantity) <= 0) newErrors.quantity = 'Quantity must be greater than 0';
+      if (!row.material_id) {
+        newErrors[`material_id_${index}`] = 'Required';
+      }
 
-    if (!formData.unit) newErrors.unit = 'Unit required';
+      if (!row.quality.trim()) {
+        newErrors[`quality_${index}`] = 'Required';
+      }
 
-    if (!formData.quality) newErrors.quality = 'Quality required';
+      if (!row.batch_no.trim()) {
+        newErrors[`batch_no_${index}`] = 'Required';
+      }
 
-    if (!formData.batch_no) newErrors.batch_no = 'Batch number required';
+      if (!row.work_order_no.trim()) {
+        newErrors[`work_order_no_${index}`] = 'Required';
+      }
 
-    if (!formData.work_order_no) newErrors.work_order_no = 'Work order required';
+      if (!row.labours) {
+        newErrors[`labours_${index}`] = 'Required';
+      }
 
-    if (!formData.expected_fpr_date) newErrors.expected_fpr_date = 'Expected FPR date required';
-
-    if (!formData.labours) newErrors.labours = 'Labours required';
-
-    if (!formData.output) newErrors.output = 'Output required';
+      if (!row.output_morning && !row.output_evening) {
+        newErrors[`output_${index}`] = 'Enter output quantity';
+      }
+    });
 
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
   };
 
-  /* ================= SUBMIT ================= */
+  /* =====================================================
+     SUBMIT
+  ===================================================== */
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error('Please fill all required fields');
+      return;
+    }
 
     try {
-      await dispatch(createProductionPlaning(formData)).unwrap();
+      const payload = {
+        date: date,
+
+        items: rows,
+      };
+
+      console.log('Production Planning Payload:', payload);
+
+      await dispatch(createProductionPlaning(payload)).unwrap();
 
       toast.success('Production Planning Added Successfully');
+
       dispatch(getProductionPlanning());
 
       setOpenModal(false);
-      setFormData(initialState);
+
+      setDate('');
+
+      setRows([{ ...initialRow }]);
+
       setErrors({});
-    } catch (err: any) {
-      toast.error(err?.message || 'Something went wrong');
+    } catch (error: any) {
+      toast.error(error?.message || 'Something went wrong');
     }
   };
 
-  /* ================= UI ================= */
-
   return (
-    <Modal show={openModal} onClose={() => setOpenModal(false)} size="4xl">
+    <Modal show={openModal} onClose={() => setOpenModal(false)} size="8xl">
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
       <Modal.Header>Production Planning</Modal.Header>
 
       <Modal.Body>
-        <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
-          {/* Equipment */}
-          {/* <div className="col-span-6">
-            <Label value="Equipment" />
-            <Select
-              options={equipmentOptions}
-              placeholder="Select Equipment"
-              value={equipmentOptions.find((o) => o.value === formData.equipment_id) || null}
-              onChange={(s) => handleChange('equipment_id', s?.value)}
-            />
-            {errors.equipment_id && <p className="text-red-500 text-xs">{errors.equipment_id}</p>}
-          </div> */}
+        <form onSubmit={handleSubmit}>
+          {/* =====================================================
+              DATE - SINGLE
+          ===================================================== */}
 
-          {/* Material */}
-          <div className="col-span-6">
-            <Label value="Name of Material" />
-            <Select
-              options={materialOptions}
-              placeholder="Select Material"
-              value={materialOptions.find((o) => o.value === formData.material_id) || null}
-              onChange={(s) => handleChange('material_id', s?.value)}
-            />
-            {errors.material_id && <p className="text-red-500 text-xs">{errors.material_id}</p>}
-          </div>
+          <div className="mb-5 flex items-end gap-4">
+            <div className="w-64">
+              <label className="mb-1 block text-dark font-medium text-gray-700">
+                Production Date
+              </label>
 
-          {/* Quantity */}
-          <div className="col-span-4">
-            <Label value="Quantity" />
-            <div className="flex rounded-md shadow-sm">
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                placeholder="Enter quantity"
-                className="w-full rounded-l-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
-                value={formData.quantity}
-                onChange={(e) => handleChange('quantity', e.target.value)}
+              <TextInput
+                type="date"
+                value={date}
+                onChange={(e) => handleDateChange(e.target.value)}
               />
-              <select
-                id="unit"
-                name="quantity_unit"
-                value={formData.unit}
-                onChange={(e) => handleChange('unit', e.target.value)}
-                className="rounded-r-md border border-l-0 border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Unit</option>
-                {allUnits.map((unit) => (
-                  <option key={unit.value} value={unit.value}>
-                    {unit.value}
-                  </option>
-                ))}
-              </select>
+
+              {errors.date && <p className="mt-1 text-xs text-red-500">{errors.date}</p>}
             </div>
-
-            {errors.quantity && <p className="text-red-500 text-xs">{errors.quantity}</p>}
-            {errors.quantity_unit && <p className="text-red-500 text-xs">{errors.quantity_unit}</p>}
           </div>
 
-          {/* Quality */}
-          <div className="col-span-4">
-            <Label value="Quality" />
-            <TextInput
-              placeholder="Enter Quality"
-              value={formData.quality}
-              onChange={(e) => handleChange('quality', e.target.value)}
-            />
-            {errors.quality && <p className="text-red-500 text-xs">{errors.quality}</p>}
+          {/* =====================================================
+              TABLE
+          ===================================================== */}
+
+          <div className="w-full overflow-x-auto">
+            <table className="w-full min-w-[1500px] border-collapse border border-gray-800 ">
+              {/* =================================================
+                  HEADER
+              ================================================= */}
+
+              <thead>
+                {/* FIRST HEADER ROW */}
+
+                <tr className="bg-gray-50">
+                  <th
+                    rowSpan={2}
+                    className="w-[80px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    Date
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[160px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    EQUIPMENT
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[180px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    NAME OF
+                    <br />
+                    MATERIAL
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[150px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    QUALITY
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[150px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    BATCH
+                    <br />
+                    NUMBER
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[150px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    Workorder
+                    <br />
+                    no
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[150px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    NO. OF
+                    <br />
+                    LABOURS
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    colSpan={2}
+                    className="border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    OUTPUT QUANTITY
+                    <br />
+                    <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="w-[100px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
+                  >
+                    ACTION
+                  </th>
+                </tr>
+
+                {/* SECOND HEADER ROW */}
+
+                <tr className="bg-gray-50">
+                  <th className="w-[100px] border border-gray-800 px-2 py-2 text-center text-xs font-semibold">
+                    8:00-1:00
+                  </th>
+
+                  <th className="w-[100px] border border-gray-800 px-2 py-2 text-center text-xs font-semibold">
+                    1:30-6:00
+                  </th>
+                </tr>
+              </thead>
+
+              {/* =================================================
+                  BODY
+              ================================================= */}
+
+              <tbody>
+                {rows.map((row, index) => (
+                  <tr key={index} className="align-top">
+                    {/* DATE SINGLE */}
+
+                    {index === 0 && (
+                      <td
+                        rowSpan={rows.length}
+                        className="border border-gray-800 px-2 py-3 text-black text-center align-middle"
+                      >
+                        {date ? new Date(date).toLocaleDateString('en-GB') : '-'}
+                      </td>
+                    )}
+
+                    {/* EQUIPMENT */}
+
+                    <td className="border border-gray-800 p-2">
+                      <Select
+                        options={equipmentOptions}
+                        placeholder="Select"
+                        value={
+                          equipmentOptions.find((option) => option.value === row.equipment_id) ||
+                          null
+                        }
+                        onChange={(selected) =>
+                          handleRowChange(index, 'equipment_id', selected?.value || '')
+                        }
+                        isClearable
+                      />
+
+                      {errors[`equipment_id_${index}`] && (
+                        <p className="mt-1 text-xs text-red-500">Required</p>
+                      )}
+                    </td>
+
+                    {/* MATERIAL */}
+
+                    <td className="border border-gray-800 p-2">
+                      <Select
+                        options={materialOptions}
+                        placeholder="Select"
+                        value={
+                          materialOptions.find((option) => option.value === row.material_id) || null
+                        }
+                        onChange={(selected) =>
+                          handleRowChange(index, 'material_id', selected?.value || '')
+                        }
+                        isClearable
+                      />
+
+                      {errors[`material_id_${index}`] && (
+                        <p className="mt-1 text-xs text-red-500">Required</p>
+                      )}
+                    </td>
+
+                    {/* QUALITY */}
+
+                    <td className="border border-gray-800 p-2">
+                      <TextInput
+                        placeholder="Quality"
+                        value={row.quality}
+                        onChange={(e) => handleRowChange(index, 'quality', e.target.value)}
+                      />
+                    </td>
+
+                    {/* BATCH */}
+
+                    <td className="border border-gray-800 p-2">
+                      <TextInput
+                        placeholder="Batch No."
+                        value={row.batch_no}
+                        onChange={(e) => handleRowChange(index, 'batch_no', e.target.value)}
+                      />
+                    </td>
+
+                    {/* WORK ORDER */}
+
+                    <td className="border border-gray-800 p-2">
+                      <TextInput
+                        placeholder="Workorder No."
+                        value={row.work_order_no}
+                        onChange={(e) => handleRowChange(index, 'work_order_no', e.target.value)}
+                      />
+                    </td>
+
+                    {/* LABOURS */}
+
+                    <td className="border border-gray-800 p-2">
+                      <TextInput
+                        type="number"
+                        min="1"
+                        placeholder="No."
+                        value={row.labours}
+                        onChange={(e) => handleRowChange(index, 'labours', e.target.value)}
+                      />
+                    </td>
+
+                    {/* OUTPUT 8:00-1:00 */}
+
+                    <td className="border border-gray-800 p-2">
+                      <TextInput
+                        type="number"
+                        min="0"
+                        placeholder="Qty"
+                        value={row.output_morning}
+                        onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
+                      />
+                    </td>
+
+                    {/* OUTPUT 1:30-6:00 */}
+
+                    <td className="border border-gray-800 p-2">
+                      <TextInput
+                        type="number"
+                        min="0"
+                        placeholder="Qty"
+                        value={row.output_evening}
+                        onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
+                      />
+                    </td>
+
+                    {/* ACTION */}
+
+                    <td className="border border-gray-800 p-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => removeRow(index)}
+                        className="text-dark font-medium text-red-600 hover:text-red-800"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {/* Batch */}
-          <div className="col-span-4">
-            <Label value="Batch No" />
-            <TextInput
-              placeholder="Enter Batch Number"
-              value={formData.batch_no}
-              onChange={(e) => handleChange('batch_no', e.target.value)}
-            />
-            {errors.batch_no && <p className="text-red-500 text-xs">{errors.batch_no}</p>}
+          {/* =====================================================
+              ADD ROW
+          ===================================================== */}
+
+          <div className="mt-4">
+            <Button type="button" color="light" onClick={addRow}>
+              + Add Row
+            </Button>
           </div>
 
-          {/* Work Order */}
-          <div className="col-span-6">
-            <Label value="Work Order No" />
-            <TextInput
-              placeholder="Enter Work Order"
-              value={formData.work_order_no}
-              onChange={(e) => handleChange('work_order_no', e.target.value)}
-            />
-            {errors.work_order_no && <p className="text-red-500 text-xs">{errors.work_order_no}</p>}
-          </div>
+          {/* =====================================================
+              FOOTER
+          ===================================================== */}
 
-          {/* Expected Date */}
-          <div className="col-span-6">
-            <Label value="Expected Date of FPR" />
-            <TextInput
-              type="date"
-              value={formData.expected_fpr_date}
-              onChange={(e) => handleChange('expected_fpr_date', e.target.value)}
-            />
-            {errors.expected_fpr_date && (
-              <p className="text-red-500 text-xs">{errors.expected_fpr_date}</p>
-            )}
-          </div>
-
-          {/* Labours */}
-          <div className="col-span-6">
-            <Label value="No of Labours" />
-            <TextInput
-              type="number"
-              placeholder="Enter No of Labours"
-              value={formData.labours}
-              onChange={(e) => handleChange('labours', e.target.value)}
-            />
-            {errors.labours && <p className="text-red-500 text-xs">{errors.labours}</p>}
-          </div>
-
-          {/* Output */}
-          <div className="col-span-6">
-            <Label value="Output" />
-
-            <TextInput
-              placeholder="Enter Output"
-              value={formData.output}
-              onChange={(e) => handleChange('output', e.target.value)}
-              className="rounded-r-none"
-            />
-
-            {errors.output && <p className="text-red-500 text-xs">{errors.output}</p>}
-          </div>
-
-          {/* Buttons */}
-          <div className="col-span-12 flex justify-end gap-2 mt-4">
-            <Button color="gray" onClick={() => setOpenModal(false)}>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button type="button" color="gray" onClick={() => setOpenModal(false)}>
               Cancel
             </Button>
 
             <Button type="submit" color="primary">
-              Save Planning
+              Save Production Planning
             </Button>
           </div>
         </form>
