@@ -10,6 +10,74 @@ import {
   createProductionPlaning,
   getProductionPlanning,
 } from 'src/features/Inventorymodule/planing/ProdutionPlaningSlice';
+import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
+
+const selectStyles = {
+  control: (base: any) => ({
+    ...base,
+    minHeight: '38px',
+    color: '#000000',
+    backgroundColor: '#ffffff',
+    borderColor: '#000000',
+    boxShadow: 'none',
+  }),
+
+  valueContainer: (base: any) => ({
+    ...base,
+    color: '#000000',
+  }),
+
+  singleValue: (base: any) => ({
+    ...base,
+    color: '#000000',
+  }),
+
+  placeholder: (base: any) => ({
+    ...base,
+    color: '#000000',
+  }),
+
+  input: (base: any) => ({
+    ...base,
+    color: '#000000',
+  }),
+
+  option: (base: any, state: any) => ({
+    ...base,
+    color: '#000000',
+    backgroundColor: state.isFocused ? '#f3f4f6' : '#ffffff',
+    cursor: 'pointer',
+  }),
+
+  menu: (base: any) => ({
+    ...base,
+    backgroundColor: '#ffffff',
+    zIndex: 999999,
+    position: 'relative',
+  }),
+
+  menuList: (base: any) => ({
+    ...base,
+    backgroundColor: '#ffffff',
+    maxHeight: '250px',
+    overflowY: 'auto',
+  }),
+
+  menuPortal: (base: any) => ({
+    ...base,
+    zIndex: 9999999,
+  }),
+
+  dropdownIndicator: (base: any) => ({
+    ...base,
+    color: '#000000',
+  }),
+
+  clearIndicator: (base: any) => ({
+    ...base,
+    color: '#000000',
+  }),
+};
 
 interface Props {
   openModal: boolean;
@@ -54,64 +122,28 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   ===================================================== */
 
   const materials = useSelector((state: any) => state.products.productdata) || [];
-
-  /* =====================================================
-     DATE - SINGLE
-  ===================================================== */
+  const equipments = useSelector((state: any) => state.equipment.Equipmentdata) || [];
 
   const [date, setDate] = useState('');
-
-  /* =====================================================
-     MULTIPLE ROWS
-  ===================================================== */
 
   const [rows, setRows] = useState<ProductionRow[]>([{ ...initialRow }]);
 
   const [errors, setErrors] = useState<any>({});
-
-  /* =====================================================
-     MATERIAL OPTIONS
-  ===================================================== */
 
   const materialOptions = materials.map((item: any) => ({
     value: item.id,
     label: item.product_name,
   }));
 
-  /* =====================================================
-     EQUIPMENT OPTIONS
-
-     Replace this with your Equipment API data
-  ===================================================== */
-
-  const equipmentOptions = [
-    {
-      value: 'equipment_1',
-      label: 'Equipment 1',
-    },
-    {
-      value: 'equipment_2',
-      label: 'Equipment 2',
-    },
-    {
-      value: 'equipment_3',
-      label: 'Equipment 3',
-    },
-  ];
-
-  /* =====================================================
-     LOAD DATA
-  ===================================================== */
+  const equipmentOptions = equipments.map((e: any) => ({
+    value: e.id,
+    label: e.name,
+  }));
 
   useEffect(() => {
     dispatch(GetProduct());
-
-    // dispatch(GetEquipment());
+    dispatch(GetEquipment());
   }, [dispatch]);
-
-  /* =====================================================
-     RESET
-  ===================================================== */
 
   useEffect(() => {
     if (!openModal) {
@@ -121,10 +153,6 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     }
   }, [openModal]);
 
-  /* =====================================================
-     DATE CHANGE
-  ===================================================== */
-
   const handleDateChange = (value: string) => {
     setDate(value);
 
@@ -133,10 +161,6 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
       date: '',
     }));
   };
-
-  /* =====================================================
-     ROW CHANGE
-  ===================================================== */
 
   const handleRowChange = (index: number, field: keyof ProductionRow, value: string) => {
     setRows((prev) => {
@@ -156,17 +180,9 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     }));
   };
 
-  /* =====================================================
-     ADD ROW
-  ===================================================== */
-
   const addRow = () => {
     setRows((prev) => [...prev, { ...initialRow }]);
   };
-
-  /* =====================================================
-     REMOVE ROW
-  ===================================================== */
 
   const removeRow = (index: number) => {
     if (rows.length === 1) {
@@ -178,10 +194,6 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
     setErrors({});
   };
-
-  /* =====================================================
-     VALIDATION
-  ===================================================== */
 
   const validateForm = () => {
     const newErrors: any = {};
@@ -240,11 +252,8 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     try {
       const payload = {
         date: date,
-
         items: rows,
       };
-
-      console.log('Production Planning Payload:', payload);
 
       await dispatch(createProductionPlaning(payload)).unwrap();
 
@@ -427,10 +436,10 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
                     {/* EQUIPMENT */}
 
-                    <td className="border border-gray-800 p-2">
+                    <td className="border border-black p-2">
                       <Select
                         options={equipmentOptions}
-                        placeholder="Select"
+                        placeholder="Select Equipment"
                         value={
                           equipmentOptions.find((option) => option.value === row.equipment_id) ||
                           null
@@ -439,19 +448,29 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                           handleRowChange(index, 'equipment_id', selected?.value || '')
                         }
                         isClearable
+                        isSearchable
+                        styles={selectStyles}
+                        /* IMPORTANT */
+                        menuPortalTarget={document.body}
+                        /* Dropdown modal ke bahar render hoga */
+                        menuPosition="fixed"
+                        /* Available space ke hisaab se */
+                        menuPlacement="auto"
+                        /* Scroll hone par dropdown close nahi hoga */
+                        menuShouldScrollIntoView={false}
                       />
 
                       {errors[`equipment_id_${index}`] && (
-                        <p className="mt-1 text-xs text-red-500">Required</p>
+                        <p className="mt-1 text-xs text-red-600">Equipment is required</p>
                       )}
                     </td>
 
                     {/* MATERIAL */}
 
-                    <td className="border border-gray-800 p-2">
+                    <td className="border border-black p-2">
                       <Select
                         options={materialOptions}
-                        placeholder="Select"
+                        placeholder="Select Material"
                         value={
                           materialOptions.find((option) => option.value === row.material_id) || null
                         }
@@ -459,10 +478,19 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                           handleRowChange(index, 'material_id', selected?.value || '')
                         }
                         isClearable
+                        isSearchable
+                        styles={selectStyles}
+                        /* IMPORTANT */
+                        menuPortalTarget={document.body}
+                        /* Modal ke bahar render */
+                        menuPosition="fixed"
+                        /* Space ke according upar/neeche */
+                        menuPlacement="auto"
+                        menuShouldScrollIntoView={false}
                       />
 
                       {errors[`material_id_${index}`] && (
-                        <p className="mt-1 text-xs text-red-500">Required</p>
+                        <p className="mt-1 text-xs text-red-600">Material is required</p>
                       )}
                     </td>
 

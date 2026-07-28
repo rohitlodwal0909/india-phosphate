@@ -13,23 +13,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
       },
 
-      // equipment_id: {
-      //   type: DataTypes.INTEGER,
-      //   allowNull: false
-      // },
-
-      material_id: {
+      equipment_id: {
         type: DataTypes.INTEGER,
         allowNull: false
       },
 
-      quantity: {
-        type: DataTypes.DECIMAL(10, 2),
+      material_id: {
+        type: DataTypes.INTEGER,
         allowNull: false
-      },
-
-      unit: {
-        type: DataTypes.STRING
       },
 
       quality: {
@@ -44,17 +35,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
-      expected_fpr_date: {
-        type: DataTypes.DATEONLY
-      },
-
       labours: {
         type: DataTypes.INTEGER
       },
 
-      output: {
+      output_morning: {
         type: DataTypes.STRING
-      }
+      },
+      output_evening: {
+        type: DataTypes.STRING
+      },
+      date: { type: DataTypes.STRING }
     },
     {
       tableName: "production_plannings",

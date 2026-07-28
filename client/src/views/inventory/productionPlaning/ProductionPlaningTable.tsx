@@ -32,11 +32,16 @@ import { toast } from 'react-toastify';
 import Viewmodel from './Viewmodel';
 
 interface RowType {
-  id: number;
+  date: string;
+  equipment: string;
+  material: string;
+  quality: string;
+  batch_no: string;
   work_order_no: string;
-  expected_fpr_date: string;
-  // Equipment: any;
-  Product: any;
+  labours: string;
+  output_morning: string;
+  output_evening: string;
+  items: any[];
 }
 
 const columnHelper = createColumnHelper<RowType>();
@@ -47,12 +52,60 @@ function ProductionPlaningTable() {
   const [addmodal, setaddmodal] = useState(false);
   const [editmodal, seteditmodal] = useState(false);
   const [viewmodal, setviewmodal] = useState(false);
+
   const [searchText, setSearchText] = useState('');
   const [selectedRow, setSelectedRow] = useState(null);
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
 
   const productions = useSelector((state: any) => state.productionplanning?.data) || [];
+
+  const tableData = useMemo(() => {
+    if (!productions || typeof productions !== 'object') {
+      return [];
+    }
+
+    return Object.entries(productions).map(([date, items]: [string, any]) => {
+      return {
+        date,
+
+        // Multiple Equipment
+        equipment: items
+          .map(
+            (item: any) =>
+              item?.Equipment?.name ||
+              item?.Equipment?.equipment_name ||
+              item?.equipment_id ||
+              '---',
+          )
+          .join(', '),
+
+        // Multiple Material
+        material: items.map((item: any) => item?.Product?.product_name || '---').join(', '),
+
+        // Multiple Quality
+        quality: items.map((item: any) => item?.quality || '---').join(', '),
+
+        // Multiple Batch
+        batch_no: items.map((item: any) => item?.batch_no || '---').join(', '),
+
+        // Multiple Work Order
+        work_order_no: items.map((item: any) => item?.work_order_no || '---').join(', '),
+
+        // Multiple Labours
+        labours: items.map((item: any) => item?.labours || '---').join(', '),
+
+        // Multiple Morning Output
+        output_morning: items.map((item: any) => item?.output_morning || '---').join(', '),
+
+        // Multiple Evening Output
+        output_evening: items.map((item: any) => item?.output_evening || '---').join(', '),
+
+        // Original items
+        items,
+      };
+    });
+  }, [productions]);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
@@ -66,17 +119,30 @@ function ProductionPlaningTable() {
     dispatch(getProductionPlanning());
   }, [dispatch]);
 
-  const handleConfirmDelete = async (row) => {
-    if (!row?.id) return toast.error('No entry selected.');
+  const handleConfirmDelete = async (row: any) => {
+    if (!row?.items || row.items.length === 0) {
+      return toast.error('No production planning selected.');
+    }
+
     try {
-      const res = await dispatch(deleteProductionPlanning(row?.id)).unwrap();
-      if (res) {
-        toast.success('Production Planning deleted successfully!');
-        dispatch(getProductionPlanning());
+      // Date group ke andar sabhi IDs
+      const ids = row.items.map((item: any) => item.id).filter(Boolean);
+
+      if (ids.length === 0) {
+        return toast.error('No records found to delete.');
       }
+
+      // Ek-ek karke delete
+      await Promise.all(ids.map((id: number) => dispatch(deleteProductionPlanning(id)).unwrap()));
+
+      toast.success('Production Planning deleted successfully!');
+
+      // Table refresh
+      dispatch(getProductionPlanning());
     } catch (err: any) {
-      toast.error(err.message || 'Delete failed');
-    } finally {
+      console.error('Delete Production Planning Error:', err);
+
+      toast.error(err?.message || 'Delete failed');
     }
   };
 
@@ -95,88 +161,133 @@ function ProductionPlaningTable() {
   };
 
   const filteredData = useMemo(() => {
-    if (!searchText) return productions;
+    if (!searchText) {
+      return tableData;
+    }
 
     const keyword = searchText.toLowerCase();
 
-    return productions.filter((item: any) => searchInObject(item, keyword));
-  }, [productions, searchText]);
+    return tableData.filter((item: any) => searchInObject(item, keyword));
+  }, [tableData, searchText]);
 
   /* ================= COLUMNS ================= */
 
   const columns = [
     columnHelper.display({
       id: 'sr',
+
       header: 'S.No',
+
       cell: (info) => <span>#{info.row.index + 1}</span>,
     }),
 
-    columnHelper.accessor('work_order_no', {
-      header: 'Work Order',
-      cell: (info) => info.getValue() || '---',
+    /* ================= DATE ================= */
+
+    columnHelper.accessor('date', {
+      header: 'Date',
+
+      cell: (info) => <span className="font-medium text-black">{formatDate(info.getValue())}</span>,
     }),
 
-    // columnHelper.display({
-    //   id: 'equipment',
-    //   header: 'Equipment',
-    //   cell: (info) => info.row.original?.Equipment?.name || '---',
-    // }),
+    /* ================= EQUIPMENT ================= */
 
-    columnHelper.display({
-      id: 'material',
+    columnHelper.accessor('equipment', {
+      header: 'Equipment',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    /* ================= MATERIAL ================= */
+
+    columnHelper.accessor('material', {
       header: 'Material Name',
-      cell: (info) => info.row.original?.Product?.product_name || '---',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
     }),
 
-    columnHelper.accessor('expected_fpr_date', {
-      header: 'Expected FPR Date',
-      cell: (info) => (info.getValue() ? formatDate(info.getValue()) : '---'),
+    /* ================= QUALITY ================= */
+
+    columnHelper.accessor('quality', {
+      header: 'Quality',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
     }),
+
+    /* ================= BATCH ================= */
+
+    columnHelper.accessor('batch_no', {
+      header: 'Batch Number',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    /* ================= WORK ORDER ================= */
+
+    columnHelper.accessor('work_order_no', {
+      header: 'Workorder No.',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    /* ================= LABOURS ================= */
+
+    columnHelper.accessor('labours', {
+      header: 'No. of Labours',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    /* ================= MORNING OUTPUT ================= */
+
+    columnHelper.accessor('output_morning', {
+      header: '8:00-1:00',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    columnHelper.accessor('output_evening', {
+      header: '1:30-6:00',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    /* ================= ACTION ================= */
 
     columnHelper.display({
       id: 'actions',
+
       header: 'Actions',
+
       cell: (info) => {
         const row = info.row.original;
+
         return (
-          <div className="flex gap-2 notranslate" translate="no">
-            {permissions?.view && (
-              <Tooltip content="view">
-                <Button
-                  size="sm"
-                  className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
-                  onClick={() => {
-                    (setviewmodal(true), setSelectedRow(row));
-                  }}
-                >
-                  <Icon icon="solar:eye-outline" height={18} />
-                </Button>
-              </Tooltip>
-            )}
-            {permissions?.edit && (
-              <Tooltip content="Edit">
-                <Button
-                  size="sm"
-                  className="p-0 bg-lightsuccess text-success hover:bg-success hover:text-white"
-                  onClick={() => {
-                    (seteditmodal(true), setSelectedRow(row));
-                  }}
-                >
-                  <Icon icon="solar:pen-outline" height={18} />
-                </Button>
-              </Tooltip>
-            )}
-            {permissions?.del && (
+          <div className="flex gap-2 notranslate">
+            {permissions.del && (
               <Tooltip content="Delete">
                 <Button
                   size="sm"
                   color="lighterror"
                   className="p-0"
-                  onClick={() => {
-                    handleConfirmDelete(row);
-                  }}
+                  onClick={() => handleConfirmDelete(row)}
                 >
                   <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
+                </Button>
+              </Tooltip>
+            )}
+
+            {permissions?.edit && (
+              <Tooltip content="Edit">
+                <Button
+                  size="sm"
+                  className="p-0 bg-lightsuccess text-success"
+                  onClick={() => {
+                    seteditmodal(true);
+
+                    setSelectedRow(row);
+                  }}
+                >
+                  <Icon icon="solar:pen-outline" height={18} />
                 </Button>
               </Tooltip>
             )}
