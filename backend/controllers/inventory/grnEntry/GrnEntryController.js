@@ -72,6 +72,7 @@ exports.store = async (req, res, next) => {
     await createNotificationByRoleId({
       title: "New Store Entry",
       message: `Store Entry has been successfully created.`,
+      link: "inventory/store",
       role_id: 2
     });
 
@@ -79,6 +80,7 @@ exports.store = async (req, res, next) => {
       title: "New QC Store",
       message:
         "A new store entry has been created. Please verify the material in QC.",
+      link: "inventory/qc",
       role_id: 3
     });
 

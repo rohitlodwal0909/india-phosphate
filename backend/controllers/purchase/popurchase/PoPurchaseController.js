@@ -233,6 +233,7 @@ exports.purchasePayment = async (req, res) => {
     await createNotificationByRoleId({
       title,
       message,
+      link: "accounts/purchase",
       role_id: 11,
       module_id: 6,
       submodule_id: 3

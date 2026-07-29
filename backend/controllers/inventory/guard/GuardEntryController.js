@@ -94,7 +94,8 @@ exports.store = async (req, res, next) => {
     await createNotificationByRoleId({
       title: "New Guard Store",
       message: "Multiple inward entries created, store verification required",
-      role_id: 2
+      role_id: 2,
+      link: "inventory/store"
     });
 
     await t.commit();

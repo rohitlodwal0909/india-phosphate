@@ -128,6 +128,7 @@ exports.storeSampleRequest = async (req, res) => {
     await createNotificationByRoleId({
       title,
       message,
+      link: "marketing/sample-qc",
       role_id: 3,
       module_id: 4,
       submodule_id: 7
@@ -224,8 +225,11 @@ exports.updateSampleRequest = async (req, res) => {
     await createNotificationByRoleId({
       title,
       message,
+      link: "marketing/sample-request",
+
       role_id: 3,
       module_id: 4,
+
       submodule_id: 7
     });
 
@@ -291,6 +295,7 @@ Marketing team can now proceed with dispatch details.`;
     await createNotificationByRoleId({
       title,
       message,
+      link: "marketing/sample-request",
       role_id: 9, // Marketing Role
       module_id: 4,
       submodule_id: 3

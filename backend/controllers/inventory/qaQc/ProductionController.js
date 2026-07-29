@@ -84,6 +84,7 @@ exports.ProductionaddResult = async (req, res, next) => {
     await createNotificationByRoleId({
       title: title,
       message: message,
+      link: "inventory/production",
       role_id: 2
     });
 
@@ -345,6 +346,7 @@ exports.createFinishingEntry = async (req, res, next) => {
       {
         title: "Dispatch Request",
         message: `Finishing team has completed batch ${batch_number}. Ready for dispatch.`,
+        link: "inventory/dispatch",
         role_id: 8
       },
       { transaction }

@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiUrl } from '../../constants/contant';
 import axiosInstance from 'src/constants/axiosInstance';
 
 const initialState = {
@@ -34,7 +32,7 @@ export const ReadNotification = createAsyncThunk(
   'ReadNotifications/add',
   async (id: any, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/read-notification/${id}`);
+      const response = await axiosInstance.get(`/read-notification/${id}`);
       return response.data;
     } catch (error) {
       // Return a rejected action containing the error message

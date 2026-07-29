@@ -55,13 +55,16 @@ const Notifications = () => {
     };
   }, []);
 
-  const handleRead = async (id) => {
+  const handleRead = async (links) => {
     try {
+      const id = links?.id;
+      const link = links?.link;
       const result = await dispatch(ReadNotification(id)).unwrap();
       if (result) {
         const updated = notificationList.map((item) => (item.id === id ? result : item));
         setNotificationList(updated);
         dispatch(TotalNotification());
+        navigate(link);
       }
     } catch (error) {
       toast.error('Failed to update notification');
@@ -128,7 +131,7 @@ const Notifications = () => {
             <Dropdown.Item
               key={index}
               className="px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-              onClick={() => handleRead(links?.id)}
+              onClick={() => handleRead(links)}
             >
               <div className="flex items-center w-full">
                 <div

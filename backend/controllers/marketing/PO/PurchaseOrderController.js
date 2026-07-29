@@ -158,6 +158,7 @@ exports.updateWorkOrderStatus = async (req, res) => {
     await createNotificationByRoleId({
       title,
       message,
+      link: "inventory/work-order",
       role_id: 3
     });
 
@@ -210,6 +211,7 @@ exports.paymentApproved = async (req, res) => {
       message,
       role_id: 11,
       module_id: 6,
+      link: "accounts/payment",
       submodule_id: 3
     });
 

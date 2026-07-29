@@ -6,6 +6,7 @@ const createNotificationByRoleId = async ({
   title,
   message,
   role_id,
+  link,
   module_id = null,
   submodule_id = null
 }) => {
@@ -52,6 +53,7 @@ const createNotificationByRoleId = async ({
       title,
       message,
       is_read: 0,
+      link,
       date_time: `${entry_date} ${entry_time}`
     }));
 
