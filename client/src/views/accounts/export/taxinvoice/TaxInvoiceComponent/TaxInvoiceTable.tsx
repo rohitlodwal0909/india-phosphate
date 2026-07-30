@@ -13,6 +13,7 @@ import ViewDispatchModal from 'src/views/inventory/dispatch-inventory/ViewDispat
 import ViewPurchaseOrderModal from 'src/views/marketing/purchaseorder/ViewPurchaseOrderModal';
 import InvoiceViewModel from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceComponent/InvoiceViewModel';
 import AddInvoiceTaxModel from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceComponent/AddInvoiceTaxModel';
+import { ImageUrl } from 'src/constants/contant';
 
 const TaxInvoiceTable = () => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
@@ -131,6 +132,23 @@ const TaxInvoiceTable = () => {
                       <td className="py-3 px-4 text-gray-900 dark:text-gray-300">
                         <div className="flex justify-start gap-2">
                           {/* PO Details View */}
+
+                          {item?.oq_upload && (
+                            <a
+                              href={ImageUrl + item.oq_upload}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="group"
+                            >
+                              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 hover:bg-red-100 transition shadow-sm">
+                                <Icon
+                                  icon="mdi:file-pdf-box"
+                                  height={25}
+                                  className="text-red-600 group-hover:scale-110 transition"
+                                />
+                              </div>
+                            </a>
+                          )}
 
                           <Button
                             size="sm"
