@@ -135,7 +135,7 @@ const TaxInvoiceTable = () => {
 
                           {item?.oq_upload && (
                             <a
-                              href={ImageUrl + item.oq_upload}
+                              href={ImageUrl + 'uploads/oq-uploads/' + item.oq_upload}
                               target="_blank"
                               rel="noreferrer"
                               className="group"
