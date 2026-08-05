@@ -98,7 +98,43 @@ exports.store = async (req, res, next) => {
       data
     });
   } catch (error) {
-    next(error);
+    console.error("Error Name:", error.name);
+    console.error("Error Message:", error.message);
+    console.error("Full Error:", error);
+
+    // Sequelize Validation Error
+    if (error.name === "SequelizeValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Validation Error",
+        errors: error.errors.map((err) => ({
+          field: err.path,
+          value: err.value,
+          message: err.message,
+          validator: err.validatorKey
+        }))
+      });
+    }
+
+    // Sequelize Unique Constraint Error
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        success: false,
+        message: "Duplicate Entry",
+        errors: error.errors.map((err) => ({
+          field: err.path,
+          value: err.value,
+          message: err.message
+        }))
+      });
+    }
+
+    // Other Errors
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      error: process.env.NODE_ENV === "development" ? error.stack : undefined
+    });
   }
 };
 

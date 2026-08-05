@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       production_status: {
         type: DataTypes.ENUM("PENDING", "ISSUE", "REJECTED"),
-        defaultValue: ""
+        defaultValue: "PENDING"
       }
     },
     {
