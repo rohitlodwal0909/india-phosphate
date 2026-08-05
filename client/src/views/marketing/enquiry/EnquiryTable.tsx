@@ -34,6 +34,7 @@ interface PurchaseOrderDataType {
     company_name: string;
   };
   interested_products?: any;
+  followups: any;
   note: string;
   status: string;
   follow_up_date: string;
@@ -44,6 +45,43 @@ interface PurchaseOrderDataType {
 }
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
+
+const enquiryStatusOptions = [
+  { value: 'closed', label: 'Closed', color: '#16a34a' },
+  { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
+  { value: 'quotation', label: 'Pending Quotation', color: '#2563eb' },
+  { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
+  { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
+  { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
+];
+
+const getStatusOption = (status: string) => enquiryStatusOptions.find((s) => s.value === status);
+
+const StatusBadge = ({ status }: any) => {
+  const option = getStatusOption(status);
+
+  if (!option) return <span>-</span>;
+
+  return (
+    <span
+      className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 w-fit"
+      style={{
+        backgroundColor: `${option.color}20`,
+        color: option.color,
+      }}
+    >
+      <span
+        style={{
+          background: option.color,
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+        }}
+      />
+      {option.label}
+    </span>
+  );
+};
 
 const EnquiryTable = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -122,6 +160,8 @@ const EnquiryTable = () => {
     return data.filter((item) => searchInObject(item, search));
   }, [data, searchText]);
 
+  console.log(filteredData);
+
   const columns = useMemo(
     () => [
       columnHelper.accessor('sr_no', {
@@ -151,21 +191,39 @@ const EnquiryTable = () => {
           return (
             <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
               {products.length > 0 ? (
-                products.map((item: any, index: number) => (
-                  <div key={index} className="border-b pb-1">
-                    <p>
-                      <strong>Product:</strong> {item.product?.product_name}
-                    </p>
+                products.map((item: any, index: number) => {
+                  const followups = item.followups ? JSON.parse(item.followups) : [];
 
-                    <p>
-                      <strong>Grade:</strong> {item.grade}
-                    </p>
+                  const latestFollowup = followups.at(-1);
 
-                    <p>
-                      <strong>Person:</strong> {item.sales_name?.username}
-                    </p>
-                  </div>
-                ))
+                  return (
+                    <div key={index} className="border-b pb-1">
+                      <p>
+                        <strong>Product:</strong> {item.product?.product_name}
+                      </p>
+
+                      <p>
+                        <strong>Grade:</strong> {item.grade}
+                      </p>
+
+                      <p>
+                        <strong>Person:</strong> {item.sales_name?.username}
+                      </p>
+                      {}
+
+                      <p className="flex items-center gap-3 flex-wrap">
+                        <strong>Status:</strong>
+
+                        <StatusBadge status={latestFollowup?.status || item?.status} />
+
+                        <span>
+                          <strong>Date:</strong>{' '}
+                          {latestFollowup?.followup_date || item?.followup_date}
+                        </span>
+                      </p>
+                    </div>
+                  );
+                })
               ) : (
                 <span>-</span>
               )}

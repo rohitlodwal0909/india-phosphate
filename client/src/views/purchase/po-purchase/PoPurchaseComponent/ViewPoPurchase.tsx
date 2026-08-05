@@ -329,7 +329,7 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
                 <div>
                   <p className="font-semibold">For India Phosphate & Allied Industries Pvt.Ltd</p>
 
-                  <p className="leading-5 b-5">Authorised Signatory</p>
+                  <p className="leading-5 pt-9">Authorised Signatory</p>
                 </div>
               </div>
             </div>
