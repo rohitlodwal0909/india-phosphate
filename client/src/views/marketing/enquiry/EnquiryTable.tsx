@@ -86,7 +86,6 @@ const StatusBadge = ({ status }: any) => {
 const EnquiryTable = () => {
   const dispatch = useDispatch<AppDispatch>();
   const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
-
   const enquiries = useSelector((state: RootState) => state.enquiry.enquiries) as any;
 
   const [data, setData] = useState<PurchaseOrderDataType[]>([]);
@@ -160,8 +159,6 @@ const EnquiryTable = () => {
     return data.filter((item) => searchInObject(item, search));
   }, [data, searchText]);
 
-  console.log(filteredData);
-
   const columns = useMemo(
     () => [
       columnHelper.accessor('sr_no', {
@@ -205,17 +202,13 @@ const EnquiryTable = () => {
                       <p>
                         <strong>Grade:</strong> {item.grade}
                       </p>
-
                       <p>
                         <strong>Person:</strong> {item.sales_name?.username}
                       </p>
-                      {}
 
                       <p className="flex items-center gap-3 flex-wrap">
                         <strong>Status:</strong>
-
                         <StatusBadge status={latestFollowup?.status || item?.status} />
-
                         <span>
                           <strong>Date:</strong>{' '}
                           {latestFollowup?.followup_date || item?.followup_date}
