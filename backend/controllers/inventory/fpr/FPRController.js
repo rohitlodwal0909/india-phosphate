@@ -1,5 +1,6 @@
 const db = require("../../../models");
 const { Qcbatch, BatchReleaseModel, Finishing, FinishQty } = db;
+// kk
 
 exports.index = async (req, res, next) => {
   try {
