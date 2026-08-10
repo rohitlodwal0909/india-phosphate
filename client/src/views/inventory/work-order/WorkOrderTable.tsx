@@ -40,14 +40,14 @@ interface PurchaseOrderDataType {
     work_order_no: string;
     remark: string;
     status: string;
+    department: string;
+    department_remark: string;
   };
   customers?: {
     company_name: string;
   };
   product_name: string;
   priority: string;
-  department: string;
-  department_remark: string;
 }
 
 const getPriorityColor = (priority: string) => {
@@ -169,6 +169,8 @@ const ViewWorkOrderTable = () => {
     }
   };
 
+  console.log(filteredData);
+
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -244,29 +246,18 @@ const ViewWorkOrderTable = () => {
           </div>
         ),
       }),
-      columnHelper.accessor('department', {
+      columnHelper.accessor('workNo', {
         header: 'Department',
         cell: (info) => (
-          <div className="truncate">
-            <div className="flex items-center gap-2 mt-1">
-              {/* <span
-                className={`w-3 h-3 rounded-full ${getPriorityColor(info.row.original.department)}`}
-              /> */}
-              <p className="text-gray-900 font-medium">{info.row.original.department || '-'}</p>
-            </div>
-          </div>
+          <p className="text-gray-900 font-medium">{info.row.original.workNo?.department || '-'}</p>
         ),
       }),
-      columnHelper.accessor('department_remark', {
+      columnHelper.accessor('workNo', {
         header: 'Deparment remark',
         cell: (info) => (
-          <div className="truncate">
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-gray-900 font-medium">
-                {info.row.original.department_remark || '-'}
-              </p>
-            </div>
-          </div>
+          <p className="text-gray-900 font-medium">
+            {info.row.original.workNo?.department_remark || '-'}
+          </p>
         ),
       }),
 

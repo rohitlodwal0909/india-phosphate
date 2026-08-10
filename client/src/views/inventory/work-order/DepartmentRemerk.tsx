@@ -66,8 +66,8 @@ const DepartmentRemerk: React.FC<AddModalProps> = ({ placeModal, setPlaceModal, 
   // =========================
 
   useEffect(() => {
-    if (selectedRow?.workNo?.remark) {
-      setRemark(selectedRow.workNo.remark);
+    if (selectedRow?.workNo?.department_remark) {
+      setRemark(selectedRow.workNo.department_remark);
     } else {
       setRemark('');
     }
