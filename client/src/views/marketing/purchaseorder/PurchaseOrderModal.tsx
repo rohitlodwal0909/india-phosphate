@@ -403,15 +403,17 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               {/* Rate */}
               <div className="col-span-2">
                 <Label value="Rate" />
+
                 <TextInput
                   type="number"
                   min={0}
+                  step="0.01"
                   placeholder="Rate"
                   value={product.rate}
                   onChange={(e) => {
-                    let value = e.target.value;
+                    const value = e.target.value;
 
-                    if (value.includes('-')) return;
+                    if (Number(value) < 0) return;
 
                     handleProductChange(index, 'rate', value);
                   }}
@@ -605,6 +607,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               </div>
             </>
           )}
+
           <div className="col-span-2">
             <Label value="Customise Labels" />
 
@@ -632,6 +635,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               </label>
             </div>
           </div>
+
           {formData.company_type !== 'end customer' && (
             <div className="col-span-4">
               <Label value="Commission" />

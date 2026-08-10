@@ -48,6 +48,7 @@ router.delete(
 );
 
 router.post("/add-remark", purchaseOrderController.addRemark);
+router.post("/depart-add-remark", purchaseOrderController.addDepartmentRemark);
 router.post(
   "/work-order/status-update",
   purchaseOrderController.updateWorkOrderStatus

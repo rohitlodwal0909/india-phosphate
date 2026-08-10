@@ -8,6 +8,7 @@ import { RootState } from 'src/store';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 import { GetGrade } from 'src/features/master/Grade/GradeSlice';
+import { allUnits } from 'src/utils/AllUnit';
 
 interface PurchaseOrderEditModalProps {
   openModal: boolean;
@@ -55,10 +56,13 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
           product_id: p.product_id,
           grade: p.grade || '',
           quantity: p.quantity || '',
+          unit: p.unit || '',
           rate: p.rate || '',
+          currency: p.currency || '',
           gst: p.gst || '',
           total: p.total || '',
           packing: p.packing || '',
+          pro_freight: p.pro_freight || '',
           file: null,
         }));
 
@@ -116,9 +120,13 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       product_name: '',
       grade: '',
       quantity: '',
+      unit: '',
       rate: '',
+      currency: '',
       gst: '',
+      pro_freight: '',
       total: '',
+
       packing: '',
       file: null,
     },
@@ -131,10 +139,14 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
     const qty = parseFloat(updated[index].quantity) || 0;
     const rate = parseFloat(updated[index].rate) || 0;
     const gst = parseFloat(updated[index].gst) || 0;
+    const pro_freight = parseFloat(updated[index].pro_freight) || 0;
 
-    const subtotal = qty * rate;
+    const subtotal = qty * rate + pro_freight;
     const gstAmount = subtotal * (gst / 100);
-    updated[index].total = (subtotal + gstAmount).toFixed(2);
+
+    const total = subtotal + gstAmount + pro_freight;
+
+    updated[index].total = total.toFixed(2);
 
     setProducts(updated);
   };
@@ -146,6 +158,9 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
         product_name: '',
         grade: '',
         quantity: '',
+        unit: '',
+        currency: '',
+        pro_freight: '',
         rate: '',
         gst: '',
         total: '',
@@ -379,7 +394,7 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               </div>
 
               {/* Quantity */}
-              <div className="col-span-2">
+              {/* <div className="col-span-2">
                 <Label value="Qty" />
                 <TextInput
                   type="number"
@@ -387,6 +402,41 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
                   value={product.quantity}
                   onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
                 />
+              </div> */}
+
+              <div className="col-span-4">
+                <Label value="Qty" />
+
+                <div className="flex rounded-md shadow-sm">
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Enter quantity"
+                    className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm"
+                    value={product.quantity}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      // ❌ minus block
+                      if (value.includes('-')) return;
+
+                      handleProductChange(index, 'quantity', value);
+                    }}
+                  />
+
+                  <select
+                    value={product.unit}
+                    onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
+                    className="rounded-r-md border border-l-0 border-gray-300 px-2 py-2 text-sm text-gray-700"
+                  >
+                    <option value="">Unit</option>
+                    {allUnits.map((unit) => (
+                      <option key={unit.value} value={unit.value}>
+                        {unit.value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Rate */}
@@ -400,6 +450,20 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
                 />
               </div>
 
+              <div className="col-span-2">
+                <Label value="Currency" />
+                <select
+                  name="currency"
+                  className="w-full border border-gray-500 p-2 rounded-md"
+                  value={product.currency}
+                  onChange={(val: any) => handleProductChange(index, 'currency', val.value)}
+                >
+                  <option value="">Select Currency</option>
+                  <option value="rs">RS</option>
+                  <option value="usd">USD</option>
+                </select>
+              </div>
+
               {/* GST */}
               <div className="col-span-2">
                 <Label value="GST" />
@@ -407,6 +471,21 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
                   options={gstOptions}
                   value={gstOptions.find((g) => g.value === Number(product.gst))}
                   onChange={(val: any) => handleProductChange(index, 'gst', val.value)}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label value="Freight" />
+                <TextInput
+                  type="text"
+                  name="pro_freight"
+                  value={product.pro_freight}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    if (value.includes('-')) return;
+
+                    handleProductChange(index, 'pro_freight', value);
+                  }}
                 />
               </div>
 

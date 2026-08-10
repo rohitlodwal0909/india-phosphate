@@ -21,6 +21,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATEONLY
       },
 
+      department: {
+        type: DataTypes.STRING
+      },
+
+      department_remark: {
+        type: DataTypes.STRING
+      },
+
       remark: {
         type: DataTypes.STRING
       },

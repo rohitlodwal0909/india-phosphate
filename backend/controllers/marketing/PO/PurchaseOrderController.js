@@ -321,6 +321,66 @@ exports.addRemark = async (req, res) => {
   }
 };
 
+exports.addDepartmentRemark = async (req, res) => {
+  try {
+    const { department, remark, po_id, id } = req.body;
+
+    // duplicate check
+    const existing = await WorkOrderModel.findOne({
+      where: { po_id }
+    });
+
+    if (existing && existing.id !== id) {
+      return res.status(400).json({
+        success: false,
+        message: "Work Order No already exists"
+      });
+    }
+
+    let data;
+
+    if (id) {
+      // UPDATE
+      await WorkOrderModel.update(
+        {
+          department,
+          department_remark: remark
+        },
+        {
+          where: { id }
+        }
+      );
+
+      data = await WorkOrderModel.findByPk(id);
+
+      return res.json({
+        success: true,
+        message: "Remark Updated Successfully",
+        data
+      });
+    } else {
+      // CREATE
+      data = await WorkOrderModel.create({
+        po_id,
+        department,
+        department_remark: remark,
+        user_id: req.admin.id
+      });
+
+      return res.json({
+        success: true,
+        message: "Remark Created Successfully",
+        data
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 exports.updatePurchaseOrder = async (req, res) => {
   try {
     const { id } = req.params;

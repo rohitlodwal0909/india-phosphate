@@ -9,6 +9,7 @@ const initialState = {
   customers: [],
   addResult: null,
   remark: null,
+  departremark: null,
   paymentremark: null,
   status: null,
   change: null,
@@ -161,6 +162,20 @@ export const addRemark = createAsyncThunk(
   },
 );
 
+export const departaddRemark = createAsyncThunk(
+  'purchaseOrder/departremark',
+  async (formdata: any, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/depart-add-remark`, formdata);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Something went wrong',
+      );
+    }
+  },
+);
+
 const PurchaseOrderSlice = createSlice({
   name: 'purchaseOrder',
   initialState,
@@ -235,6 +250,13 @@ const PurchaseOrderSlice = createSlice({
         state.paymentremark = action.payload;
       })
       .addCase(addRemarkPO.rejected, (state, action: any) => {
+        state.error = action.payload;
+      })
+
+      .addCase(departaddRemark.fulfilled, (state, action) => {
+        state.departremark = action.payload;
+      })
+      .addCase(departaddRemark.rejected, (state, action: any) => {
         state.error = action.payload;
       })
 

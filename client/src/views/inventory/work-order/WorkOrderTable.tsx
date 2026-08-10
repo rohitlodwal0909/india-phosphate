@@ -29,6 +29,7 @@ import { toast } from 'react-toastify';
 import { Badge } from 'flowbite-react';
 import PasswordVerifyModal from './PasswordVerifyModal';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
+import DepartmentRemerk from './DepartmentRemerk';
 
 interface PurchaseOrderDataType {
   id: number;
@@ -45,6 +46,8 @@ interface PurchaseOrderDataType {
   };
   product_name: string;
   priority: string;
+  department: string;
+  department_remark: string;
 }
 
 const getPriorityColor = (priority: string) => {
@@ -92,6 +95,7 @@ const ViewWorkOrderTable = () => {
     add: false,
     view: false,
     remark: false,
+    depart_remark: false,
   });
 
   const [passwordModal, setPasswordModal] = useState(false);
@@ -203,6 +207,7 @@ const ViewWorkOrderTable = () => {
           );
         },
       }),
+
       columnHelper.display({
         id: 'grade',
         header: 'Grade',
@@ -235,6 +240,31 @@ const ViewWorkOrderTable = () => {
                 className={`w-3 h-3 rounded-full ${getPriorityColor(info.row.original.priority)}`}
               />
               <p className="text-gray-900 font-medium">{info.row.original.priority || '-'}</p>
+            </div>
+          </div>
+        ),
+      }),
+      columnHelper.accessor('department', {
+        header: 'Department',
+        cell: (info) => (
+          <div className="truncate">
+            <div className="flex items-center gap-2 mt-1">
+              {/* <span
+                className={`w-3 h-3 rounded-full ${getPriorityColor(info.row.original.department)}`}
+              /> */}
+              <p className="text-gray-900 font-medium">{info.row.original.department || '-'}</p>
+            </div>
+          </div>
+        ),
+      }),
+      columnHelper.accessor('department_remark', {
+        header: 'Deparment remark',
+        cell: (info) => (
+          <div className="truncate">
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-gray-900 font-medium">
+                {info.row.original.department_remark || '-'}
+              </p>
             </div>
           </div>
         ),
@@ -314,6 +344,16 @@ const ViewWorkOrderTable = () => {
                   </Button>
                 </Tooltip>
               )} */}
+
+              <Tooltip content="Add Remark">
+                <Button
+                  size="xs"
+                  color="success"
+                  onClick={() => handleModal('depart_remark', true, row)}
+                >
+                  <Icon icon="mdi:comment-plus-outline" height={18} />
+                </Button>
+              </Tooltip>
 
               {remarkPermission && (
                 <Tooltip content="Add Remark">
@@ -405,6 +445,16 @@ const ViewWorkOrderTable = () => {
           <Remark
             placeModal={modals.remark}
             setPlaceModal={() => handleModal('remark', false)}
+            selectedRow={selectedRow}
+          />
+        </Portal>
+      )}
+
+      {modals.depart_remark && (
+        <Portal>
+          <DepartmentRemerk
+            placeModal={modals.depart_remark}
+            setPlaceModal={() => handleModal('depart_remark', false)}
             selectedRow={selectedRow}
           />
         </Portal>
