@@ -227,9 +227,9 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
         newErrors[`labours_${index}`] = 'Required';
       }
 
-      if (!row.output_morning && !row.output_evening) {
-        newErrors[`output_${index}`] = 'Enter output quantity';
-      }
+      // if (!row.output_morning && !row.output_evening) {
+      //   newErrors[`output_${index}`] = 'Enter output quantity';
+      // }
     });
 
     setErrors(newErrors);

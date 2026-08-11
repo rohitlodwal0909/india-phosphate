@@ -302,9 +302,9 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
         newErrors[`labours_${index}`] = 'Labours is required';
       }
 
-      if (row.output_morning === '' && row.output_evening === '') {
-        newErrors[`output_${index}`] = 'Enter at least one output quantity';
-      }
+      // if (row.output_morning === '' && row.output_evening === '') {
+      //   newErrors[`output_${index}`] = 'Enter at least one output quantity';
+      // }
     });
 
     setErrors(newErrors);

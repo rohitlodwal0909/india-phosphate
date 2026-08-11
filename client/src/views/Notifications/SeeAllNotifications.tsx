@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Avatar, Pagination } from "flowbite-react";
-import { useLocation } from "react-router";
-import notificationicon from "../../assets/images/logos/notification2.png";
-import notificationicon2 from "../../assets/images/logos/notification.png";
-import { GetNotification, ReadNotification } from "src/features/Notifications/NotificationSlice";
-import { toast } from "react-toastify";
-import CardBox from "src/components/shared/CardBox";
-import BreadcrumbComp from "src/layouts/full/shared/breadcrumb/BreadcrumbComp";
-import { AppDispatch } from "src/store";
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Avatar, Pagination } from 'flowbite-react';
+import { useLocation, useNavigate } from 'react-router';
+import notificationicon from '../../assets/images/logos/notification2.png';
+import notificationicon2 from '../../assets/images/logos/notification.png';
+import { GetNotification, ReadNotification } from 'src/features/Notifications/NotificationSlice';
+import { toast } from 'react-toastify';
+import CardBox from 'src/components/shared/CardBox';
+import BreadcrumbComp from 'src/layouts/full/shared/breadcrumb/BreadcrumbComp';
+import { AppDispatch } from 'src/store';
 
 const SeeAllNotifications = () => {
   // const logindata = JSON.parse(localStorage.getItem("logincheck") || "{}");
-    const logindata = useSelector((state: any) => state.authentication?.logindata);
-   console.log(logindata)
+  const logindata = useSelector((state: any) => state.authentication?.logindata);
+  const navigate = useNavigate();
 
   const notifications = useSelector((state: any) => state.notifications.notificationData);
   const [notificationList, setNotificationList] = useState(notifications || []);
@@ -27,7 +27,7 @@ const SeeAllNotifications = () => {
   const totalPages = Math.ceil(notificationList.length / itemsPerPage);
   const paginatedNotifications = notificationList.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   useEffect(() => {
@@ -35,14 +35,14 @@ const SeeAllNotifications = () => {
       try {
         await dispatch(GetNotification(logindata?.admin?.id)).unwrap();
       } catch (error) {
-        console.error(error || "Failed to fetch notifications");
+        console.error(error || 'Failed to fetch notifications');
       }
     };
     if (notificationId || location.state === null) {
       fetchNotification();
     }
     fetchNotification();
-  }, [dispatch, notificationId ]);
+  }, [dispatch, notificationId]);
 
   useEffect(() => {
     if (notifications) {
@@ -50,33 +50,48 @@ const SeeAllNotifications = () => {
     }
   }, [notifications]);
 
-  const handleRead = async (id: number) => {
+  // const handleRead = async (links) => {
+  //   try {
+  //     const id = links?.id;
+  //     const link = links?.link;
+  //     const result = await dispatch(ReadNotification(id)).unwrap();
+  //     if (result) {
+  //       const updated = notificationList.map((item) => (item.id === id ? result : item));
+  //       setNotificationList(updated);
+  //       dispatch(TotalNotification());
+  //       navigate(link);
+  //     }
+  //   } catch (error) {
+  //     toast.error('Failed to update notification');
+  //     console.error(error);
+  //   }
+  // };
+
+  const handleRead = async (links) => {
+    const id = links?.id;
+    const link = links?.link;
     try {
       const result = await dispatch(ReadNotification(id)).unwrap();
       if (result) {
-        const updated = notificationList.map((item) =>
-          item.id === id ? result : item
-        );
+        const updated = notificationList.map((item) => (item.id === id ? result : item));
         setNotificationList(updated);
+        navigate(link);
       }
     } catch (error) {
-      toast.error("Failed to update notification");
+      toast.error('Failed to update notification');
       console.error(error);
     }
   };
 
   return (
     <div>
-      <BreadcrumbComp
-        items={[{ title: "Notifications", to: "/" }]}
-        title="Notifications"
-      />
+      <BreadcrumbComp items={[{ title: 'Notifications', to: '/' }]} title="Notifications" />
 
       <CardBox>
         <ul className="w-full rounded-sm">
           {paginatedNotifications.map((links) => (
             <li
-              onClick={() => handleRead(links.id)}
+              onClick={() => handleRead(links)}
               className={`px-6 py-3 cursor-pointer flex justify-between items-center w-full hover:bg-gray-100`}
               key={links.id}
             >
@@ -87,7 +102,7 @@ const SeeAllNotifications = () => {
                   <Avatar
                     img={links.is_read == 0 ? notificationicon : notificationicon2}
                     rounded
-                    status={links.is_read == 0 ? "online" : "busy"}
+                    status={links.is_read == 0 ? 'online' : 'busy'}
                     statusPosition="bottom-right"
                   />
                 </div>
@@ -97,34 +112,32 @@ const SeeAllNotifications = () => {
                     <h5
                       className={`mb-1 text-sm ${
                         links.is_read == 0
-                          ? "text-gray-900 font-semibold"
-                          : "text-gray-500 font-normal"
+                          ? 'text-gray-900 font-semibold'
+                          : 'text-gray-500 font-normal'
                       } group-hover/link:text-primary`}
                     >
                       {links.title}
                     </h5>
-                    <div className="text-xs text-darklink line-clamp-1">
-                      {links.message}
-                    </div>
+                    <div className="text-xs text-darklink line-clamp-1">{links.message}</div>
                   </div>
 
                   {links.date_time && (
                     <div>
                       <div className="text-xs block self-start pt-1.5">
                         {new Date(links.date_time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                          hour: '2-digit',
+                          minute: '2-digit',
                           hour12: true,
                         })}
                       </div>
                       <div className="text-xs block self-start pt-0.5 text-gray-500">
                         {new Date(links.date_time)
-                          .toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
+                          .toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
                           })
-                          .replace(/ /g, "-")}
+                          .replace(/ /g, '-')}
                       </div>
                     </div>
                   )}
@@ -142,7 +155,7 @@ const SeeAllNotifications = () => {
               totalPages={totalPages}
               onPageChange={(page) => {
                 setCurrentPage(page);
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               showIcons
             />

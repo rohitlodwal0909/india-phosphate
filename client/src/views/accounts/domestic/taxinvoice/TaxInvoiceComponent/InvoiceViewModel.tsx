@@ -596,12 +596,16 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
               )}
 
               {/* Signature */}
-              <div className="text-right mt-10">
-                <p>For India Phosphate and Allied Industries Pvt.Ltd</p>
+              <div className="border-r p-3 flex flex-col">
+                {/* Top */}
+                <div>
+                  <p className="font-semibold">For India Phosphate & Allied Industries Pvt.Ltd</p>
+                </div>
 
-                <div className="h-14"></div>
-
-                <p className="font-semibold">Authorised Signatory</p>
+                {/* Bottom */}
+                <div className="mt-auto">
+                  <p className="leading-5">Authorised Signatory</p>
+                </div>
               </div>
             </div>
           </div>

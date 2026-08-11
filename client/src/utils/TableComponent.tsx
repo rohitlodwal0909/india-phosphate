@@ -1,6 +1,6 @@
 import noData from '../assets/images/svgs/no-data.webp';
 
-const TableComponent = ({ table, flexRender, columns }) => {
+const TableComponent = ({ table, flexRender, columns, rowClassName }) => {
   return (
     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead className="bg-gray-50 dark:bg-gray-800">
@@ -23,7 +23,10 @@ const TableComponent = ({ table, flexRender, columns }) => {
       <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
         {table.getRowModel().rows.length > 0 ? (
           table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="bg-white dark:bg-gray-900">
+            <tr
+              key={row.id}
+              className={rowClassName ? rowClassName(row) : 'bg-white dark:bg-gray-900'}
+            >
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}

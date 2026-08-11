@@ -325,11 +325,15 @@ const ViewModal = ({ placeModal, setPlaceModal, selectedRow }: Props) => {
               </div>
 
               {/* RIGHT SIDE */}
-              <div className="border-r p-3 space-y-3">
+              <div className="border-r p-3 flex flex-col">
+                {/* Top */}
                 <div>
                   <p className="font-semibold">For India Phosphate & Allied Industries Pvt.Ltd</p>
+                </div>
 
-                  <p className="leading-5 pt-9">Authorised Signatory</p>
+                {/* Bottom */}
+                <div className="mt-auto">
+                  <p className="leading-5">Authorised Signatory</p>
                 </div>
               </div>
             </div>

@@ -81,7 +81,6 @@ const QaDocumentTable = () => {
     }
     try {
       const id = selectedRow.id;
-
       await dispatch(deleteQaDocument(id)).unwrap();
       toast.success('Qa Document entry delete!');
       dispatch(getQaDocument());
@@ -93,17 +92,45 @@ const QaDocumentTable = () => {
     }
   };
 
-  const filteredData = useMemo(
-    () =>
-      data.filter((item) =>
-        Object.values(item).some((v) =>
-          String(v || '')
-            .toLowerCase()
-            .includes(searchText.toLowerCase()),
-        ),
+  const filteredData = useMemo(() => {
+    const filtered = data.filter((item) =>
+      Object.values(item).some((v) =>
+        String(v || '')
+          .toLowerCase()
+          .includes(searchText.toLowerCase()),
       ),
-    [data, searchText],
-  );
+    );
+
+    return filtered.sort((a, b) => {
+      const getPriority = (item: PurchaseOrderDataType) => {
+        const documents = Array.isArray(item.qa_document) ? item.qa_document : [];
+
+        // share_customer_by wale sabse last
+        if (documents.some((doc: any) => doc?.share_customer_by)) {
+          return 3;
+        }
+
+        // status wale uske pehle
+        if (documents.some((doc: any) => doc?.status)) {
+          return 2;
+        }
+
+        // normal records
+        return 1;
+      };
+
+      const priorityA = getPriority(a);
+      const priorityB = getPriority(b);
+
+      // Pehle priority ke according
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Same priority me latest date first
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+  }, [data, searchText]);
 
   const columns = useMemo(
     () => [
@@ -115,6 +142,7 @@ const QaDocumentTable = () => {
           </div>
         ),
       }),
+
       columnHelper.accessor('date', { header: 'Date' }),
 
       columnHelper.accessor('customers', {
@@ -262,7 +290,30 @@ const QaDocumentTable = () => {
         <>
           <div className="w-full overflow-x-auto">
             <div className="min-w-full">
-              <TableComponent table={table} flexRender={flexRender} columns={columns} />
+              <TableComponent
+                table={table}
+                flexRender={flexRender}
+                columns={columns}
+                rowClassName={(row: any) => {
+                  const documents = Array.isArray(row.original.qa_document)
+                    ? row.original.qa_document
+                    : [];
+
+                  const hasShareCustomerBy = documents.some((item: any) => item?.share_customer_by);
+
+                  const hasStatus = documents.some((item: any) => item?.status);
+
+                  if (hasShareCustomerBy) {
+                    return 'bg-green-50';
+                  }
+
+                  if (hasStatus) {
+                    return 'bg-yellow-50';
+                  } else {
+                    return 'bg-blue-50';
+                  }
+                }}
+              />
             </div>
           </div>
           <PaginationComponent table={table} />
