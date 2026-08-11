@@ -75,7 +75,7 @@ const SeeAllNotifications = () => {
       if (result) {
         const updated = notificationList.map((item) => (item.id === id ? result : item));
         setNotificationList(updated);
-        navigate(link);
+        navigate('/' + link || '');
       }
     } catch (error) {
       toast.error('Failed to update notification');

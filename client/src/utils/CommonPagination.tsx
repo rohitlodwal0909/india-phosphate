@@ -42,14 +42,13 @@ const CommonPagination = ({ currentPage, totalPages, pageSize, setCurrentPage, s
             }}
             className="border w-20 px-2 py-1 text-sm rounded"
           >
-            {[10, 15, 20, 25, 50, 100].map((size) => (
+            {[10, 15, 20, 25, 50, 100, 200, 500].map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
             ))}
           </select>
         </div>
-
         <div className="flex gap-2 sm:mt-0 mt-3">
           <Button
             size="small"

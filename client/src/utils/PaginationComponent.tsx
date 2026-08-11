@@ -43,7 +43,7 @@ function PaginationComponent<T>({ table }: PaginationComponentProps<T>) {
             onChange={(e) => table.setPageSize(Number(e.target.value))}
             className="border w-20"
           >
-            {[10, 15, 20, 25].map((pageSize) => (
+            {[10, 15, 20, 25, 50, 100, 200, 500].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 {pageSize}
               </option>
@@ -55,7 +55,15 @@ function PaginationComponent<T>({ table }: PaginationComponentProps<T>) {
             size="small"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
-            className="bg-lightgray dark:bg-dark hover:bg-lightprimary dark:hover:bg-lightprimary disabled:opacity-50"
+            className="bg-lightgray
+  text-gray-700
+  hover:bg-lightprimary
+  dark:bg-dark
+  dark:text-gray-300
+  dark:hover:bg-lightprimary
+  disabled:bg-gray-200
+  disabled:text-gray-400
+  disabled:opacity-100"
           >
             <IconChevronsLeft size={20} />
           </Button>
@@ -63,7 +71,16 @@ function PaginationComponent<T>({ table }: PaginationComponentProps<T>) {
             size="small"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="bg-lightgray dark:bg-dark hover:bg-lightprimary dark:hover:bg-lightprimary disabled:opacity-50"
+            className="
+  bg-lightgray
+  text-gray-700
+  hover:bg-lightprimary
+  dark:bg-dark
+  dark:text-gray-300
+  dark:hover:bg-lightprimary
+  disabled:bg-gray-200
+  disabled:text-gray-400
+  disabled:opacity-100"
           >
             <IconChevronLeft size={20} />
           </Button>
@@ -71,7 +88,15 @@ function PaginationComponent<T>({ table }: PaginationComponentProps<T>) {
             size="small"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="bg-lightgray dark:bg-dark hover:bg-lightprimary dark:hover:bg-lightprimary disabled:opacity-50"
+            className="bg-lightgray
+  text-gray-700
+  hover:bg-lightprimary
+  dark:bg-dark
+  dark:text-gray-300
+  dark:hover:bg-lightprimary
+  disabled:bg-gray-200
+  disabled:text-gray-400
+  disabled:opacity-100"
           >
             <IconChevronRight size={20} />
           </Button>
@@ -79,7 +104,15 @@ function PaginationComponent<T>({ table }: PaginationComponentProps<T>) {
             size="small"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
-            className="bg-lightgray dark:bg-dark hover:bg-lightprimary dark:hover:bg-lightprimary disabled:opacity-50"
+            className="bg-lightgray
+  text-gray-700
+  hover:bg-lightprimary
+  dark:bg-dark
+  dark:text-gray-300
+  dark:hover:bg-lightprimary
+  disabled:bg-gray-200
+  disabled:text-gray-400
+  disabled:opacity-100"
           >
             <IconChevronsRight size={20} />
           </Button>

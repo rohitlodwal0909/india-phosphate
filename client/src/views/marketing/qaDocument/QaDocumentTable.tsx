@@ -93,41 +93,56 @@ const QaDocumentTable = () => {
   };
 
   const filteredData = useMemo(() => {
-    const filtered = data.filter((item) =>
-      Object.values(item).some((v) =>
-        String(v || '')
-          .toLowerCase()
-          .includes(searchText.toLowerCase()),
-      ),
-    );
+    const search = searchText.trim().toLowerCase();
+
+    // Search entire object including nested objects & arrays
+    const deepSearch = (value: any): boolean => {
+      if (!search) return true;
+
+      if (value === null || value === undefined) {
+        return false;
+      }
+
+      if (typeof value === 'object') {
+        if (Array.isArray(value)) {
+          return value.some((item) => deepSearch(item));
+        }
+
+        return Object.values(value).some((item) => deepSearch(item));
+      }
+
+      return String(value).toLowerCase().includes(search);
+    };
+
+    const filtered = data.filter((item) => deepSearch(item));
 
     return filtered.sort((a, b) => {
       const getPriority = (item: PurchaseOrderDataType) => {
         const documents = Array.isArray(item.qa_document) ? item.qa_document : [];
 
-        // share_customer_by wale sabse last
+        // share_customer_by sabse last
         if (documents.some((doc: any) => doc?.share_customer_by)) {
           return 3;
         }
 
-        // status wale uske pehle
+        // status uske pehle
         if (documents.some((doc: any) => doc?.status)) {
           return 2;
         }
 
-        // normal records
+        // normal
         return 1;
       };
 
       const priorityA = getPriority(a);
       const priorityB = getPriority(b);
 
-      // Pehle priority ke according
+      // Priority ke according
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }
 
-      // Same priority me latest date first
+      // Same priority -> latest date first
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
   }, [data, searchText]);

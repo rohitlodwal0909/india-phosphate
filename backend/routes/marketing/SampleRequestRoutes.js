@@ -12,20 +12,20 @@ const crypto = require("crypto");
 /* ===============================
    File Filter (Security)
 =================================*/
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    "application/pdf",
-    "image/jpeg",
-    "image/png",
-    "image/jpg"
-  ];
+// const fileFilter = (req, file, cb) => {
+//   const allowedTypes = [
+//     "application/pdf",
+//     "image/jpeg",
+//     "image/png",
+//     "image/jpg"
+//   ];
 
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Invalid file type"), false);
-  }
-};
+//   if (allowedTypes.includes(file.mimetype)) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error("Invalid file type"), false);
+//   }
+// };
 
 /* ===============================
    Sample Request Upload
@@ -41,7 +41,7 @@ const sampleStorage = multer.diskStorage({
 
 const upload = multer({
   storage: sampleStorage,
-  fileFilter,
+  // fileFilter,
   limits: {
     fileSize: 15 * 1024 * 1024 // 15MB upload limit
   }
@@ -61,7 +61,7 @@ const coaStorage = multer.diskStorage({
 
 const uploadCoa = multer({
   storage: coaStorage,
-  fileFilter,
+  // fileFilter,
   limits: {
     fileSize: 20 * 1024 * 1024
   }
