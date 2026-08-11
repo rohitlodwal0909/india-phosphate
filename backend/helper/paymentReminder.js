@@ -36,7 +36,9 @@ const accountPaymentReminder = async () => {
     await createNotificationByRoleId({
       title,
       message,
+      link: "purchase/po",
       role_id: 10, // Accounts Role
+
       module_id: 5,
       submodule_id: 3
     });

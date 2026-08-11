@@ -110,6 +110,7 @@ exports.create = async (req, res, next) => {
     await createNotificationByRoleId({
       title,
       message,
+      link: "inventory/planing",
       role_id: 8,
       module_id: 2,
       submodule_id: 9

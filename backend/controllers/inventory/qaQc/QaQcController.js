@@ -91,6 +91,7 @@ exports.approveOrRejectGrnEntry = async (req, res, next) => {
     await createNotificationByRoleId({
       title: notificationTitle,
       message: notificationMessage,
+      link: "inventory/store",
       role_id: 2
     });
 
@@ -628,12 +629,14 @@ exports.addQcBatch = async (req, res, next) => {
     await createNotificationByRoleId({
       title: "New Batch Number",
       message: "A new batch number has been successfully created.",
+      link: "inventory/qc-batch",
       role_id: 5
     });
     await createNotificationByRoleId({
       title: "New Batch Production",
       message:
         "A new batch number has been successfully entered. Please proceed with production.",
+      link: "inventory/qc-batch",
       role_id: 6
     });
     res.status(201).json({
@@ -692,6 +695,7 @@ exports.updateQcBatch = async (req, res, next) => {
     await createNotificationByRoleId({
       title: "QC Batch Updated",
       message: `QC Batch ${qc_batch_number} has been updated successfully.`,
+      link: "inventory/qc-batch",
       role_id: 5
     });
 

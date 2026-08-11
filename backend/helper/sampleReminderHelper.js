@@ -32,12 +32,12 @@ const sampleReminderHelper = async () => {
     const sampleList = reminders.map((r) => r.sr_no).join(", ");
 
     const title = "⏰ Sample Pending for QC";
-
     const message = `QC action pending for ${reminders.length} Samples: ${sampleList}`;
 
     await createNotificationByRoleId({
       title,
       message,
+      link: "marketing/sample-qc",
       role_id: 3,
       module_id: 4,
       submodule_id: 7
