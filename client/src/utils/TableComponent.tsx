@@ -1,6 +1,13 @@
 import noData from '../assets/images/svgs/no-data.webp';
 
-const TableComponent = ({ table, flexRender, columns, rowClassName }) => {
+interface TableComponentProps {
+  table: any;
+  flexRender: any;
+  columns: any;
+  rowClassName?: (row: any) => string;
+}
+
+const TableComponent = ({ table, flexRender, columns, rowClassName }: TableComponentProps) => {
   return (
     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead className="bg-gray-50 dark:bg-gray-800">
