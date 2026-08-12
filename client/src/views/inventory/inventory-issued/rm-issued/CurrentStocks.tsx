@@ -33,7 +33,6 @@ const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
     if (!search) {
       return storeRawMaterial || [];
     }
-
     return (storeRawMaterial || []).filter((item) => item.name?.toLowerCase().includes(search));
   }, [storeRawMaterial, searchText]);
 
@@ -80,7 +79,6 @@ const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
           </div>
         </div>
       </ModalBody>
-
       <ModalFooter />
     </Modal>
   );
