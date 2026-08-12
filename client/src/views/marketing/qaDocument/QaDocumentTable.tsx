@@ -57,8 +57,9 @@ const QaDocumentTable = () => {
   const [selectedRow, setSelectedRow] = useState<PurchaseOrderDataType | null>(null);
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
-    return getPermissions(logindata, selectedIconId, 4);
+    return getPermissions(logindata, selectedIconId, 8);
   }, [logindata, selectedIconId]);
 
   useEffect(() => {
