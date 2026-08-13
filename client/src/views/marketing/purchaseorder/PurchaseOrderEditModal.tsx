@@ -126,7 +126,6 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       gst: '',
       pro_freight: '',
       total: '',
-
       packing: '',
       file: null,
     },
@@ -141,10 +140,18 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
     const gst = parseFloat(updated[index].gst) || 0;
     const pro_freight = parseFloat(updated[index].pro_freight) || 0;
 
-    const subtotal = qty * rate + pro_freight;
+    // Qty × Rate
+    const amount = qty * rate;
+
+    // Amount + Freight
+    const subtotal = amount + pro_freight;
+
+    // GST
     const gstAmount = subtotal * (gst / 100);
 
-    const total = subtotal + gstAmount + pro_freight;
+    // Final Total
+    const total = subtotal + gstAmount;
+    console.log(total);
 
     updated[index].total = total.toFixed(2);
 

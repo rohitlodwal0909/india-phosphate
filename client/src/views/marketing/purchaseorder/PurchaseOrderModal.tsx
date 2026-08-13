@@ -118,13 +118,19 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     const gst = parseFloat(updated[index].gst) || 0;
     const pro_freight = parseFloat(updated[index].pro_freight) || 0;
 
-    const subtotal = qty * rate + pro_freight;
+    // Qty × Rate
+    const amount = qty * rate;
+
+    // Amount + Freight
+    const subtotal = amount + pro_freight;
+
+    // GST on Amount + Freight
     const gstAmount = subtotal * (gst / 100);
 
-    const total = subtotal + gstAmount + pro_freight;
+    // Final Total
+    const total = subtotal + gstAmount;
 
     updated[index].total = total.toFixed(2);
-    // updated[index].total = (subtotal + gstAmount).toFixed(2);
 
     setProducts(updated);
   };

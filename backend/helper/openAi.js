@@ -175,8 +175,7 @@ Rules:
 - Do not invent information.
 - Use only the provided ERP data.
 - Meeting summary should be less than 100 words.
-- Questions should be practical.
-`;
+- Questions should be practical.`;
 
     const response = await client.responses.create({
       model: "gpt-5",
