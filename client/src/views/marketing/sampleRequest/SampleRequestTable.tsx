@@ -42,6 +42,7 @@ interface PurchaseOrderDataType {
   docket_remark: string;
   contact_person: string;
   type: string;
+  created_at: string;
   qc_status: string;
   qc_coa_pdf: string;
   users?: {
@@ -181,6 +182,18 @@ const SampleRequestTable = () => {
           return (
             <div className="max-w-[350px] whitespace-normal break-words text-sm">
               <p className={getStatusColor(status)}>{status ? status.toUpperCase() : '-'}</p>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('created_at', {
+        header: 'Date',
+        cell: (info) => {
+          const createdAt = info.row.original.created_at;
+
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <p>{createdAt ? new Date(createdAt).toLocaleDateString('en-GB') : '-'}</p>
             </div>
           );
         },
