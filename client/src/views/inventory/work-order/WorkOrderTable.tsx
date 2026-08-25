@@ -169,8 +169,6 @@ const ViewWorkOrderTable = () => {
     }
   };
 
-  console.log(filteredData);
-
   const columns = useMemo(
     () => [
       columnHelper.display({

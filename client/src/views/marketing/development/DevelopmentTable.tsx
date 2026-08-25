@@ -31,7 +31,11 @@ interface DevelopmentDataType {
   customers?: {
     id: number;
     company_name: string;
+    convert_to_customer?: number;
+    potential_opportunity?: number;
+    new_customer?: number;
   };
+
   interested_products?: any;
   note: string;
   status: string;
@@ -139,6 +143,36 @@ const DevelopmentTable = () => {
             <p>{info.row.original.customers?.company_name}</p>
           </div>
         ),
+      }),
+      columnHelper.accessor('customers', {
+        header: 'Customer Type',
+        cell: (info) => {
+          const customer = info.row.original.customers;
+
+          let type = 'New Customer';
+          let color = 'bg-cyan-100 text-cyan-700';
+
+          if (customer?.convert_to_customer == 1) {
+            type = 'Existing Customer';
+            color = 'bg-green-100 text-green-700';
+          } else if (customer?.potential_opportunity == 1) {
+            type = 'Potential Customer';
+            color = 'bg-orange-100 text-orange-700';
+          } else if (customer?.convert_to_customer == 0 && customer?.potential_opportunity == 0) {
+            type = 'New Customer';
+            color = 'bg-blue-100 text-blue-700';
+          }
+
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <span
+                className={`mt-1 inline-block rounded-full px-2 py-1 text-xs font-medium ${color}`}
+              >
+                {type}
+              </span>
+            </div>
+          );
+        },
       }),
 
       columnHelper.accessor('interested_products', {

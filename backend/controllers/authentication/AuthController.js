@@ -210,31 +210,39 @@ exports.changePassword = async (req, res, next) => {
 exports.changePOPassword = async (req, res, next) => {
   try {
     const { new_password, confirm_password } = req.body;
-    const id = req.admin.id;
+
     if (!new_password) {
       const error = new Error("New password is required");
       error.status = 400;
       return next(error);
     }
-    // Optional: Check confirm_password if frontend sends it
+
     if (confirm_password && new_password !== confirm_password) {
       const error = new Error("Passwords do not match");
       error.status = 400;
       return next(error);
     }
 
-    const admin = await User.findByPk(id);
-    if (!admin) {
-      const error = new Error("User not found");
-      error.status = 401;
-      return next(error);
-    }
-    await admin.update({ po_password: new_password });
-    return res.json({ message: "Password updated successfully" });
+    // Update PO password for ALL users
+    const [updatedCount] = await User.update(
+      {
+        po_password: new_password
+      },
+      {
+        where: {}
+      }
+    );
+
+    return res.json({
+      success: true,
+      message: "PO password updated successfully for all users",
+      updatedUsers: updatedCount
+    });
   } catch (error) {
     next(error);
   }
 };
+
 exports.forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 

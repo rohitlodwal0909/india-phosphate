@@ -157,15 +157,15 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
   const stats = useMemo(() => {
     const customers = totalcustomers || [];
 
-    const totalLeads = customers.length;
+    const totalOpportunities = customers.filter((item) => item.potential_opportunity == 1).length;
+
+    const totalLeads = customers.length + totalOpportunities;
 
     const totalCustomers = customers.filter(
       (item) => item.convert_to_customer == 0 && item.potential_opportunity == 0,
     ).length;
 
     const wonLeads = customers.filter((item) => item.convert_to_customer == 1).length;
-
-    const totalOpportunities = customers.filter((item) => item.potential_opportunity == 1).length;
 
     return {
       totalCustomers,

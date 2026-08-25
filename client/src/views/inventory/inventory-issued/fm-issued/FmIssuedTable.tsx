@@ -43,6 +43,7 @@ interface BmrDataType {
   total_finish_qty: string;
   total_issued_qty: string;
   remaining_qty: string;
+  work_order_no: string;
   remark: string;
 }
 
@@ -141,6 +142,9 @@ const FmIssuedTable = () => {
 
       columnHelper.accessor('grade', {
         header: 'Grade',
+      }),
+      columnHelper.accessor('work_order_no', {
+        header: 'Work Order No.',
       }),
       columnHelper.accessor('mfg_date', {
         header: 'Mfg Date',

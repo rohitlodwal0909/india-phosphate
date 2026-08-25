@@ -164,6 +164,14 @@ const customerdata = async () => {
     order: [["created_at", "DESC"]]
   });
 
+  const potential_oppertunity = await Customer.count({
+    where: { potential_opportunity: 1 }
+  });
+
+  const new_customer = await Customer.count({
+    where: { convert_to_customer: 1 }
+  });
+
   let dormantCustomers = 0;
   let revivedCustomers = 0;
 
@@ -247,6 +255,8 @@ const customerdata = async () => {
 
   const customer_conversation = {
     identifiedCompanies: companies.length,
+    potential_oppertunity: potential_oppertunity,
+    new_customer: new_customer,
     contacted,
     enquiry,
     quotation,

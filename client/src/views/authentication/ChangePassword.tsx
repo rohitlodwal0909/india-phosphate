@@ -11,6 +11,7 @@ import {
 } from 'src/features/authentication/AuthenticationSlice';
 import { useNavigate } from 'react-router';
 import bgimages from '../../assets/images/backgrounds/welcome-bg2.png';
+
 interface PasswordFormData {
   new_password: string;
   confirm_password: string;

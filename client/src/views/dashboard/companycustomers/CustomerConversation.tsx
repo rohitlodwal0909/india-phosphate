@@ -40,10 +40,31 @@ const CustomerConversation = ({ customer }: any) => {
       </div>
 
       <FunnelItem
-        title="Identified Companies"
+        title="Total Companies"
         value={customer?.identifiedCompanies || 0}
         width={100}
         color="bg-slate-600"
+      />
+
+      <FunnelItem
+        title="Potential Opportunity"
+        value={customer?.potential_oppertunity || 0}
+        width={getWidth(customer?.potential_oppertunity || 0)}
+        color="bg-indigo-500"
+      />
+
+      <FunnelItem
+        title="New Customer"
+        value={customer?.new_customer || 0}
+        width={getWidth(customer?.new_customer || 0)}
+        color="bg-cyan-500"
+      />
+
+      <FunnelItem
+        title="Existing Customer"
+        value={customer?.existing_customer || 0}
+        width={getWidth(customer?.existing_customer || 0)}
+        color="bg-teal-500"
       />
 
       <FunnelItem
@@ -52,13 +73,6 @@ const CustomerConversation = ({ customer }: any) => {
         width={getWidth(customer?.contacted || 0)}
         color="bg-blue-500"
       />
-
-      {/* <FunnelItem
-        title="Responded"
-        value={customer?.responded || 0}
-        width={getWidth(customer?.responded || 0)}
-        color="bg-cyan-500"
-      /> */}
 
       <FunnelItem
         title="Enquiry"
