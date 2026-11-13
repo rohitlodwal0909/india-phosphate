@@ -178,6 +178,11 @@ exports.index = async (req, res, next) => {
           required: false
         },
         {
+          model: Equipment,
+          as: "equipments",
+          required: false
+        },
+        {
           model: User,
           as: "pmapproveBy",
           required: false

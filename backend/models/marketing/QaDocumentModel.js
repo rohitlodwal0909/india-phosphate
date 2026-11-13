@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER
       },
 
+      priority: {
+        type: DataTypes.STRING
+      },
+
       date: {
         type: DataTypes.DATEONLY
       },

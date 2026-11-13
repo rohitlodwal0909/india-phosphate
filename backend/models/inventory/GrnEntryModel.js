@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      party_type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "Supplier"
+      },
       type: {
         type: DataTypes.STRING,
         allowNull: false
@@ -85,6 +90,11 @@ module.exports = (sequelize, DataTypes) => {
     GrnEntry.hasMany(models.PmQcResult, {
       foreignKey: "qc_id",
       as: "pmresult"
+    });
+    GrnEntry.hasMany(models.RMIssueAllocation, {
+      foreignKey: "grn_entry_id",
+      as: "rmIssueAllocations",
+      onDelete: "CASCADE"
     });
     GrnEntry.belongsTo(models.PmCode, {
       foreignKey: "store_pm_code",

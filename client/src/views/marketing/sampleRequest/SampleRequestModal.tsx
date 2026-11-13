@@ -40,6 +40,7 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const [formData, setFormData] = useState<any>({
     company_id: '',
     type: 'domestic',
+    priority: '',
     contact_person: '',
     mobile: '',
     address: '',
@@ -135,11 +136,11 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
       formDataObj.append('items', JSON.stringify(itemsWithoutFile));
 
-      items.forEach((item, index) => {
-        if (item.file) {
-          formDataObj.append(`file_${index}`, item.file);
-        }
-      });
+      // items.forEach((item, index) => {
+      //   if (item.file) {
+      //     formDataObj.append(`file_${index}`, item.file);
+      //   }
+      // });
 
       await dispatch(addSampleRequest(formDataObj)).unwrap();
 
@@ -278,6 +279,20 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                   <p className="text-red-500 text-xs mt-1">{errors.delivery_address}</p>
                 )}
               </div>
+              <div className="col-span-4">
+                <Label value="Priority" />
+                <select
+                  className="w-full border rounded p-2"
+                  value={formData.priority}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                >
+                  <option value="">Select priority</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -356,7 +371,7 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
                 {/* FILE */}
                 <div className="col-span-2">
-                  <Label>Specification *</Label>
+                  <Label>Specification</Label>
 
                   <label
                     htmlFor={`file-${index}`}

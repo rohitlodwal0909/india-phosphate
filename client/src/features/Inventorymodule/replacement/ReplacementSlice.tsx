@@ -10,6 +10,18 @@ const initialState = {
   delete: null,
 };
 
+export const getReplacementOptions = createAsyncThunk(
+  'replacement/options',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get('/replacement-options');
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to load replacement options');
+    }
+  },
+);
+
 export const addReplacement = createAsyncThunk('replacement/add', async (data: any, thunkAPI) => {
   try {
     const response = await axiosInstance.post(`/add-replacement`, data);

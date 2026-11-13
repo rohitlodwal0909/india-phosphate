@@ -51,6 +51,8 @@ router.get("/get-dispatch-batches", InvoiceController.getDispatchBatches);
 //Account Payment
 
 router.get("/get-invoice-payment", InvoiceController.getInvoicepayment);
+router.put("/invoice-payment/:id/received", InvoiceController.updateInvoiceReceivedAmount);
+router.post("/invoice-payment/:id/followups", InvoiceController.addInvoicePaymentFollowup);
 
 // Create Invoice + OQ Upload
 router.post(

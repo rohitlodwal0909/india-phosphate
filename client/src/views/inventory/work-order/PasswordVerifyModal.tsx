@@ -30,7 +30,7 @@ const PasswordVerifyModal = ({ open, setOpen, logindata, onSuccess }: Props) => 
       return;
     }
 
-    if (password === SYSTEM_PASSWORD) {
+    if (password === SYSTEM_PASSWORD && logindata?.admin?.id === 5) {
       toast.success('Access Granted');
       setOpen(false);
       onSuccess();

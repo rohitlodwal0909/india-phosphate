@@ -52,6 +52,7 @@ const QaDocumentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const [formData, setFormData] = useState({
     company_id: '',
+    priority: '',
   });
 
   const defaultRow = {
@@ -126,6 +127,7 @@ const QaDocumentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
       const payload = new FormData();
 
       payload.append('company_id', formData.company_id);
+      payload.append('priority', formData.priority);
 
       payload.append(
         'coaItems',
@@ -141,9 +143,9 @@ const QaDocumentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
         ),
       );
 
-      coaItems.forEach((item: any) => {
+      coaItems.forEach((item: any, index: number) => {
         if (item.file) {
-          payload.append('files', item.file);
+          payload.append(`file_${index}`, item.file);
         }
       });
 
@@ -157,6 +159,7 @@ const QaDocumentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
       setFormData({
         company_id: '',
+        priority: '',
       });
 
       setCoaItems([defaultRow]);
@@ -205,6 +208,20 @@ const QaDocumentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                   menuPortalTarget={document.body}
                   onChange={handleCustomer}
                 />
+              </div>
+              <div className="col-span-4">
+                <Label value="Priority" className="mb-2 block" />
+                <select
+                  className="w-full h-10 border rounded-lg px-3 bg-white"
+                  value={formData.priority}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, priority: e.target.value }))}
+                >
+                  <option value="">Select Priority</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
               </div>
             </div>
           </div>
@@ -299,21 +316,30 @@ const QaDocumentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                       {/* FILE */}
 
                       <div className="col-span-4">
-                        <Label value="Upload Pdf" className="mb-2 block" />
+                          <Label value="Upload Document" className="mb-2 block" />
 
                         <label
                           htmlFor={`file-${index}`}
                           className="flex items-center justify-center w-full h-11 px-3 border border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-100 text-xs text-gray-600"
                         >
-                          {item.file?.name || 'Upload PDF'}
+                          {item.file?.name || 'Upload PNG, JPG, PDF, Word, or Excel'}
                         </label>
 
                         <input
                           id={`file-${index}`}
                           type="file"
-                          accept=".pdf"
+                          accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.xls,.xlsx"
                           className="hidden"
-                          onChange={(e: any) => handleItem(index, 'file', e.target.files[0])}
+                          onChange={(e: any) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            if (!/\.(png|jpe?g|pdf|docx?|xlsx?)$/i.test(file.name)) {
+                              toast.error('Upload PNG, JPG, PDF, Word, or Excel files only');
+                              e.target.value = '';
+                              return;
+                            }
+                            handleItem(index, 'file', file);
+                          }}
                         />
                       </div>
                     </div>

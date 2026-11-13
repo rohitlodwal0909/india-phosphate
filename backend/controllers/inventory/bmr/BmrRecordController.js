@@ -7,7 +7,9 @@ const {
   LineClearance,
   LineClearanceKeyPoint,
   Qcbatch,
-  ProductionResult
+  ProductionResult,
+  RMIssueModel,
+  PMIssueModel
 } = db;
 const sequelize = db.sequelize; // ✅ THIS WAS MISSING
 const { Op } = require("sequelize");
@@ -52,6 +54,14 @@ exports.getProductionBatches = async (req, res, next) => {
         {
           model: ProductionResult,
           as: "production_results",
+          required: true
+        },
+        {
+          model: RMIssueModel,
+          required: true
+        },
+        {
+          model: PMIssueModel,
           required: true
         }
       ],

@@ -62,6 +62,8 @@ const UpcomingMeeting = ({ open, setOpen, upcomingMeeting, permissions }: any) =
 
                 <th className="p-4 text-left font-semibold">Participants</th>
 
+                <th className="p-4 text-left font-semibold">Follow-up</th>
+
                 <th className="p-4 text-left font-semibold">Status</th>
 
                 <th className="p-4 text-left font-semibold">Countdown</th>
@@ -140,6 +142,11 @@ const UpcomingMeeting = ({ open, setOpen, upcomingMeeting, permissions }: any) =
                         </div>
                       </td>
 
+                      {/* FOLLOW-UP */}
+                      <td className="p-4 min-w-[220px] whitespace-pre-wrap">
+                        {meeting.followup || <span className="text-gray-400">-</span>}
+                      </td>
+
                       {/* STATUS */}
                       <td className="p-4">
                         <Badge color={getStatusColor(meeting.status)}>{meeting.status}</Badge>
@@ -187,7 +194,7 @@ const UpcomingMeeting = ({ open, setOpen, upcomingMeeting, permissions }: any) =
                 })
               ) : (
                 <tr>
-                  <td colSpan={9} className="text-center py-10 text-gray-500">
+                  <td colSpan={10} className="text-center py-10 text-gray-500">
                     No Upcoming Meetings Found
                   </td>
                 </tr>

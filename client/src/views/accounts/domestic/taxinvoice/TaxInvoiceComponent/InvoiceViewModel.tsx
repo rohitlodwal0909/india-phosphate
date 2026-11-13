@@ -43,6 +43,7 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
   };
 
   const products = invoice?.InvoiceItems || [];
+  const currencySymbol = invoice?.currency === 'USD' ? '$' : '₹';
 
   const subtotal = products?.reduce((sum, p) => sum + getProductAmount(p.batch_no, p.rate), 0);
 
@@ -458,7 +459,7 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
               <td colSpan={2} className="border border-black"></td>
 
               <td className="border border-black text-right p-2 font-bold">
-                ₹ {Number(grandTotal).toLocaleString()}
+                {currencySymbol} {Number(grandTotal).toLocaleString()}
               </td>
             </tr>
           </tbody>

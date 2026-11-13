@@ -26,6 +26,12 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const [formData, setFormData] = useState<any>({
+    dispatch_type: 'domestic',
+    cha: '',
+    inco_terms: '',
+    airbill: '',
+    bl_no: '',
+    destination: '',
     batches: [{ batch_no: '', quantity: '', unit: '', max_quantity: 0 }],
   });
 
@@ -35,9 +41,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
 
   const transport = useSelector((state: RootState) => state.transport.Transportdata) as any[];
 
-  const purchaseOrders = purchaseOrder.filter(
-    (d) => d.workNo !== null && d.workNo.status == 'Approved',
-  );
+  const purchaseOrders = (purchaseOrder || []).filter((po: any) => po.workNo?.work_order_no);
   useEffect(() => {
     dispatch(getPurchaseOrders());
     dispatch(GetTransport());
@@ -47,11 +51,10 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
 
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<any>(null);
 
-  const workOrderOptions =
-    StoreDatas?.map((item: any) => ({
-      value: item.work_order_no,
-      label: item.work_order_no,
-    })) || [];
+  const workOrderOptions = purchaseOrders.map((po: any) => ({
+    value: po.workNo.work_order_no,
+    label: po.workNo.work_order_no,
+  }));
 
   const batchOptions =
     selectedWorkOrder?.batches?.map((b: any) => ({
@@ -59,12 +62,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
       label: `${b.qc_batch_number}`,
     })) || [];
 
-  // PO options
-  const po_nos =
-    purchaseOrders?.map((po: any) => ({
-      value: po.id,
-      label: po.po_no,
-    })) || [];
+  const selectedPurchaseOrder = purchaseOrders.find((po: any) => po.id === Number(formData.po_id));
 
   // Selected row load
   useEffect(() => {
@@ -169,15 +167,49 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-5">
-          {/* PO */}
+          {/* PO Number is taken from the selected work order */}
           <div className="sm:col-span-6 col-span-12">
             <Label value="PO No." />
-            <Select
-              options={po_nos}
-              value={po_nos.find((opt) => opt.value === formData.po_id) || null}
-              onChange={(selected: any) => setFormData({ ...formData, po_id: selected?.value })}
-            />
+            <TextInput value={selectedPurchaseOrder?.po_no || ''} readOnly placeholder="Select a work order first" />
           </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label value="Dispatch Type" />
+            <select
+              name="dispatch_type"
+              value={formData.dispatch_type || 'domestic'}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded-md dark:bg-gray-800"
+            >
+              <option value="domestic">Domestic</option>
+              <option value="export">Export</option>
+            </select>
+          </div>
+
+          {formData.dispatch_type === 'export' && (
+            <>
+              <div className="sm:col-span-6 col-span-12">
+                <Label value="CHA" />
+                <TextInput name="cha" value={formData.cha || ''} onChange={handleChange} />
+              </div>
+              <div className="sm:col-span-6 col-span-12">
+                <Label value="Inco Terms" />
+                <TextInput name="inco_terms" value={formData.inco_terms || ''} onChange={handleChange} />
+              </div>
+              <div className="sm:col-span-6 col-span-12">
+                <Label value="Airbill" />
+                <TextInput name="airbill" value={formData.airbill || ''} onChange={handleChange} />
+              </div>
+              <div className="sm:col-span-6 col-span-12">
+                <Label value="BL No." />
+                <TextInput name="bl_no" value={formData.bl_no || ''} onChange={handleChange} />
+              </div>
+              <div className="sm:col-span-6 col-span-12">
+                <Label value="Destination" />
+                <TextInput name="destination" value={formData.destination || ''} onChange={handleChange} />
+              </div>
+            </>
+          )}
 
           <div className="sm:col-span-6 col-span-12">
             <Label value="Work Order No." />
@@ -193,6 +225,7 @@ const VehicleDispatchEditModal: React.FC<VehicleDispatchEditModalProps> = ({
                 setFormData((prev: any) => ({
                   ...prev,
                   work_order_no: selected?.value,
+                  po_id: purchaseOrders.find((po: any) => po.workNo?.work_order_no === selected?.value)?.id || '',
                   product_name: wo?.batches?.[0]?.product_name || '',
                   batches: [
                     {

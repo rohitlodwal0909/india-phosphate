@@ -132,6 +132,9 @@ const initialState: DashboardState = {
       recoveryRate: 0,
       customer_conversation: {
         identifiedCompanies: 0,
+        potential_oppertunity: 0,
+        new_customer: 0,
+        existing_customer: 0,
         contacted: 0,
         enquiry: 0,
         quotation: 0,

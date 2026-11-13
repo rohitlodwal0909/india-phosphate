@@ -130,6 +130,26 @@ function QcbatchTable() {
       header: 'Grade',
       cell: (info) => info.getValue() || '-',
     }),
+    columnHelper.accessor('material_type', {
+      header: 'Material Type',
+      cell: (info) => {
+        const value = info.getValue();
+
+        return (
+          <span
+            className={
+              value === 'Export'
+                ? 'rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800'
+                : value === 'Domestic'
+                  ? 'rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800'
+                  : 'text-gray-500'
+            }
+          >
+            {value || '-'}
+          </span>
+        );
+      },
+    }),
     columnHelper.display({
       id: 'actions',
       header: 'Actions',

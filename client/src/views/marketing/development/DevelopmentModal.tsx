@@ -105,16 +105,16 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   ]);
   /* ================= OPTIONS ================= */
 
+  // const usersOptions = users.map((u: any) => ({
+  //   label: u.username,
+  //   value: u.id,
+  // }));
+
   const customerOptions = customers.map((c: any) => ({
     label: c.company_name,
     value: c.id,
     source: c.source,
   }));
-
-  // const usersOptions = users.map((u: any) => ({
-  //   label: u.username,
-  //   value: u.id,
-  // }));
 
   const productOptions = productdata.map((p: any) => ({
     label: p.product_name,

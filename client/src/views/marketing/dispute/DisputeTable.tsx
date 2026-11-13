@@ -326,6 +326,19 @@ const DisputeTable = () => {
 
   return (
     <div className="p-1">
+      {data.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-gray-50 px-4 py-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Latest Dispute Priority
+            </p>
+            <p className="text-sm text-gray-700">
+              Dispute #{data[0].id} · {data[0].dispute_type === 'po' ? 'PO' : 'Sample'}
+            </p>
+          </div>
+          <PriorityBadge priority={data[0].priority} />
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
         {' '}
         {permissions.view && (

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getStoreRM } from 'src/features/Inventorymodule/InventoryIssued/RMIssueSlice';
 import { AppDispatch, RootState } from 'src/store';
+import RMStockTrackingModal from './RMStockTrackingModal';
 
 type Props = {
   openModal: boolean;
@@ -14,6 +15,7 @@ type RMItem = {
   name: string;
   total_quantity: number;
   unit: string;
+  code?: string;
 };
 
 const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
@@ -22,6 +24,7 @@ const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
   const storeRawMaterial = useSelector((state: RootState) => state.rmissue.storerm) as RMItem[];
 
   const [searchText, setSearchText] = useState('');
+  const [selectedRM, setSelectedRM] = useState<RMItem | null>(null);
 
   useEffect(() => {
     dispatch(getStoreRM());
@@ -60,15 +63,12 @@ const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {filteredStocks.length > 0 ? (
                 filteredStocks.map((item) => (
-                  <div key={item.id} className="border p-3 sm:p-4 rounded-md bg-gray-50">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {item.name}
-                    </label>
-
-                    <p className="text-gray-900 font-semibold">
-                      Available: {item.total_quantity ?? 0} {item.unit || ''}
-                    </p>
-                  </div>
+                  <button key={item.id} type="button" onClick={() => setSelectedRM(item)} className="border p-3 sm:p-4 rounded-md bg-gray-50 text-left hover:border-primary hover:bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+                    <span className="block text-sm font-medium text-gray-700 mb-1">{item.name}</span>
+                    {item.code && <span className="block text-xs text-gray-500">{item.code}</span>}
+                    <span className="block text-gray-900 font-semibold">Available: {item.total_quantity ?? 0} {item.unit || ''}</span>
+                    <span className="mt-1 block text-xs font-medium text-primary">Click to view batch stock tracking</span>
+                  </button>
                 ))
               ) : (
                 <p className="text-center text-gray-500 col-span-2 py-8">
@@ -80,6 +80,7 @@ const CurrentStocks = ({ openModal, setOpenModal }: Props) => {
         </div>
       </ModalBody>
       <ModalFooter />
+      <RMStockTrackingModal open={Boolean(selectedRM)} onClose={() => setSelectedRM(null)} rmId={selectedRM?.id || null} rmName={selectedRM?.name || ''} />
     </Modal>
   );
 };

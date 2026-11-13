@@ -36,6 +36,14 @@ const ViewSampleModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRo
   /* ================= PRODUCTS ================= */
 
   const auditProducts = selectedRow?.interested_products || [];
+  const followups = (() => {
+    try {
+      const parsed = typeof selectedRow?.followups === 'string' ? JSON.parse(selectedRow.followups || '[]') : selectedRow?.followups;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
 
   const getProductName = (id: any) => {
     const product = productdata?.find((p: any) => p.id == id);
@@ -64,6 +72,7 @@ const ViewSampleModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRo
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5 text-sm">
             <Info label="Company">{selectedRow?.customers?.company_name}</Info>
             <Info label="Type">{selectedRow?.type}</Info>
+            <Info label="Priority"><span className="capitalize">{selectedRow?.priority || '-'}</span></Info>
             <Info label="Contact Person">{selectedRow?.contact_person}</Info>
             <Info label="Mobile">{selectedRow?.mobile || '-'}</Info>
             <Info label="Address">{selectedRow?.address || '-'}</Info>
@@ -94,7 +103,18 @@ const ViewSampleModal = ({ placeModal, modalPlacement, setPlaceModal, selectedRo
             </Info>
             <Info label="Docket Remark">{selectedRow?.docket_remark || '-'}</Info>
             <Info label="Sample Status">{selectedRow?.sample_status || '-'}</Info>
+            <Info label="Dispatch Date">{selectedRow?.dispatch_date || '-'}</Info>
+            <Info label="Delivery Status">{selectedRow?.delivery_status?.replaceAll('_', ' ') || '-'}</Info>
+            <Info label="Revised Delivery Date">{selectedRow?.expected_delivery_date || '-'}</Info>
+            <Info label="Delivered Date">{selectedRow?.delivered_date || '-'}</Info>
+            <Info label="Customer Feedback">{selectedRow?.feedback || '-'}</Info>
           </div>
+        </div>
+
+        <div className="bg-white border rounded-lg p-5">
+          <h3 className="font-semibold text-lg mb-4 border-b pb-2">Marketing Follow-up History</h3>
+          {selectedRow?.delivered_date && <p className="text-sm text-gray-600 mb-3">Follow-up starts 7 days after delivery.</p>}
+          {followups.length ? <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-gray-700 text-white"><tr><th className="p-3 text-left">Date</th><th className="p-3 text-left">Status</th><th className="p-3 text-left">Feedback / Note</th></tr></thead><tbody>{followups.map((item: any, index: number) => <tr key={`${item.followup_date}-${index}`} className="border-t"><td className="p-3">{item.followup_date || '-'}</td><td className="p-3">{item.status || '-'}</td><td className="p-3">{item.note || '-'}</td></tr>)}</tbody></table></div> : <p className="text-sm text-gray-500">No marketing follow-ups recorded.</p>}
         </div>
 
         {/* ================= AUDIT DETAILS ================= */}

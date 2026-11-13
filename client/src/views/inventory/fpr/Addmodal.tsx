@@ -30,10 +30,13 @@ const Addmodal: React.FC<AddModalProps> = ({
 }) => {
   const dispatch = useDispatch<any>();
 
-  const data = rowData?.batch_releases;
-
-  const [releaseNo, setReleaseNo] = useState(data?.release_no || '');
-  const [releaseDate, setReleaseDate] = useState(data?.release_date || '');
+  const releases = Array.isArray(rowData?.batch_releases) ? rowData.batch_releases : [];
+  const batchQuantity = Number(rowData?.actual_batch_quantity || 0);
+  const releasedQuantity = releases.reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0);
+  const remainingQuantity = Math.max(0, batchQuantity - releasedQuantity);
+  const [releaseNo, setReleaseNo] = useState('');
+  const [releaseDate, setReleaseDate] = useState('');
+  const [quantity, setQuantity] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,12 +49,22 @@ const Addmodal: React.FC<AddModalProps> = ({
       toast.error('Release Date is required');
       return;
     }
+    const releaseQty = Number(quantity);
+    if (!Number.isFinite(releaseQty) || releaseQty <= 0) {
+      toast.error('Enter a quantity greater than zero');
+      return;
+    }
+    if (releaseQty > remainingQuantity) {
+      toast.error(`Quantity cannot exceed the remaining batch quantity of ${remainingQuantity}`);
+      return;
+    }
 
     try {
       const payload = {
         batch_id: rowData?.id || '',
         release_no: releaseNo,
         release_date: releaseDate,
+        quantity: releaseQty,
       };
 
       const result = await dispatch(addFpr(payload)).unwrap();
@@ -61,6 +74,7 @@ const Addmodal: React.FC<AddModalProps> = ({
       setOnreload(true);
       setReleaseNo('');
       setReleaseDate('');
+      setQuantity('');
     } catch (err) {
       toast.error(`${err}`);
     }
@@ -73,9 +87,12 @@ const Addmodal: React.FC<AddModalProps> = ({
       onClose={() => setPlaceModal(false)}
       className="large"
     >
-      <ModalHeader className="pb-0">Add Release Details</ModalHeader>
+      <ModalHeader className="pb-0">Add FPR Entry</ModalHeader>
       <ModalBody>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 rounded bg-gray-50 p-3 text-sm">
+            Actual finished batch quantity: <b>{batchQuantity}</b> · Already released: <b>{releasedQuantity}</b> · Remaining: <b>{remainingQuantity}</b>
+          </div>
           {/* Release No */}
           <div className="col-span-12">
             <Label htmlFor="release_no" value="Release No" />
@@ -88,6 +105,13 @@ const Addmodal: React.FC<AddModalProps> = ({
               onChange={(e) => setReleaseNo(e.target.value)}
               required
             />
+          </div>
+
+          <div className="col-span-12">
+            <Label htmlFor="quantity" value="Release Quantity" />
+            <span className="text-red-700 ps-1">*</span>
+            <TextInput id="quantity" type="number" min="0.01" max={remainingQuantity} step="0.01"
+              value={quantity} onChange={(e) => setQuantity(e.target.value)} required disabled={remainingQuantity <= 0} />
           </div>
 
           {/* Release Date */}
@@ -108,8 +132,8 @@ const Addmodal: React.FC<AddModalProps> = ({
             <Button type="button" color="error" onClick={() => setPlaceModal(false)}>
               Cancel
             </Button>
-            <Button type="submit" color="primary">
-              Submit
+            <Button type="submit" color="primary" disabled={remainingQuantity <= 0}>
+              Add FPR
             </Button>
           </div>
         </form>

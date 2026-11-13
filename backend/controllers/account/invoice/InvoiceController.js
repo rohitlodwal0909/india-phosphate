@@ -7,6 +7,7 @@ const {
   DispatchVehicle,
   Invoice,
   InvoiceItem,
+  InvoicePaymentFollowup,
   Product,
   DispatchBatch,
   Qcbatch
@@ -256,6 +257,7 @@ exports.createInvoice = async (req, res) => {
         freight: invoiceData.freight,
         round_off: invoiceData.round_off,
         insurance: invoiceData.insurance,
+        currency: invoiceData.currency || "INR",
 
         terms_delivery: invoiceData.terms_delivery,
         remark: invoiceData.remark
@@ -417,26 +419,29 @@ exports.getInvoicepayment = async (req, res) => {
         "dispatch_id",
         "payment_status",
         "account_payment_remark",
-        "invoice_no"
+        "invoice_no",
+        "invoice_date",
+        "received_amount",
+        "account_payment_status",
+        "currency"
       ],
       include: [
+        { model: InvoiceItem, attributes: ["amount"] },
+        { model: InvoicePaymentFollowup, as: "paymentFollowups", attributes: ["id", "note", "follow_up_date", "created_at"], required: false },
         {
           model: DispatchVehicle,
-          attributes: ["id"],
+          attributes: ["id", "dispatch_date"],
           where: { deleted_at: null },
           include: [
             {
               model: PurchaseOrderModel,
               as: "poentry",
+              attributes: ["id", "po_no", "payment_terms", "expected_delivery_date"],
               include: [
                 {
-                  model: User,
-                  as: "users",
-                  attributes: ["id", "username"]
-                },
-                {
                   model: Customer,
-                  as: "customers"
+                  as: "customers",
+                  attributes: ["company_name"]
                 }
               ]
             }
@@ -445,9 +450,56 @@ exports.getInvoicepayment = async (req, res) => {
       ]
     });
 
-    res.json(data);
+    res.json(data.map((invoice) => {
+      const row = invoice.toJSON();
+      row.actual_amount = (row.InvoiceItems || []).reduce((total, item) => total + Number(item.amount || 0), 0);
+      row.paymentFollowups = (row.paymentFollowups || []).sort((a, b) =>
+        String(b.follow_up_date).localeCompare(String(a.follow_up_date))
+      );
+      return row;
+    }));
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateInvoiceReceivedAmount = async (req, res) => {
+  try {
+    const invoiceId = Number(req.params.id);
+    const receivedAmount = Number(req.body.received_amount);
+    if (!Number.isInteger(invoiceId) || invoiceId <= 0 || !Number.isFinite(receivedAmount) || receivedAmount < 0) {
+      return res.status(400).json({ message: "Enter a valid received amount." });
+    }
+    const invoice = await Invoice.findByPk(invoiceId, { include: [{ model: InvoiceItem, attributes: ["amount"] }] });
+    if (!invoice) return res.status(404).json({ message: "Invoice not found." });
+    const actualAmount = invoice.InvoiceItems.reduce((total, item) => total + Number(item.amount || 0), 0);
+    const receivedCents = Math.round(receivedAmount * 100);
+    const actualCents = Math.round(actualAmount * 100);
+    if (receivedCents > actualCents) {
+      return res.status(400).json({ message: "Received amount cannot exceed the invoice amount." });
+    }
+    const paymentStatus = receivedCents === 0 ? "Pending" : receivedCents === actualCents ? "Paid" : "Partially Paid";
+    await invoice.update({ received_amount: (receivedCents / 100).toFixed(2), account_payment_status: paymentStatus });
+    return res.json({ message: "Received amount updated.", received_amount: Number(invoice.received_amount), account_payment_status: paymentStatus });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.addInvoicePaymentFollowup = async (req, res) => {
+  try {
+    const invoiceId = Number(req.params.id);
+    const note = String(req.body.note || "").trim();
+    const followUpDate = String(req.body.follow_up_date || "").trim();
+    if (!Number.isInteger(invoiceId) || invoiceId <= 0 || !note || !/^\d{4}-\d{2}-\d{2}$/.test(followUpDate)) {
+      return res.status(400).json({ message: "A note and valid follow-up date are required." });
+    }
+    const invoice = await Invoice.findByPk(invoiceId);
+    if (!invoice) return res.status(404).json({ message: "Invoice not found." });
+    const followup = await InvoicePaymentFollowup.create({ invoice_id: invoiceId, note, follow_up_date: followUpDate });
+    return res.status(201).json(followup);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };
 

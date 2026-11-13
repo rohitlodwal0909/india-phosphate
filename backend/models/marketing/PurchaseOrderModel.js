@@ -117,6 +117,16 @@ module.exports = (sequelize, DataTypes) => {
       expected_delivery_date: {
         type: DataTypes.DATEONLY
       },
+      po_date: {
+        type: DataTypes.DATEONLY
+      },
+
+      po_remark: {
+        type: DataTypes.TEXT
+      },
+      destination: {
+        type: DataTypes.STRING
+      },
 
       priority: {
         type: DataTypes.STRING

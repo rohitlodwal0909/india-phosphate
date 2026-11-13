@@ -83,20 +83,19 @@ interface Props {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   selectedRow: any;
+  permission;
 }
 
 interface ProductionRow {
   id?: number;
-
   equipment_id: string | number;
   material_id: string | number;
-
   quality: string;
+  target: string;
   batch_no: string;
   work_order_no: string;
-
   labours: string | number;
-
+  name_of_person: string;
   output_morning: string | number;
   output_evening: string | number;
 }
@@ -105,14 +104,21 @@ const initialRow: ProductionRow = {
   equipment_id: '',
   material_id: '',
   quality: '',
+  target: '',
   batch_no: '',
   work_order_no: '',
   labours: '',
+  name_of_person: '',
   output_morning: '',
   output_evening: '',
 };
 
-const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selectedRow }) => {
+const Editproductionmodal: React.FC<Props> = ({
+  openModal,
+  setOpenModal,
+  selectedRow,
+  permission,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const materials = useSelector((state: any) => state.products?.productdata) || [];
@@ -161,12 +167,14 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
           material_id: item.material_id ?? '',
 
           quality: item.quality ?? '',
+          target: item.target ?? '',
 
           batch_no: item.batch_no ?? '',
 
           work_order_no: item.work_order_no ?? '',
 
           labours: item.labours ?? '',
+          name_of_person: item.name_of_person ?? '',
 
           output_morning: item.output_morning ?? '',
 
@@ -290,6 +298,10 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
         newErrors[`quality_${index}`] = 'Quality is required';
       }
 
+      if (!String(row.target || '').trim()) {
+        newErrors[`target_${index}`] = 'target is required';
+      }
+
       if (!String(row.batch_no || '').trim()) {
         newErrors[`batch_no_${index}`] = 'Batch number is required';
       }
@@ -300,6 +312,13 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
 
       if (row.labours === '' || row.labours === null || row.labours === undefined) {
         newErrors[`labours_${index}`] = 'Labours is required';
+      }
+      if (
+        row.name_of_person === '' ||
+        row.name_of_person === null ||
+        row.name_of_person === undefined
+      ) {
+        newErrors[`name_of_person_${index}`] = 'name_of_person is required';
       }
 
       // if (row.output_morning === '' && row.output_evening === '') {
@@ -356,12 +375,14 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
           material_id: row.material_id,
 
           quality: row.quality,
+          target: row.target,
 
           batch_no: row.batch_no,
 
           work_order_no: row.work_order_no,
 
           labours: row.labours,
+          name_of_person: row.name_of_person,
 
           output_morning: row.output_morning,
 
@@ -462,6 +483,12 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                   {/* BATCH */}
 
                   <th className="min-w-[160px] border border-black px-2 py-3 text-center font-semibold text-black">
+                    TARGET
+                    <br />
+                    {/* <span className="font-normal">(Multiple)</span> */}
+                  </th>
+
+                  <th className="min-w-[160px] border border-black px-2 py-3 text-center font-semibold text-black">
                     BATCH NUMBER
                     <br />
                     <span className="font-normal">(Multiple)</span>
@@ -481,6 +508,12 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                     NO. OF LABOURS
                     <br />
                     <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th className="min-w-[150px] border border-black px-2 py-3 text-center font-semibold text-black">
+                    NAME OF PERSON
+                    <br />
+                    {/* <span className="font-normal">(Multiple)</span> */}
                   </th>
 
                   {/* OUTPUT */}
@@ -517,11 +550,17 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                   <th className="border border-black px-2 py-2 text-center text-xs font-semibold text-black">
                     &nbsp;
                   </th>
+                  <th className="border border-black px-2 py-2 text-center text-xs font-semibold text-black">
+                    &nbsp;
+                  </th>
 
                   <th className="border border-black px-2 py-2 text-center text-xs font-semibold text-black">
                     &nbsp;
                   </th>
 
+                  <th className="border border-black px-2 py-2 text-center text-xs font-semibold text-black">
+                    &nbsp;
+                  </th>
                   <th className="border border-black px-2 py-2 text-center text-xs font-semibold text-black">
                     &nbsp;
                   </th>
@@ -621,6 +660,18 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       )}
                     </td>
 
+                    <td className="border border-black p-2 align-top">
+                      <TextInput
+                        value={row.target || ''}
+                        placeholder="Enter Target"
+                        onChange={(e) => handleRowChange(index, 'target', e.target.value)}
+                      />
+
+                      {errors[`target_${index}`] && (
+                        <p className="mt-1 text-xs text-red-600">{errors[`target_${index}`]}</p>
+                      )}
+                    </td>
+
                     {/* =================================================
                           BATCH
                       ================================================= */}
@@ -672,17 +723,34 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       )}
                     </td>
 
+                    <td className="border border-black p-2 align-top">
+                      <TextInput
+                        type="text"
+                        value={row.name_of_person ?? ''}
+                        placeholder="Name Of Person"
+                        onChange={(e) => handleRowChange(index, 'name_of_person', e.target.value)}
+                      />
+
+                      {errors[`name_of_person_${index}`] && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors[`name_of_person_${index}`]}
+                        </p>
+                      )}
+                    </td>
+
                     {/* =================================================
                           MORNING OUTPUT
                       ================================================= */}
 
                     <td className="border border-black p-2 align-top">
-                      <TextInput
-                        type="number"
-                        value={row.output_morning ?? ''}
-                        placeholder="8:00-1:00"
-                        onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
-                      />
+                      {permission === '6' && (
+                        <TextInput
+                          type="number"
+                          value={row.output_morning ?? ''}
+                          placeholder="8:00-1:00"
+                          onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
+                        />
+                      )}
                     </td>
 
                     {/* =================================================
@@ -690,12 +758,14 @@ const Editproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       ================================================= */}
 
                     <td className="border border-black p-2 align-top">
-                      <TextInput
-                        type="number"
-                        value={row.output_evening ?? ''}
-                        placeholder="1:30-6:00"
-                        onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
-                      />
+                      {permission === '6' && (
+                        <TextInput
+                          type="number"
+                          value={row.output_evening ?? ''}
+                          placeholder="1:30-6:00"
+                          onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
+                        />
+                      )}
 
                       {errors[`output_${index}`] && (
                         <p className="mt-1 text-xs text-red-600">{errors[`output_${index}`]}</p>

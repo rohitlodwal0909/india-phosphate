@@ -37,6 +37,7 @@ interface BmrDataType {
   id: number;
   qc_batch_number: string;
   product_name: string;
+  material_type: string;
   grade: string;
   mfg_date: string;
   exp_date: string;
@@ -138,6 +139,25 @@ const FmIssuedTable = () => {
 
       columnHelper.accessor('product_name', {
         header: 'Product Name',
+      }),
+
+      columnHelper.accessor('material_type', {
+        header: 'Material Type',
+        cell: (info) => {
+          const value = info.getValue();
+          const colorClass =
+            value === 'Export'
+              ? 'bg-green-100 text-green-800'
+              : value === 'Domestic'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-100 text-gray-600';
+
+          return (
+            <span className={`rounded-full px-2 py-1 text-xs font-semibold ${colorClass}`}>
+              {value || '-'}
+            </span>
+          );
+        },
       }),
 
       columnHelper.accessor('grade', {

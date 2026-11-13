@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
+      approval_from: {
+        type: DataTypes.STRING
+      },
+
       comment: {
         type: DataTypes.TEXT
       },

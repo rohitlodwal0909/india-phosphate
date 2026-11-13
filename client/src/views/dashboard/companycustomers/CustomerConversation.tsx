@@ -1,10 +1,13 @@
 import { Icon } from '@iconify/react';
 
-const FunnelItem = ({ title, value, width, color }: any) => (
+const FunnelItem = ({ title, value, width, color, caption }: any) => (
   <div className="mb-5">
     <div className="flex justify-between mb-2">
-      <span className="text-sm font-medium text-gray-700">{title}</span>
-      <span className="font-semibold text-gray-900">{value}</span>
+      <div>
+        <span className="text-sm font-medium text-gray-700">{title}</span>
+        {caption && <p className="text-xs text-gray-500">{caption}</p>}
+      </div>
+      <span className="font-semibold text-gray-900">{value || 0}</span>
     </div>
 
     <div className="w-full bg-gray-100 rounded-full h-3">
@@ -44,6 +47,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.identifiedCompanies || 0}
         width={100}
         color="bg-slate-600"
+        caption="Potential opportunities + customers + existing customers"
       />
 
       <FunnelItem
@@ -51,6 +55,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.potential_oppertunity || 0}
         width={getWidth(customer?.potential_oppertunity || 0)}
         color="bg-indigo-500"
+        caption="Companies marked as potential opportunities"
       />
 
       <FunnelItem
@@ -58,6 +63,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.new_customer || 0}
         width={getWidth(customer?.new_customer || 0)}
         color="bg-cyan-500"
+        caption="Customer records not yet marked as existing"
       />
 
       <FunnelItem
@@ -65,6 +71,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.existing_customer || 0}
         width={getWidth(customer?.existing_customer || 0)}
         color="bg-teal-500"
+        caption="Companies converted to Existing Customer"
       />
 
       <FunnelItem
@@ -72,6 +79,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.contacted || 0}
         width={getWidth(customer?.contacted || 0)}
         color="bg-blue-500"
+        caption="Potential opportunities that progressed to Customer"
       />
 
       <FunnelItem
@@ -79,6 +87,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.enquiry || 0}
         width={getWidth(customer?.enquiry || 0)}
         color="bg-purple-500"
+        caption="Companies with an enquiry still in progress"
       />
 
       <FunnelItem
@@ -86,6 +95,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.quotation || 0}
         width={getWidth(customer?.quotation || 0)}
         color="bg-orange-500"
+        caption="Companies with a quotation"
       />
 
       <FunnelItem
@@ -93,6 +103,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.sample || 0}
         width={getWidth(customer?.sample || 0)}
         color="bg-yellow-500"
+        caption="Companies sent a sample"
       />
 
       <FunnelItem
@@ -100,6 +111,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.order || 0}
         width={getWidth(customer?.order || 0)}
         color="bg-green-500"
+        caption="Customers with a purchase order"
       />
 
       <FunnelItem
@@ -107,6 +119,7 @@ const CustomerConversation = ({ customer }: any) => {
         value={customer?.lost || 0}
         width={getWidth(customer?.lost || 0)}
         color="bg-red-500"
+        caption="Closed enquiry with no open enquiry"
       />
     </div>
   );

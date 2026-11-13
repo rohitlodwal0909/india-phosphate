@@ -128,6 +128,7 @@ exports.createBill = async (req, res) => {
         freight: invoiceData.freight,
         round_off: invoiceData.round_off,
         insurance: invoiceData.insurance,
+        currency: invoiceData.currency || "INR",
 
         terms_delivery: invoiceData.terms_delivery,
         remark: invoiceData.remark

@@ -111,6 +111,7 @@ const MeetingViewModal = ({ open, setOpen, meeting, permissions }: any) => {
             </div>
 
             <InfoItem icon="tabler:building" label="Meeting Type" value={meeting.meeting_type} />
+            <InfoItem icon="tabler:notes" label="Follow-up" value={meeting.followup} />
           </div>
 
           {/* ACTION BUTTONS */}

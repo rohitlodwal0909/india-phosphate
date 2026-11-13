@@ -30,6 +30,12 @@ module.exports = (sequelize, DataTypes) => {
       batch_no: {
         type: DataTypes.STRING
       },
+      target: {
+        type: DataTypes.STRING
+      },
+      name_of_person: {
+        type: DataTypes.STRING
+      },
 
       work_order_no: {
         type: DataTypes.STRING

@@ -83,6 +83,7 @@ const selectStyles = {
 interface Props {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
+  permission: string;
 }
 
 /* =====================================================
@@ -95,7 +96,9 @@ interface ProductionRow {
   quality: string;
   batch_no: string;
   work_order_no: string;
+  target: string;
   labours: string;
+  name_of_person: string;
   output_morning: string;
   output_evening: string;
 }
@@ -111,11 +114,13 @@ const initialRow: ProductionRow = {
   batch_no: '',
   work_order_no: '',
   labours: '',
+  target: '',
+  name_of_person: '',
   output_morning: '',
   output_evening: '',
 };
 
-const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
+const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, permission }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   /* =====================================================
@@ -226,6 +231,18 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
       if (!row.labours) {
         newErrors[`labours_${index}`] = 'Required';
+      }
+
+      if (
+        row.name_of_person === '' ||
+        row.name_of_person === null ||
+        row.name_of_person === undefined
+      ) {
+        newErrors[`name_of_person_${index}`] = 'name_of_person is required';
+      }
+
+      if (!String(row.target || '').trim()) {
+        newErrors[`target_${index}`] = 'target is required';
       }
 
       // if (!row.output_morning && !row.output_evening) {
@@ -367,6 +384,15 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
                   <th
                     rowSpan={2}
+                    className="min-w-[160px] border border-black px-2 py-3 text-center font-semibold text-black"
+                  >
+                    TARGET
+                    <br />
+                    {/* <span className="font-normal">(Multiple)</span> */}
+                  </th>
+
+                  <th
+                    rowSpan={2}
                     className="min-w-[150px] border border-gray-800 px-2 py-3 text-center text-dark font-semibold"
                   >
                     Workorder
@@ -385,6 +411,15 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                     LABOURS
                     <br />
                     <span className="font-normal">(Multiple)</span>
+                  </th>
+
+                  <th
+                    rowSpan={2}
+                    className="min-w-[150px] border border-black px-2 py-3 text-center font-semibold text-black"
+                  >
+                    NAME OF PERSON
+                    <br />
+                    {/* <span className="font-normal">(Multiple)</span> */}
                   </th>
 
                   <th
@@ -515,6 +550,18 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                       />
                     </td>
 
+                    <td className="border border-black p-2 align-top">
+                      <TextInput
+                        value={row.target || ''}
+                        placeholder="Enter Target"
+                        onChange={(e) => handleRowChange(index, 'target', e.target.value)}
+                      />
+
+                      {errors[`target_${index}`] && (
+                        <p className="mt-1 text-xs text-red-600">{errors[`target_${index}`]}</p>
+                      )}
+                    </td>
+
                     {/* WORK ORDER */}
 
                     <td className="border border-gray-800 p-2">
@@ -537,28 +584,47 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                       />
                     </td>
 
+                    <td className="border border-black p-2 align-top">
+                      <TextInput
+                        type="text"
+                        value={row.name_of_person ?? ''}
+                        placeholder="Name Of Person"
+                        onChange={(e) => handleRowChange(index, 'name_of_person', e.target.value)}
+                      />
+
+                      {errors[`name_of_person_${index}`] && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors[`name_of_person_${index}`]}
+                        </p>
+                      )}
+                    </td>
+
                     {/* OUTPUT 8:00-1:00 */}
 
                     <td className="border border-gray-800 p-2">
-                      <TextInput
-                        type="number"
-                        min="0"
-                        placeholder="Qty"
-                        value={row.output_morning}
-                        onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
-                      />
+                      {permission === '6' && (
+                        <TextInput
+                          type="number"
+                          min="0"
+                          placeholder="Qty"
+                          value={row.output_morning}
+                          onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
+                        />
+                      )}
                     </td>
 
                     {/* OUTPUT 1:30-6:00 */}
 
                     <td className="border border-gray-800 p-2">
-                      <TextInput
-                        type="number"
-                        min="0"
-                        placeholder="Qty"
-                        value={row.output_evening}
-                        onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
-                      />
+                      {permission === '6' && (
+                        <TextInput
+                          type="number"
+                          min="0"
+                          placeholder="Qty"
+                          value={row.output_evening}
+                          onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
+                        />
+                      )}
                     </td>
 
                     {/* ACTION */}

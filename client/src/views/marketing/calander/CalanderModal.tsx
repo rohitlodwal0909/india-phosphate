@@ -53,6 +53,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
     internal_users: [],
     // external_emails: '',
     description: '',
+    followup: '',
     // meeting_link: '',
   });
 
@@ -126,6 +127,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
         time: formData.meeting_time,
         // meeting_link: formData.meeting_link,
         description: formData.description,
+        followup: formData.followup,
         internal_users: formData.internal_users,
         // external_emails: formData.external_emails,
       };
@@ -150,6 +152,7 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
         internal_users: [],
         // external_emails: '',
         description: '',
+        followup: '',
         // meeting_link: '',
       });
 
@@ -270,6 +273,15 @@ const CalanderModal: React.FC<Props> = ({ openModal, setOpenModal, selectedDate 
                 placeholder="Meeting agenda..."
                 value={formData.description}
                 onChange={(e) => handleChange('description', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label value="Follow-up" />
+              <Textarea
+                rows={2}
+                placeholder="Enter meeting follow-up or next action..."
+                value={formData.followup}
+                onChange={(e) => handleChange('followup', e.target.value)}
               />
             </div>
           </div>

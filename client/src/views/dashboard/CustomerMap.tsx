@@ -156,21 +156,18 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
 
   const stats = useMemo(() => {
     const customers = totalcustomers || [];
+    const isExistingCustomer = (item: any) => Boolean(Number(item.convert_to_customer));
+    const isPotentialOpportunity = (item: any) => !isExistingCustomer(item) && Boolean(Number(item.potential_opportunity));
+    const isNewCustomer = (item: any) => !isExistingCustomer(item) && !Boolean(Number(item.potential_opportunity));
 
-    const totalOpportunities = customers.filter((item) => item.potential_opportunity == 1).length;
-
-    const totalLeads = customers.length + totalOpportunities;
-
-    const totalCustomers = customers.filter(
-      (item) => item.convert_to_customer == 0 && item.potential_opportunity == 0,
-    ).length;
-
-    const wonLeads = customers.filter((item) => item.convert_to_customer == 1).length;
+    const totalOpportunities = customers.filter(isPotentialOpportunity).length;
+    const totalCustomers = customers.filter(isNewCustomer).length;
+    const totalLeads = totalCustomers + totalOpportunities;
 
     return {
       totalCustomers,
       totalLeads,
-      leadsWon: totalLeads > 0 ? (wonLeads / totalLeads) * 100 : 0,
+      leadsWon: totalCustomers,
       totalOpportunities,
     };
   }, [totalcustomers]);
@@ -212,17 +209,16 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
         grouped[key].longitudeSum += geoData.lng;
         grouped[key].locationCount += 1;
 
-        grouped[key].totalLeads += 1;
+        const isExistingCustomer = Boolean(Number(item.convert_to_customer));
+        const isPotentialOpportunity = !isExistingCustomer && Boolean(Number(item.potential_opportunity));
+        const isNewCustomer = !isExistingCustomer && !Boolean(Number(item.potential_opportunity));
 
-        if (item.convert_to_customer == 0 && item.potential_opportunity == 0) {
+        if (isNewCustomer || isPotentialOpportunity) grouped[key].totalLeads += 1;
+        if (isNewCustomer) {
           grouped[key].totalCustomers += 1;
-        }
-
-        if (item.convert_to_customer == 1) {
           grouped[key].leadsWon += 1;
         }
-
-        if (item.potential_opportunity == 1) {
+        if (isPotentialOpportunity) {
           grouped[key].opportunities += 1;
         }
       }
@@ -281,13 +277,12 @@ const CustomerMap: React.FC<CustomerMapProps> = ({ totalcustomers, orders }) => 
         <DashboardCard
           title="Leads Won"
           value={stats.leadsWon}
-          suffix="%"
           borderColor="border-green-500"
           bgColor="bg-green-50"
         />
 
         <DashboardCard
-          title="Total Opportunities"
+          title="Total Opportunity"
           value={stats.totalOpportunities}
           borderColor="border-purple-500"
           bgColor="bg-purple-50"

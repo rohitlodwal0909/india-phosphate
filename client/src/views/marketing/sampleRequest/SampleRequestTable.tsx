@@ -40,8 +40,15 @@ interface PurchaseOrderDataType {
   delivery_address: string;
   qc_remark: string;
   docket_remark: string;
+  dispatch_date: string;
+  delivery_status: string;
+  expected_delivery_date: string;
+  delivered_date: string;
+  feedback: string;
+  followups: string;
   contact_person: string;
   type: string;
+  priority: string;
   created_at: string;
   qc_status: string;
   qc_coa_pdf: string;
@@ -126,17 +133,34 @@ const SampleRequestTable = () => {
   //   }
   // };
 
-  const filteredData = useMemo(
-    () =>
-      data.filter((item) =>
-        Object.values(item).some((v) =>
-          String(v || '')
-            .toLowerCase()
-            .includes(searchText.toLowerCase()),
-        ),
-      ),
-    [data, searchText],
-  );
+  const searchInObject = (obj: any, search: string): boolean => {
+    if (!obj) return false;
+
+    // string / number / boolean
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+      return String(obj).toLowerCase().includes(search);
+    }
+
+    // array
+    if (Array.isArray(obj)) {
+      return obj.some((item) => searchInObject(item, search));
+    }
+
+    // object
+    if (typeof obj === 'object') {
+      return Object.values(obj).some((value) => searchInObject(value, search));
+    }
+
+    return false;
+  };
+
+  const filteredData = useMemo(() => {
+    if (!searchText) return data;
+
+    const search = searchText.toLowerCase();
+
+    return data.filter((item) => searchInObject(item, search));
+  }, [data, searchText]);
 
   const columns = useMemo(
     () => [
@@ -165,6 +189,20 @@ const SampleRequestTable = () => {
             <p>{info.row.original.type}</p>
           </div>
         ),
+      }),
+
+      columnHelper.accessor('priority', {
+        header: 'Priority',
+        cell: (info) => {
+          const priority = info.getValue();
+          const colors: Record<string, string> = {
+            low: 'text-gray-600',
+            medium: 'text-blue-600',
+            high: 'text-orange-600',
+            urgent: 'text-red-600 font-semibold',
+          };
+          return <div className={`text-sm capitalize ${colors[priority] || ''}`}>{priority || '-'}</div>;
+        },
       }),
 
       // columnHelper.accessor('contact_person', {
@@ -246,6 +284,15 @@ const SampleRequestTable = () => {
             </div>
           );
         },
+      }),
+
+      columnHelper.accessor('delivery_status', {
+        header: 'Delivery Status',
+        cell: (info) => <div className="text-sm">{info.getValue()?.replaceAll('_', ' ') || '-'}</div>,
+      }),
+      columnHelper.accessor('dispatch_date', {
+        header: 'Dispatch Date',
+        cell: (info) => <div className="text-sm">{info.getValue() ? new Date(info.getValue() + 'T00:00:00').toLocaleDateString('en-GB') : '-'}</div>,
       }),
 
       columnHelper.accessor('user_id', {

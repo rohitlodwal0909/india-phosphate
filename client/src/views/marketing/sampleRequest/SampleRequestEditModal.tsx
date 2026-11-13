@@ -43,6 +43,7 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
   const [formData, setFormData] = useState<any>({
     company_id: '',
     type: 'domestic',
+    priority: '',
     contact_person: '',
     mobile: '',
     address: '',
@@ -50,7 +51,14 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
     remark: '',
     docket_remark: '',
     sample_status: '',
+    dispatch_date: '',
+    delivery_status: '',
+    expected_delivery_date: '',
+    delivered_date: '',
+    feedback: '',
+    followups: '[]',
   });
+  const [followupDraft, setFollowupDraft] = useState({ followup_date: '', status: '', note: '' });
 
   const [items, setItems] = useState([
     {
@@ -134,12 +142,54 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
     setItems(items.filter((_, i) => i !== index));
   };
 
+  const parseFollowups = (value: any) => {
+    try {
+      const parsed = typeof value === 'string' ? JSON.parse(value || '[]') : value;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const addFollowup = () => {
+    if (formData.delivery_status !== 'delivered' || !formData.delivered_date) {
+      toast.error('Record the delivery date before starting marketing follow-up');
+      return;
+    }
+    if (!followupDraft.followup_date || !followupDraft.status) {
+      toast.error('Enter follow-up date and status');
+      return;
+    }
+    if (formData.delivered_date) {
+      const earliestMarketingDate = new Date(formData.delivered_date + 'T00:00:00');
+      earliestMarketingDate.setDate(earliestMarketingDate.getDate() + 7);
+      if (followupDraft.followup_date < earliestMarketingDate.toISOString().slice(0, 10)) {
+        toast.error('Marketing follow-up starts 7 days after delivery');
+        return;
+      }
+    }
+    setFormData((prev: any) => ({
+      ...prev,
+      followups: JSON.stringify([...parseFollowups(prev.followups), followupDraft]),
+    }));
+    setFollowupDraft({ followup_date: '', status: '', note: '' });
+  };
+
   /* ================= VALIDATION ================= */
 
   /* ================= SUBMIT ================= */
 
   const submit = async (e: any) => {
     e.preventDefault();
+
+    if (formData.delivery_status === 'not_delivered' && !formData.expected_delivery_date) {
+      toast.error('Enter the new delivery date when the sample is not delivered');
+      return;
+    }
+    if (formData.delivery_status === 'delivered' && !formData.delivered_date) {
+      toast.error('Enter the delivery date');
+      return;
+    }
 
     const isValid = validateSampleRequest(formData, items, setErrors);
 
@@ -159,11 +209,11 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
 
       formDataObj.append('items', JSON.stringify(itemsWithoutFile));
 
-      items.forEach((item, index) => {
-        if (item.file) {
-          formDataObj.append(`file_${index}`, item.file);
-        }
-      });
+      // items.forEach((item, index) => {
+      //   if (item.file) {
+      //     formDataObj.append(`file_${index}`, item.file);
+      //   }
+      // });
 
       await dispatch(
         updateSampleRequest({
@@ -188,6 +238,7 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
     setFormData({
       company_id: selectedRow.company_id ?? '',
       type: selectedRow.type ?? 'domestic',
+      priority: selectedRow.priority ?? '',
       contact_person: selectedRow.contact_person ?? '',
       mobile: selectedRow.mobile ?? '',
       address: selectedRow.address ?? '',
@@ -195,6 +246,12 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
       remark: selectedRow.remark ?? '',
       docket_remark: selectedRow.docket_remark ?? '',
       sample_status: selectedRow.sample_status ?? '',
+      dispatch_date: selectedRow.dispatch_date ?? '',
+      delivery_status: selectedRow.delivery_status ?? '',
+      expected_delivery_date: selectedRow.expected_delivery_date ?? '',
+      delivered_date: selectedRow.delivered_date ?? '',
+      feedback: selectedRow.feedback ?? '',
+      followups: selectedRow.followups || '[]',
     });
 
     try {
@@ -325,7 +382,7 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      mobile: e.target.value.replace(/\D/g, ''),
+                      mobile: e.target.value,
                     })
                   }
                 />
@@ -371,6 +428,21 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
                 )}
               </div>
             </div>
+          </div>
+
+          <div className="bg-gray-50 p-5 rounded-lg border md:w-1/2">
+            <Label value="Priority" />
+            <select
+              className="w-full border rounded p-2"
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+            >
+              <option value="">Select priority</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
           </div>
 
           {/* ================= PRODUCTS ================= */}
@@ -452,7 +524,7 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
 
                 {/* FILE */}
                 <div className="col-span-2">
-                  <Label>Specification *</Label>
+                  <Label>Specification</Label>
 
                   <label
                     htmlFor={`file-${index}`}
@@ -517,6 +589,26 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
                 })
               }
             />
+          </div>
+
+          <div className="bg-gray-50 p-5 rounded-lg border space-y-4">
+            <h3 className="font-semibold text-gray-700">Dispatch & Delivery Follow-up</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div><Label value="Dispatch Date" /><TextInput type="date" value={formData.dispatch_date} onChange={(e) => setFormData({ ...formData, dispatch_date: e.target.value })} /></div>
+              <div><Label value="Delivery Status" /><select className="w-full border rounded p-2" value={formData.delivery_status} onChange={(e) => setFormData({ ...formData, delivery_status: e.target.value, delivered_date: e.target.value === 'delivered' ? formData.delivered_date : '' })}><option value="">Select status</option><option value="dispatched">Dispatched</option><option value="not_delivered">Not delivered</option><option value="delivered">Delivered</option></select></div>
+              <div><Label value="New Delivery Date" /><TextInput type="date" value={formData.expected_delivery_date} onChange={(e) => setFormData({ ...formData, expected_delivery_date: e.target.value })} disabled={formData.delivery_status !== 'not_delivered'} /></div>
+              <div><Label value="Delivered Date" /><TextInput type="date" value={formData.delivered_date} onChange={(e) => setFormData({ ...formData, delivered_date: e.target.value })} disabled={formData.delivery_status !== 'delivered'} /></div>
+            </div>
+            {formData.dispatch_date && <p className="text-sm text-gray-600">Delivery check due: {new Date(new Date(formData.dispatch_date + 'T00:00:00').setDate(new Date(formData.dispatch_date + 'T00:00:00').getDate() + 3)).toLocaleDateString('en-GB')} (3 days after dispatch)</p>}
+            {formData.delivered_date && <p className="text-sm text-gray-600">Marketing follow-up starts: {new Date(new Date(formData.delivered_date + 'T00:00:00').setDate(new Date(formData.delivered_date + 'T00:00:00').getDate() + 7)).toLocaleDateString('en-GB')} (7 days after delivery)</p>}
+            <div><Label value="Customer Feedback" /><Textarea value={formData.feedback} onChange={(e) => setFormData({ ...formData, feedback: e.target.value })} placeholder="Record customer feedback" /></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+              <div><Label value="Marketing Follow-up Date" /><TextInput type="date" min={formData.delivered_date ? (() => { const date = new Date(formData.delivered_date + 'T00:00:00'); date.setDate(date.getDate() + 7); return date.toISOString().slice(0, 10); })() : undefined} value={followupDraft.followup_date} onChange={(e) => setFollowupDraft({ ...followupDraft, followup_date: e.target.value })} /></div>
+              <div><Label value="Status" /><select className="w-full border rounded p-2" value={followupDraft.status} onChange={(e) => setFollowupDraft({ ...followupDraft, status: e.target.value })}><option value="">Select status</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option><option value="follow_up_order">Follow Up for Order</option><option value="pending">Pending</option></select></div>
+              <div><Label value="Feedback / Note" /><TextInput value={followupDraft.note} onChange={(e) => setFollowupDraft({ ...followupDraft, note: e.target.value })} placeholder="Follow-up note" /></div>
+              <Button type="button" color="primary" onClick={addFollowup}>Add Follow-up</Button>
+            </div>
+            <div className="space-y-2">{parseFollowups(formData.followups).map((followup: any, index: number) => <div key={`${followup.followup_date}-${index}`} className="text-sm border rounded p-2">{followup.followup_date} · {followup.status} · {followup.note || 'No note'}</div>)}</div>
           </div>
 
           {/* ================= DOCKET ================= */}

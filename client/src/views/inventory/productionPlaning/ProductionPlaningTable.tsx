@@ -36,9 +36,11 @@ interface RowType {
   equipment: string;
   material: string;
   quality: string;
+  target: string;
   batch_no: string;
   work_order_no: string;
   labours: string;
+  name_of_person: string;
   output_morning: string;
   output_evening: string;
   items: any[];
@@ -57,6 +59,7 @@ function ProductionPlaningTable() {
   const [selectedRow, setSelectedRow] = useState(null);
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
+  const permission = logindata?.admin?.role_id || null;
 
   const productions = useSelector((state: any) => state.productionplanning?.data) || [];
 
@@ -86,6 +89,9 @@ function ProductionPlaningTable() {
         // Multiple Quality
         quality: items.map((item: any) => item?.quality || '---').join(', '),
 
+        // Multiple Targets
+        target: items.map((item: any) => item?.target || '---').join(', '),
+
         // Multiple Batch
         batch_no: items.map((item: any) => item?.batch_no || '---').join(', '),
 
@@ -94,6 +100,9 @@ function ProductionPlaningTable() {
 
         // Multiple Labours
         labours: items.map((item: any) => item?.labours || '---').join(', '),
+
+        // Multiple People Responsible
+        name_of_person: items.map((item: any) => item?.name_of_person || '---').join(', '),
 
         // Multiple Morning Output
         output_morning: items.map((item: any) => item?.output_morning || '---').join(', '),
@@ -213,6 +222,12 @@ function ProductionPlaningTable() {
       cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
     }),
 
+    columnHelper.accessor('target', {
+      header: 'Target',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
     /* ================= BATCH ================= */
 
     columnHelper.accessor('batch_no', {
@@ -233,6 +248,12 @@ function ProductionPlaningTable() {
 
     columnHelper.accessor('labours', {
       header: 'No. of Labours',
+
+      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
+    }),
+
+    columnHelper.accessor('name_of_person', {
+      header: 'Name of Person',
 
       cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
     }),
@@ -291,6 +312,21 @@ function ProductionPlaningTable() {
                 </Button>
               </Tooltip>
             )}
+            {permissions.view && (
+              <Tooltip content="View">
+                <Button
+                  size="xs"
+                  color="primary"
+                  outline
+                  onClick={() => {
+                    setviewmodal(true);
+                    setSelectedRow(row);
+                  }}
+                >
+                  <Icon icon="solar:eye-outline" height={18} />
+                </Button>
+              </Tooltip>
+            )}
           </div>
         );
       },
@@ -342,12 +378,19 @@ function ProductionPlaningTable() {
         </div>
       )}
 
-      {addmodal && <Addproductionmodal openModal={addmodal} setOpenModal={setaddmodal} />}
+      {addmodal && (
+        <Addproductionmodal
+          openModal={addmodal}
+          setOpenModal={setaddmodal}
+          permission={permission}
+        />
+      )}
       {editmodal && (
         <Editproductionmodal
           openModal={editmodal}
           setOpenModal={seteditmodal}
           selectedRow={selectedRow}
+          permission={permission}
         />
       )}
 

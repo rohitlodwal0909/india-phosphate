@@ -46,6 +46,15 @@ interface PurchaseOrderDataType {
 
 const columnHelper = createColumnHelper<PurchaseOrderDataType>();
 
+// const enquiryStatusOptions = [
+//   { value: 'closed', label: 'Closed', color: '#16a34a' },
+//   { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
+//   { value: 'quotation', label: 'Pending Quotation', color: '#2563eb' },
+//   { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
+//   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
+//   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
+// ];
+
 const enquiryStatusOptions = [
   { value: 'closed', label: 'Closed', color: '#16a34a' },
   { value: 'rejected', label: 'Need Clarification', color: '#ef4444' },
@@ -53,6 +62,19 @@ const enquiryStatusOptions = [
   { value: 'coa', label: 'Documents / COA Pending', color: '#facc15' },
   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
+
+  // Sample
+  { value: 'sample', label: 'Sample', color: '#8b5cf6' },
+
+  // Payment
+  { value: 'payment', label: 'Payment', color: '#22c55e' },
+
+  // Follow Up
+  { value: 'follow_up_order', label: 'Follow Up for Order', color: '#0f766e' },
+
+  // Hold Status
+  { value: 'internal_hold', label: 'Internal Hold', color: '#9333ea' },
+  { value: 'customer_hold', label: 'Customer Hold', color: '#dc2626' },
 ];
 
 const getStatusOption = (status: string) => enquiryStatusOptions.find((s) => s.value === status);

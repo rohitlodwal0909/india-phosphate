@@ -51,9 +51,9 @@ const DashboardInsights = ({ orders }) => {
         />
 
         <AnalyticsCard
-          title="Dispute Alerts"
+          title="Disputes Remaining"
           value={orders?.total_disputes || 0}
-          subtitle="Urgent customer disputes"
+          subtitle="Open disputes not yet closed"
           icon="solar:danger-triangle-bold"
           bg="bg-red-50"
           border="border-red-300"

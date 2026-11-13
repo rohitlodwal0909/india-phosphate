@@ -32,6 +32,12 @@ import InvoiceViewModel from 'src/views/accounts/domestic/taxinvoice/TaxInvoiceC
 
 interface DispatchDataType {
   id: number;
+  work_order_no?: string;
+  workOrder?: { work_order_no?: string };
+  marketingPO?: { po_no?: string };
+  purchasePO?: { po_no?: string };
+  dispatch?: { id?: number };
+  note_type?: string;
   invoices?: {
     invoice_no?: string;
   };
@@ -136,10 +142,26 @@ const ReplacementTable = () => {
           </div>
         ),
       }),
+      columnHelper.display({
+        id: 'work_order_no',
+        header: 'Work Order No.',
+        cell: (info) => <span>{info.row.original.workOrder?.work_order_no || info.row.original.work_order_no || '-'}</span>,
+      }),
+      columnHelper.display({
+        id: 'po_no',
+        header: 'PO No.',
+        cell: (info) => <span>{info.row.original.marketingPO?.po_no || info.row.original.purchasePO?.po_no || '-'}</span>,
+      }),
+      columnHelper.display({
+        id: 'dispatch_id',
+        header: 'Dispatch',
+        cell: (info) => <span>{info.row.original.dispatch?.id ? `#${info.row.original.dispatch.id}` : '-'}</span>,
+      }),
       columnHelper.accessor('product_name', { header: 'Product Name' }),
       columnHelper.accessor('replacement_type', { header: 'Replacement type' }),
       columnHelper.accessor('quantity', { header: 'Quantity (Unit)' }),
       columnHelper.accessor('replacement_choice', { header: 'Replacement Choice' }),
+      columnHelper.accessor('note_type', { header: 'Note Type', cell: (info) => info.getValue() ? `${info.getValue()} note` : '-' }),
       columnHelper.accessor('remarks', { header: 'Note' }),
       columnHelper.accessor('created_at', {
         header: 'Date',

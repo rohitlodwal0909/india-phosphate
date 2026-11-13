@@ -21,6 +21,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
     mfg_date: '',
     exp_date: '',
     grade: '',
+    material_type: '',
     size: '',
   });
 
@@ -39,6 +40,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: row?.product_name || '',
           mfg_date: row?.mfg_date || '',
           exp_date: row?.exp_date || '',
+          material_type: row?.material_type || '',
           grade: existingGrade,
           size: row?.size || '',
         });
@@ -51,6 +53,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: row?.product_name || '',
           mfg_date: row?.mfg_date || '',
           exp_date: row?.exp_date || '',
+          material_type: row?.material_type || '',
           grade: 'Manual',
           size: row?.size || '',
         });
@@ -81,6 +84,10 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
         toast.error('Please select or enter grade.');
         return;
       }
+      if (!form.material_type) {
+        toast.error('Please select Export or Domestic material type.');
+        return;
+      }
 
       const result = await dispatch(
         qcBatchUpdate({
@@ -89,6 +96,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           product_name: form.product_name,
           mfg_date: form.mfg_date,
           exp_date: form.exp_date,
+          material_type: form.material_type,
           grade: finalGrade, // ✅ correct grade send
           size: form.size,
           user_id: logindata?.admin?.id,
@@ -167,6 +175,60 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
                 ))}
                 <option value="Manual">Manual</option>
               </Select>
+            </Field>
+
+            <Field className="col-span-2">
+              <Label className="mb-2 block font-medium">Material Type</Label>
+
+              <div className="flex gap-6 items-center">
+                {/* Export */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.material_type === 'Export'}
+                    onChange={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        material_type: prev.material_type === 'Export' ? '' : 'Export',
+                      }))
+                    }
+                  />
+
+                  <span
+                    className={
+                      form.material_type === 'Export'
+                        ? 'font-semibold text-green-600'
+                        : 'text-gray-700'
+                    }
+                  >
+                    Export
+                  </span>
+                </label>
+
+                {/* Domestic */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.material_type === 'Domestic'}
+                    onChange={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        material_type: prev.material_type === 'Domestic' ? '' : 'Domestic',
+                      }))
+                    }
+                  />
+
+                  <span
+                    className={
+                      form.material_type === 'Domestic'
+                        ? 'font-semibold text-yellow-600'
+                        : 'text-gray-700'
+                    }
+                  >
+                    Domestic
+                  </span>
+                </label>
+              </div>
             </Field>
           </div>
 

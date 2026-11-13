@@ -59,6 +59,11 @@ module.exports = (sequelize, DataTypes) => {
     RMIssueModel.belongsTo(models.Qcbatch, {
       foreignKey: "batch_id"
     });
+    RMIssueModel.hasMany(models.RMIssueAllocation, {
+      foreignKey: "issue_id",
+      as: "stockAllocations",
+      onDelete: "CASCADE"
+    });
   };
 
   return RMIssueModel;

@@ -126,17 +126,33 @@ const PurchaseOrderTable = () => {
     }
   };
 
-  const filteredData = useMemo(
-    () =>
-      data.filter((item) =>
-        Object.values(item).some((v) =>
-          String(v || '')
-            .toLowerCase()
-            .includes(searchText.toLowerCase()),
-        ),
-      ),
-    [data, searchText],
-  );
+  const searchInObject = (obj: any, search: string): boolean => {
+    if (!obj) return false;
+
+    // string / number / boolean
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+      return String(obj).toLowerCase().includes(search);
+    }
+
+    // array
+    if (Array.isArray(obj)) {
+      return obj.some((item) => searchInObject(item, search));
+    }
+
+    // object
+    if (typeof obj === 'object') {
+      return Object.values(obj).some((value) => searchInObject(value, search));
+    }
+
+    return false;
+  };
+  const filteredData = useMemo(() => {
+    if (!searchText) return data;
+
+    const search = searchText.toLowerCase();
+
+    return data.filter((item) => searchInObject(item, search));
+  }, [data, searchText]);
 
   const columns = useMemo(
     () => [

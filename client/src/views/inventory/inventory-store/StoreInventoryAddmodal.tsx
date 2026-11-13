@@ -21,6 +21,7 @@ import { GetRmCode } from 'src/features/master/RmCode/RmCodeSlice';
 
 type FormDataType = {
   user_id: any;
+  party_type: string;
   supplier_name: string;
   manufacturer_name: string;
   invoice_number: string;
@@ -43,11 +44,13 @@ const StoreInventoryAddmodal = ({
   selectedRow,
   logindata,
   supplierdata,
+  customerdata,
 }) => {
   const { rmcodedata, loading } = useSelector((state: any) => state.rmcodes);
 
   const [formData, setFormData] = useState<FormDataType>({
     user_id: logindata?.admin?.id,
+    party_type: 'Supplier',
     supplier_name: '',
     manufacturer_name: '',
     invoice_number: '',
@@ -62,6 +65,7 @@ const StoreInventoryAddmodal = ({
   });
 
   const requiredFields = [
+    'party_type',
     'supplier_name',
     'manufacturer_name',
     'invoice_number',
@@ -141,6 +145,7 @@ const StoreInventoryAddmodal = ({
         toast.success('Store data added successfully!');
         setFormData({
           supplier_name: '',
+          party_type: 'Supplier',
           type: '',
           manufacturer_name: '',
           invoice_number: '',
@@ -283,22 +288,42 @@ const StoreInventoryAddmodal = ({
             </div>
           )}
 
-          {/* Supplier Name */}
+          {/* Supplier or Customer */}
           <div className="sm:col-span-6 col-span-12">
-            <Label htmlFor="guard_type" value="Supplier" />
+            <Label htmlFor="party_type" value="Select Supplier or Customer" />
             <select
-              id="supplier_name"
-              value={selectedRow?.supplier_name}
-              onChange={(e) => handleChange('supplier_name', e.target.value)}
+              id="party_type"
+              value={formData.party_type}
+              onChange={(e) => {
+                setFormData({ ...formData, party_type: e.target.value, supplier_name: '' });
+                setErrors({ ...errors, party_type: '', supplier_name: '' });
+              }}
               className="w-full p-2  border rounded-md border-gray-300"
             >
-              <option value="">Select Supplier </option>
-              {supplierdata.map((supplier) => (
-                <option key={supplier.id} value={supplier.id}>
-                  {supplier.supplier_name}
-                </option>
-              ))}
+              <option value="Supplier">Supplier</option>
+              <option value="Customer">Customer</option>
             </select>
+            {errors.party_type && <p className="mt-1 text-sm text-red-500">{errors.party_type}</p>}
+          </div>
+
+          <div className="sm:col-span-6 col-span-12">
+            <Label htmlFor="supplier_name" value={formData.party_type === 'Customer' ? 'Customer Name' : 'Supplier Name'} />
+            <select
+              id="supplier_name"
+              value={formData.supplier_name}
+              onChange={(e) => handleChange('supplier_name', e.target.value)}
+              className="w-full p-2 border rounded-md border-gray-300"
+            >
+              <option value="">Select {formData.party_type}</option>
+              {formData.party_type === 'Customer'
+                ? (customerdata || []).map((customer) => (
+                    <option key={customer.id} value={customer.id}>{customer.company_name}</option>
+                  ))
+                : (supplierdata || []).map((supplier) => (
+                    <option key={supplier.id} value={supplier.id}>{supplier.supplier_name}</option>
+                  ))}
+            </select>
+            {errors.supplier_name && <p className="mt-1 text-sm text-red-500">{errors.supplier_name}</p>}
           </div>
 
           {/* Manufacturer Name */}

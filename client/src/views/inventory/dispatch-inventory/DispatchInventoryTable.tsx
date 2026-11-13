@@ -32,6 +32,11 @@ import { getDispatchBatches } from 'src/features/Inventorymodule/InventoryIssued
 
 interface DispatchDataType {
   id: number;
+  po_id?: number;
+  poentry?: { id: number; po_no: string };
+  work_order_no?: string;
+  batches?: Array<{ quantity?: number | string }>;
+  Transport?: { transporter_name?: string };
   vehicle_number: string;
   driver_details: string;
   product_name: string;
@@ -132,7 +137,21 @@ const DispatchInventoryTable = () => {
           </div>
         ),
       }),
+      columnHelper.accessor((row) => row.poentry?.po_no || '', {
+        id: 'po_no',
+        header: 'PO No.',
+      }),
+      columnHelper.accessor('work_order_no', { header: 'Work Order No.' }),
       columnHelper.accessor('product_name', { header: 'Product Name' }),
+      columnHelper.accessor(
+        (row) => (row.batches || []).reduce((total, batch) => total + Number(batch.quantity || 0), 0),
+        { id: 'quantity', header: 'Quantity' },
+      ),
+      columnHelper.accessor((row) => row.Transport?.transporter_name || '', {
+        id: 'transporter',
+        header: 'Transporter',
+      }),
+      columnHelper.accessor('remarks', { header: 'Remarks' }),
       columnHelper.accessor('vehicle_number', { header: 'Vehicle Number' }),
       columnHelper.accessor('booking_date', { header: 'Booking Date' }),
       columnHelper.accessor('driver_details', { header: 'Driver' }),

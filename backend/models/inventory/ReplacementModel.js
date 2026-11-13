@@ -19,8 +19,15 @@ module.exports = (sequelize, DataTypes) => {
 
       invoice_no: {
         type: DataTypes.INTEGER, // PO ID
-        allowNull: false
+        allowNull: true
       },
+      work_order_id: { type: DataTypes.INTEGER, allowNull: true },
+      work_order_no: { type: DataTypes.STRING, allowNull: true },
+      po_source: { type: DataTypes.ENUM("marketing", "purchase"), allowNull: true },
+      marketing_po_id: { type: DataTypes.INTEGER, allowNull: true },
+      purchase_po_id: { type: DataTypes.INTEGER, allowNull: true },
+      dispatch_id: { type: DataTypes.INTEGER, allowNull: true },
+      note_type: { type: DataTypes.ENUM("debit", "credit"), allowNull: true },
 
       replacement_type: {
         type: DataTypes.ENUM("rejection", "short_qty"),
@@ -66,6 +73,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "invoice_no",
       as: "invoices"
     });
+    ReplacementModel.belongsTo(models.WorkOrderModel, { foreignKey: "work_order_id", as: "workOrder" });
+    ReplacementModel.belongsTo(models.PurchaseOrderModel, { foreignKey: "marketing_po_id", as: "marketingPO" });
+    ReplacementModel.belongsTo(models.PurchasePoModel, { foreignKey: "purchase_po_id", as: "purchasePO" });
+    ReplacementModel.belongsTo(models.DispatchVehicle, { foreignKey: "dispatch_id", as: "dispatch" });
   };
 
   return ReplacementModel;

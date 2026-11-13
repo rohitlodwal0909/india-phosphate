@@ -37,7 +37,7 @@ exports.getTask = async (req, res) => {
           as: "users",
           attributes: ["id", "username"],
           required: false
-        }
+        },
       ]
     });
 
@@ -70,6 +70,7 @@ exports.storeTask = async (req, res) => {
       due_date: req.body.due_date,
       priority: req.body.priority,
       assign_to: req.body.assign_to,
+      pending_because_of: String(req.body.pending_because_of || "").trim() || null,
       task_description: req.body.task_description,
       user_id: req.admin.id,
       created_at: `${entry_date} ${entry_time}`
@@ -128,6 +129,7 @@ exports.updateTask = async (req, res) => {
       due_date: req.body.due_date,
       priority: req.body.priority,
       assign_to: req.body.assign_to,
+      pending_because_of: String(req.body.pending_because_of || "").trim() || null,
       task_description: req.body.task_description
     });
 

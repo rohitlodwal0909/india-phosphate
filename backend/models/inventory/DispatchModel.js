@@ -13,6 +13,15 @@ module.exports = (sequelize, DataTypes) => {
       po_id: {
         type: DataTypes.INTEGER
       },
+      dispatch_type: {
+        type: DataTypes.STRING,
+        defaultValue: "domestic"
+      },
+      cha: DataTypes.STRING,
+      inco_terms: DataTypes.STRING,
+      airbill: DataTypes.STRING,
+      bl_no: DataTypes.STRING,
+      destination: DataTypes.STRING,
       work_order_no: {
         type: DataTypes.STRING
       },

@@ -26,6 +26,7 @@ const TaskManagerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   const [formData, setFormData] = useState<any>({
     task_title: '',
     assign_to: '',
+    pending_because_of: '',
     priority: '',
     due_date: '',
     task_description: '',
@@ -105,6 +106,7 @@ const TaskManagerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
       setFormData({
         task_title: '',
         assign_to: '',
+        pending_because_of: '',
         priority: '',
         due_date: '',
         task_description: '',
@@ -179,6 +181,16 @@ const TaskManagerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
               </div>
 
               {/* PRIORITY */}
+
+              <div className="col-span-12">
+                <Label value="Pending Because Of" className="mb-2 block" />
+                <Textarea
+                  rows={3}
+                  placeholder="Enter why this task is pending..."
+                  value={formData.pending_because_of}
+                  onChange={(e) => setFormData({ ...formData, pending_because_of: e.target.value })}
+                />
+              </div>
 
               <div className="col-span-12 md:col-span-6">
                 <Label value="Priority" className="mb-2 block" />

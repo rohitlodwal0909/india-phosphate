@@ -75,6 +75,8 @@ exports.create = async (req, res, next) => {
         work_order_no,
         labours,
         output_morning,
+        target,
+        name_of_person,
         output_evening
       } = item;
 
@@ -89,7 +91,8 @@ exports.create = async (req, res, next) => {
         batch_no,
         work_order_no,
         labours,
-
+        target,
+        name_of_person,
         /* Output */
         output_morning,
         output_evening,
@@ -255,6 +258,8 @@ exports.update = async (req, res, next) => {
           work_order_no: item.work_order_no,
 
           labours: item.labours,
+          target: item.target,
+          name_of_person: item.name_of_person,
 
           output_morning: item.output_morning,
 
@@ -284,6 +289,8 @@ exports.update = async (req, res, next) => {
           work_order_no: item.work_order_no,
 
           labours: item.labours,
+          target: item.target,
+          name_of_person: item.name_of_person,
 
           output_morning: item.output_morning,
 

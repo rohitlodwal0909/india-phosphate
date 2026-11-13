@@ -585,11 +585,17 @@ exports.addQcBatch = async (req, res, next) => {
     exp_date,
     grade,
     size,
+    material_type,
     user_id
   } = req.body;
 
   if (!qc_batch_number) {
     const error = new Error("qc_batch_number is required.");
+    error.status = 400;
+    return next(error);
+  }
+  if (!["Export", "Domestic"].includes(material_type)) {
+    const error = new Error("material_type must be Export or Domestic.");
     error.status = 400;
     return next(error);
   }
@@ -612,6 +618,7 @@ exports.addQcBatch = async (req, res, next) => {
       mfg_date,
       exp_date,
       grade,
+      material_type,
       size,
       user_id
     });
@@ -657,10 +664,17 @@ exports.updateQcBatch = async (req, res, next) => {
     exp_date,
     grade,
     size,
+    material_type,
     user_id
   } = req.body;
 
   try {
+    if (!["Export", "Domestic"].includes(material_type)) {
+      const error = new Error("material_type must be Export or Domestic.");
+      error.status = 400;
+      return next(error);
+    }
+
     // Check if batch exists
     const batch = await Qcbatch.findByPk(id);
     if (!batch) {
@@ -677,6 +691,7 @@ exports.updateQcBatch = async (req, res, next) => {
       exp_date,
       grade,
       size,
+      material_type,
       user_id
     });
 

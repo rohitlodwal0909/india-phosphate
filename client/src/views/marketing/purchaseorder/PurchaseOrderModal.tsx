@@ -85,6 +85,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     value: p.name,
   }));
 
+
   const customerOptions = customers?.map((c: any) => {
     return {
       label: c.company_name,
@@ -162,6 +163,9 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   const [formData, setFormData] = useState<any>({
     po_no: '',
     company_id: '',
+    po_date: '',
+    destination: '',
+    po_remark: '',
     company_address: '',
     customer_name: '',
     delivery_address: '',
@@ -215,6 +219,10 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       /* ================= BASIC ================= */
       payload.append('po_no', formData.po_no);
       payload.append('company_id', formData.company_id);
+      payload.append('po_date', formData.po_date);
+      payload.append('destination', formData.destination);
+      payload.append('po_remark', formData.po_remark);
+
       payload.append('company_address', formData.company_address);
       payload.append('delivery_address', formData.delivery_address);
       payload.append('customer_name', formData.customer_name);
@@ -315,6 +323,27 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
               value={formData.company_address}
               readOnly
               placeholder="Enter company address"
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="PO Date" />
+            <TextInput
+              type="date"
+              name="po_date"
+              value={formData.po_date}
+              onChange={handleChange}
+              placeholder="Enter PO Date"
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Destination" />
+            <TextInput
+              name="destination"
+              value={formData.destination}
+              onChange={handleChange}
+              placeholder="Enter Destination"
             />
           </div>
 
@@ -544,31 +573,46 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
 
           {/* Domestic / Export */}
           <div className="col-span-12 flex gap-6 items-center">
-            <Checkbox
-              name="domestic"
-              checked={formData.domestic}
-              onChange={(e) => {
-                handleChange(e);
-                if (e.target.checked) {
-                  setFormData((prev: any) => ({ ...prev, export: false }));
-                }
-              }}
-            />
-            <span>Domestic</span>
+            {/* Domestic - Yellow */}
+            <label className="flex items-center gap-2 cursor-pointer text-yellow-600 font-medium">
+              <Checkbox
+                name="domestic"
+                checked={formData.domestic}
+                onChange={(e) => {
+                  handleChange(e);
+                  if (e.target.checked) {
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      export: false,
+                    }));
+                  }
+                }}
+              />
+              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md border border-yellow-300">
+                Domestic
+              </span>
+            </label>
 
-            <Checkbox
-              name="export"
-              checked={formData.export}
-              onChange={(e) => {
-                handleChange(e);
-                if (e.target.checked) {
-                  setFormData((prev: any) => ({ ...prev, domestic: false }));
-                }
-              }}
-            />
-            <span>Export</span>
+            {/* Export - Green */}
+            <label className="flex items-center gap-2 cursor-pointer text-green-600 font-medium">
+              <Checkbox
+                name="export"
+                checked={formData.export}
+                onChange={(e) => {
+                  handleChange(e);
+                  if (e.target.checked) {
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      domestic: false,
+                    }));
+                  }
+                }}
+              />
+              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md border border-green-300">
+                Export
+              </span>
+            </label>
           </div>
-
           {/* Export Fields */}
           {formData.export && (
             <>
@@ -694,6 +738,11 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                 }))
               }
             />
+          </div>
+
+          <div className="col-span-12">
+            <Label value="Remark" />
+            <Textarea name="po_remark" placeholder="Enter remark" onChange={handleChange} />
           </div>
 
           {/* Buttons */}

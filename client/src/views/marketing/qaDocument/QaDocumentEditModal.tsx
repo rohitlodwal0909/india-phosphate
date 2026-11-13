@@ -22,6 +22,12 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
   const customers = useSelector((s: RootState) => s.purchaseOrder.customers);
 
   const usersdata = useSelector((state: RootState) => state.usermanagement?.userdata) ?? [];
+  const logindata = useSelector((state: RootState) => state.authentication?.logindata) as any;
+  const roleId = Number(logindata?.admin?.role_id);
+  const isAdmin = roleId === 1;
+  const isQa = roleId === 3;
+  const canEditMarketingSteps = isAdmin || roleId === 9;
+  const canEditQaStep = isAdmin || isQa;
 
   /* ================= FILTER USERS ================= */
 
@@ -40,6 +46,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
 
   const [formData, setFormData] = useState({
     company_id: '',
+    priority: '',
   });
 
   const defaultRow = {
@@ -48,6 +55,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
     received_marketing_id: '',
     share_customer_by: '',
     status: '',
+    approval_from: 'marketing',
     comment: '',
     file: null,
     old_file: '',
@@ -79,15 +87,18 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
 
     setFormData({
       company_id: selectedRow.company_id || '',
+      priority: selectedRow.priority || '',
     });
 
     if (selectedRow.qa_document?.length) {
       const items = selectedRow.qa_document.map((item: any) => ({
+        id: item.id,
         doc_name: item.doc_name || '',
         qa_person_id: item.qa_person_id || '',
         received_marketing_id: item.received_marketing_id || '',
         share_customer_by: item.share_customer_by || '',
         status: item.status || '',
+        approval_from: item.approval_from || 'marketing',
         comment: item.comment || '',
         file: null,
         old_file: item.file || '',
@@ -131,6 +142,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
       const form = new FormData();
 
       form.append('company_id', formData.company_id);
+      form.append('priority', formData.priority);
 
       // JSON DATA
       form.append(
@@ -143,6 +155,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
             received_marketing_id: item.received_marketing_id,
             share_customer_by: item.share_customer_by,
             status: item.status,
+            approval_from: item.approval_from || 'marketing',
             comment: item.comment,
             old_file: item.old_file || '',
           })),
@@ -150,9 +163,9 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
       );
 
       // FILES
-      coaItems.forEach((item: any) => {
+      coaItems.forEach((item: any, index: number) => {
         if (item.file) {
-          form.append('files', item.file);
+          form.append(`file_${index}`, item.file);
         }
       });
 
@@ -208,7 +221,23 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                     (c: any) => Number(c.value) === Number(formData.company_id),
                   )}
                   onChange={handleCustomer}
+                  isDisabled={!canEditMarketingSteps}
                 />
+              </div>
+              <div className="col-span-4">
+                <Label value="Priority" className="mb-2 block" />
+                <select
+                  className="w-full h-10 border rounded-lg px-3 bg-white"
+                  value={formData.priority}
+                  disabled={!canEditMarketingSteps}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, priority: e.target.value }))}
+                >
+                  <option value="">Select Priority</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
               </div>
             </div>
           </div>
@@ -222,15 +251,14 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                 <p className="text-sm text-gray-500">Edit QA approval & sharing workflow</p>
               </div>
 
-              <Button color="primary" size="sm" onClick={addRow}>
-                + Add New Document
-              </Button>
+              {canEditMarketingSteps && <Button color="primary" size="sm" type="button" onClick={addRow}>+ Add New Document</Button>}
             </div>
 
             {coaItems.map((item, index) => {
               const step2Enabled = !!selectedRow?.qa_document?.[index]?.doc_name;
 
               const step3Enabled = !!selectedRow?.qa_document?.[index]?.status;
+              const step2Editable = step2Enabled && canEditQaStep;
 
               return (
                 <div key={index} className="border rounded-2xl p-5 bg-white shadow-sm mb-6">
@@ -242,7 +270,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       <p className="text-sm text-gray-500">QA approval workflow</p>
                     </div>
 
-                    {index > 0 && (
+                    {index > 0 && canEditMarketingSteps && (
                       <Button color="failure" size="xs" onClick={() => removeRow(index)}>
                         Remove
                       </Button>
@@ -250,7 +278,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                   </div>
 
                   {/* STEP 1 */}
-                  <div className="border rounded-xl p-5 bg-blue-50 mb-5">
+                  <div className={`border rounded-xl p-5 bg-blue-50 mb-5 ${canEditMarketingSteps ? '' : 'opacity-60 pointer-events-none'}`}>
                     <div className="flex items-center justify-between mb-4">
                       <h5 className="font-semibold text-blue-700">Step 1 : Assign QA Person</h5>
 
@@ -302,15 +330,16 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                         <input
                           id={`file-${index}`}
                           type="file"
-                          accept=".pdf"
+                          accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.xls,.xlsx"
                           className="hidden"
                           onChange={(e: any) => {
                             const file = e.target.files[0];
 
                             if (!file) return;
 
-                            if (file.type !== 'application/pdf') {
-                              toast.error('Only PDF allowed');
+                            if (!/\.(png|jpe?g|pdf|docx?|xlsx?)$/i.test(file.name)) {
+                              toast.error('Upload PNG, JPG, PDF, Word, or Excel files only');
+                              e.target.value = '';
                               return;
                             }
 
@@ -326,7 +355,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                             rel="noreferrer"
                             className="text-xs text-blue-600 mt-2 inline-block"
                           >
-                            View Uploaded PDF
+                            View Uploaded File
                           </a>
                         )}
                       </div>
@@ -336,20 +365,24 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                   {/* STEP 2 */}
                   <div
                     className={`border rounded-xl p-5 mb-5 ${
-                      step2Enabled ? 'bg-yellow-50' : 'bg-gray-100 opacity-60 pointer-events-none'
+                      !step2Editable
+                        ? 'bg-gray-100 opacity-60 pointer-events-none'
+                        : item.approval_from === 'admin'
+                          ? 'bg-amber-100 border-amber-800'
+                          : 'bg-yellow-50'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <h5 className="font-semibold text-yellow-700">Step 2 : QA Review</h5>
+                      <h5 className={`font-semibold ${item.approval_from === 'admin' ? 'text-amber-900' : 'text-yellow-700'}`}>Step 2 : QA Review</h5>
 
-                      <span className="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
+                      <span className={`text-xs px-3 py-1 rounded-full ${item.approval_from === 'admin' ? 'bg-amber-800 text-white' : 'bg-yellow-100 text-yellow-700'}`}>
                         QA Department
                       </span>
                     </div>
 
                     <div className="grid grid-cols-12 gap-4">
                       {/* STATUS */}
-                      <div className="col-span-4">
+                      <div className="col-span-3">
                         <Label value="Document Status" className="mb-2 block" />
 
                         <div className="flex gap-5 mt-3">
@@ -378,7 +411,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       </div>
 
                       {/* COMMENT */}
-                      <div className="col-span-4">
+                      <div className="col-span-3">
                         <Label value="Comment" className="mb-2 block" />
 
                         <TextInput
@@ -389,7 +422,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       </div>
 
                       {/* RECEIVED */}
-                      <div className="col-span-4">
+                      <div className="col-span-3">
                         <Label value="Received By Marketing" className="mb-2 block" />
 
                         <Select
@@ -403,13 +436,25 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                           }
                         />
                       </div>
+
+                      <div className="col-span-3">
+                        <Label value="Approval From" className="mb-2 block" />
+                        <select
+                          className="w-full h-10 border rounded-lg px-3 bg-white"
+                          value={item.approval_from || 'marketing'}
+                          onChange={(e) => handleItem(index, 'approval_from', e.target.value)}
+                        >
+                          <option value="marketing">Marketing</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
                   {/* STEP 3 */}
                   <div
                     className={`border rounded-xl p-5 ${
-                      step3Enabled ? 'bg-green-50' : 'bg-gray-100 opacity-60 pointer-events-none'
+                      step3Enabled && canEditMarketingSteps ? 'bg-green-50' : 'bg-gray-100 opacity-60 pointer-events-none'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-4">

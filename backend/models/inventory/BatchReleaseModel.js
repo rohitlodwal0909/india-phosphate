@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       release_no: DataTypes.STRING,
       release_date: DataTypes.DATEONLY,
+      quantity: { type: DataTypes.DECIMAL(12, 2), allowNull: true },
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

@@ -215,6 +215,11 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       payload.append('po_no', formData.po_no);
       payload.append('company_id', formData.company_id);
       payload.append('company_address', formData.company_address);
+
+      payload.append('po_date', formData.po_date);
+      payload.append('destination', formData.destination);
+      payload.append('po_remark', formData.po_remark);
+
       payload.append('customer_name', formData.customer_name);
       payload.append('delivery_address', formData.delivery_address);
       payload.append('freight', formData.freight);
@@ -337,6 +342,27 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
               name="company_address"
               value={formData.company_address || ''}
               onChange={handleChange}
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="PO Date" />
+            <TextInput
+              type="date"
+              name="po_date"
+              value={formData.po_date}
+              onChange={handleChange}
+              placeholder="Enter PO Date"
+            />
+          </div>
+
+          <div className="col-span-6">
+            <Label value="Destination" />
+            <TextInput
+              name="destination"
+              value={formData.destination}
+              onChange={handleChange}
+              placeholder="Enter Destination"
             />
           </div>
 
@@ -581,15 +607,24 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
 
           {/* Domestic / Export */}
           <div className="col-span-12 flex gap-6 items-center">
-            <Checkbox
-              name="domestic"
-              checked={formData.domestic || false}
-              onChange={handleChange}
-            />
-            <span>Domestic</span>
+            <label className="flex items-center gap-2 cursor-pointer text-yellow-600 font-medium">
+              <Checkbox
+                name="domestic"
+                checked={formData.domestic || false}
+                onChange={handleChange}
+              />
+              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md border border-yellow-300">
+                Domestic
+              </span>
+            </label>
 
-            <Checkbox name="export" checked={formData.export || false} onChange={handleChange} />
-            <span>Export</span>
+            <label className="flex items-center gap-2 cursor-pointer text-green-600 font-medium">
+              <Checkbox name="export" checked={formData.export || false} onChange={handleChange} />
+            </label>
+
+            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md border border-green-300">
+              Export
+            </span>
           </div>
 
           {/* Export Fields */}
@@ -727,6 +762,16 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
                   priority: selected?.value,
                 })
               }
+            />
+          </div>
+
+          <div className="col-span-12">
+            <Label value="Remark" />
+            <Textarea
+              name="po_remark"
+              value={formData.po_remark}
+              placeholder="Enter remark"
+              onChange={handleChange}
             />
           </div>
 

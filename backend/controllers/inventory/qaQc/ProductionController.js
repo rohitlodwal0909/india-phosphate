@@ -14,7 +14,8 @@ const {
   Equipment,
   PMIssueModel,
   RMIssueModel,
-  FinishQty
+  FinishQty,
+  ProductionPlanning
 } = db;
 
 const sequelize = db.sequelize;
@@ -217,7 +218,8 @@ exports.getQcbatchesWithProduction = async (req, res, next) => {
 
 exports.getAllProductionResults = async (req, res, next) => {
   try {
-    const data = await Qcbatch.findAll({
+    const [data, planningRows] = await Promise.all([
+      Qcbatch.findAll({
       include: [
         {
           model: ProductionResult,
@@ -242,12 +244,25 @@ exports.getAllProductionResults = async (req, res, next) => {
           ]
         }
       ],
-      order: [["created_at", "DESC"]]
+        order: [["created_at", "DESC"]]
+      }),
+      ProductionPlanning.findAll({ attributes: ["batch_no", "work_order_no"] })
+    ]);
+
+    const workOrdersByBatch = new Map();
+    planningRows.forEach((planning) => {
+      const batchNo = String(planning.batch_no || "").trim().toLowerCase();
+      if (batchNo && !workOrdersByBatch.has(batchNo)) {
+        workOrdersByBatch.set(batchNo, planning.work_order_no);
+      }
     });
 
     // ✅ ADD TOTALS
     const formattedData = data.map((batch) => {
       const batchJSON = batch.toJSON();
+      batchJSON.work_order_no = workOrdersByBatch.get(
+        String(batchJSON.qc_batch_number || "").trim().toLowerCase()
+      ) || null;
 
       batchJSON.production_results = batchJSON.production_results.map(
         (prod) => {

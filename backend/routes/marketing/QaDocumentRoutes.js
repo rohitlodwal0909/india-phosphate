@@ -27,12 +27,15 @@ const storage = multer.diskStorage({
 ========================================================= */
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["application/pdf"];
+  const allowedExtensions = new Set([
+    ".png", ".jpg", ".jpeg", ".pdf", ".doc", ".docx", ".xls", ".xlsx"
+  ]);
+  const extension = path.extname(file.originalname).toLowerCase();
 
-  if (allowedTypes.includes(file.mimetype)) {
+  if (allowedExtensions.has(extension)) {
     cb(null, true);
   } else {
-    cb(new Error("Only PDF files are allowed"), false);
+    cb(new Error("Only PNG, JPG, PDF, Word, and Excel files are allowed"), false);
   }
 };
 
@@ -42,7 +45,8 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage,
-  fileFilter
+  fileFilter,
+  limits: { fileSize: 15 * 1024 * 1024 }
 });
 
 /* =========================================================
@@ -55,14 +59,14 @@ router.get("/get-qa-documents", QaDocumentController.getQaDocument);
 // Create QA Document
 router.post(
   "/create-qa-documents",
-  upload.array("files"),
+  upload.any(),
   QaDocumentController.storeQaDocument
 );
 
 // Update QA Document
 router.put(
   "/update-qa-documents/:id",
-  upload.array("files"),
+  upload.any(),
   QaDocumentController.updateQaDocument
 );
 

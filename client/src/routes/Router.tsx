@@ -53,6 +53,7 @@ import Dashboard from 'src/views/usermanagment/Dashboard';
 import Report from 'src/views/accounts/ledger/LedgerComponent/Report';
 import CustomerDashboard from 'src/views/dashboard/customer/CustomerDashboard';
 import BillInvoice from 'src/views/accounts/bill/BillInvoice';
+import DebitCreditNote from 'src/views/accounts/debit-credit-note/DebitCreditNote';
 
 const Supplier = Loadable(lazy(() => import('src/views/master/Supplier/Supplier')));
 const Customer = Loadable(lazy(() => import('src/views/master/Customer/Customer')));
@@ -183,6 +184,7 @@ const fullLayoutChildren = [
   { path: '/accounts/purchase-report/:id', element: <PuchaseReport /> },
   { path: '/accounts/purchase', element: <AccountPurchase /> },
   { path: '/accounts/ledger', element: <Ledger /> },
+  { path: '/accounts/debit-credit-note', element: <DebitCreditNote /> },
   { path: '/accounts/summary/:id', element: <Report /> },
 
   // Marketing

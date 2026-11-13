@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
+      followup: {
+        type: DataTypes.TEXT
+      },
+
       platform: {
         type: DataTypes.TEXT
       },

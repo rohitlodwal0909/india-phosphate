@@ -55,6 +55,16 @@ const calculateBuyingCycle = (orders) => {
   return Number((totalDays / (orders.length - 1)).toFixed(1));
 };
 
+const parseJsonArray = (value) => {
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 const getProductWiseData = (orders, productMap) => {
   const totals = {};
 
@@ -164,13 +174,18 @@ const customerdata = async () => {
     order: [["created_at", "DESC"]]
   });
 
-  const potential_oppertunity = await Customer.count({
-    where: { potential_opportunity: 1 }
+  const existingCustomerIds = new Set();
+  const potentialCustomerIds = new Set();
+  const newCustomerIds = new Set();
+  companies.forEach((company) => {
+    const id = Number(company.id);
+    if (company.convert_to_customer) existingCustomerIds.add(id);
+    else if (company.potential_opportunity) potentialCustomerIds.add(id);
+    else newCustomerIds.add(id);
   });
-
-  const new_customer = await Customer.count({
-    where: { convert_to_customer: 1 }
-  });
+  const potential_oppertunity = potentialCustomerIds.size;
+  const new_customer = newCustomerIds.size;
+  const existing_customer = existingCustomerIds.size;
 
   let dormantCustomers = 0;
   let revivedCustomers = 0;
@@ -218,50 +233,54 @@ const customerdata = async () => {
       ? Number(((revivedCustomers / dormantCustomers) * 100).toFixed(2))
       : 0;
 
-  const enquiry = await EnquiryModel.count();
+  const enquiryRecordCount = await EnquiryModel.count();
+  const orderRecordCount = await PurchaseOrderModel.count();
+  const conversionRate = enquiryRecordCount > 0 ? ((orderRecordCount / enquiryRecordCount) * 100).toFixed(2) : 0;
 
-  const order = await PurchaseOrderModel.count();
-  const conversionRate = enquiry > 0 ? ((order / enquiry) * 100).toFixed(2) : 0;
+  // "Contacted" is the current Customer stage reached from an opportunity.
+  const contacted = new_customer;
 
-  const contacted = await Customer.count({
-    where: { convert_to_customer: 1 },
-    order: [["created_at", "DESC"]]
-  });
+  const [quotations, samples, purchaseOrders] = await Promise.all([
+    QuotationModel.findAll({ attributes: ["company_name"] }),
+    SampleRequestModel.findAll({ attributes: ["company_id"] }),
+    PurchaseOrderModel.findAll({ attributes: ["company_id"] })
+  ]);
+  const quotationCompanies = new Set(quotations.map((item) => String(item.company_name || "").trim().toLowerCase()).filter(Boolean));
+  const sampleCompanies = new Set(samples.map((item) => Number(item.company_id)).filter(Number.isFinite));
+  const orderCompanies = new Set(purchaseOrders.map((item) => Number(item.company_id)).filter(Number.isFinite));
 
-  const quotation = await QuotationModel.count();
-  const sample = await SampleRequestModel.count();
-
-  const lost = await EnquiryModel.findAll({
+  const enquiryRows = await EnquiryModel.findAll({
+    attributes: ["company_id"],
     include: [
-      { model: EnquiryIntrestedProductsModel, as: "interested_products" }
+      { model: EnquiryIntrestedProductsModel, as: "interested_products", attributes: ["followups"], required: true }
     ]
   });
-
-  const closedCount = lost.reduce((count, enquiry) => {
-    try {
-      const followups = JSON.parse(enquiry.followups || "[]");
-
-      if (!followups.length) return count;
-
-      const lastFollowup = followups[followups.length - 1];
-
-      return lastFollowup.status?.toLowerCase() === "closed"
-        ? count + 1
-        : count;
-    } catch (error) {
-      return count;
-    }
-  }, 0);
+  const enquiryCompanyStates = new Map();
+  enquiryRows.forEach((enquiry) => {
+    const companyId = Number(enquiry.company_id);
+    if (!Number.isFinite(companyId)) return;
+    const state = enquiryCompanyStates.get(companyId) || { open: false, closed: false };
+    (enquiry.interested_products || []).forEach((product) => {
+      const followups = parseJsonArray(product.followups);
+      const latestStatus = String(followups[followups.length - 1]?.status || "").toLowerCase();
+      if (latestStatus === "closed") state.closed = true;
+      else state.open = true;
+    });
+    enquiryCompanyStates.set(companyId, state);
+  });
+  const enquiry = [...enquiryCompanyStates.values()].filter((state) => state.open).length;
+  const closedCount = [...enquiryCompanyStates.values()].filter((state) => state.closed && !state.open).length;
 
   const customer_conversation = {
-    identifiedCompanies: companies.length,
+    identifiedCompanies: potential_oppertunity + new_customer + existing_customer,
     potential_oppertunity: potential_oppertunity,
     new_customer: new_customer,
+    existing_customer,
     contacted,
     enquiry,
-    quotation,
-    sample,
-    order,
+    quotation: quotationCompanies.size,
+    sample: sampleCompanies.size,
+    order: orderCompanies.size,
     lost: closedCount
   };
 
@@ -366,11 +385,8 @@ exports.getallCustomers = async (req, res, next) => {
     });
 
     const count = total_disputes.filter((dispute) => {
-      const followups = JSON.parse(dispute?.followups || "[]");
-
-      return !followups.some(
-        (item) => item?.status?.toLowerCase() === "closed"
-      );
+      const followups = parseJsonArray(dispute?.followups);
+      return !followups.some((item) => String(item?.status || "").toLowerCase() === "closed");
     }).length;
 
     const customer = await customerdata();

@@ -3,6 +3,7 @@ const router = express.Router();
 const ReplacementController = require("../../controllers/inventory/replacement/ReplacementController");
 
 router.get("/get-replacement", ReplacementController.index);
+router.get("/replacement-options", ReplacementController.options);
 router.post("/add-replacement", ReplacementController.store);
 router.put("/update-replacement", ReplacementController.update);
 router.delete("/delete-replacement/:id", ReplacementController.delete);

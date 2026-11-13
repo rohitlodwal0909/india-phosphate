@@ -36,6 +36,7 @@ interface TaskDataType {
   due_date: string;
   status: string;
   task_description: string;
+  pending_because_of?: string | null;
 
   users?: {
     id: number;
@@ -197,6 +198,11 @@ const TaskManagerTable = () => {
         header: 'Assigned To',
 
         cell: (info) => <div>{info.row.original.assign_task?.username || '-'}</div>,
+      }),
+
+      columnHelper.accessor('pending_because_of', {
+        header: 'Pending Because Of',
+        cell: (info) => <div className="max-w-[280px] whitespace-pre-wrap break-words">{info.getValue() || '-'}</div>,
       }),
 
       /* PRIORITY */

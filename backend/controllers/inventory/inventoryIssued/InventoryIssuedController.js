@@ -24,7 +24,8 @@ exports.getStoreEquipment = async (req, res, next) => {
           attributes: ["quantity", "return_equipment"],
           required: false
         }
-      ]
+      ],
+      order: [["created_at", "DESC"]]
     });
 
     const data = equipments.map((eq) => {
@@ -90,7 +91,8 @@ exports.getIssuedEquipment = async (req, res, next) => {
           model: Equipment,
           as: "issueequipment"
         }
-      ]
+      ],
+      order: [["created_at", "DESC"]]
     });
 
     res.status(200).json({ message: "Issued Equipment Fetched", data: data });

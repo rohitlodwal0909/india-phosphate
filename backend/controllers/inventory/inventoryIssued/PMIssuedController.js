@@ -26,7 +26,8 @@ exports.getStorePM = async (req, res, next) => {
           attributes: ["quantity", "return_bag"],
           required: false
         }
-      ]
+      ],
+      order: [["created_at", "DESC"]]
     });
 
     const data = equipments.map((eq) => {

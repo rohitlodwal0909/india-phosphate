@@ -68,13 +68,16 @@ const ViewPurchaseOrderModal = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm">
             {[
               { label: 'PO No.', value: selectedRow?.po_no },
+              { label: 'PO Date.', value: selectedRow?.po_date },
               { label: 'Company Name', value: selectedRow?.customers?.company_name },
               { label: 'Company Type', value: selectedRow?.company_type },
               { label: 'Company Address', value: selectedRow?.company_address },
               { label: 'Delivery Address', value: selectedRow?.delivery_address },
               { label: 'Payment Terms', value: selectedRow?.payment_terms },
               { label: 'Remark', value: selectedRow?.remark },
+              { label: 'PO Remark', value: selectedRow?.po_remark },
               { label: 'Freight', value: selectedRow?.freight },
+              { label: 'Destination', value: selectedRow?.destination },
               { label: 'Commission', value: selectedRow?.commission },
               { label: 'Insurance', value: selectedRow?.insurance },
               { label: 'Customise Labels', value: selectedRow?.customise_labels },

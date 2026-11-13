@@ -31,6 +31,8 @@ import { getPermissions } from 'src/utils/getPermissions';
 export interface PaginationTableType {
   id: number;
   qc_batch_number: string;
+  material_type: string;
+  work_order_no: string;
   product_name: string;
   size: string;
   rm_code: any;
@@ -110,10 +112,12 @@ function FinishingTable() {
       toast.success('Finishing entry updated successfully!');
       dispatch(GetFetchProduction());
       setEditModal(false);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error?.message || 'Update failed!');
     }
   };
+
+  console.log(data);
 
   const filteredData = useMemo(() => {
     if (!searchText) return data;
@@ -137,11 +141,25 @@ function FinishingTable() {
           ? production.quantity.split(',').map((q) => q.trim().toLowerCase())
           : [];
 
-      const entry = Array.isArray(item?.finishing_entries) ? item.finishing_entries[0] : null;
-
-      const finishQty = entry?.finish_quantity?.toString().toLowerCase() || '';
-
-      const unfinishQty = entry?.unfinish_quantity?.toString().toLowerCase() || '';
+      const entries = Array.isArray(item?.production_results?.[0]?.finishing_entries)
+        ? item.production_results[0].finishing_entries
+        : Array.isArray(item?.finishing_entries)
+          ? item.finishing_entries
+          : [];
+      const finishQty = entries
+        .reduce(
+          (total, entry) =>
+            total + Number(entry?.total_finishing_qty || entry?.finish_quantity || 0),
+          0,
+        )
+        .toString();
+      const unfinishQty = entries
+        .reduce(
+          (total, entry) =>
+            total + Number(entry?.total_unfinishing_qty || entry?.unfinish_quantity || 0),
+          0,
+        )
+        .toString();
 
       // ✅ Agar matchedBatch nahi mila, tab bhi baaki fields pe search kaam karega
       return (
@@ -170,6 +188,33 @@ function FinishingTable() {
         return <p>{rowData?.qc_batch_number || 'No Code'}</p>;
       },
       header: () => <span>Batch Number</span>,
+    }),
+
+    columnHelper.accessor('material_type', {
+      header: 'Material Type',
+      cell: (info) => {
+        const value = info.getValue();
+        const normalizedValue = value?.toLowerCase();
+
+        return (
+          <span
+            className={
+              normalizedValue === 'export'
+                ? 'rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800'
+                : normalizedValue === 'domestic'
+                  ? 'rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800'
+                  : 'text-gray-500'
+            }
+          >
+            {value || '-'}
+          </span>
+        );
+      },
+    }),
+
+    columnHelper.accessor('work_order_no', {
+      header: 'Work Order No.',
+      cell: (info) => <span>{info.getValue() || '-'}</span>,
     }),
 
     columnHelper.accessor('product_name', {
@@ -220,10 +265,15 @@ function FinishingTable() {
         const rowData = info?.row?.original;
         const data = rowData?.production_results?.[0];
 
-        const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
+        const entries = Array.isArray(data?.finishing_entries) ? data.finishing_entries : [];
+        const totalFinishQty = entries.reduce(
+          (total, entry) =>
+            total + Number(entry?.total_finishing_qty || entry?.finish_quantity || 0),
+          0,
+        );
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-            {entry?.total_finishing_qty ?? '-'}
+            {entries.length ? totalFinishQty : '-'}
           </span>
         );
       },
@@ -252,39 +302,39 @@ function FinishingTable() {
         const entry = Array.isArray(data?.finishing_entries) ? data.finishing_entries[0] : null;
         return (
           <div className="flex gap-2">
-            {entry
-              ? permissions?.add && (
-                  <Button
-                    color="secondary"
-                    onClick={() => {
-                      setEditModal(true);
-                      triggerGoogleTranslateRescan();
-                      setSelectedRow(data);
-                      setSize(size);
-                    }}
-                    outline
-                    size="xs"
-                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                  >
-                    <Icon icon="material-symbols:edit-outline" height={18} />
-                  </Button>
-                )
-              : permissions?.add && (
-                  <Button
-                    onClick={() => {
-                      setaddmodal(true);
-                      triggerGoogleTranslateRescan();
-                      setSelectedRow(data);
-                      setSize(size);
-                    }}
-                    color="secondary"
-                    outline
-                    size="xs"
-                    className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
-                  >
-                    <Icon icon="material-symbols:add-rounded" height={18} />
-                  </Button>
-                )}
+            {entry ? (
+              permissions?.add && (
+                <Button
+                  color="secondary"
+                  onClick={() => {
+                    setEditModal(true);
+                    triggerGoogleTranslateRescan();
+                    setSelectedRow(data);
+                    setSize(size);
+                  }}
+                  outline
+                  size="xs"
+                  className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+                >
+                  <Icon icon="material-symbols:edit-outline" height={18} />
+                </Button>
+              )
+            ) : permissions?.add ? (
+              <Button
+                onClick={() => {
+                  setaddmodal(true);
+                  triggerGoogleTranslateRescan();
+                  setSelectedRow(data);
+                  setSize(size);
+                }}
+                color="secondary"
+                outline
+                size="xs"
+                className="border border-primary text-primary hover:bg-primary hover:text-white rounded-md"
+              >
+                <Icon icon="material-symbols:add-rounded" height={18} />
+              </Button>
+            ) : null}
           </div>
         );
       },

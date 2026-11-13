@@ -34,6 +34,12 @@ const enquiryStatusOptions = [
   { value: 'freight', label: 'Awaiting Freight', color: '#fdba74' },
   { value: 'dispatch', label: 'Awaiting Dispatch', color: '#f97316' },
 
+  // Sample
+  { value: 'sample', label: 'Sample', color: '#8b5cf6' },
+
+  // Payment
+  { value: 'payment', label: 'Payment', color: '#22c55e' },
+
   // Follow Up
   { value: 'follow_up_order', label: 'Follow Up for Order', color: '#0f766e' },
 

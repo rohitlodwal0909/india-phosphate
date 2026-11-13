@@ -30,6 +30,7 @@ interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   date: string;
+  priority: string;
   customers?: {
     id: number;
     company_name: string;
@@ -161,6 +162,15 @@ const QaDocumentTable = () => {
 
       columnHelper.accessor('date', { header: 'Date' }),
 
+      columnHelper.accessor('priority', {
+        header: 'Priority',
+        cell: (info) => {
+          const priority = info.getValue();
+          const color = priority === 'urgent' ? 'text-red-600 font-semibold' : priority === 'high' ? 'text-orange-600' : priority === 'medium' ? 'text-blue-600' : 'text-gray-600';
+          return <span className={`capitalize ${color}`}>{priority || '-'}</span>;
+        },
+      }),
+
       columnHelper.accessor('customers', {
         header: 'Name of company',
         cell: (info) => (
@@ -190,6 +200,10 @@ const QaDocumentTable = () => {
 
                     <p>
                       <strong>Status:</strong> {item?.status}
+                    </p>
+                    <p className={item?.approval_from === 'admin' ? 'text-amber-900 font-semibold' : ''}>
+                      <strong>Approval From:</strong>{' '}
+                      {item?.approval_from === 'admin' ? 'Admin' : 'Marketing'}
                     </p>
                     <p>
                       <strong>Received marketing:</strong> {item?.received_marketing?.username}

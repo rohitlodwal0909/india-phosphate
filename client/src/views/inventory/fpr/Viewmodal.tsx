@@ -1,144 +1,46 @@
 import { Modal, ModalBody, ModalHeader } from 'flowbite-react';
 
-interface AddModalProps {
+interface ViewModalProps {
   placeModal: boolean;
   modalPlacement: string;
   setPlaceModal: (value: boolean) => void;
   rowData: any;
 }
 
-const ViewModal: React.FC<AddModalProps> = ({
-  placeModal,
-  modalPlacement,
-  setPlaceModal,
-  rowData,
-}) => {
-  const data = rowData?.batch_releases;
+const ViewModal: React.FC<ViewModalProps> = ({ placeModal, modalPlacement, setPlaceModal, rowData }) => {
+  const releases = Array.isArray(rowData?.batch_releases) ? rowData.batch_releases : [];
+  const releasedQuantity = releases.reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0);
 
-  return (
-    <Modal
-      show={placeModal}
-      position={modalPlacement}
-      onClose={() => setPlaceModal(false)}
-      size="7xl"
-    >
-      {/* Header with Close Button */}
-      <ModalHeader className="flex justify-between items-center"></ModalHeader>
-
-      <ModalBody>
-        <div
-          style={{
-            border: '2px solid #000',
-            padding: '40px 50px',
-            width: '800px',
-            margin: 'auto',
-            fontFamily: 'Times New Roman, serif',
-            fontSize: '16px',
-            lineHeight: '1.6',
-            backgroundColor: 'white',
-            color: '#111',
-          }}
-        >
-          {/* HEADER */}
-          <div style={{ textAlign: 'center' }}>
-            <h2
-              style={{
-                margin: 0,
-                fontWeight: 'bold',
-                fontSize: '20px',
-                color: '#111',
-              }}
-            >
-              INDIA PHOSPHATE AND ALLIED INDUSTRIES PVT. LTD.
-            </h2>
-            <h3
-              style={{
-                margin: '10px 0 20px 0',
-                textDecoration: 'underline',
-                fontWeight: 'bold',
-                color: '#111',
-              }}
-            >
-              FINISHED PRODUCT RELEASE NOTE
-            </h3>
-          </div>
-
-          {/* TO / FROM */}
-          <p style={{ fontWeight: 'bold', color: '#111' }}>
-            To: <span style={{ fontWeight: 'normal', color: '#333' }}>Store Department</span>
-          </p>
-          <p style={{ fontWeight: 'bold', color: '#111' }}>
-            From:{' '}
-            <span style={{ fontWeight: 'normal', color: '#333' }}>
-              Quality Assurance Department
-            </span>
-          </p>
-
-          <p style={{ margin: '20px 0', color: '#111' }}>
-            Following batches are released for dispatch:
-          </p>
-
-          {/* DETAILS SECTION */}
-          <div style={{ marginTop: '25px' }}>
-            <p style={lineText}>
-              Release No.: <span style={lineValue}>{data?.release_no || '—'}</span>
-            </p>
-            <p style={lineText}>
-              Product Name: <span style={lineValue}>{rowData?.product_name || '—'}</span>
-            </p>
-            <p style={lineText}>
-              Batch Number: <span style={lineValue}>{rowData?.qc_batch_number || '—'}</span>
-            </p>
-            <p style={lineText}>
-              Quantity: <span style={lineValue}>{rowData?.size || '—'}</span>
-            </p>
-            <p style={lineText}>
-              Manufacturing Date: <span style={lineValue}>{rowData?.mfg_date || '—'}</span>
-            </p>
-            <p style={lineText}>
-              Expiry Date: <span style={lineValue}>{rowData?.exp_date || '—'}</span>
-            </p>
-            <p style={lineText}>
-              Release Date: <span style={lineValue}>{data?.release_date || '—'}</span>
-            </p>
-          </div>
-
-          {/* FOOTER */}
-          <p style={{ marginTop: '15px', fontWeight: 'bold', color: '#111' }}>F-01/QA/017/05</p>
-
-          {/* SIGNATURE */}
-          <div
-            style={{
-              marginTop: '10px',
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
-          >
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ margin: 0, fontWeight: 'bold', color: '#111' }}>
-                Authorization & Signature
-              </p>
-              <p style={{ margin: 0, fontWeight: 'bold', color: '#111' }}>QA OFFICER</p>
-            </div>
-          </div>
+  return <Modal show={placeModal} position={modalPlacement} onClose={() => setPlaceModal(false)} size="7xl">
+    <ModalHeader>Finished Product Release Note</ModalHeader>
+    <ModalBody>
+      <div className="mx-auto max-w-3xl border-2 border-black bg-white p-10 font-serif text-base leading-relaxed text-gray-900">
+        <div className="text-center">
+          <h2 className="text-xl font-bold">INDIA PHOSPHATE AND ALLIED INDUSTRIES PVT. LTD.</h2>
+          <h3 className="mt-2 text-lg font-bold underline">FINISHED PRODUCT RELEASE NOTE</h3>
         </div>
-      </ModalBody>
-    </Modal>
-  );
-};
-
-// Styles for line format
-const lineText: React.CSSProperties = {
-  fontWeight: 'bold',
-  marginBottom: '14px',
-  borderBottom: '1px solid #000',
-  paddingBottom: '6px',
-  color: '#111',
-};
-
-const lineValue: React.CSSProperties = {
-  fontWeight: 'normal',
-  color: '#333',
+        <p className="mt-8"><b>To:</b> Store Department</p>
+        <p><b>From:</b> Quality Assurance Department</p>
+        <div className="mt-6 space-y-2">
+          <p><b>Product:</b> {rowData?.product_name || '-'}</p>
+          <p><b>Batch Number:</b> {rowData?.qc_batch_number || '-'}</p>
+          <p><b>Actual Batch Quantity:</b> {rowData?.actual_batch_quantity || 0}</p>
+          <p><b>Total Released:</b> {releasedQuantity}</p>
+          <p><b>Manufacturing Date:</b> {rowData?.mfg_date || '-'}</p>
+          <p><b>Expiry Date:</b> {rowData?.exp_date || '-'}</p>
+        </div>
+        <h4 className="mt-8 border-b border-black pb-2 font-bold">Release Entries</h4>
+        <table className="mt-2 w-full text-left">
+          <thead><tr><th className="py-2">Release No.</th><th>Date</th><th>Quantity</th></tr></thead>
+          <tbody>{releases.map((release: any) => <tr key={release.id} className="border-t border-gray-300">
+            <td className="py-2">{release.release_no || '-'}</td><td>{release.release_date || '-'}</td><td>{release.quantity || 0}</td>
+          </tr>)}{!releases.length && <tr><td colSpan={3} className="py-3">No release entries recorded.</td></tr>}</tbody>
+        </table>
+        <p className="mt-10 font-bold">F-01/QA/017/05</p>
+        <div className="mt-6 text-right"><b>Authorization &amp; Signature<br />QA OFFICER</b></div>
+      </div>
+    </ModalBody>
+  </Modal>;
 };
 
 export default ViewModal;

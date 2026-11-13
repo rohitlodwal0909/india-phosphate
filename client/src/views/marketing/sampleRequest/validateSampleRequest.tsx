@@ -1,5 +1,3 @@
-// validation.ts
-
 export const validateSampleRequest = (formData: any, items: any[], setErrors: any) => {
   const newErrors: any = {};
 
@@ -9,21 +7,23 @@ export const validateSampleRequest = (formData: any, items: any[], setErrors: an
     newErrors.company_id = 'Please select company';
   }
 
-  if (!formData.contact_person?.trim()) {
+  if (!String(formData.contact_person ?? '').trim()) {
     newErrors.contact_person = 'Contact person is required';
   }
 
-  if (!formData.mobile?.trim()) {
+  const mobile = String(formData.mobile ?? '').trim();
+
+  if (!mobile) {
     newErrors.mobile = 'Mobile number is required';
-  } else if (!/^[0-9]{10}$/.test(formData.mobile)) {
+  } else if (!/^[0-9]{10}$/.test(mobile)) {
     newErrors.mobile = 'Enter valid 10 digit mobile number';
   }
 
-  if (!formData.address?.trim()) {
+  if (!String(formData.address ?? '').trim()) {
     newErrors.address = 'Billing address is required';
   }
 
-  if (!formData.delivery_address?.trim()) {
+  if (!String(formData.delivery_address ?? '').trim()) {
     newErrors.delivery_address = 'Delivery address is required';
   }
 
@@ -44,10 +44,6 @@ export const validateSampleRequest = (formData: any, items: any[], setErrors: an
 
     if (!item.sample_type) {
       newErrors[`sample_type_${index}`] = 'Please select sample type';
-    }
-
-    if (!item.file) {
-      newErrors[`file_${index}`] = 'Please upload specification';
     }
   });
 

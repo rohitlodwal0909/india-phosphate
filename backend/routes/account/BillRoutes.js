@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const InvoiceController = require("../../controllers/account/invoice/InvoiceController");
 const BillController = require("../../controllers/account/invoice/BillController");
+const PurchaseAccountController = require("../../controllers/account/invoice/PurchaseAccountController");
 const multer = require("multer");
 const path = require("path");
 
@@ -25,6 +26,9 @@ const uploadOQ = multer({
 
 // List
 router.get("/get-bills", BillController.getBills);
+router.get("/purchase-accounts", PurchaseAccountController.getPurchaseAccounts);
+router.put("/purchase-accounts/bills/:id/payment", PurchaseAccountController.updatePaymentAmount);
+router.post("/purchase-accounts/bills/:id/followups", PurchaseAccountController.addFollowup);
 
 router.get("/get-bill/:id", BillController.getSingleBill);
 router.get("/get-invoices", InvoiceController.getInvoices);

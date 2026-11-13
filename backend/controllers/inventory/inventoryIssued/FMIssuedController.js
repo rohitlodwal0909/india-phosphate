@@ -73,6 +73,15 @@ const openingStock = {
   "26ZSH03": 500
 };
 
+const getActualFinishedQuantity = (batch) => {
+  const quantities = batch.finishing?.FinishQties || [];
+  const latest = quantities.reduce((current, item) => {
+    if (!current) return item;
+    return new Date(item.created_at).getTime() > new Date(current.created_at).getTime() ? item : current;
+  }, null);
+  return Number(latest?.finishing_qty || 0);
+};
+
 exports.getBatches = async (req, res, next) => {
   try {
     const data = await Qcbatch.findAll({
@@ -108,12 +117,10 @@ exports.getBatches = async (req, res, next) => {
     for (const batch of data) {
       const batchJSON = batch.toJSON();
 
-      const finishQtyList = batchJSON.finishing?.FinishQties || [];
-
-      const lastFinishQty =
-        finishQtyList.length > 0
-          ? Number(finishQtyList[finishQtyList.length - 1].finishing_qty || 0)
-          : 0;
+      const releasedQty = (batchJSON.batch_releases || []).reduce(
+        (sum, release) => sum + (release.quantity == null ? getActualFinishedQuantity(batchJSON) : Number(release.quantity)),
+        0
+      );
 
       const totalIssuedQty =
         batchJSON.finishing?.FMIssuedModels?.reduce(
@@ -122,19 +129,19 @@ exports.getBatches = async (req, res, next) => {
         ) || 0;
 
       // 👇 Apne actual field ka naam use kare
-      const batchNo = batchJSON.batch_no;
+      const batchNo = (batchJSON.qc_batch_number || "").trim().toUpperCase();
 
       existingBatchs.add(batchNo);
 
       const openingQty = openingStock[batchNo] || 0;
 
-      const remainingQty = lastFinishQty + openingQty - totalIssuedQty;
+      const remainingQty = releasedQty + openingQty - totalIssuedQty;
 
       if (remainingQty > 0) {
         formattedData.push({
           ...batchJSON,
           opening_stock: openingQty,
-          total_finish_qty: lastFinishQty,
+          total_finish_qty: releasedQty,
           total_issued_qty: totalIssuedQty,
           remaining_qty: remainingQty,
           is_opening_stock: false
@@ -177,7 +184,7 @@ exports.getBatches = async (req, res, next) => {
 exports.getFinishedStock = async (req, res, next) => {
   try {
     const data = await Qcbatch.findAll({
-      attributes: ["id", "product_name", "qc_batch_number"],
+      attributes: ["id", "product_name", "qc_batch_number", "size"],
       include: [
         {
           model: Finishing,
@@ -201,6 +208,11 @@ exports.getFinishedStock = async (req, res, next) => {
               required: false
             }
           ]
+        }, {
+          model: BatchReleaseModel,
+          as: "batch_releases",
+          required: false,
+          attributes: ["id", "quantity"]
         }
       ],
       order: [["created_at", "DESC"]]
@@ -211,12 +223,10 @@ exports.getFinishedStock = async (req, res, next) => {
       .map((batch) => {
         const batchJSON = batch.toJSON();
 
-        const finishQtyList = batchJSON.finishing?.FinishQties || [];
-
-        const lastFinishQty =
-          finishQtyList.length > 0
-            ? Number(finishQtyList[finishQtyList.length - 1].finishing_qty || 0)
-            : 0;
+        const releasedQty = (batchJSON.batch_releases || []).reduce(
+          (sum, release) => sum + (release.quantity == null ? getActualFinishedQuantity(batchJSON) : Number(release.quantity)),
+          0
+        );
 
         const totalIssuedQty =
           batchJSON.finishing?.FMIssuedModels?.reduce(
@@ -224,7 +234,7 @@ exports.getFinishedStock = async (req, res, next) => {
             0
           ) || 0;
 
-        const remainingQty = lastFinishQty - totalIssuedQty;
+        const remainingQty = releasedQty - totalIssuedQty;
 
         return {
           batch_no: (batchJSON.qc_batch_number || "").trim().toUpperCase(),

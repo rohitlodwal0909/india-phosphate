@@ -20,6 +20,7 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
   const handleChange = (field: string, value: any) => {
     setCharges((prev) => ({ ...prev, [field]: value }));
   };
+  const currencySymbol = charges.currency === 'USD' ? '$' : '₹';
   const addBatch = (productIndex) => {
     const updated = [...products];
 
@@ -180,7 +181,14 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
               <th className="border p-2">EXP</th>
               <th className="border p-2">HSN</th>
               <th className="border p-2">Qty</th>
-              <th className="border p-2">Rate</th>
+              <th className="border p-2">
+                <div className="flex flex-col gap-1">Rate
+                  <select aria-label="Amount Currency" className="border rounded p-1 text-xs font-normal" value={charges.currency || 'INR'} onChange={(e) => handleChange('currency', e.target.value)}>
+                    <option value="INR">Rs (INR)</option>
+                    <option value="USD">USD ($)</option>
+                  </select>
+                </div>
+              </th>
               <th className="border p-2">Per</th>
               <th className="border p-2">Amount</th>
               <th className="border p-2">Action</th>
@@ -328,7 +336,7 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
                     </td>
                   )}
                   {/* Amount */}
-                  <td className="border text-right">₹ {batch?.amount?.toLocaleString()}</td>
+                  <td className="border text-right">{currencySymbol} {batch?.amount?.toLocaleString()}</td>
 
                   {/* Actions */}
                   <td className="border text-center space-x-1">
@@ -445,14 +453,14 @@ const Productsandcharges = ({ products, setProducts, charges, setCharges }) => {
 
       {/* 🔹 Total */}
       <div className="col-span-12 text-right mt-6 space-y-2">
-        <div>Sub Total: ₹ {subTotal?.toLocaleString()}</div>
-        <div>Insurance: ₹ {insurance?.toFixed(2)}</div>
-        <div>Freight: ₹ {freight}</div>
-        <div>GST: ₹ {gstAmount?.toFixed(2)}</div>
-        <div>Round Off: ₹ {roundOff}</div>
+        <div>Sub Total: {currencySymbol} {subTotal?.toLocaleString()}</div>
+        <div>Insurance: {currencySymbol} {insurance?.toFixed(2)}</div>
+        <div>Freight: {currencySymbol} {freight}</div>
+        <div>GST: {currencySymbol} {gstAmount?.toFixed(2)}</div>
+        <div>Round Off: {currencySymbol} {roundOff}</div>
 
         <div className="text-2xl font-bold border-t pt-3">
-          Grand Total: ₹ {grandTotal?.toLocaleString()}
+          Grand Total: {currencySymbol} {grandTotal?.toLocaleString()}
         </div>
       </div>
     </div>

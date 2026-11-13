@@ -66,6 +66,8 @@ const ViewDispatchModal = ({ placeModal, modalPlacement, setPlaceModal, selected
         <div className="bg-white dark:bg-gray-900 rounded-xl p-6 space-y-6">
           {/* ===== TOP SUMMARY ===== */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Info label="PO No." value={selectedRow?.poentry?.po_no} highlight />
+            <Info label="Work Order No." value={selectedRow?.work_order_no} highlight />
             <Info label="Vehicle Number" value={selectedRow?.vehicle_number} highlight />
             <Info label="Total Quantity" value={totalQty} highlight />
             <Info label="Dispatch Date" value={formatDate(selectedRow?.dispatch_date)} highlight />
@@ -80,6 +82,16 @@ const ViewDispatchModal = ({ placeModal, modalPlacement, setPlaceModal, selected
               <h3 className="text-sm font-semibold text-gray-600 uppercase">Basic Information</h3>
 
               <Info label="Product Name" value={selectedRow?.product_name} />
+              <Info label="Dispatch Type" value={selectedRow?.dispatch_type} />
+              {selectedRow?.dispatch_type === 'export' && (
+                <>
+                  <Info label="CHA" value={selectedRow?.cha} />
+                  <Info label="Inco Terms" value={selectedRow?.inco_terms} />
+                  <Info label="Airbill" value={selectedRow?.airbill} />
+                  <Info label="BL No." value={selectedRow?.bl_no} />
+                  <Info label="Destination" value={selectedRow?.destination} />
+                </>
+              )}
               <Info label="LR No." value={selectedRow?.lr_no} />
               <Info label="Driver Details" value={selectedRow?.driver_details} />
               <Info label="Booking Date" value={formatDate(selectedRow?.booking_date)} />

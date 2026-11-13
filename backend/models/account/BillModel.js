@@ -62,6 +62,7 @@ module.exports = (sequelize, DataTypes) => {
       freight: DataTypes.STRING,
       round_off: DataTypes.STRING,
       insurance: DataTypes.STRING,
+      currency: { type: DataTypes.STRING(3), allowNull: false, defaultValue: "INR" },
 
       // 🔹 GST
       gst: DataTypes.STRING,
@@ -77,6 +78,12 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "Pending"
       },
       account_payment_remark: DataTypes.TEXT,
+      payment_amount: { type: DataTypes.DECIMAL(15, 2), allowNull: false, defaultValue: 0 },
+      purchase_payment_status: {
+        type: DataTypes.ENUM("Pending", "Partially Paid", "Paid"),
+        allowNull: false,
+        defaultValue: "Pending"
+      },
 
       created_at: {
         type: DataTypes.DATE,
@@ -108,6 +115,11 @@ module.exports = (sequelize, DataTypes) => {
     });
     BillModel.belongsTo(models.Supplier, {
       foreignKey: "company_id"
+    });
+    BillModel.hasMany(models.BillPaymentFollowup, {
+      foreignKey: "bill_id",
+      as: "paymentFollowups",
+      onDelete: "CASCADE"
     });
   };
 

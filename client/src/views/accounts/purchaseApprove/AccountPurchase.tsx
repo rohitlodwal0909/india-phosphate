@@ -1,6 +1,6 @@
 import BreadcrumbComp from 'src/layouts/full/shared/breadcrumb/BreadcrumbComp';
 import CardBox from 'src/components/shared/CardBox';
-import AccountPurchaseTable from './AccountPurchaseComponent/AccountPurchaseTable';
+import AccountPurchaseTable from './AccountPurchaseComponent/PurchaseAccountTable';
 
 const AccountPurchase = () => {
   return (

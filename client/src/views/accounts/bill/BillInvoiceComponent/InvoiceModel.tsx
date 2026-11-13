@@ -1,7 +1,6 @@
 import { Label, TextInput, Textarea } from 'flowbite-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ImageUrl } from 'src/constants/contant';
 import { GetCustomer } from 'src/features/master/Customer/CustomerSlice';
 import { GetSupplier } from 'src/features/master/Supplier/SupplierSlice';
 import { AppDispatch, RootState } from 'src/store';
@@ -53,19 +52,7 @@ const InvoiceModel = ({ formData, setFormData }) => {
       [key]: value,
     }));
 
-    // ✅ File preview
-    if (key === 'oq_upload' && value) {
-      setPreview(URL.createObjectURL(value));
-    }
   };
-
-  const [preview, setPreview] = useState(null);
-
-  useEffect(() => {
-    if (formData.oq_upload && typeof formData.oq_upload === 'string') {
-      setPreview(ImageUrl + 'uploads/oq-uploads/' + formData.oq_upload);
-    }
-  }, [formData.oq_upload]);
 
   return (
     <form className="grid grid-cols-12 gap-4">
@@ -176,51 +163,6 @@ const InvoiceModel = ({ formData, setFormData }) => {
         />
       </div>
 
-      <div className="col-span-3">
-        <Label
-          htmlFor="oq_upload"
-          value="OQ Upload"
-          className="text-sm font-semibold text-gray-700"
-        />
-
-        <div className="mt-1 border-2 border-dashed border-gray-300 rounded-lg h-[42px] flex items-center justify-center hover:bg-gray-50 transition">
-          <input
-            type="file"
-            id="oq_upload"
-            className="hidden"
-            onChange={(e) => handleChange('oq_upload', e.target.files[0])}
-          />
-
-          <label htmlFor="oq_upload" className="cursor-pointer text-blue-600 text-sm font-medium">
-            Click to Upload File
-          </label>
-        </div>
-      </div>
-      <div className="col-span-2">
-        {preview && (
-          <>
-            {/* IMAGE PREVIEW */}
-            {!preview.includes('.pdf') ? (
-              <img
-                src={preview}
-                width={100}
-                height={100}
-                alt="preview"
-                className=" object-cover rounded border"
-              />
-            ) : (
-              <a
-                href={preview}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 underline text-sm"
-              >
-                View
-              </a>
-            )}
-          </>
-        )}
-      </div>
       {/* 🔹 IRN */}
       <div className="col-span-12 font-semibold text-lg border-b pt-4 pb-2">IRN Details</div>
       <div className="col-span-4">

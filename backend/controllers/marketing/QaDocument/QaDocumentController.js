@@ -67,7 +67,7 @@ exports.getQaDocument = async (req, res) => {
 
 exports.storeQaDocument = async (req, res) => {
   try {
-    let { company_id, coaItems } = req.body;
+    let { company_id, priority, coaItems } = req.body;
 
     /* =========================================================
         PARSE COA ITEMS
@@ -89,6 +89,7 @@ exports.storeQaDocument = async (req, res) => {
     const qaDocument = await QaDocumentModel.create({
       user_id: req.admin.id,
       company_id,
+      priority: priority || null,
       date: entry_date
     });
 
@@ -112,9 +113,11 @@ exports.storeQaDocument = async (req, res) => {
 
         status: row.status,
 
+        approval_from: row.approval_from || "marketing",
+
         comment: row.comment,
 
-        file: req.files?.[index]?.filename || null
+        file: req.files?.find((file) => file.fieldname === `file_${index}`)?.filename || null
       }));
 
       /* =========================================================
@@ -168,47 +171,106 @@ exports.updateQaDocument = async (req, res) => {
   try {
     const { id } = req.params;
 
-    let { company_id, coaItems } = req.body;
+    const roleId = Number(req.admin.role_id);
+    const userId = Number(req.admin.id);
+    const isAdmin = roleId === 1;
+    const isQa = roleId === 3;
+    const isMarketing = roleId === 9;
 
-    // FORM DATA STRING TO JSON
-    coaItems = JSON.parse(coaItems);
+    if (!isAdmin && !isQa && !isMarketing) {
+      return res.status(403).json({ success: false, message: "You cannot edit QA documents." });
+    }
 
-    // UPDATE MAIN TABLE
-    await QaDocumentModel.update({ company_id }, { where: { id } });
+    let { company_id, priority, coaItems } = req.body;
+    coaItems = typeof coaItems === "string" ? JSON.parse(coaItems) : coaItems || [];
+    if (!Array.isArray(coaItems)) {
+      return res.status(400).json({ success: false, message: "Invalid QA document rows." });
+    }
 
-    // UPLOADED FILES
+    const parent = await QaDocumentModel.findByPk(id);
+    if (!parent) {
+      return res.status(404).json({ success: false, message: "QA document not found." });
+    }
+
+    const existingRows = await QaDocumentCoaModel.findAll({ where: { qa_document_id: id } });
+    const existingById = new Map(existingRows.map((row) => [String(row.id), row]));
     const uploadedFiles = req.files || [];
+    const fileForRow = (index) => uploadedFiles.find((file) => file.fieldname === `file_${index}`)?.filename;
 
-    // REMOVE OLD ROWS
-    await QaDocumentCoaModel.destroy({
-      where: { qa_document_id: id },
-      force: true
-    });
+    if (isAdmin || isMarketing) {
+      await parent.update({
+        company_id: company_id ?? parent.company_id,
+        priority: priority ?? parent.priority
+      });
+    }
 
-    // PREPARE ROWS
-    const rows = coaItems.map((item, index) => ({
-      qa_document_id: id,
+    if (isQa) {
+      let updatedCount = 0;
+      for (const item of coaItems) {
+        const existing = existingById.get(String(item.id));
+        if (!existing || Number(existing.qa_person_id) !== userId) continue;
+        await existing.update({
+          status: item.status || null,
+          comment: item.comment || null,
+          approval_from: item.approval_from === "admin" ? "admin" : "marketing",
+          received_marketing_id: item.received_marketing_id || null
+        });
+        updatedCount += 1;
+      }
+      if (!updatedCount) {
+        return res.status(403).json({ success: false, message: "You can only update QA review for documents assigned to you." });
+      }
+    } else {
+      const submittedIds = new Set();
+      for (let index = 0; index < coaItems.length; index += 1) {
+        const item = coaItems[index];
+        const existing = existingById.get(String(item.id));
+        const uploadedFile = fileForRow(index);
 
-      doc_name: item.doc_name || null,
+        if (existing) {
+          submittedIds.add(String(existing.id));
+          if (isAdmin) {
+            await existing.update({
+              doc_name: item.doc_name || null,
+              qa_person_id: item.qa_person_id || null,
+              received_marketing_id: item.received_marketing_id || null,
+              share_customer_by: item.share_customer_by || null,
+              status: item.status || null,
+              approval_from: item.approval_from === "admin" ? "admin" : "marketing",
+              comment: item.comment || null,
+              file: uploadedFile || item.old_file || null
+            });
+          } else {
+            // Marketing owns Steps 1 and 3. Preserve QA review fields from the database.
+            await existing.update({
+              doc_name: item.doc_name || null,
+              qa_person_id: item.qa_person_id || null,
+              share_customer_by: item.share_customer_by || null,
+              file: uploadedFile || item.old_file || null
+            });
+          }
+        } else if (isAdmin || isMarketing) {
+          await QaDocumentCoaModel.create({
+            qa_document_id: id,
+            doc_name: item.doc_name || null,
+            qa_person_id: item.qa_person_id || null,
+            received_marketing_id: isAdmin ? item.received_marketing_id || null : null,
+            share_customer_by: item.share_customer_by || null,
+            status: isAdmin ? item.status || null : null,
+            approval_from: isAdmin && item.approval_from === "admin" ? "admin" : "marketing",
+            comment: isAdmin ? item.comment || null : null,
+            file: uploadedFile || item.old_file || null
+          });
+        }
+      }
 
-      qa_person_id: item.qa_person_id || null,
-
-      received_marketing_id: item.received_marketing_id || null,
-
-      share_customer_by: item.share_customer_by || null,
-
-      status: item.status || null,
-
-      comment: item.comment || null,
-
-      // PDF FILE
-      file: uploadedFiles[index]
-        ? uploadedFiles[index].filename
-        : item.old_file || null
-    }));
-
-    // INSERT NEW ROWS
-    await QaDocumentCoaModel.bulkCreate(rows);
+      if (isAdmin) {
+        const omittedIds = existingRows.filter((row) => !submittedIds.has(String(row.id))).map((row) => row.id);
+        if (omittedIds.length) {
+          await QaDocumentCoaModel.destroy({ where: { id: omittedIds }, force: true });
+        }
+      }
+    }
 
     return res.status(200).json({
       success: true,

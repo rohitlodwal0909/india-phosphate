@@ -177,9 +177,34 @@ const ViewWorkOrderTable = () => {
         cell: (info) => <span>#{info.row.index + 1}</span>,
       }),
 
-      columnHelper.accessor('po_no', {
-        header: 'PO No.',
+      columnHelper.display({
+        id: 'company_name',
+        header: 'Company Name',
+        cell: (info) => {
+          return (
+            <span>
+              <p className="max-w-[300px] whitespace-normal break-words text-sm">
+                {info.row.original.customers?.company_name}
+              </p>
+            </span>
+          );
+        },
       }),
+
+      columnHelper.display({
+        id: 'po_no',
+        header: 'PO No.',
+        cell: (info) => {
+          return (
+            <span>
+              <p className="max-w-[350px] whitespace-normal break-words text-sm">
+                {info.row.original.po_no}
+              </p>
+            </span>
+          );
+        },
+      }),
+
       columnHelper.display({
         id: 'workNo',
         header: 'Work Order No.',
@@ -228,9 +253,16 @@ const ViewWorkOrderTable = () => {
 
           if (!products.length) return '-';
 
-          return <span>{products.map((p: any) => `${p.quantity} KG`).join(', ')}</span>;
+          return (
+            <span>
+              <p className="max-w-[350px] whitespace-normal break-words text-sm">
+                {products.map((p: any) => `${p.quantity} KG`).join(', ')}
+              </p>
+            </span>
+          );
         },
       }),
+
       columnHelper.accessor('priority', {
         header: 'Priority',
         cell: (info) => (
@@ -244,12 +276,14 @@ const ViewWorkOrderTable = () => {
           </div>
         ),
       }),
+
       columnHelper.accessor('workNo', {
         header: 'Department',
         cell: (info) => (
           <p className="text-gray-900 font-medium">{info.row.original.workNo?.department || '-'}</p>
         ),
       }),
+
       columnHelper.accessor('workNo', {
         header: 'Deparment remark',
         cell: (info) => (
@@ -377,84 +411,86 @@ const ViewWorkOrderTable = () => {
 
   return (
     <div className="p-1">
-      <div className="flex justify-end mb-2">
-        {permissions.view && (
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="p-2 border rounded-md border-gray-300"
-          />
-        )}
-      </div>
+      <div className="w-full min-w-0 max-w-full p-1">
+        <div className="flex justify-end mb-2">
+          {permissions.view && (
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="p-2 border rounded-md border-gray-300"
+            />
+          )}
+        </div>
 
-      {permissions.view ? (
-        <>
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-full">
-              <TableComponent table={table} flexRender={flexRender} columns={columns} />
+        {permissions.view ? (
+          <>
+            <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
+              <div className="min-w-[1800px]">
+                <TableComponent table={table} flexRender={flexRender} columns={columns} />
+              </div>
+            </div>
+
+            <PaginationComponent table={table} />
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center my-20 space-y-4">
+            <Icon icon="fluent:person-prohibited-20-filled" className="text-red-500" width="60" />
+            <div className="text-red-600 text-xl font-bold text-center">
+              You do not have permission to view this table.
             </div>
           </div>
+        )}
 
-          <PaginationComponent table={table} />
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center my-20 space-y-4">
-          <Icon icon="fluent:person-prohibited-20-filled" className="text-red-500" width="60" />
-          <div className="text-red-600 text-xl font-bold text-center">
-            You do not have permission to view this table.
-          </div>
-        </div>
-      )}
+        {modals.view && (
+          <Portal>
+            <ViewWorkOrderModal
+              placeModal={modals.view}
+              setPlaceModal={() => handleModal('view', false)}
+              selectedRow={selectedRow}
+              modalPlacement="center"
+            />
+          </Portal>
+        )}
 
-      {modals.view && (
-        <Portal>
-          <ViewWorkOrderModal
-            placeModal={modals.view}
-            setPlaceModal={() => handleModal('view', false)}
-            selectedRow={selectedRow}
-            modalPlacement="center"
-          />
-        </Portal>
-      )}
+        {modals.add && (
+          <Portal>
+            <AddWorkOrder
+              placeModal={modals.add}
+              setPlaceModal={() => handleModal('add', false)}
+              selectedRow={selectedRow}
+            />
+          </Portal>
+        )}
 
-      {modals.add && (
-        <Portal>
-          <AddWorkOrder
-            placeModal={modals.add}
-            setPlaceModal={() => handleModal('add', false)}
-            selectedRow={selectedRow}
-          />
-        </Portal>
-      )}
+        {modals.remark && (
+          <Portal>
+            <Remark
+              placeModal={modals.remark}
+              setPlaceModal={() => handleModal('remark', false)}
+              selectedRow={selectedRow}
+            />
+          </Portal>
+        )}
 
-      {modals.remark && (
-        <Portal>
-          <Remark
-            placeModal={modals.remark}
-            setPlaceModal={() => handleModal('remark', false)}
-            selectedRow={selectedRow}
-          />
-        </Portal>
-      )}
+        {modals.depart_remark && (
+          <Portal>
+            <DepartmentRemerk
+              placeModal={modals.depart_remark}
+              setPlaceModal={() => handleModal('depart_remark', false)}
+              selectedRow={selectedRow}
+            />
+          </Portal>
+        )}
 
-      {modals.depart_remark && (
-        <Portal>
-          <DepartmentRemerk
-            placeModal={modals.depart_remark}
-            setPlaceModal={() => handleModal('depart_remark', false)}
-            selectedRow={selectedRow}
-          />
-        </Portal>
-      )}
-
-      <PasswordVerifyModal
-        open={passwordModal}
-        logindata={logindata}
-        setOpen={setPasswordModal}
-        onSuccess={handlePasswordSuccess}
-      />
+        <PasswordVerifyModal
+          open={passwordModal}
+          logindata={logindata}
+          setOpen={setPasswordModal}
+          onSuccess={handlePasswordSuccess}
+        />
+      </div>
     </div>
   );
 };

@@ -31,6 +31,7 @@ const TaskManagerEditModal: React.FC<Props> = ({ openModal, setOpenModal, select
   const [formData, setFormData] = useState<any>({
     task_title: '',
     assign_to: '',
+    pending_because_of: '',
     priority: '',
     due_date: '',
     task_description: '',
@@ -43,6 +44,7 @@ const TaskManagerEditModal: React.FC<Props> = ({ openModal, setOpenModal, select
       setFormData({
         task_title: selectedRow?.task_title || '',
         assign_to: selectedRow?.assign_to || '',
+        pending_because_of: selectedRow?.pending_because_of || '',
         priority: selectedRow?.priority || '',
         due_date: selectedRow?.due_date || '',
         task_description: selectedRow?.task_description || '',
@@ -190,6 +192,16 @@ const TaskManagerEditModal: React.FC<Props> = ({ openModal, setOpenModal, select
               </div>
 
               {/* PRIORITY */}
+
+              <div className="col-span-12">
+                <Label value="Pending Because Of" className="mb-2 block" />
+                <Textarea
+                  rows={3}
+                  placeholder="Enter why this task is pending..."
+                  value={formData.pending_because_of}
+                  onChange={(e) => setFormData({ ...formData, pending_because_of: e.target.value })}
+                />
+              </div>
 
               <div className="col-span-12 md:col-span-6">
                 <Label value="Priority" className="mb-2 block" />

@@ -6,6 +6,7 @@ type Props = {
   setPlaceModal: (value: boolean) => void;
   selectedRow: any;
   supplierdata: any;
+  customerdata: any;
 };
 
 const ViewStoreModel = ({
@@ -14,12 +15,15 @@ const ViewStoreModel = ({
   setPlaceModal,
   selectedRow,
   supplierdata,
+  customerdata,
 }: Props) => {
   const details = [
     [
-      'Supplier Name',
+      selectedRow?.party_type === 'Customer' ? 'Customer Name' : 'Supplier Name',
       selectedRow?.supplier_name
-        ? supplierdata?.find((items) => items.id == selectedRow?.supplier_name)?.supplier_name
+        ? selectedRow?.party_type === 'Customer'
+          ? customerdata?.find((items) => items.id == selectedRow?.supplier_name)?.company_name
+          : supplierdata?.find((items) => items.id == selectedRow?.supplier_name)?.supplier_name
         : '',
     ],
     ['GRN Number', selectedRow?.grn_number],
@@ -33,11 +37,11 @@ const ViewStoreModel = ({
     ...(selectedRow?.type == 'material'
       ? [
           ['Store RM Code', selectedRow?.rmcode?.rm_code],
-          ['PM Name', selectedRow?.pm_code?.packaging_type || '-'],
+          ['PM Name', selectedRow?.pm_code?.name || '-'],
         ]
       : []),
 
-    ...(selectedRow?.type == 'pm' ? [['PM Name', selectedRow?.pm_code?.packaging_type]] : []),
+    ...(selectedRow?.type == 'pm' ? [['PM Name', selectedRow?.pm_code?.name]] : []),
 
     ['QA/QC Status', selectedRow?.qa_qc_status],
     ['Quantity', selectedRow?.quantity],

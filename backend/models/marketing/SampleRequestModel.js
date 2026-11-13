@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING
       },
 
+      priority: {
+        type: DataTypes.STRING
+      },
+
       contact_person: {
         type: DataTypes.STRING
       },
@@ -44,6 +48,30 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       docket_remark: {
+        type: DataTypes.TEXT
+      },
+
+      dispatch_date: {
+        type: DataTypes.DATEONLY
+      },
+
+      delivery_status: {
+        type: DataTypes.STRING
+      },
+
+      expected_delivery_date: {
+        type: DataTypes.DATEONLY
+      },
+
+      delivered_date: {
+        type: DataTypes.DATEONLY
+      },
+
+      feedback: {
+        type: DataTypes.TEXT
+      },
+
+      followups: {
         type: DataTypes.TEXT
       },
 

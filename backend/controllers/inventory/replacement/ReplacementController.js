@@ -1,5 +1,40 @@
 const db = require("../../../models");
-const { ReplacementModel, Invoice, DispatchVehicle, WorkOrderModel } = db;
+const { ReplacementModel, Invoice, DispatchVehicle, WorkOrderModel, PurchaseOrderModel, PurchasePoModel, PurchasePoProductsModel, Product } = db;
+
+exports.options = async (req, res, next) => {
+  try {
+    const [workOrders, purchaseOrders, purchasePos] = await Promise.all([
+      WorkOrderModel.findAll({
+        attributes: ["id", "work_order_no", "po_id"],
+        include: [{ model: PurchaseOrderModel, as: "workNo", attributes: ["id", "po_no", "customer_name", "product_name", "quantity", "total"] }],
+        order: [["id", "DESC"]]
+      }),
+      PurchaseOrderModel.findAll({ attributes: ["id", "po_no", "customer_name", "product_name", "quantity", "total"], order: [["id", "DESC"]] }),
+      PurchasePoModel.findAll({
+        attributes: ["id", "po_no", "date"],
+        include: [{ model: PurchasePoProductsModel, as: "purchasePo", attributes: ["qty", "unit", "rate", "total"], include: [{ model: Product, as: "product", attributes: ["product_name"] }] }],
+        order: [["id", "DESC"]]
+      })
+    ]);
+
+    const poIds = [...new Set(workOrders.map((workOrder) => workOrder.po_id).filter(Boolean))];
+    const dispatches = poIds.length ? await DispatchVehicle.findAll({
+      where: { po_id: poIds },
+      attributes: ["id", "po_id", "work_order_no", "dispatch_date", "product_name"],
+      order: [["id", "DESC"]]
+    }) : [];
+    const dispatchIds = dispatches.map((dispatch) => dispatch.id);
+    const invoices = dispatchIds.length ? await Invoice.findAll({
+      where: { dispatch_id: dispatchIds },
+      attributes: ["id", "dispatch_id", "invoice_no", "invoice_date", "transaction_type"],
+      order: [["id", "DESC"]]
+    }) : [];
+
+    return res.status(200).json({ workOrders, purchaseOrders, purchasePos, dispatches, invoices });
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.index = async (req, res, next) => {
   try {
@@ -10,7 +45,11 @@ exports.index = async (req, res, next) => {
           model: Invoice,
           as: "invoices",
           attributes: ["id", "invoice_no"]
-        }
+        },
+        { model: WorkOrderModel, as: "workOrder", attributes: ["id", "work_order_no"] },
+        { model: PurchaseOrderModel, as: "marketingPO", attributes: ["id", "po_no", "customer_name", "product_name", "quantity", "total"] },
+        { model: PurchasePoModel, as: "purchasePO", attributes: ["id", "po_no", "date"], include: [{ model: PurchasePoProductsModel, as: "purchasePo", attributes: ["qty", "unit", "rate", "total"], include: [{ model: Product, as: "product", attributes: ["product_name"] }] }] },
+        { model: DispatchVehicle, as: "dispatch", attributes: ["id", "dispatch_date", "vehicle_number", "work_order_no"] }
       ]
     });
 
@@ -23,10 +62,13 @@ exports.index = async (req, res, next) => {
 // Create GRN Entry
 exports.store = async (req, res, next) => {
   try {
-    const invoice_id = req.body.invoice_no;
+    const { entries, ...sharedFields } = req.body;
+    const rows = Array.isArray(entries) && entries.length
+      ? entries.map((entry) => ({ ...sharedFields, ...entry }))
+      : [sharedFields];
 
     /* ================= CREATE WORK ORDER ================= */
-    if (invoice_id) {
+    /* if (invoice_id) {
       // 1️⃣ Find Invoice
       const invoice = await Invoice.findOne({
         where: { id: invoice_id },
@@ -67,17 +109,19 @@ exports.store = async (req, res, next) => {
         work_order_no,
         user_id: req.admin.id
       });
-    }
+    } */
 
     /* ================= CREATE REPLACEMENT ================= */
-    const data = await ReplacementModel.create({
-      ...req.body,
+    const data = await ReplacementModel.bulkCreate(rows.map((row) => ({
+      ...row,
+      quantity: row.replacement_type === "short_qty" ? Number(row.quantity) : null,
+      unit: row.replacement_type === "short_qty" ? row.unit : null,
       user_id: req.admin.id
-    });
+    })));
 
     res.status(201).json({
       message: "Replacement created successfully",
-      data
+      data: data.length === 1 ? data[0] : data
     });
   } catch (error) {
     next(error);

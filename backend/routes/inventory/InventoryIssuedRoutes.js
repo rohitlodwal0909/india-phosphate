@@ -23,6 +23,9 @@ router.post(
 
 // RM Issued Routes
 router.get("/get-store-rm", IssuedRMController.getStoreRM);
+router.get("/rm-stock-tracking/:rmId", authMiddleware, IssuedRMController.getRMStockTracking);
+router.post("/rm-stock-tracking/:rmId/returns", authMiddleware, IssuedRMController.addRMProductionReturn);
+router.post("/rm-stock-tracking/:rmId/warehouse-transfer", authMiddleware, IssuedRMController.transferRMToWarehouse);
 router.post("/issued-raw-material", IssuedRMController.saveIssuedRM);
 router.get("/get-issued-raw-material", IssuedRMController.getIssuedRM);
 router.delete("/issued-delete-rm/:id", IssuedRMController.deleteIssuedRM);

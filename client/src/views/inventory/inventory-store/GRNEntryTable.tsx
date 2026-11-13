@@ -27,11 +27,13 @@ import ViewStoremodel from './ViewStoremodel';
 import { AppDispatch, RootState } from 'src/store';
 import Portal from 'src/utils/Portal';
 import { GetSupplier } from 'src/features/master/Supplier/SupplierSlice';
+import { GetExistingCustomer } from 'src/features/master/Customer/CustomerSlice';
 import { CustomizerContext } from 'src/context/CustomizerContext';
 import { getPermissions } from 'src/utils/getPermissions';
 import { GetPmCode } from 'src/features/master/PmCode/PmCodeSlice';
 import { GetEquipment } from 'src/features/master/Equipment/EquipmentSlice';
 import { formatDate, formatTime } from 'src/utils/Datetimeformate';
+import RMStockTrackingModal from '../inventory-issued/rm-issued/RMStockTrackingModal';
 
 const columnHelper = createColumnHelper<any>();
 
@@ -41,6 +43,7 @@ const GRNEntryTable: React.FC = () => {
   const [filters, setFilters] = useState({ guard_type: '' });
   const [searchText, setSearchText] = useState('');
   const [data, setData] = useState<any[]>([]);
+  const [selectedRM, setSelectedRM] = useState<{ id: number; name: string } | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const guardData = useSelector((state: RootState) => state.checkininventory.checkindata) as any;
@@ -51,6 +54,7 @@ const GRNEntryTable: React.FC = () => {
   const equipments = useSelector((state: RootState) => state.equipment.Equipmentdata) as any;
 
   const { supplierdata } = useSelector((state: any) => state.supplier);
+  const { existscustomer } = useSelector((state: any) => state.customer);
   const { selectedIconId } = useContext(CustomizerContext) || {};
 
   const permissions = useMemo(() => {
@@ -62,6 +66,7 @@ const GRNEntryTable: React.FC = () => {
       dispatch(GetCheckinmodule(logindata.admin.id));
       dispatch(GetStoremodule());
       dispatch(GetSupplier());
+      dispatch(GetExistingCustomer());
       dispatch(GetPmCode());
       dispatch(GetEquipment());
     }
@@ -105,12 +110,16 @@ const GRNEntryTable: React.FC = () => {
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       const entry = item?.grn_entries?.[0];
+      const storeEntry = StoreData?.data?.find(
+        (stored: any) => stored?.guard_entry_id === item?.id,
+      );
 
       const searchFields = [
         item?.inward_number,
         item?.guard_type,
         entry?.rmcode?.rm_code,
-        entry?.pm_code?.packaging_type,
+        entry?.pm_code?.name,
+        storeEntry?.equipments?.name,
         entry?.quantity,
         entry?.unit,
         entry?.qa_qc_status,
@@ -127,7 +136,7 @@ const GRNEntryTable: React.FC = () => {
 
       return matchSearch && matchType;
     });
-  }, [data, searchText, filters]);
+  }, [data, searchText, filters, StoreData]);
 
   const columns = useMemo(
     () => [
@@ -145,12 +154,17 @@ const GRNEntryTable: React.FC = () => {
         cell: (info) => info.getValue() || '-',
       }),
       columnHelper.accessor('rmcode', {
-        header: 'RM Code',
+        header: 'Category',
         cell: (info) => {
           const row = info?.row?.original?.grn_entries[0];
           if (!row) return '-';
 
-          return row?.rmcode?.rm_code || '-';
+          if (!row?.rmcode?.id) return row?.rmcode?.rm_code || '-';
+          return (
+            <button type="button" className="text-primary underline" onClick={() => setSelectedRM({ id: row.rmcode.id, name: row.rmcode.name || row.rmcode.rm_code })}>
+              {row.rmcode.rm_code || row.rmcode.name || 'Open RM stock'}
+            </button>
+          );
         },
       }),
       columnHelper.accessor('pmcode', {
@@ -159,7 +173,17 @@ const GRNEntryTable: React.FC = () => {
           const row = info?.row?.original?.grn_entries[0];
           if (!row) return '-';
 
-          return row?.pm_code?.packaging_type || '-';
+          return row?.pm_code?.name || '-';
+        },
+      }),
+      columnHelper.accessor('equipment', {
+        header: 'Equipment',
+        cell: (info) => {
+          const guardEntry = info?.row?.original;
+          const storeEntry = StoreData?.data?.find(
+            (entry: any) => entry?.guard_entry_id === guardEntry?.id,
+          );
+          return storeEntry?.equipments?.name || '-';
         },
       }),
 
@@ -336,6 +360,7 @@ const GRNEntryTable: React.FC = () => {
             placeModal
             logindata={logindata}
             supplierdata={supplierdata}
+            customerdata={existscustomer}
           />
         </Portal>
       )}
@@ -347,9 +372,11 @@ const GRNEntryTable: React.FC = () => {
             selectedRow={selectedRow}
             placeModal
             supplierdata={supplierdata}
+            customerdata={existscustomer}
           />
         </Portal>
       )}
+      <RMStockTrackingModal open={Boolean(selectedRM)} onClose={() => setSelectedRM(null)} rmId={selectedRM?.id || null} rmName={selectedRM?.name || ''} />
     </>
   ) : (
     <div className="flex flex-col items-center justify-center my-20 space-y-4">

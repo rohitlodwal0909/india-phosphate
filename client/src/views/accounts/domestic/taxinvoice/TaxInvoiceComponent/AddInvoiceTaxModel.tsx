@@ -2,6 +2,7 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'flowbite-rea
 import { useEffect, useState } from 'react';
 import InvoiceModel from './InvoiceModel';
 import Productsandcharges from './Productsandcharges';
+import OqUpload from './OqUpload';
 import { toast } from 'react-toastify';
 import {
   createInvoice,
@@ -55,6 +56,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   useEffect(() => {
     if (!data?.id) {
       setFormData(initialFormData);
+      setCharges({ currency: 'INR', insurance: '0.10', freight: '', round_off: '', gst: [] });
       return;
     }
     dispatch(getInvoice(data?.id));
@@ -118,6 +120,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
 
       /* ================= CHARGES ================= */
       setCharges({
+        currency: invoice.currency || 'INR',
         insurance: invoice.insurance || '',
         freight: invoice.freight || '',
         round_off: invoice.round_off || '',
@@ -147,6 +150,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   ]);
 
   const [charges, setCharges] = useState({
+    currency: 'INR',
     insurance: '0.10',
     freight: '',
     round_off: '',
@@ -249,6 +253,9 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
           >
             Products & Charges
           </button>
+        </div>
+        <div className="mb-5">
+          <OqUpload formData={formData} setFormData={setFormData} />
         </div>
         {/* 🔹 TAB 1 - Invoice */}
         {activeTab === 'invoice' && (

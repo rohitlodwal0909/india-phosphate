@@ -99,6 +99,30 @@ function Table() {
       header: 'Size',
       cell: (info) => info.getValue() || '-',
     }),
+    columnHelper.accessor('actual_batch_quantity', {
+      header: 'Actual Batch Qty',
+      cell: (info) => info.getValue() || 0,
+    }),
+    columnHelper.display({
+      id: 'fpr_entries',
+      header: 'FPR Entries',
+      cell: (info) => {
+        const releases = Array.isArray(info.row.original.batch_releases) ? info.row.original.batch_releases : [];
+        return releases.length ? (
+          <div className="flex flex-col gap-1">
+            {releases.map((release: any) => <span key={release.id}>{release.release_no} · {release.quantity || 0}</span>)}
+          </div>
+        ) : '-';
+      },
+    }),
+    columnHelper.display({
+      id: 'released_quantity',
+      header: 'Released Qty',
+      cell: (info) => {
+        const releases = Array.isArray(info.row.original.batch_releases) ? info.row.original.batch_releases : [];
+        return releases.reduce((sum: number, release: any) => sum + Number(release.quantity || 0), 0);
+      },
+    }),
     columnHelper.accessor('reference_number', {
       header: 'Reference number',
       cell: (info) => info.getValue() || '-',

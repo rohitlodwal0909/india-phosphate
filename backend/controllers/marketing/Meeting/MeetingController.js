@@ -77,6 +77,7 @@ exports.storeMeeting = async (req, res) => {
       date,
       time,
       description,
+      followup,
       internal_users
       // external_emails
     } = req.body;
@@ -123,6 +124,7 @@ exports.storeMeeting = async (req, res) => {
       // platform,
       date,
       time,
+      followup,
       // meeting_link,
       description
     });
