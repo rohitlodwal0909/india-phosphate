@@ -40,6 +40,7 @@ const Addproductionmodal: React.FC<Props> = ({
     rm_items: [{ rm_code: '', quantity: '', unit: '' }],
     pm_items: [{ pm_code: '', quantity: '', unit: '' }],
     equipments: [''],
+    priority: 'Medium',
   });
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const Addproductionmodal: React.FC<Props> = ({
       ...prev,
       batch_id: selectedRow?.id,
       user_id: logindata?.admin?.id,
+      priority: selectedRow?.priority || 'Medium',
     }));
   }, [selectedRow]);
 
@@ -137,6 +139,7 @@ const Addproductionmodal: React.FC<Props> = ({
       pm_unit: formData.pm_items.map((i: any) => i.unit),
 
       equipments: formData.equipments,
+      priority: formData.priority,
     };
 
     try {
@@ -163,6 +166,19 @@ const Addproductionmodal: React.FC<Props> = ({
 
       <Modal.Body>
         <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 md:col-span-4">
+            <Label value="Priority" />
+            <select
+              value={formData.priority}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, priority: e.target.value }))}
+              className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
           {/* ================= RM ================= */}
 
           {formData.rm_items.map((item: any, index: number) => (

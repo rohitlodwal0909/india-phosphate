@@ -288,7 +288,7 @@ const SampleRequestTable = () => {
 
       columnHelper.accessor('delivery_status', {
         header: 'Delivery Status',
-        cell: (info) => <div className="text-sm">{info.getValue()?.replaceAll('_', ' ') || '-'}</div>,
+        cell: (info) => <div className="text-sm">{info.getValue()?.replace(/_/g, ' ') || '-'}</div>,
       }),
       columnHelper.accessor('dispatch_date', {
         header: 'Dispatch Date',

@@ -422,7 +422,7 @@ function ProductionInventoryTable() {
           rmcodes={rm_codes}
           pmcodes={pm_codes}
           equipments={equipments}
-          selectedRow={selectedRow?.production_results}
+          selectedRow={selectedRow}
         />
       )}
     </>

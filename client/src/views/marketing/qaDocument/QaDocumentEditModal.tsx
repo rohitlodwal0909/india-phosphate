@@ -113,9 +113,10 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
   /* ================= HANDLERS ================= */
 
   const handleCustomer = (val: any) => {
-    setFormData({
+    setFormData((prev) => ({
+      ...prev,
       company_id: val?.value || '',
-    });
+    }));
   };
 
   const handleItem = (index: number, field: string, value: any) => {

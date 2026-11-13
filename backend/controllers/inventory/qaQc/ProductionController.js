@@ -34,7 +34,8 @@ exports.ProductionaddResult = async (req, res, next) => {
       pm_quantity = [],
       pm_unit = [],
 
-      equipments = []
+      equipments = [],
+      priority
     } = req.body;
 
     const rowsToInsert = [];
@@ -74,7 +75,8 @@ exports.ProductionaddResult = async (req, res, next) => {
     const username = user ? user.username : "Unknown User";
 
     await data.update({
-      production_date: `${entry_date}`
+      production_date: `${entry_date}`,
+      ...(priority !== undefined ? { priority } : {})
     });
 
     const logMessage = `Production entry for Batch Number ${data?.qc_batch_number} was created by ${username} on ${entry_date} at ${entry_time}.`;
@@ -116,7 +118,8 @@ exports.ProductionUpdateResult = async (req, res, next) => {
       pm_quantity = [],
       pm_unit = [],
 
-      equipments = []
+      equipments = [],
+      priority
     } = req.body;
 
     /* ================= VALIDATION ================= */
@@ -166,6 +169,9 @@ exports.ProductionUpdateResult = async (req, res, next) => {
     /* ================= LOG SECTION ================= */
 
     const data = await Qcbatch.findByPk(batch_id);
+    if (data && priority !== undefined) {
+      await data.update({ priority });
+    }
     const { entry_date, entry_time } = getISTDateTime();
 
     const logMessage = `Production entry for Batch Number ${data?.qc_batch_number} was updated by ${req.admin.username} on ${entry_date} at ${entry_time}.`;

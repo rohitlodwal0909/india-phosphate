@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       grade: DataTypes.STRING,
       size: DataTypes.STRING,
       material_type: DataTypes.STRING,
+      priority: DataTypes.STRING(30),
       status: DataTypes.INTEGER,
       reference_number: DataTypes.STRING,
       mol_weight: DataTypes.STRING,
