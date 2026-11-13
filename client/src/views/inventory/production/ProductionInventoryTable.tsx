@@ -38,6 +38,7 @@ export interface PaginationTableType {
   quantity: string;
   status: any;
   grn_number: any;
+  priority: any;
   tested_by: any;
   productionExists: any;
   actions: any;
@@ -106,6 +107,19 @@ function ProductionInventoryTable() {
     setSelectedRow(row);
   };
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return 'bg-red-500';
+      case 'Priority':
+        return 'bg-blue-500';
+      case 'Normal':
+        return 'bg-black';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
   const filteredData = useMemo(() => {
     if (!searchText) return qcproductiondata;
 
@@ -157,6 +171,20 @@ function ProductionInventoryTable() {
     columnHelper.accessor('product_name', {
       cell: (info) => <p>{info.getValue() || 'N0 Code'}</p>,
       header: () => <span>Product name</span>,
+    }),
+
+    columnHelper.accessor('priority', {
+      header: 'Priority',
+      cell: (info) => (
+        <div className="truncate">
+          <div className="flex items-center gap-2 mt-1">
+            <span
+              className={`w-3 h-3 rounded-full ${getPriorityColor(info.row.original.priority)}`}
+            />
+            <p className="text-gray-900 font-medium">{info.row.original.priority || '-'}</p>
+          </div>
+        </div>
+      ),
     }),
 
     columnHelper.accessor('rm_code', {

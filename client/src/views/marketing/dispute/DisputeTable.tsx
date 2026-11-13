@@ -254,6 +254,31 @@ const DisputeTable = () => {
           </div>
         ),
       }),
+      columnHelper.display({
+        id: 'latest_status',
+        header: 'Latest Status',
+        cell: (info) => {
+          const followups = info.row.original.followups;
+          let entries: FollowupType[] = [];
+
+          try {
+            entries = Array.isArray(followups)
+              ? followups
+              : typeof followups === 'string'
+                ? JSON.parse(followups || '[]')
+                : [];
+          } catch {
+            entries = [];
+          }
+
+          const latestStatus = entries[entries.length - 1]?.status;
+          return (
+            <div className="max-w-[350px] whitespace-normal break-words text-sm">
+              <p>{latestStatus ? latestStatus.replace(/_/g, ' ') : '-'}</p>
+            </div>
+          );
+        },
+      }),
       columnHelper.accessor('date', {
         header: 'Date',
         cell: (info) => (

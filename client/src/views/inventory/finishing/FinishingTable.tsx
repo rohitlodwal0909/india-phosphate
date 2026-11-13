@@ -117,8 +117,6 @@ function FinishingTable() {
     }
   };
 
-  console.log(data);
-
   const filteredData = useMemo(() => {
     if (!searchText) return data;
 
@@ -262,18 +260,26 @@ function FinishingTable() {
 
     columnHelper.accessor('finish_quantity', {
       cell: (info) => {
-        const rowData = info?.row?.original;
-        const data = rowData?.production_results?.[0];
+        const productionResults = info?.row?.original?.production_results ?? [];
 
-        const entries = Array.isArray(data?.finishing_entries) ? data.finishing_entries : [];
-        const totalFinishQty = entries.reduce(
-          (total, entry) =>
-            total + Number(entry?.total_finishing_qty || entry?.finish_quantity || 0),
-          0,
-        );
+        const totalFinishQty = productionResults.reduce((total, result) => {
+          const entries = Array.isArray(result?.finishing_entries) ? result.finishing_entries : [];
+
+          return (
+            total +
+            entries.reduce((sum, entry) => {
+              const finishQties = Array.isArray(entry?.FinishQties) ? entry.FinishQties : [];
+
+              return (
+                sum + finishQties.reduce((qty, item) => qty + (Number(item?.finishing_qty) || 0), 0)
+              );
+            }, 0)
+          );
+        }, 0);
+
         return (
           <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
-            {entries.length ? totalFinishQty : '-'}
+            {totalFinishQty || '-'}
           </span>
         );
       },
