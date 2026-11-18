@@ -9,10 +9,69 @@ const {
   InvoiceItem,
   InvoicePaymentFollowup,
   Product,
+  RmCode,
+  PmCode,
+  Equipment,
   DispatchBatch,
   Qcbatch
 } = db;
 const sequelize = db.sequelize;
+
+const resolveInvoiceItemMaster = async (item, transaction) => {
+  const category = item.item_category || "Product";
+  const masterId = Number(item.master_item_id || item.product_name);
+  const masterConfig = {
+    RM: { model: RmCode, nameField: "name" },
+    PM: { model: PmCode, nameField: "name" },
+    Equipment: { model: Equipment, nameField: "name" },
+    Product: { model: Product, nameField: "product_name" }
+  }[category];
+
+  if (!masterConfig || !Number.isInteger(masterId) || masterId <= 0) {
+    const error = new Error("Select a valid category and master item for every invoice row.");
+    error.status = 400;
+    throw error;
+  }
+
+  const masterItem = await masterConfig.model.findByPk(masterId, { transaction });
+  if (!masterItem) {
+    const error = new Error(`Selected ${category} master item was not found.`);
+    error.status = 400;
+    throw error;
+  }
+
+  return {
+    item_category: category,
+    master_item_id: masterId,
+    item_name: masterItem[masterConfig.nameField],
+    product_id: category === "Product" ? masterId : null
+  };
+};
+
+const prepareInvoiceItems = async (products, transaction) => Promise.all(products.map(async (item) => {
+  if (!item.rate) {
+    const error = new Error("Invalid product data");
+    error.status = 400;
+    throw error;
+  }
+
+  const masterFields = await resolveInvoiceItemMaster(item, transaction);
+  const batches = Array.isArray(item.batches) ? item.batches : [];
+  const totalQty = batches.reduce((sum, batch) => sum + Number(batch.qty || 0), 0);
+  const totalAmount = batches.reduce((sum, batch) => sum + Number(batch.amount || 0), 0);
+
+  return {
+    ...masterFields,
+    grade: item.grade,
+    kind_of_pkgs: item.kind_of_pkgs,
+    batch_no: JSON.stringify(batches),
+    hsn: item.hsn,
+    rate: item.rate,
+    per: item.per,
+    qty: totalQty,
+    amount: totalAmount
+  };
+}));
 
 exports.getEntryInvoice = async (req, res) => {
   try {
@@ -190,6 +249,7 @@ exports.createInvoice = async (req, res) => {
     /* ================= VALIDATION ================= */
 
     if (!invoiceData?.invoice_no || !invoiceData?.invoice_date) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "Invoice No & Date required"
@@ -197,11 +257,14 @@ exports.createInvoice = async (req, res) => {
     }
 
     if (!products || !products.length) {
+      await transaction.rollback();
       return res.status(400).json({
         success: false,
         message: "At least one product required"
       });
     }
+
+    const preparedItems = await prepareInvoiceItems(products, transaction);
 
     /* ================= FILE HANDLE ================= */
 
@@ -267,34 +330,7 @@ exports.createInvoice = async (req, res) => {
 
     /* ================= ITEMS ================= */
 
-    const items = products?.map((item) => {
-      if (!item.rate) {
-        throw new Error("Invalid product data");
-      }
-
-      const totalQty = (item.batches || []).reduce(
-        (sum, batch) => sum + Number(batch.qty || 0),
-        0
-      );
-
-      const totalAmount = (item.batches || []).reduce(
-        (sum, batch) => sum + Number(batch.amount || 0),
-        0
-      );
-
-      return {
-        invoice_id: invoice.id,
-        grade: item.grade,
-        product_id: item.product_name,
-        kind_of_pkgs: item.kind_of_pkgs,
-        batch_no: JSON.stringify(item.batches),
-        hsn: item.hsn,
-        rate: item.rate,
-        per: item.per,
-        qty: totalQty,
-        amount: totalAmount
-      };
-    });
+    const items = preparedItems.map((item) => ({ ...item, invoice_id: invoice.id }));
 
     await InvoiceItem.bulkCreate(items, { transaction });
 
@@ -312,7 +348,7 @@ exports.createInvoice = async (req, res) => {
 
     console.error(error);
 
-    return res.status(500).json({
+    return res.status(error.status || 500).json({
       success: false,
       message: error.message
     });
@@ -327,6 +363,13 @@ exports.updateInvoice = async (req, res) => {
 
     const invoiceData = JSON.parse(req.body.invoiceData);
     const products = JSON.parse(req.body.products);
+
+    if (!Array.isArray(products) || products.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ success: false, message: "At least one product required" });
+    }
+
+    const preparedItems = await prepareInvoiceItems(products, transaction);
 
     if (invoiceData.gst) {
       invoiceData.gst = JSON.stringify(invoiceData.gst);
@@ -345,30 +388,7 @@ exports.updateInvoice = async (req, res) => {
       transaction
     });
 
-    const items = products?.map((item) => {
-      const totalQty = (item.batches || []).reduce(
-        (sum, batch) => sum + Number(batch.qty || 0),
-        0
-      );
-
-      const totalAmount = (item.batches || []).reduce(
-        (sum, batch) => sum + Number(batch.amount || 0),
-        0
-      );
-
-      return {
-        invoice_id: invoice.id,
-        grade: item.grade,
-        product_id: item.product_name,
-        kind_of_pkgs: item.kind_of_pkgs,
-        batch_no: JSON.stringify(item.batches),
-        hsn: item.hsn,
-        rate: item.rate,
-        per: item.per,
-        qty: totalQty,
-        amount: totalAmount
-      };
-    });
+    const items = preparedItems.map((item) => ({ ...item, invoice_id: invoice.id }));
 
     await InvoiceItem.bulkCreate(items, { transaction });
 
@@ -380,7 +400,7 @@ exports.updateInvoice = async (req, res) => {
     });
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json({ success: false, message: error.message });
+    res.status(error.status || 500).json({ success: false, message: error.message });
   }
 };
 

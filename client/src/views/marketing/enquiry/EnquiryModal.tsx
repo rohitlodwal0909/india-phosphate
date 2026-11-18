@@ -88,9 +88,13 @@ const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const initialForm = {
     company_id: '',
+    company_name: '',
+    company_address: '',
+    gstin: '',
   };
 
   const [formData, setFormData] = useState(initialForm);
+  const [createCustomer, setCreateCustomer] = useState(false);
 
   const [products, setProducts] = useState([
     {
@@ -155,6 +159,7 @@ const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const resetForm = () => {
     setFormData(initialForm);
+    setCreateCustomer(false);
     setProducts([
       ...products,
       {
@@ -251,10 +256,24 @@ const EnquiryModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
             <div className="col-span-8">
               <Label value="Company Name" />
-              <Select
-                options={customerOptions}
-                onChange={(v: any) => setFormData({ ...formData, company_id: v?.value })}
-              />
+              <button type="button" className="mb-2 text-sm text-primary underline" onClick={() => {
+                setCreateCustomer((value) => !value);
+                setFormData((prev) => ({ ...prev, company_id: '', company_name: '', company_address: '', gstin: '' }));
+              }}>
+                {createCustomer ? 'Select existing customer' : 'Add new customer'}
+              </button>
+              {createCustomer ? (
+                <div className="space-y-2">
+                  <TextInput required placeholder="Company name" value={formData.company_name} onChange={(e) => setFormData({ ...formData, company_name: e.target.value })} />
+                  <Textarea required placeholder="Company address" value={formData.company_address} onChange={(e) => setFormData({ ...formData, company_address: e.target.value })} />
+                  <TextInput placeholder="GST number (optional)" value={formData.gstin} onChange={(e) => setFormData({ ...formData, gstin: e.target.value })} />
+                </div>
+              ) : (
+                <Select
+                  options={customerOptions}
+                  onChange={(v: any) => setFormData({ ...formData, company_id: v?.value })}
+                />
+              )}
             </div>
           </div>
 

@@ -8,9 +8,10 @@ interface BreadCrumbType {
   items?: any[];
   title: string;
   children?: JSX.Element;
+  exportData?: Record<string, any>[];
 }
 
-const BreadcrumbComp = ({ items, title, children }: BreadCrumbType) => {
+const BreadcrumbComp = ({ items, title, children, exportData }: BreadCrumbType) => {
   // Print Table
   const handlePrint = () => {
     const table = document.querySelector('table');
@@ -77,17 +78,31 @@ const BreadcrumbComp = ({ items, title, children }: BreadCrumbType) => {
 
   // Export Excel
   const handleExcel = () => {
-    const table = document.querySelector('table');
+    if (exportData !== undefined) {
+      const rows = exportData.map((record) =>
+        Object.fromEntries(
+          Object.entries(record).map(([field, value]) => [
+            field,
+            value !== null && typeof value === 'object' ? JSON.stringify(value) : value,
+          ]),
+        ),
+      );
+      const headers = Array.from(new Set(rows.flatMap((record) => Object.keys(record))));
+      const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, title);
+      XLSX.writeFile(workbook, `${title}.xlsx`);
+      return;
+    }
 
+    const table = document.querySelector('table');
     if (!table) {
       alert('No table found.');
       return;
     }
-
     const workbook = XLSX.utils.table_to_book(table, {
       sheet: title,
     });
-
     XLSX.writeFile(workbook, `${title}.xlsx`);
   };
 

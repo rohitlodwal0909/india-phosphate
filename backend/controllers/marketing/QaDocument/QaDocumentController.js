@@ -117,6 +117,8 @@ exports.storeQaDocument = async (req, res) => {
 
         comment: row.comment,
 
+        admin_remark: row.admin_remark || null,
+
         file: req.files?.find((file) => file.fieldname === `file_${index}`)?.filename || null
       }));
 
@@ -177,7 +179,7 @@ exports.updateQaDocument = async (req, res) => {
     const isQa = roleId === 3;
     const isMarketing = roleId === 9;
 
-    if (!isAdmin && !isQa && !isMarketing) {
+    if (!req.admin?.id) {
       return res.status(403).json({ success: false, message: "You cannot edit QA documents." });
     }
 
@@ -204,72 +206,56 @@ exports.updateQaDocument = async (req, res) => {
       });
     }
 
-    if (isQa) {
-      let updatedCount = 0;
-      for (const item of coaItems) {
-        const existing = existingById.get(String(item.id));
-        if (!existing || Number(existing.qa_person_id) !== userId) continue;
-        await existing.update({
-          status: item.status || null,
-          comment: item.comment || null,
-          approval_from: item.approval_from === "admin" ? "admin" : "marketing",
-          received_marketing_id: item.received_marketing_id || null
-        });
-        updatedCount += 1;
-      }
-      if (!updatedCount) {
-        return res.status(403).json({ success: false, message: "You can only update QA review for documents assigned to you." });
-      }
-    } else {
-      const submittedIds = new Set();
-      for (let index = 0; index < coaItems.length; index += 1) {
-        const item = coaItems[index];
-        const existing = existingById.get(String(item.id));
-        const uploadedFile = fileForRow(index);
+    const submittedIds = new Set();
+    for (let index = 0; index < coaItems.length; index += 1) {
+      const item = coaItems[index];
+      const existing = existingById.get(String(item.id));
+      const uploadedFile = fileForRow(index);
+      const stepOneFields = {
+        doc_name: item.doc_name || null,
+        qa_person_id: item.qa_person_id || null,
+        share_customer_by: item.share_customer_by || null,
+        file: uploadedFile || item.old_file || null
+      };
 
-        if (existing) {
-          submittedIds.add(String(existing.id));
-          if (isAdmin) {
-            await existing.update({
-              doc_name: item.doc_name || null,
-              qa_person_id: item.qa_person_id || null,
-              received_marketing_id: item.received_marketing_id || null,
-              share_customer_by: item.share_customer_by || null,
-              status: item.status || null,
-              approval_from: item.approval_from === "admin" ? "admin" : "marketing",
-              comment: item.comment || null,
-              file: uploadedFile || item.old_file || null
-            });
-          } else {
-            // Marketing owns Steps 1 and 3. Preserve QA review fields from the database.
-            await existing.update({
-              doc_name: item.doc_name || null,
-              qa_person_id: item.qa_person_id || null,
-              share_customer_by: item.share_customer_by || null,
-              file: uploadedFile || item.old_file || null
-            });
-          }
-        } else if (isAdmin || isMarketing) {
-          await QaDocumentCoaModel.create({
-            qa_document_id: id,
-            doc_name: item.doc_name || null,
-            qa_person_id: item.qa_person_id || null,
-            received_marketing_id: isAdmin ? item.received_marketing_id || null : null,
-            share_customer_by: item.share_customer_by || null,
-            status: isAdmin ? item.status || null : null,
-            approval_from: isAdmin && item.approval_from === "admin" ? "admin" : "marketing",
-            comment: isAdmin ? item.comment || null : null,
-            file: uploadedFile || item.old_file || null
+      if (existing) {
+        submittedIds.add(String(existing.id));
+        if (isAdmin) {
+          await existing.update({
+            ...stepOneFields,
+            received_marketing_id: item.received_marketing_id || null,
+            status: item.status || null,
+            approval_from: item.approval_from === "admin" ? "admin" : "marketing",
+            comment: item.comment || null,
+            admin_remark: item.approval_from === "admin" ? item.admin_remark || null : null
           });
+        } else {
+          const updates = { ...stepOneFields };
+          if (isQa && Number(existing.qa_person_id) === userId) {
+            updates.status = item.status || null;
+            updates.comment = item.comment || null;
+            updates.admin_remark = item.approval_from === "admin" ? item.admin_remark || null : null;
+            updates.approval_from = item.approval_from === "admin" ? "admin" : "marketing";
+            updates.received_marketing_id = item.received_marketing_id || null;
+          }
+          await existing.update(updates);
         }
+      } else {
+        await QaDocumentCoaModel.create({
+          qa_document_id: id,
+          ...stepOneFields,
+          received_marketing_id: isAdmin ? item.received_marketing_id || null : null,
+          status: isAdmin ? item.status || null : null,
+          approval_from: isAdmin && item.approval_from === "admin" ? "admin" : "marketing",
+          comment: isAdmin ? item.comment || null : null,
+          admin_remark: isAdmin && item.approval_from === "admin" ? item.admin_remark || null : null
+        });
       }
+    }
 
-      if (isAdmin) {
-        const omittedIds = existingRows.filter((row) => !submittedIds.has(String(row.id))).map((row) => row.id);
-        if (omittedIds.length) {
-          await QaDocumentCoaModel.destroy({ where: { id: omittedIds }, force: true });
-        }
-      }
+    const omittedIds = existingRows.filter((row) => !submittedIds.has(String(row.id))).map((row) => row.id);
+    if (omittedIds.length) {
+      await QaDocumentCoaModel.destroy({ where: { id: omittedIds }, force: true });
     }
 
     return res.status(200).json({

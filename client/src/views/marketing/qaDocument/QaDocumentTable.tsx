@@ -221,6 +221,29 @@ const QaDocumentTable = () => {
         },
       }),
 
+      columnHelper.display({
+        id: 'admin_remark',
+        header: 'Admin Remark',
+        cell: (info) => {
+          const adminRemarks = (info.row.original.qa_document || []).filter(
+            (item: any) => item?.approval_from === 'admin' && item?.admin_remark,
+          );
+
+          return adminRemarks.length ? (
+            <div className="max-w-[300px] whitespace-normal break-words text-sm space-y-1">
+              {adminRemarks.map((item: any, index: number) => (
+                <p key={item.id || index}>
+                  {adminRemarks.length > 1 && <strong>{item.doc_name}: </strong>}
+                  {item.admin_remark}
+                </p>
+              ))}
+            </div>
+          ) : (
+            <span>-</span>
+          );
+        },
+      }),
+
       columnHelper.accessor('user_id', {
         header: 'Submitted by',
         cell: (info) => (

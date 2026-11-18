@@ -26,6 +26,11 @@ router.post(
   PotentialopportunityController.createOpportunity
 );
 
+router.post(
+  "/import-potential-oppertunity",
+  PotentialopportunityController.importOpportunities
+);
+
 router.get(
   "/get-potential-oppertunity",
   PotentialopportunityController.getOpportunity

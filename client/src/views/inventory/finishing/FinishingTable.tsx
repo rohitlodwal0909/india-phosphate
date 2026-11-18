@@ -68,6 +68,7 @@ function FinishingTable() {
   const [searchText, setSearchText] = useState('');
 
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 6);
   }, [logindata, selectedIconId]);

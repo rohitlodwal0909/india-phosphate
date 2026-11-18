@@ -122,6 +122,7 @@ const initialRow: ProductionRow = {
 
 const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, permission }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const canEditOutput = Number(permission) === 1 || Number(permission) === 6;
 
   /* =====================================================
      PRODUCTS
@@ -602,29 +603,27 @@ const Addproductionmodal: React.FC<Props> = ({ openModal, setOpenModal, permissi
                     {/* OUTPUT 8:00-1:00 */}
 
                     <td className="border border-gray-800 p-2">
-                      {permission === '6' && (
-                        <TextInput
-                          type="number"
-                          min="0"
-                          placeholder="Qty"
-                          value={row.output_morning}
-                          onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
-                        />
-                      )}
+                      <TextInput
+                        type="number"
+                        min="0"
+                        placeholder="Qty"
+                        value={row.output_morning}
+                        onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
+                        disabled={!canEditOutput}
+                      />
                     </td>
 
                     {/* OUTPUT 1:30-6:00 */}
 
                     <td className="border border-gray-800 p-2">
-                      {permission === '6' && (
-                        <TextInput
-                          type="number"
-                          min="0"
-                          placeholder="Qty"
-                          value={row.output_evening}
-                          onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
-                        />
-                      )}
+                      <TextInput
+                        type="number"
+                        min="0"
+                        placeholder="Qty"
+                        value={row.output_evening}
+                        onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
+                        disabled={!canEditOutput}
+                      />
                     </td>
 
                     {/* ACTION */}

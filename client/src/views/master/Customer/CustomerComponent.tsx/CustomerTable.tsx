@@ -16,7 +16,11 @@ import NotPermission from 'src/utils/NotPermission';
 import ViewCustomerModal from './ViewCustomerModal';
 import Note from './NoteModal';
 
-const CustomerTable = () => {
+const CustomerTable = ({
+  onExportData,
+}: {
+  onExportData?: (records: Record<string, any>[]) => void;
+}) => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
   const { customerdata, loading } = useSelector((state: any) => state.customer);
@@ -31,6 +35,7 @@ const CustomerTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const { selectedIconId } = useContext(CustomizerContext) || {};
+
   const permissions = useMemo(() => {
     return getPermissions(logindata, selectedIconId, 3);
   }, [logindata, selectedIconId]);
@@ -38,6 +43,10 @@ const CustomerTable = () => {
   useEffect(() => {
     dispatch(GetCustomer());
   }, [dispatch]);
+
+  useEffect(() => {
+    onExportData?.(customerdata || []);
+  }, [customerdata, onExportData]);
 
   const handleEdit = (entry: any) => {
     setEditmodal(true);

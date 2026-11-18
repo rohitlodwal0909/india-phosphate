@@ -5,6 +5,7 @@ const {
 const db = require("../../../models");
 const { Op } = require("sequelize");
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
+const syncCustomerMaster = require("../../../helper/syncCustomerMaster");
 const {
   DevelopmentModel,
   DevelopmentIntrestedProductsModel,
@@ -53,7 +54,7 @@ exports.getDevelopment = async (req, res) => {
 exports.storeDevelopment = async (req, res) => {
   try {
     /* ================= VALIDATION ================= */
-    if (!req.body.company_id) {
+    if (!req.body.company_id && !(req.body.company_name && req.body.company_address)) {
       return res.status(400).json({
         success: false,
         message: "Company is required"
@@ -74,25 +75,32 @@ exports.storeDevelopment = async (req, res) => {
 
     /* ================= SR NO GENERATION ================= */
 
-    /* ================= CREATE ENQUIRY ================= */
-    const development = await DevelopmentModel.create({
-      company_id: req.body.company_id,
-      date: entry_date,
-      user_id: req.admin.id
+    const development = await db.sequelize.transaction(async (transaction) => {
+      const customer = await syncCustomerMaster({
+        Customer,
+        companyId: req.body.company_id,
+        details: req.body,
+        userId: req.admin.id,
+        transaction
+      });
+      const record = await DevelopmentModel.create({
+        company_id: customer.id,
+        date: entry_date,
+        user_id: req.admin.id
+      }, { transaction });
+
+      if (products.length > 0) {
+        const productRows = products.map((p) => ({
+          development_id: record.id,
+          product_id: p.product_id,
+          grade: p.grade,
+          person_name: p.purchase_person || null,
+          followups: JSON.stringify(p.followups) || []
+        }));
+        await DevelopmentIntrestedProductsModel.bulkCreate(productRows, { transaction });
+      }
+      return record;
     });
-
-    /* ================= STORE INTERESTED PRODUCTS ================= */
-    if (products.length > 0) {
-      const productRows = products.map((p) => ({
-        development_id: development.id,
-        product_id: p.product_id,
-        grade: p.grade,
-        person_name: p.purchase_person || null,
-        followups: JSON.stringify(p.followups) || []
-      }));
-
-      await DevelopmentIntrestedProductsModel.bulkCreate(productRows);
-    }
 
     /* ================= RESPONSE ================= */
     return res.status(200).json({
@@ -103,7 +111,7 @@ exports.storeDevelopment = async (req, res) => {
   } catch (error) {
     console.error("STORE ENQUIRY ERROR:", error);
 
-    return res.status(500).json({
+    return res.status(error.status || 500).json({
       success: false,
       message: error.message
     });
@@ -127,34 +135,34 @@ exports.updateDevelopment = async (req, res) => {
 
     /* ================= UPDATE ENQUIRY ================= */
 
-    await DevelopmentModel.update(
-      {
-        company_id: req.body.company_id
-      },
-      { where: { id } }
-    );
+    await db.sequelize.transaction(async (transaction) => {
+      const development = await DevelopmentModel.findByPk(id, { transaction });
+      if (!development) {
+        const error = new Error("Development enquiry not found");
+        error.status = 404;
+        throw error;
+      }
+      const customer = await syncCustomerMaster({
+        Customer,
+        companyId: req.body.company_id || development.company_id,
+        details: req.body,
+        userId: req.admin?.id,
+        transaction
+      });
+      await development.update({ company_id: customer.id }, { transaction });
+      await DevelopmentIntrestedProductsModel.destroy({ where: { development_id: id }, transaction });
 
-    /* ================= DELETE OLD PRODUCTS ================= */
-
-    await DevelopmentIntrestedProductsModel.destroy({
-      where: { development_id: id }
-    });
-
-    /* ================= ADD NEW PRODUCTS ================= */
-
-    const productRows = products.map((p, index) => {
-      return {
+      const productRows = products.map((p) => ({
         development_id: id,
         product_id: p.product_id,
         grade: p.grade,
         person_name: p.purchase_person,
         followups: JSON.stringify(p.followups) || []
-      };
+      }));
+      if (productRows.length) {
+        await DevelopmentIntrestedProductsModel.bulkCreate(productRows, { transaction });
+      }
     });
-
-    if (productRows.length) {
-      await DevelopmentIntrestedProductsModel.bulkCreate(productRows);
-    }
 
     /* ================= RESPONSE ================= */
 
@@ -164,7 +172,7 @@ exports.updateDevelopment = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    res.status(error.status || 500).json({
       message: error.message || "Update failed"
     });
   }

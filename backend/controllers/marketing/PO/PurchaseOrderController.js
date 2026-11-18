@@ -5,6 +5,7 @@ const {
 const db = require("../../../models");
 const { PurchaseOrderModel, Customer, WorkOrderModel, User, Invoice } = db;
 const { getISTDateTime } = require("../../../helper/dateTimeHelper");
+const syncCustomerMaster = require("../../../helper/syncCustomerMaster");
 
 exports.getPurchaseOrders = async (req, res) => {
   try {
@@ -77,53 +78,56 @@ exports.storePurchaseOrder = async (req, res) => {
       return p;
     });
 
-    const uniqepo = await PurchaseOrderModel.findOne({
-      where: {
-        po_no: req.body.po_no
-      }
-    });
-    if (uniqepo) {
-      return res.status(404).json({
-        success: false,
-        message: "PO Number already exists"
+    const result = await db.sequelize.transaction(async (transaction) => {
+      const uniqepo = await PurchaseOrderModel.findOne({
+        where: { po_no: req.body.po_no },
+        transaction
       });
-    }
+      if (uniqepo) {
+        const error = new Error("PO Number already exists");
+        error.status = 404;
+        throw error;
+      }
 
-    const data = await PurchaseOrderModel.create({
-      ...req.body,
-      products: JSON.stringify(products),
-      user_id: req.admin.id
-    });
+      const customer = await syncCustomerMaster({
+        Customer,
+        companyId: req.body.company_id,
+        details: req.body,
+        userId: req.admin.id,
+        transaction
+      });
+      const data = await PurchaseOrderModel.create({
+        ...req.body,
+        company_id: customer.id,
+        products: JSON.stringify(products),
+        user_id: req.admin.id
+      }, { transaction });
 
-    /* ================= AUTO WORK ORDER NO ================= */
-    const lastWO = await WorkOrderModel.findOne({
-      order: [["id", "DESC"]]
-    });
-
-    let work_order_no = "WO-001";
-
-    if (lastWO && lastWO.work_order_no) {
-      const lastNumber = parseInt(lastWO.work_order_no.split("-")[1]);
-      const newNumber = lastNumber + 1;
-
-      work_order_no = `WO-${String(newNumber).padStart(3, "0")}`;
-    }
-
-    /* ================= CREATE WORK ORDER ================= */
-    await WorkOrderModel.create({
-      po_id: data.id,
-      work_order_no,
-      user_id: req.admin.id
+      const lastWO = await WorkOrderModel.findOne({
+        order: [["id", "DESC"]],
+        transaction
+      });
+      let work_order_no = "WO-001";
+      if (lastWO?.work_order_no) {
+        const lastNumber = parseInt(lastWO.work_order_no.split("-")[1]);
+        work_order_no = `WO-${String(lastNumber + 1).padStart(3, "0")}`;
+      }
+      await WorkOrderModel.create({
+        po_id: data.id,
+        work_order_no,
+        user_id: req.admin.id
+      }, { transaction });
+      return { data, work_order_no };
     });
 
     res.json({
       message: "Purchase Order Created",
-      data,
-      work_order_no
+      data: result.data,
+      work_order_no: result.work_order_no
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    res.status(error.status || 500).json({
       message: error.message
     });
   }
@@ -458,8 +462,25 @@ exports.updatePurchaseOrder = async (req, res) => {
       priority: req.body.priority
     };
 
-    await PurchaseOrderModel.update(updateData, {
-      where: { id }
+    await db.sequelize.transaction(async (transaction) => {
+      const purchaseOrder = await PurchaseOrderModel.findByPk(id, { transaction });
+      if (!purchaseOrder) {
+        const error = new Error("Purchase Order not found");
+        error.status = 404;
+        throw error;
+      }
+      const customer = await syncCustomerMaster({
+        Customer,
+        companyId: req.body.company_id || purchaseOrder.company_id,
+        details: req.body,
+        userId: req.admin?.id,
+        transaction
+      });
+      updateData.company_id = customer.id;
+      await PurchaseOrderModel.update(updateData, {
+        where: { id },
+        transaction
+      });
     });
 
     res.json({
@@ -467,7 +488,7 @@ exports.updatePurchaseOrder = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    res.status(error.status || 500).json({
       message: error.message || "Update failed"
     });
   }

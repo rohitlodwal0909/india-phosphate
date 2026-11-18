@@ -2,8 +2,8 @@ import { toast } from 'react-toastify';
 
 export const validateEnquiryForm = (formData: any, products: any[]) => {
   // Company
-  if (!formData.company_id) {
-    toast.error('Company is required');
+  if (!formData.company_id && !(formData.company_name?.trim() && formData.company_address?.trim())) {
+    toast.error('Select a company or enter a new company name and address');
     return false;
   }
 

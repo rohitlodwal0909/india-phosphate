@@ -586,6 +586,7 @@ exports.addQcBatch = async (req, res, next) => {
     grade,
     size,
     material_type,
+    work_order_no,
     user_id
   } = req.body;
 
@@ -619,6 +620,7 @@ exports.addQcBatch = async (req, res, next) => {
       exp_date,
       grade,
       material_type,
+      work_order_no: work_order_no || null,
       size,
       user_id
     });
@@ -665,6 +667,7 @@ exports.updateQcBatch = async (req, res, next) => {
     grade,
     size,
     material_type,
+    work_order_no,
     user_id
   } = req.body;
 
@@ -692,6 +695,7 @@ exports.updateQcBatch = async (req, res, next) => {
       grade,
       size,
       material_type,
+      work_order_no: work_order_no || null,
       user_id
     });
 

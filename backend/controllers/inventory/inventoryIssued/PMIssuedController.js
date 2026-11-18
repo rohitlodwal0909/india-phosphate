@@ -124,6 +124,7 @@ exports.getBatches = async (req, res, next) => {
 exports.getIssuePM = async (req, res, next) => {
   try {
     const data = await PMIssueModel.findAll({
+      order: [["created_at", "DESC"], ["id", "DESC"]],
       include: [
         {
           model: PmCode,

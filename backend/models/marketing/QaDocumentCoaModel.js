@@ -43,6 +43,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT
       },
 
+      admin_remark: {
+        type: DataTypes.TEXT
+      },
+
       created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

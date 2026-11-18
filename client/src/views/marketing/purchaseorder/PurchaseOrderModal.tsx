@@ -85,7 +85,6 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     value: p.name,
   }));
 
-
   const customerOptions = customers?.map((c: any) => {
     return {
       label: c.company_name,
@@ -99,6 +98,8 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
       product_name: '',
       grade: '',
       quantity: '',
+      quantity_date: '',
+      quantity_dates: [{ quantity: '', date: '' }],
       unit: '',
       rate: '',
       gst: '',
@@ -136,6 +137,21 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     setProducts(updated);
   };
 
+  const handleQuantityDatesChange = (index: number, quantity_dates: any[]) => {
+    const updated = [...products];
+    const product = { ...updated[index], quantity_dates };
+    product.quantity = String(
+      quantity_dates.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
+    );
+    product.unit = quantity_dates[0]?.unit || '';
+    const subtotal =
+      (Number(product.quantity) || 0) * (Number(product.rate) || 0) +
+      (Number(product.pro_freight) || 0);
+    product.total = (subtotal + subtotal * ((Number(product.gst) || 0) / 100)).toFixed(2);
+    updated[index] = product;
+    setProducts(updated);
+  };
+
   const addRow = () => {
     setProducts([
       ...products,
@@ -143,6 +159,8 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
         product_name: '',
         grade: '',
         quantity: '',
+        quantity_date: '',
+        quantity_dates: [{ quantity: '', date: '' }],
         unit: '',
         rate: '',
         gst: '',
@@ -168,6 +186,8 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     po_remark: '',
     company_address: '',
     customer_name: '',
+    company_name: '',
+    gstin: '',
     delivery_address: '',
     freight: '',
     payment_terms: '',
@@ -181,6 +201,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     submitted_by: '',
     priority: '',
   });
+  const [createCustomer, setCreateCustomer] = useState(false);
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
@@ -201,6 +222,7 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
     setFormData({
       ...formData,
       company_id: selected.value,
+      company_name: selected.label,
       company_address: selected.address,
     });
   };
@@ -208,7 +230,10 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.po_no || !formData.company_id) {
+    if (
+      !formData.po_no ||
+      (!formData.company_id && !(formData.company_name && formData.company_address))
+    ) {
       toast.error('Please fill required fields ❌');
       return;
     }
@@ -253,6 +278,9 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
         product_id: p.product_name,
         grade: p.grade,
         quantity: p.quantity,
+        quantity_date: p.quantity_date || p.quantity_dates?.[0]?.date || '',
+        quantity_dates: p.quantity_dates || [],
+        unit: p.unit,
         rate: p.rate,
         gst: p.gst,
         total: p.total,
@@ -312,7 +340,33 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
           {/* Company Name */}
           <div className="col-span-6">
             <Label value="Company Name" />
-            <Select options={customerOptions} onChange={handleCustomerChange} />
+            <button
+              type="button"
+              className="mb-2 text-sm text-primary underline"
+              onClick={() => {
+                setCreateCustomer((value) => !value);
+                setFormData((prev: any) => ({
+                  ...prev,
+                  company_id: '',
+                  company_name: '',
+                  company_address: '',
+                  gstin: '',
+                }));
+              }}
+            >
+              {createCustomer ? 'Select existing customer' : 'Add new customer'}
+            </button>
+            {createCustomer ? (
+              <TextInput
+                required
+                name="company_name"
+                placeholder="Enter company name"
+                value={formData.company_name}
+                onChange={handleChange}
+              />
+            ) : (
+              <Select options={customerOptions} onChange={handleCustomerChange} />
+            )}
           </div>
 
           {/* Company Address */}
@@ -321,10 +375,18 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
             <TextInput
               name="company_address"
               value={formData.company_address}
-              readOnly
+              readOnly={!createCustomer}
+              required={createCustomer}
               placeholder="Enter company address"
+              onChange={handleChange}
             />
           </div>
+          {createCustomer && (
+            <div className="col-span-6">
+              <Label value="GST Number (optional)" />
+              <TextInput name="gstin" value={formData.gstin} onChange={handleChange} />
+            </div>
+          )}
 
           <div className="col-span-6">
             <Label value="PO Date" />
@@ -400,38 +462,82 @@ const PurchaseOrderModal: React.FC<PurchaseOrderModalProps> = ({ openModal, setO
                 </select>
               </div>
               {/* Quantity */}
-              <div className="col-span-4">
-                <Label value="Qty" />
-
-                <div className="flex rounded-md shadow-sm">
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="Enter quantity"
-                    className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm"
-                    value={product.quantity}
-                    onChange={(e) => {
-                      let value = e.target.value;
-
-                      // ❌ minus block
-                      if (value.includes('-')) return;
-
-                      handleProductChange(index, 'quantity', value);
-                    }}
-                  />
-
-                  <select
-                    value={product.unit}
-                    onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
-                    className="rounded-r-md border border-l-0 border-gray-300 px-2 py-2 text-sm text-gray-700"
+              <div className="col-span-5">
+                <Label value="Qty / Date" />
+                {(product.quantity_dates || []).map((entry: any, entryIndex: number) => (
+                  <div
+                    key={entryIndex}
+                    className="grid grid-cols-[1.6fr_100px_1fr_auto] gap-2 mb-2 items-center"
                   >
-                    <option value="">Unit</option>
-                    {allUnits.map((unit) => (
-                      <option key={unit.value} value={unit.value}>
-                        {unit.value}
-                      </option>
-                    ))}
-                  </select>
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="Quantity"
+                      className="min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                      value={entry.quantity}
+                      onChange={(e) => {
+                        const quantity_dates = [...product.quantity_dates];
+                        quantity_dates[entryIndex] = { ...entry, quantity: e.target.value };
+                        handleQuantityDatesChange(index, quantity_dates);
+                      }}
+                    />
+                    <select
+                      aria-label={`Unit for quantity ${entryIndex + 1}`}
+                      value={entry.unit || ''}
+                      onChange={(e) => {
+                        const quantity_dates = [...product.quantity_dates];
+                        quantity_dates[entryIndex] = { ...entry, unit: e.target.value };
+                        handleQuantityDatesChange(index, quantity_dates);
+                      }}
+                      className="min-w-0 rounded border border-gray-300 px-2 py-2 text-sm"
+                    >
+                      <option value="">Unit</option>
+                      {allUnits.map((unit) => (
+                        <option key={unit.value} value={unit.value}>
+                          {unit.value}
+                        </option>
+                      ))}
+                    </select>
+                    <TextInput
+                      type="date"
+                      value={entry.date || ''}
+                      onChange={(e) => {
+                        const quantity_dates = [...product.quantity_dates];
+                        quantity_dates[entryIndex] = { ...entry, date: e.target.value };
+                        handleQuantityDatesChange(index, quantity_dates);
+                      }}
+                    />
+                    {entryIndex > 0 && (
+                      <Button
+                        type="button"
+                        color="failure"
+                        size="xs"
+                        onClick={() => {
+                          const quantity_dates = product.quantity_dates.filter(
+                            (_: any, i: number) => i !== entryIndex,
+                          );
+                          handleQuantityDatesChange(index, quantity_dates);
+                        }}
+                      >
+                        ×
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    size="xs"
+                    color="light"
+                    onClick={() =>
+                      handleQuantityDatesChange(index, [
+                        ...product.quantity_dates,
+                        { quantity: '', date: '' },
+                      ])
+                    }
+                  >
+                    + Add Qty / Date
+                  </Button>
                 </div>
               </div>
 

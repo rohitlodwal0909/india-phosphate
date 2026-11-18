@@ -39,6 +39,9 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const [formData, setFormData] = useState<any>({
     company_id: '',
+    company_name: '',
+    company_address: '',
+    gstin: '',
     type: 'domestic',
     priority: '',
     contact_person: '',
@@ -47,6 +50,7 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     delivery_address: '',
     remark: '',
   });
+  const [createCustomer, setCreateCustomer] = useState(false);
 
   const [items, setItems] = useState([
     {
@@ -171,12 +175,25 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
               {/* COMPANY */}
               <div className="col-span-6">
                 <Label value="Company Name *" />
-
-                <Select
-                  options={customerOptions}
-                  onChange={handleCustomer}
-                  placeholder="Select company"
-                />
+                <button type="button" className="mb-2 text-sm text-primary underline" onClick={() => {
+                  setCreateCustomer((value) => !value);
+                  setFormData((prev: any) => ({ ...prev, company_id: '', company_name: '', company_address: '', gstin: '' }));
+                }}>
+                  {createCustomer ? 'Select existing customer' : 'Add new customer'}
+                </button>
+                {createCustomer ? (
+                  <div className="space-y-2">
+                    <TextInput required placeholder="Company name" value={formData.company_name} onChange={(e) => setFormData({ ...formData, company_name: e.target.value })} />
+                    <TextInput required placeholder="Company address" value={formData.company_address} onChange={(e) => setFormData({ ...formData, company_address: e.target.value })} />
+                    <TextInput placeholder="GST number (optional)" value={formData.gstin} onChange={(e) => setFormData({ ...formData, gstin: e.target.value })} />
+                  </div>
+                ) : (
+                  <Select
+                    options={customerOptions}
+                    onChange={handleCustomer}
+                    placeholder="Select company"
+                  />
+                )}
 
                 {errors.company_id && (
                   <p className="text-red-500 text-xs mt-1">{errors.company_id}</p>

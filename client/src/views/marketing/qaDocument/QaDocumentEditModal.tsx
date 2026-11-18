@@ -57,6 +57,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
     status: '',
     approval_from: 'marketing',
     comment: '',
+    admin_remark: '',
     file: null,
     old_file: '',
   };
@@ -100,6 +101,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
         status: item.status || '',
         approval_from: item.approval_from || 'marketing',
         comment: item.comment || '',
+        admin_remark: item.admin_remark || '',
         file: null,
         old_file: item.file || '',
       }));
@@ -158,6 +160,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
             status: item.status,
             approval_from: item.approval_from || 'marketing',
             comment: item.comment,
+            admin_remark: item.admin_remark,
             old_file: item.old_file || '',
           })),
         ),
@@ -252,7 +255,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                 <p className="text-sm text-gray-500">Edit QA approval & sharing workflow</p>
               </div>
 
-              {canEditMarketingSteps && <Button color="primary" size="sm" type="button" onClick={addRow}>+ Add New Document</Button>}
+              <Button color="primary" size="sm" type="button" onClick={addRow}>+ Add New Document</Button>
             </div>
 
             {coaItems.map((item, index) => {
@@ -271,7 +274,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                       <p className="text-sm text-gray-500">QA approval workflow</p>
                     </div>
 
-                    {index > 0 && canEditMarketingSteps && (
+                    {index > 0 && (
                       <Button color="failure" size="xs" onClick={() => removeRow(index)}>
                         Remove
                       </Button>
@@ -279,7 +282,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                   </div>
 
                   {/* STEP 1 */}
-                  <div className={`border rounded-xl p-5 bg-blue-50 mb-5 ${canEditMarketingSteps ? '' : 'opacity-60 pointer-events-none'}`}>
+                  <div className="border rounded-xl p-5 bg-blue-50 mb-5">
                     <div className="flex items-center justify-between mb-4">
                       <h5 className="font-semibold text-blue-700">Step 1 : Assign QA Person</h5>
 
@@ -449,6 +452,17 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                           <option value="admin">Admin</option>
                         </select>
                       </div>
+
+                      {item.approval_from === 'admin' && (
+                        <div className="col-span-12">
+                          <Label value="Admin Remark" className="mb-2 block" />
+                          <TextInput
+                            placeholder="Enter admin remark"
+                            value={item.admin_remark || ''}
+                            onChange={(e) => handleItem(index, 'admin_remark', e.target.value)}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 

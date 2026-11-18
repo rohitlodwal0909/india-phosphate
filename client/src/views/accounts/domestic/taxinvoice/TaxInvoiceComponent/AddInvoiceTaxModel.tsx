@@ -86,8 +86,11 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
           }
 
           return {
+            item_category: item.item_category || 'Product',
             kind_of_pkgs: item.kind_of_pkgs || '',
             product_name: item.product_id || '',
+            master_item_id: item.master_item_id || item.product_id || '',
+            item_name: item.item_name || item.Product?.product_name || '',
             grade: item.grade || '',
             hsn: item.hsn || '',
             rate: item.rate || '',
@@ -131,8 +134,11 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
 
   const [products, setProducts] = useState([
     {
+      item_category: 'Product',
       kind_of_pkgs: '',
       product_name: '',
+      master_item_id: '',
+      item_name: '',
       grade: '',
       hsn: '',
       rate: '',

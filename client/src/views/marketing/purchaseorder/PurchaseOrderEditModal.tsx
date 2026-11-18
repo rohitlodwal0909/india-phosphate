@@ -40,8 +40,8 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       expected_delivery_date: selectedRow.expected_delivery_date
         ? selectedRow.expected_delivery_date.split('T')[0]
         : '',
-      export: selectedRow.type === 'export',
-      domestic: selectedRow.type === 'domestic',
+      export: selectedRow.export == '1',
+      domestic: selectedRow.domestic == '1',
     });
 
     // Products parse
@@ -56,6 +56,14 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
           product_id: p.product_id,
           grade: p.grade || '',
           quantity: p.quantity || '',
+          quantity_date: p.quantity_date || '',
+          quantity_dates:
+            Array.isArray(p.quantity_dates) && p.quantity_dates.length
+              ? p.quantity_dates.map((entry: any) => ({
+                  ...entry,
+                  unit: entry.unit || p.unit || '',
+                }))
+              : [{ quantity: p.quantity || '', date: p.quantity_date || '', unit: p.unit || '' }],
           unit: p.unit || '',
           rate: p.rate || '',
           currency: p.currency || '',
@@ -120,6 +128,8 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
       product_name: '',
       grade: '',
       quantity: '',
+      quantity_date: '',
+      quantity_dates: [{ quantity: '', date: '' }],
       unit: '',
       rate: '',
       currency: '',
@@ -158,6 +168,21 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
     setProducts(updated);
   };
 
+  const handleQuantityDatesChange = (index: number, quantity_dates: any[]) => {
+    const updated = [...products];
+    const product = { ...updated[index], quantity_dates };
+    product.quantity = String(
+      quantity_dates.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
+    );
+    product.unit = quantity_dates[0]?.unit || '';
+    const subtotal =
+      (Number(product.quantity) || 0) * (Number(product.rate) || 0) +
+      (Number(product.pro_freight) || 0);
+    product.total = (subtotal + subtotal * ((Number(product.gst) || 0) / 100)).toFixed(2);
+    updated[index] = product;
+    setProducts(updated);
+  };
+
   const addRow = () => {
     setProducts([
       ...products,
@@ -165,6 +190,8 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
         product_name: '',
         grade: '',
         quantity: '',
+        quantity_date: '',
+        quantity_dates: [{ quantity: '', date: '' }],
         unit: '',
         currency: '',
         pro_freight: '',
@@ -437,38 +464,82 @@ const PurchaseOrderEditModal: React.FC<PurchaseOrderEditModalProps> = ({
                 />
               </div> */}
 
-              <div className="col-span-4">
-                <Label value="Qty" />
-
-                <div className="flex rounded-md shadow-sm">
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="Enter quantity"
-                    className="w-full rounded-l-md border border-gray-300 px-3 py-2 text-sm"
-                    value={product.quantity}
-                    onChange={(e) => {
-                      let value = e.target.value;
-
-                      // ❌ minus block
-                      if (value.includes('-')) return;
-
-                      handleProductChange(index, 'quantity', value);
-                    }}
-                  />
-
-                  <select
-                    value={product.unit}
-                    onChange={(e) => handleProductChange(index, 'unit', e.target.value)}
-                    className="rounded-r-md border border-l-0 border-gray-300 px-2 py-2 text-sm text-gray-700"
+              <div className="col-span-5">
+                <Label value="Qty / Date" />
+                {(product as any).quantity_dates.map((entry: any, entryIndex: number) => (
+                  <div
+                    key={entryIndex}
+                    className="grid grid-cols-[1.6fr_100px_1fr_auto] gap-2 mb-2 items-center"
                   >
-                    <option value="">Unit</option>
-                    {allUnits.map((unit) => (
-                      <option key={unit.value} value={unit.value}>
-                        {unit.value}
-                      </option>
-                    ))}
-                  </select>
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="Quantity"
+                      className="min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                      value={entry.quantity}
+                      onChange={(e) => {
+                        const quantity_dates = [...(product as any).quantity_dates];
+                        quantity_dates[entryIndex] = { ...entry, quantity: e.target.value };
+                        handleQuantityDatesChange(index, quantity_dates);
+                      }}
+                    />
+                    <select
+                      aria-label={`Unit for quantity ${entryIndex + 1}`}
+                      value={entry.unit || ''}
+                      onChange={(e) => {
+                        const quantity_dates = [...(product as any).quantity_dates];
+                        quantity_dates[entryIndex] = { ...entry, unit: e.target.value };
+                        handleQuantityDatesChange(index, quantity_dates);
+                      }}
+                      className="min-w-0 rounded border border-gray-300 px-2 py-2 text-sm"
+                    >
+                      <option value="">Unit</option>
+                      {allUnits.map((unit) => (
+                        <option key={unit.value} value={unit.value}>
+                          {unit.value}
+                        </option>
+                      ))}
+                    </select>
+                    <TextInput
+                      type="date"
+                      value={entry.date || ''}
+                      onChange={(e) => {
+                        const quantity_dates = [...(product as any).quantity_dates];
+                        quantity_dates[entryIndex] = { ...entry, date: e.target.value };
+                        handleQuantityDatesChange(index, quantity_dates);
+                      }}
+                    />
+                    {entryIndex > 0 && (
+                      <Button
+                        type="button"
+                        color="failure"
+                        size="xs"
+                        onClick={() => {
+                          const quantity_dates = (product as any).quantity_dates.filter(
+                            (_: any, i: number) => i !== entryIndex,
+                          );
+                          handleQuantityDatesChange(index, quantity_dates);
+                        }}
+                      >
+                        ×
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    size="xs"
+                    color="light"
+                    onClick={() =>
+                      handleQuantityDatesChange(index, [
+                        ...(product as any).quantity_dates,
+                        { quantity: '', date: '' },
+                      ])
+                    }
+                  >
+                    + Add Qty / Date
+                  </Button>
                 </div>
               </div>
 

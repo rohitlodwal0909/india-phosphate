@@ -85,6 +85,9 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const initialForm = {
     company_id: '',
+    company_name: '',
+    company_address: '',
+    gstin: '',
   };
 
   const [formData, setFormData] = useState(initialForm);
@@ -153,6 +156,8 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
   const resetForm = () => {
     setFormData(initialForm);
+    setCreateCustomer(false);
+    setSelectedCustomer(null);
     setProducts([
       ...products,
       {
@@ -171,6 +176,7 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
   };
 
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [createCustomer, setCreateCustomer] = useState(false);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -246,16 +252,28 @@ const DevelopmentModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
           <div className="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-lg">
             <div className="col-span-6">
               <Label value="Company Name" />
-              <Select
-                options={customerOptions}
-                onChange={(v: any) => {
-                  setSelectedCustomer(v);
-                  setFormData({
-                    ...formData,
-                    company_id: v?.value,
-                  });
-                }}
-              />
+              <button type="button" className="mb-2 text-sm text-primary underline" onClick={() => {
+                setCreateCustomer((value) => !value);
+                setSelectedCustomer(null);
+                setFormData((prev) => ({ ...prev, company_id: '', company_name: '', company_address: '', gstin: '' }));
+              }}>
+                {createCustomer ? 'Select existing customer' : 'Add new customer'}
+              </button>
+              {createCustomer ? (
+                <div className="space-y-2">
+                  <TextInput required placeholder="Company name" value={formData.company_name} onChange={(e) => setFormData({ ...formData, company_name: e.target.value })} />
+                  <Textarea required placeholder="Company address" value={formData.company_address} onChange={(e) => setFormData({ ...formData, company_address: e.target.value })} />
+                  <TextInput placeholder="GST number (optional)" value={formData.gstin} onChange={(e) => setFormData({ ...formData, gstin: e.target.value })} />
+                </div>
+              ) : (
+                <Select
+                  options={customerOptions}
+                  onChange={(v: any) => {
+                    setSelectedCustomer(v);
+                    setFormData({ ...formData, company_id: v?.value });
+                  }}
+                />
+              )}
             </div>
             <div className="col-span-6">
               <Label value="Source" />

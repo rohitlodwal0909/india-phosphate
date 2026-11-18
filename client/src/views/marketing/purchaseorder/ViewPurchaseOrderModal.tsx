@@ -130,6 +130,7 @@ const ViewPurchaseOrderModal = ({
                   <th className="p-3 text-left">Product</th>
                   <th className="p-3 text-left">Grade</th>
                   <th className="p-3 text-left">Qty</th>
+                  <th className="p-3 text-left">Date</th>
                   <th className="p-3 text-left">Rate</th>
                   <th className="p-3 text-left">GST</th>
                   <th className="p-3 text-left">Packing</th>
@@ -147,6 +148,15 @@ const ViewPurchaseOrderModal = ({
                       </td>
                       <td className="p-3 text-gray-700">{p.grade}</td>
                       <td className="p-3 text-gray-700">{p.quantity}</td>
+                      <td className="p-3 text-gray-700">
+                        {Array.isArray(p.quantity_dates) && p.quantity_dates.length
+                          ? p.quantity_dates.map((entry: any, entryIndex: number) => (
+                              <div key={entryIndex}>
+                                {entry.quantity || 0} {entry.unit || p.unit || ''} — {entry.date || 'Date not set'}
+                              </div>
+                            ))
+                          : p.quantity_date || '-'}
+                      </td>
                       <td className="p-3 text-gray-700">{p.rate}</td>
                       <td className="p-3 text-gray-700">{p.gst}</td>
                       <td className="p-3 text-gray-700">{p.packing}</td>
@@ -155,7 +165,7 @@ const ViewPurchaseOrderModal = ({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="text-center p-4 text-gray-500">
+                    <td colSpan={8} className="text-center p-4 text-gray-500">
                       No Products Found
                     </td>
                   </tr>

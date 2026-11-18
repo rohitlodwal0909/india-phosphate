@@ -3,6 +3,7 @@ const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
 const db = require("../../../models");
+const syncCustomerMaster = require("../../../helper/syncCustomerMaster");
 const path = require("path");
 
 const { pdfCompressor } = require("../../../helper/pdfCompressor");
@@ -85,9 +86,21 @@ exports.storeSampleRequest = async (req, res) => {
     /* ------------------ Generate SR No ------------------ */
     const year = new Date().getFullYear();
 
-    const lastSR = await SampleRequestModel.findOne({
-      order: [["id", "DESC"]]
-    });
+    const { sampleRequest, sr_no } = await db.sequelize.transaction(async (transaction) => {
+      const customer = await syncCustomerMaster({
+        Customer,
+        companyId: req.body.company_id,
+        details: {
+          ...req.body,
+          company_address: req.body.company_address || undefined
+        },
+        userId: req.admin.id,
+        transaction
+      });
+      const lastSR = await SampleRequestModel.findOne({
+        order: [["id", "DESC"]],
+        transaction
+      });
 
     let sr_no = `S-${year}-001`;
 
@@ -101,9 +114,10 @@ exports.storeSampleRequest = async (req, res) => {
     /* ------------------ Create Sample Request ------------------ */
     const sampleRequest = await SampleRequestModel.create({
       ...req.body,
+      company_id: customer.id,
       user_id: req.admin.id,
       sr_no
-    });
+    }, { transaction });
 
     /* ------------------ Prepare Products ------------------ */
     const productData = items.map((item) => ({
@@ -117,8 +131,10 @@ exports.storeSampleRequest = async (req, res) => {
 
     /* ------------------ Bulk Insert Products ------------------ */
     if (productData.length > 0) {
-      await SampleProductsModel.bulkCreate(productData);
+      await SampleProductsModel.bulkCreate(productData, { transaction });
     }
+      return { sampleRequest, sr_no };
+    });
 
     const title = "Sample Submitted to QC";
 
@@ -142,7 +158,7 @@ exports.storeSampleRequest = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    res.status(error.status || 500).json({
       message: error.message
     });
   }
@@ -189,32 +205,37 @@ exports.updateSampleRequest = async (req, res) => {
 
     /* ------------------ UPDATE MAIN REQUEST ------------------ */
 
-    await sampleRequest.update({
-      ...req.body,
-      docket_remark: req.body.docket_remark,
-      sample_status: req.body.sample_status
+    await db.sequelize.transaction(async (transaction) => {
+      const customer = await syncCustomerMaster({
+        Customer,
+        companyId: req.body.company_id || sampleRequest.company_id,
+        details: {
+          ...req.body,
+          company_address: req.body.company_address || undefined
+        },
+        userId: req.admin?.id,
+        transaction
+      });
+      await sampleRequest.update({
+        ...req.body,
+        company_id: customer.id,
+        docket_remark: req.body.docket_remark,
+        sample_status: req.body.sample_status
+      }, { transaction });
+      await SampleProductsModel.destroy({ where: { sample_id: id }, transaction });
+
+      const productData = items.map((item) => ({
+        sample_id: id,
+        product_id: item.product_id,
+        grade: item.grade,
+        qty: item.qty,
+        sample_type: item.sample_type,
+        file: item.file
+      }));
+      if (productData.length > 0) {
+        await SampleProductsModel.bulkCreate(productData, { transaction });
+      }
     });
-
-    /* ------------------ DELETE OLD PRODUCTS ------------------ */
-
-    await SampleProductsModel.destroy({
-      where: { sample_id: id }
-    });
-
-    /* ------------------ INSERT UPDATED PRODUCTS ------------------ */
-
-    const productData = items.map((item) => ({
-      sample_id: id,
-      product_id: item.product_id,
-      grade: item.grade,
-      qty: item.qty,
-      sample_type: item.sample_type,
-      file: item.file
-    }));
-
-    if (productData.length > 0) {
-      await SampleProductsModel.bulkCreate(productData);
-    }
 
     /* ------------------ NOTIFICATION ------------------ */
 
@@ -242,7 +263,7 @@ exports.updateSampleRequest = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    res.status(error.status || 500).json({
       message: error.message
     });
   }

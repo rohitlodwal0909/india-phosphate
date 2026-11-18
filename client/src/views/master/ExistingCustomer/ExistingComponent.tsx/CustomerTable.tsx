@@ -16,7 +16,11 @@ import ViewCustomerModal from './ViewCustomerModal';
 import EditCustomerModal from '../../Customer/CustomerComponent.tsx/EditCustomerModal';
 import { useNavigate } from 'react-router';
 
-const CustomerTable = () => {
+const CustomerTable = ({
+  onExportData,
+}: {
+  onExportData?: (records: Record<string, any>[]) => void;
+}) => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
   const { existscustomer, loading } = useSelector((state: any) => state.customer);
@@ -36,6 +40,10 @@ const CustomerTable = () => {
   useEffect(() => {
     dispatch(GetExistingCustomer());
   }, [dispatch]);
+
+  useEffect(() => {
+    onExportData?.(existscustomer || []);
+  }, [existscustomer, onExportData]);
 
   const handleEdit = (entry: any) => {
     setEditmodal(true);

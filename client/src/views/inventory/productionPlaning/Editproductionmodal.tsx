@@ -120,6 +120,12 @@ const Editproductionmodal: React.FC<Props> = ({
   permission,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const roleId = Number(permission);
+  const isAdmin = roleId === 1;
+  const isProduction = roleId === 6;
+  const isQa = roleId === 3;
+  const canEditPlanningFields = isAdmin || isQa;
+  const canEditOutput = isAdmin || isProduction;
 
   const materials = useSelector((state: any) => state.products?.productdata) || [];
 
@@ -338,7 +344,7 @@ const Editproductionmodal: React.FC<Props> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!isProduction && !validateForm()) {
       return;
     }
 
@@ -442,6 +448,7 @@ const Editproductionmodal: React.FC<Props> = ({
                 type="date"
                 value={date}
                 onChange={(e) => handleDateChange(e.target.value)}
+                disabled={!canEditPlanningFields}
               />
 
               {errors.date && <p className="mt-1 text-xs text-red-600">{errors.date}</p>}
@@ -598,6 +605,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         onChange={(selected) =>
                           handleRowChange(index, 'equipment_id', selected?.value || '')
                         }
+                        isDisabled={!canEditPlanningFields}
                         isClearable
                         isSearchable
                         styles={selectStyles}
@@ -629,6 +637,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         onChange={(selected) =>
                           handleRowChange(index, 'material_id', selected?.value || '')
                         }
+                        isDisabled={!canEditPlanningFields}
                         isClearable
                         isSearchable
                         styles={selectStyles}
@@ -653,6 +662,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         value={row.quality || ''}
                         placeholder="Enter Quality"
                         onChange={(e) => handleRowChange(index, 'quality', e.target.value)}
+                        disabled={!canEditPlanningFields}
                       />
 
                       {errors[`quality_${index}`] && (
@@ -665,6 +675,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         value={row.target || ''}
                         placeholder="Enter Target"
                         onChange={(e) => handleRowChange(index, 'target', e.target.value)}
+                        disabled={!canEditPlanningFields}
                       />
 
                       {errors[`target_${index}`] && (
@@ -681,6 +692,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         value={row.batch_no || ''}
                         placeholder="Enter Batch Number"
                         onChange={(e) => handleRowChange(index, 'batch_no', e.target.value)}
+                        disabled={!canEditPlanningFields}
                       />
 
                       {errors[`batch_no_${index}`] && (
@@ -697,6 +709,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         value={row.work_order_no || ''}
                         placeholder="Enter Workorder No."
                         onChange={(e) => handleRowChange(index, 'work_order_no', e.target.value)}
+                        disabled={!canEditPlanningFields}
                       />
 
                       {errors[`work_order_no_${index}`] && (
@@ -716,6 +729,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         value={row.labours ?? ''}
                         placeholder="No. of Labours"
                         onChange={(e) => handleRowChange(index, 'labours', e.target.value)}
+                        disabled={!canEditPlanningFields}
                       />
 
                       {errors[`labours_${index}`] && (
@@ -729,6 +743,7 @@ const Editproductionmodal: React.FC<Props> = ({
                         value={row.name_of_person ?? ''}
                         placeholder="Name Of Person"
                         onChange={(e) => handleRowChange(index, 'name_of_person', e.target.value)}
+                        disabled={!canEditPlanningFields}
                       />
 
                       {errors[`name_of_person_${index}`] && (
@@ -743,14 +758,13 @@ const Editproductionmodal: React.FC<Props> = ({
                       ================================================= */}
 
                     <td className="border border-black p-2 align-top">
-                      {permission === '6' && (
-                        <TextInput
-                          type="number"
-                          value={row.output_morning ?? ''}
-                          placeholder="8:00-1:00"
-                          onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
-                        />
-                      )}
+                      <TextInput
+                        type="number"
+                        value={row.output_morning ?? ''}
+                        placeholder="8:00-1:00"
+                        onChange={(e) => handleRowChange(index, 'output_morning', e.target.value)}
+                        disabled={!canEditOutput}
+                      />
                     </td>
 
                     {/* =================================================
@@ -758,14 +772,13 @@ const Editproductionmodal: React.FC<Props> = ({
                       ================================================= */}
 
                     <td className="border border-black p-2 align-top">
-                      {permission === '6' && (
-                        <TextInput
-                          type="number"
-                          value={row.output_evening ?? ''}
-                          placeholder="1:30-6:00"
-                          onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
-                        />
-                      )}
+                      <TextInput
+                        type="number"
+                        value={row.output_evening ?? ''}
+                        placeholder="1:30-6:00"
+                        onChange={(e) => handleRowChange(index, 'output_evening', e.target.value)}
+                        disabled={!canEditOutput}
+                      />
 
                       {errors[`output_${index}`] && (
                         <p className="mt-1 text-xs text-red-600">{errors[`output_${index}`]}</p>
@@ -777,14 +790,12 @@ const Editproductionmodal: React.FC<Props> = ({
                       ================================================= */}
 
                     <td className="border border-black p-2 text-center align-top">
-                      <Button
+                      {canEditPlanningFields && <Button
                         type="button"
                         color="failure"
                         size="sm"
                         onClick={() => removeRow(index)}
-                      >
-                        Remove
-                      </Button>
+                      >Remove</Button>}
                     </td>
                   </tr>
                 ))}
@@ -796,11 +807,11 @@ const Editproductionmodal: React.FC<Props> = ({
               ADD ROW
           ================================================= */}
 
-          <div className="mt-4">
+          {canEditPlanningFields && <div className="mt-4">
             <Button type="button" color="light" onClick={addRow}>
               + Add Row
             </Button>
-          </div>
+          </div>}
 
           {/* =================================================
               FOOTER
@@ -811,8 +822,8 @@ const Editproductionmodal: React.FC<Props> = ({
               Cancel
             </Button>
 
-            <Button type="submit" color="primary">
-              Update Production Planning
+            <Button type="submit" color="primary" disabled={!canEditPlanningFields && !canEditOutput}>
+              {isProduction ? 'Save Output Quantity' : 'Update Production Planning'}
             </Button>
           </div>
         </form>

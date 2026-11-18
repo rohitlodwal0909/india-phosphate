@@ -60,6 +60,9 @@ function ProductionPlaningTable() {
 
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const permission = logindata?.admin?.role_id || null;
+  const roleId = Number(permission);
+  const canManagePlanning = roleId === 1 || roleId === 3;
+  const canEditPlanning = canManagePlanning || roleId === 6;
 
   const productions = useSelector((state: any) => state.productionplanning?.data) || [];
 
@@ -284,7 +287,7 @@ function ProductionPlaningTable() {
 
         return (
           <div className="flex gap-2 notranslate">
-            {permissions.del && (
+            {permissions.del && canManagePlanning && (
               <Tooltip content="Delete">
                 <Button
                   size="sm"
@@ -297,7 +300,7 @@ function ProductionPlaningTable() {
               </Tooltip>
             )}
 
-            {permissions?.edit && (
+            {permissions?.edit && canEditPlanning && (
               <Tooltip content="Edit">
                 <Button
                   size="sm"
@@ -359,7 +362,7 @@ function ProductionPlaningTable() {
               className="p-2 border rounded-md border-gray-300"
             />
 
-            {permissions?.add && (
+            {permissions?.add && canManagePlanning && (
               <Button onClick={() => setaddmodal(true)} color="primary">
                 Create
               </Button>

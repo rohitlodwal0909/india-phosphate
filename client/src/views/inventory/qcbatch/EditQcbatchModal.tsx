@@ -1,5 +1,6 @@
 import { Field } from '@headlessui/react';
-import { Modal, ModalBody, ModalHeader, Button, TextInput, Label, Select } from 'flowbite-react';
+import { Modal, ModalBody, ModalHeader, Button, TextInput, Label, Select as FlowbiteSelect } from 'flowbite-react';
+import Select from 'react-select';
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -8,11 +9,26 @@ import {
   qcBatchUpdate,
 } from 'src/features/Inventorymodule/Qcinventorymodule/QcinventorySlice';
 import { AppDispatch } from 'src/store';
+import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
+import { useSelector } from 'react-redux';
+import { GetProduct } from 'src/features/master/Product/ProductSlice';
 
 const gradeOptions = ['IP', 'BP', 'EP', 'USP', 'FCC', 'Other'];
 
 const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const purchaseOrders = useSelector((state: any) => state.purchaseOrder.purchaseOrders) as any[];
+  const products = useSelector((state: any) => state.products.productdata) as any[];
+
+  useEffect(() => {
+    dispatch(getPurchaseOrders());
+    dispatch(GetProduct());
+  }, [dispatch]);
+
+  const workOrderOptions = (purchaseOrders || [])
+    .filter((po: any) => po.workNo?.work_order_no)
+    .map((po: any) => po.workNo.work_order_no);
+  const productOptions = (products || []).map((product: any) => product.product_name).filter(Boolean);
 
   const [form, setForm] = useState({
     id: '',
@@ -23,6 +39,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
     grade: '',
     material_type: '',
     size: '',
+    work_order_no: '',
   });
 
   const [manualGrade, setManualGrade] = useState('');
@@ -43,6 +60,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           material_type: row?.material_type || '',
           grade: existingGrade,
           size: row?.size || '',
+          work_order_no: row?.work_order_no || '',
         });
         setManualGrade('');
       } else {
@@ -56,6 +74,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           material_type: row?.material_type || '',
           grade: 'Manual',
           size: row?.size || '',
+          work_order_no: row?.work_order_no || '',
         });
         setManualGrade(existingGrade);
       }
@@ -99,6 +118,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           material_type: form.material_type,
           grade: finalGrade, // ✅ correct grade send
           size: form.size,
+          work_order_no: form.work_order_no,
           user_id: logindata?.admin?.id,
         }),
       );
@@ -129,6 +149,18 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
           <h3 className="mb-5 text-lg font-normal text-gray-500">Edit Batch</h3>
 
           <div className="grid grid-cols-2 gap-4 text-left">
+            <Field className="col-span-2">
+              <Label className="mb-2 block font-medium">Work Order No.</Label>
+              <FlowbiteSelect name="work_order_no" value={form.work_order_no} onChange={handleChange}>
+                <option value="">Select Work Order</option>
+                {workOrderOptions.map((workOrderNo: string) => (
+                  <option key={workOrderNo} value={workOrderNo}>
+                    {workOrderNo}
+                  </option>
+                ))}
+              </FlowbiteSelect>
+            </Field>
+
             <Field>
               <Label className="mb-2 block font-medium">Batch Number</Label>
               <TextInput name="batch_no" value={form.batch_no} onChange={handleChange} />
@@ -136,7 +168,16 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
 
             <Field>
               <Label className="mb-2 block font-medium">Product Name</Label>
-              <TextInput name="product_name" value={form.product_name} onChange={handleChange} />
+              <Select
+                options={productOptions.map((productName: string) => ({ value: productName, label: productName }))}
+                value={productOptions
+                  .map((productName: string) => ({ value: productName, label: productName }))
+                  .find((option: any) => option.value === form.product_name) ||
+                  (form.product_name ? { value: form.product_name, label: form.product_name } : null)}
+                onChange={(option: any) => setForm((prev) => ({ ...prev, product_name: option?.value || '' }))}
+                placeholder="Search or select product"
+                isClearable
+              />
             </Field>
 
             <Field>
@@ -166,7 +207,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
 
             <Field>
               <Label className="mb-2 block font-medium">Grade</Label>
-              <Select name="grade" value={form.grade} onChange={handleChange}>
+              <FlowbiteSelect name="grade" value={form.grade} onChange={handleChange}>
                 <option value="">Select Grade</option>
                 {gradeOptions.map((g) => (
                   <option key={g} value={g}>
@@ -174,7 +215,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
                   </option>
                 ))}
                 <option value="Manual">Manual</option>
-              </Select>
+              </FlowbiteSelect>
             </Field>
 
             <Field className="col-span-2">

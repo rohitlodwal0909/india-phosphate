@@ -266,7 +266,7 @@ exports.getAllProductionResults = async (req, res, next) => {
     // ✅ ADD TOTALS
     const formattedData = data.map((batch) => {
       const batchJSON = batch.toJSON();
-      batchJSON.work_order_no = workOrdersByBatch.get(
+      batchJSON.work_order_no = batchJSON.work_order_no || workOrdersByBatch.get(
         String(batchJSON.qc_batch_number || "").trim().toLowerCase()
       ) || null;
 

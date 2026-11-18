@@ -46,6 +46,12 @@ exports.index = async (req, res, next) => {
 // Create GRN Entry
 exports.create = async (req, res, next) => {
   try {
+    const roleId = Number(req.admin?.role_id);
+    if (![1, 3].includes(roleId)) {
+      return res.status(403).json({ message: "Only QA and Admin can create production planning." });
+    }
+    const isAdmin = roleId === 1;
+
     const { date, items } = req.body;
 
     /* ================= VALIDATION ================= */
@@ -94,8 +100,8 @@ exports.create = async (req, res, next) => {
         target,
         name_of_person,
         /* Output */
-        output_morning,
-        output_evening,
+        output_morning: isAdmin ? output_morning : null,
+        output_evening: isAdmin ? output_evening : null,
 
         /* Admin */
         user_id: req.admin.id
@@ -135,6 +141,14 @@ exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { date, items } = req.body;
+    const roleId = Number(req.admin?.role_id);
+    const isAdmin = roleId === 1;
+    const isQa = roleId === 3;
+    const isProduction = roleId === 6;
+
+    if (!isAdmin && !isQa && !isProduction) {
+      return res.status(403).json({ message: "You cannot edit production planning." });
+    }
 
     /* =====================================================
        VALIDATION
@@ -161,6 +175,37 @@ exports.update = async (req, res, next) => {
     if (!firstPlanning) {
       return res.status(404).json({
         message: "Production Planning not found"
+      });
+    }
+
+    if (isProduction) {
+      if (items.some((item) => !item.id)) {
+        return res.status(403).json({ message: "Production can only update output quantity on existing rows." });
+      }
+
+      const updatedItems = [];
+      for (const item of items) {
+        const planning = await ProductionPlanning.findOne({
+          where: { id: item.id, date: firstPlanning.date }
+        });
+        if (!planning) {
+          return res.status(404).json({ message: `Production Planning with ID ${item.id} not found for this date.` });
+        }
+
+        const outputUpdates = {};
+        if (Object.prototype.hasOwnProperty.call(item, "output_morning")) {
+          outputUpdates.output_morning = item.output_morning;
+        }
+        if (Object.prototype.hasOwnProperty.call(item, "output_evening")) {
+          outputUpdates.output_evening = item.output_evening;
+        }
+        await planning.update(outputUpdates);
+        updatedItems.push(planning);
+      }
+
+      return res.status(200).json({
+        message: "Output quantities updated successfully.",
+        data: updatedItems
       });
     }
 
@@ -246,7 +291,7 @@ exports.update = async (req, res, next) => {
           });
         }
 
-        await planning.update({
+        const planningUpdates = {
           equipment_id: item.equipment_id,
 
           material_id: item.material_id,
@@ -261,15 +306,16 @@ exports.update = async (req, res, next) => {
           target: item.target,
           name_of_person: item.name_of_person,
 
-          output_morning: item.output_morning,
-
-          output_evening: item.output_evening,
-
           // Date bhi update hoga
           date: date,
 
           user_id: req.admin.id
-        });
+        };
+        if (isAdmin) {
+          planningUpdates.output_morning = item.output_morning;
+          planningUpdates.output_evening = item.output_evening;
+        }
+        await planning.update(planningUpdates);
 
         updatedItems.push(planning);
       } else {
@@ -292,9 +338,9 @@ exports.update = async (req, res, next) => {
           target: item.target,
           name_of_person: item.name_of_person,
 
-          output_morning: item.output_morning,
+          output_morning: isAdmin ? item.output_morning : null,
 
-          output_evening: item.output_evening,
+          output_evening: isAdmin ? item.output_evening : null,
 
           date: date,
 
@@ -326,6 +372,10 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const roleId = Number(req.admin?.role_id);
+    if (![1, 3].includes(roleId)) {
+      return res.status(403).json({ message: "Only QA and Admin can delete production planning." });
+    }
 
     if (!id) {
       return res.status(400).json({

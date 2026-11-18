@@ -54,6 +54,18 @@ export const addPotOppertunity = createAsyncThunk(
   },
 );
 
+export const importPotentialOpportunities = createAsyncThunk(
+  'PotOppertunity/import',
+  async (rows: any[], { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('/import-potential-oppertunity', { rows });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message || 'Excel import failed');
+    }
+  },
+);
+
 export const updatePotOppertunity = createAsyncThunk(
   'PotOppertunity/update',
   async (updatedUser: any) => {

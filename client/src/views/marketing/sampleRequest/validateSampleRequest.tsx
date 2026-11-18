@@ -3,8 +3,8 @@ export const validateSampleRequest = (formData: any, items: any[], setErrors: an
 
   /* ================= COMPANY VALIDATION ================= */
 
-  if (!formData.company_id) {
-    newErrors.company_id = 'Please select company';
+  if (!formData.company_id && !(formData.company_name?.trim() && formData.company_address?.trim())) {
+    newErrors.company_id = 'Select a company or enter a new company name and address';
   }
 
   if (!String(formData.contact_person ?? '').trim()) {

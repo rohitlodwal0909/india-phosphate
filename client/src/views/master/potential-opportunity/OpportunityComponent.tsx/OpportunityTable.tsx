@@ -16,8 +16,13 @@ import NotPermission from 'src/utils/NotPermission';
 import ViewCustomerModal from './ViewCustomerModal';
 import Note from './NoteModal';
 import { getPotOppertunity } from 'src/features/master/Customer/PotentialOpportunitySlice';
+import ImportOpportunityModal from './ImportOpportunityModal';
 
-const OpportunityTable = () => {
+const OpportunityTable = ({
+  onExportData,
+}: {
+  onExportData?: (records: Record<string, any>[]) => void;
+}) => {
   const logindata = useSelector((state: any) => state.authentication?.logindata);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -25,6 +30,7 @@ const OpportunityTable = () => {
 
   const [editmodal, setEditmodal] = useState(false);
   const [addmodal, setAddmodal] = useState(false);
+  const [importModal, setImportModal] = useState(false);
   const [notemodal, setNotemodal] = useState(false);
   const [deletemodal, setDeletemodal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
@@ -40,6 +46,10 @@ const OpportunityTable = () => {
   useEffect(() => {
     dispatch(getPotOppertunity());
   }, [dispatch]);
+
+  useEffect(() => {
+    onExportData?.(potoppertunity || []);
+  }, [potoppertunity, onExportData]);
 
   const handleEdit = (entry: any) => {
     setEditmodal(true);
@@ -107,15 +117,20 @@ const OpportunityTable = () => {
           />
         )}
         {permissions?.add && (
-          <Button
-            size="sm"
-            className="p-0 bg-primary border rounded-md"
-            onClick={() => {
-              setAddmodal(true);
-            }}
-          >
-            Create Potential Opportunity
-          </Button>
+          <>
+            <Button size="sm" color="light" onClick={() => setImportModal(true)}>
+              Upload Excel
+            </Button>
+            <Button
+              size="sm"
+              className="p-0 bg-primary border rounded-md"
+              onClick={() => {
+                setAddmodal(true);
+              }}
+            >
+              Create Potential Opportunity
+            </Button>
+          </>
         )}
       </div>
 
@@ -336,6 +351,7 @@ const OpportunityTable = () => {
         placeModal={viewModal}
       />
       <AddCustomerModal setShowmodal={setAddmodal} show={addmodal} />
+      <ImportOpportunityModal show={importModal} onClose={() => setImportModal(false)} />
       <Note
         placeModal={notemodal}
         setPlaceModal={() => setNotemodal(false)}

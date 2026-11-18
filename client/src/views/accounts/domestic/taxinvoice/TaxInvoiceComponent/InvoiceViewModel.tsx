@@ -348,7 +348,10 @@ const InvoiceViewModel = ({ placeModal, setPlaceModal, selectedRow }) => {
 
                   {/* DESCRIPTION COLUMN */}
                   <td className="border border-black p-2">
-                    <div className="font-semibold">{p?.Product?.product_name || '-'}</div>
+                    <div className="font-semibold">
+                      {p?.item_category && p.item_category !== 'Product' ? `${p.item_category} - ` : ''}
+                      {p?.item_name || p?.Product?.product_name || '-'}
+                    </div>
 
                     {/* Batch Lines */}
                     {(() => {

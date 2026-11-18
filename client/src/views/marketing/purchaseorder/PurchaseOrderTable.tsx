@@ -33,6 +33,8 @@ interface PurchaseOrderDataType {
   id: number;
   user_id: number;
   po_no: string;
+  export: boolean;
+  domestic: boolean;
   customers?: {
     id: number;
     company_name: string;
@@ -298,7 +300,22 @@ const PurchaseOrderTable = () => {
         <>
           <div className="w-full overflow-x-auto">
             <div className="min-w-full">
-              <TableComponent table={table} flexRender={flexRender} columns={columns} />
+              <TableComponent
+                table={table}
+                flexRender={flexRender}
+                columns={columns}
+                rowClassName={(row: any) => {
+                  if (row?.original.export) {
+                    return 'bg-green-50';
+                  }
+
+                  if (row?.original.domestic) {
+                    return 'bg-yellow-50';
+                  } else {
+                    return 'bg-blue-50';
+                  }
+                }}
+              />
             </div>
           </div>
           <PaginationComponent table={table} />
