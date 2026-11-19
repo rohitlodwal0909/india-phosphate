@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: "Product"
       },
+
       master_item_id: DataTypes.INTEGER,
       item_name: DataTypes.STRING,
       grade: DataTypes.STRING,
