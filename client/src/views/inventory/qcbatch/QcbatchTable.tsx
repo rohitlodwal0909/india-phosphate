@@ -114,7 +114,7 @@ function QcbatchTable() {
       cell: (info) => info.getValue() || '-',
     }),
     columnHelper.accessor('product_name', {
-      header: 'Product Name',
+      header: 'Product Type',
       cell: (info) => info.getValue() || '-',
     }),
     columnHelper.accessor('work_order_no', {

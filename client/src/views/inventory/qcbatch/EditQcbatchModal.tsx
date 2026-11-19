@@ -11,24 +11,24 @@ import {
 import { AppDispatch } from 'src/store';
 import { getPurchaseOrders } from 'src/features/marketing/PurchaseOrderSlice';
 import { useSelector } from 'react-redux';
-import { GetProduct } from 'src/features/master/Product/ProductSlice';
+import { GetFormula } from 'src/features/master/Formula/FormulaSlice';
 
 const gradeOptions = ['IP', 'BP', 'EP', 'USP', 'FCC', 'Other'];
 
 const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
   const dispatch = useDispatch<AppDispatch>();
   const purchaseOrders = useSelector((state: any) => state.purchaseOrder.purchaseOrders) as any[];
-  const products = useSelector((state: any) => state.products.productdata) as any[];
+  const formulas = useSelector((state: any) => state.formula?.Formuladata) as any[];
 
   useEffect(() => {
     dispatch(getPurchaseOrders());
-    dispatch(GetProduct());
+    dispatch(GetFormula());
   }, [dispatch]);
 
   const workOrderOptions = (purchaseOrders || [])
     .filter((po: any) => po.workNo?.work_order_no)
     .map((po: any) => po.workNo.work_order_no);
-  const productOptions = (products || []).map((product: any) => product.product_name).filter(Boolean);
+  const productOptions = Array.from(new Set((formulas || []).map((formula: any) => formula.product_type).filter(Boolean)));
 
   const [form, setForm] = useState({
     id: '',
@@ -167,7 +167,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
             </Field>
 
             <Field>
-              <Label className="mb-2 block font-medium">Product Name</Label>
+              <Label className="mb-2 block font-medium">Product Type</Label>
               <Select
                 options={productOptions.map((productName: string) => ({ value: productName, label: productName }))}
                 value={productOptions
@@ -175,7 +175,7 @@ const EditQcbatchModal = ({ placeModal, setPlaceModal, logindata, row }) => {
                   .find((option: any) => option.value === form.product_name) ||
                   (form.product_name ? { value: form.product_name, label: form.product_name } : null)}
                 onChange={(option: any) => setForm((prev) => ({ ...prev, product_name: option?.value || '' }))}
-                placeholder="Search or select product"
+                placeholder="Search or select product type"
                 isClearable
               />
             </Field>
