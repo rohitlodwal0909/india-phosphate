@@ -140,11 +140,11 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
 
       formDataObj.append('items', JSON.stringify(itemsWithoutFile));
 
-      // items.forEach((item, index) => {
-      //   if (item.file) {
-      //     formDataObj.append(`file_${index}`, item.file);
-      //   }
-      // });
+      items.forEach((item, index) => {
+        if (item.file) {
+          formDataObj.append(`file_${index}`, item.file);
+        }
+      });
 
       await dispatch(addSampleRequest(formDataObj)).unwrap();
 
@@ -318,7 +318,7 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
           <div className="bg-gray-50 p-5 rounded-lg border">
             <h3 className="font-semibold text-gray-700 mb-4">Sample Product Details</h3>
 
-            {items.map((_, index) => (
+            {items.map((item, index) => (
               <div key={index} className="grid grid-cols-12 gap-4 mb-5 items-end">
                 {/* PRODUCT */}
                 <div className="col-span-3">
@@ -394,12 +394,13 @@ const SampleRequestModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                     htmlFor={`file-${index}`}
                     className="flex items-center justify-center w-full h-11 px-3 border border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-100 text-xs text-gray-600"
                   >
-                    Upload
+                    <span className="truncate">{item.file?.name || 'Upload specification'}</span>
                   </label>
 
                   <input
                     id={`file-${index}`}
                     type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
                     className="hidden"
                     onChange={(e: any) => handleItem(index, 'file', e.target.files[0])}
                   />

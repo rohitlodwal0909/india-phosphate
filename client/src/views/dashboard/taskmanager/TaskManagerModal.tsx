@@ -27,6 +27,7 @@ const TaskManagerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
     task_title: '',
     assign_to: '',
     pending_because_of: '',
+    waiting_for: '',
     priority: '',
     due_date: '',
     task_description: '',
@@ -190,6 +191,20 @@ const TaskManagerModal: React.FC<Props> = ({ openModal, setOpenModal }) => {
                   value={formData.pending_because_of}
                   onChange={(e) => setFormData({ ...formData, pending_because_of: e.target.value })}
                 />
+              </div>
+
+              <div className="col-span-12 md:col-span-6">
+                <Label value="Waiting For" className="mb-2 block" />
+                <select
+                  className="w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm"
+                  value={formData.waiting_for}
+                  onChange={(e) => setFormData({ ...formData, waiting_for: e.target.value })}
+                >
+                  <option value="">Select department / party</option>
+                  {['Customer', 'Manager', 'QA', 'QC', 'Accounts', 'Production', 'Dispatch', 'Vendor', 'Freight Forwarder'].map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="col-span-12 md:col-span-6">

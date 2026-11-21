@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { Badge, Button, Dropdown, Avatar } from 'flowbite-react';
+import { Badge, Button, Dropdown } from 'flowbite-react';
 import SimpleBar from 'simplebar-react';
 import { useLocation, useNavigate } from 'react-router';
 import { useEffect, useState } from 'react';
@@ -14,9 +14,8 @@ import { io } from 'socket.io-client';
 
 import { AppDispatch } from 'src/store';
 
-import notificationicon from '../../../../assets/images/logos/notification2.png';
-import notificationicon2 from '../../../../assets/images/logos/notification.png';
 import { ImageUrl } from 'src/constants/contant';
+import { getNotificationStyle } from 'src/utils/notificationStyle';
 
 const socket = io(ImageUrl);
 
@@ -127,22 +126,17 @@ const Notifications = () => {
         </div>
 
         <SimpleBar className="max-h-80 mt-3">
-          {filteredUnreadNotifications.map((links, index) => (
+          {filteredUnreadNotifications.map((links, index) => {
+            const style = getNotificationStyle(links);
+            return (
             <Dropdown.Item
               key={index}
-              className="px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
+              className={`px-6 py-3 flex justify-between items-center group/link w-full ${style.container}`}
               onClick={() => handleRead(links)}
             >
               <div className="flex items-center w-full">
-                <div
-                  className={`h-11 w-11 flex-shrink-0 rounded-full flex justify-center items-center ${links.bgcolor}`}
-                >
-                  <Avatar
-                    img={links.is_read === 0 ? notificationicon : notificationicon2}
-                    rounded
-                    status={links.is_read === 0 ? 'busy' : 'online'}
-                    statusPosition="bottom-right"
-                  />
+                <div className={`h-11 w-11 flex-shrink-0 rounded-full flex justify-center items-center ${style.iconContainer}`}>
+                  <Icon icon={style.icon} height={22} className={style.iconColor} />
                 </div>
 
                 <div className="ps-4 flex justify-between w-full">
@@ -152,6 +146,9 @@ const Notifications = () => {
                     >
                       {links.title}
                     </h5>
+                    <span className={`mb-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.iconContainer} ${style.iconColor}`}>
+                      {style.module} <span className="px-1 opacity-60">›</span> {style.menu}
+                    </span>
                     <div
                       className={`text-xs line-clamp-1 ${links.is_read == 0 ? 'text-gray-800 font-medium' : 'text-gray-400'}`}
                     >
@@ -182,7 +179,8 @@ const Notifications = () => {
                 </div>
               </div>
             </Dropdown.Item>
-          ))}
+            );
+          })}
         </SimpleBar>
 
         <div className="pt-5 px-6">

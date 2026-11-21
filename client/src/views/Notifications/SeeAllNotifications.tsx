@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Pagination } from 'flowbite-react';
+import { Pagination } from 'flowbite-react';
+import { Icon } from '@iconify/react';
 import { useLocation, useNavigate } from 'react-router';
-import notificationicon from '../../assets/images/logos/notification2.png';
-import notificationicon2 from '../../assets/images/logos/notification.png';
 import { GetNotification, ReadNotification } from 'src/features/Notifications/NotificationSlice';
 import { toast } from 'react-toastify';
 import CardBox from 'src/components/shared/CardBox';
 import BreadcrumbComp from 'src/layouts/full/shared/breadcrumb/BreadcrumbComp';
 import { AppDispatch } from 'src/store';
+import { getNotificationStyle } from 'src/utils/notificationStyle';
 
 const SeeAllNotifications = () => {
   // const logindata = JSON.parse(localStorage.getItem("logincheck") || "{}");
@@ -89,22 +89,17 @@ const SeeAllNotifications = () => {
 
       <CardBox>
         <ul className="w-full rounded-sm">
-          {paginatedNotifications.map((links) => (
+          {paginatedNotifications.map((links) => {
+            const style = getNotificationStyle(links);
+            return (
             <li
               onClick={() => handleRead(links)}
-              className={`px-6 py-3 cursor-pointer flex justify-between items-center w-full hover:bg-gray-100`}
+              className={`px-6 py-3 cursor-pointer flex justify-between items-center w-full hover:brightness-95 ${style.container}`}
               key={links.id}
             >
               <div className="flex items-center w-full">
-                <div
-                  className={`h-11 w-11 flex-shrink-0 rounded-full flex justify-center items-center ${links.bgcolor}`}
-                >
-                  <Avatar
-                    img={links.is_read == 0 ? notificationicon : notificationicon2}
-                    rounded
-                    status={links.is_read == 0 ? 'online' : 'busy'}
-                    statusPosition="bottom-right"
-                  />
+                <div className={`h-11 w-11 flex-shrink-0 rounded-full flex justify-center items-center ${style.iconContainer}`}>
+                  <Icon icon={style.icon} height={22} className={style.iconColor} />
                 </div>
 
                 <div className="ps-4 flex justify-between w-full">
@@ -118,6 +113,9 @@ const SeeAllNotifications = () => {
                     >
                       {links.title}
                     </h5>
+                    <span className={`mb-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.iconContainer} ${style.iconColor}`}>
+                      {style.module} <span className="px-1 opacity-60">›</span> {style.menu}
+                    </span>
                     <div className="text-xs text-darklink line-clamp-1">{links.message}</div>
                   </div>
 
@@ -144,7 +142,8 @@ const SeeAllNotifications = () => {
                 </div>
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
 
         {/* 🔽 Pagination */}

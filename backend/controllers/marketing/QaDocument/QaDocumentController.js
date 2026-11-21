@@ -214,29 +214,52 @@ exports.updateQaDocument = async (req, res) => {
       const stepOneFields = {
         doc_name: item.doc_name || null,
         qa_person_id: item.qa_person_id || null,
-        share_customer_by: item.share_customer_by || null,
         file: uploadedFile || item.old_file || null
       };
 
       if (existing) {
         submittedIds.add(String(existing.id));
         if (isAdmin) {
+          const qaStatusChanged = (item.status || null) !== (existing.status || null);
+          const marketingReview = item.marketing_review === "accepted" || item.marketing_review === "rejected"
+            ? item.marketing_review
+            : null;
+          const canShareWithCustomer = !qaStatusChanged && marketingReview === "accepted";
           await existing.update({
             ...stepOneFields,
             received_marketing_id: item.received_marketing_id || null,
             status: item.status || null,
             approval_from: item.approval_from === "admin" ? "admin" : "marketing",
             comment: item.comment || null,
-            admin_remark: item.approval_from === "admin" ? item.admin_remark || null : null
+            admin_remark: item.approval_from === "admin" ? item.admin_remark || null : null,
+            marketing_review: qaStatusChanged ? null : marketingReview,
+            share_customer_by: canShareWithCustomer ? item.share_customer_by || null : null
           });
         } else {
           const updates = { ...stepOneFields };
           if (isQa && Number(existing.qa_person_id) === userId) {
+            const qaStatusChanged = (item.status || null) !== (existing.status || null);
             updates.status = item.status || null;
             updates.comment = item.comment || null;
             updates.admin_remark = item.approval_from === "admin" ? item.admin_remark || null : null;
             updates.approval_from = item.approval_from === "admin" ? "admin" : "marketing";
             updates.received_marketing_id = item.received_marketing_id || null;
+            if (qaStatusChanged) {
+              updates.marketing_review = null;
+              updates.share_customer_by = null;
+            }
+          } else if (isMarketing) {
+            const requestedReview = item.marketing_review;
+            if (requestedReview === "accepted" || requestedReview === "rejected") {
+              if (!existing.status) {
+                return res.status(400).json({ success: false, message: "QA review must be completed before Marketing review." });
+              }
+              updates.marketing_review = requestedReview;
+            } else if (item.share_customer_by && existing.marketing_review !== "accepted") {
+              return res.status(400).json({ success: false, message: "Accept the QA review before continuing to Step 3." });
+            }
+            const effectiveReview = updates.marketing_review || existing.marketing_review;
+            updates.share_customer_by = effectiveReview === "accepted" ? item.share_customer_by || null : null;
           }
           await existing.update(updates);
         }

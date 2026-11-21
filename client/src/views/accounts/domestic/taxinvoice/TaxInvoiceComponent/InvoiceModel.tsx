@@ -10,9 +10,25 @@ const InvoiceModel = ({ formData, setFormData, dispatchList, setBatches }) => {
 
     setBatches(selectedDispatch?.batches || []);
 
+    const toDateInputValue = (dateValue: any) => {
+      if (!dateValue) return '';
+      if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
+        return dateValue.slice(0, 10);
+      }
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     setFormData((prev) => ({
       ...prev,
       dispatch_id: dispatchId,
+      from_to: toDateInputValue(selectedDispatch?.poentry?.po_date || selectedDispatch?.poentry?.created_at),
+      delivery_note: selectedDispatch?.lr_no || '',
+      delivery_note_date: toDateInputValue(selectedDispatch?.dispatch_date),
       buyer:
         (selectedDispatch?.poentry?.customers?.company_name || '') +
         '\n' +

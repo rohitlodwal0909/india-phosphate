@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true
       },
+      waiting_for: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+      },
 
       // Priority => Low | Medium | High | Urgent
       priority: {

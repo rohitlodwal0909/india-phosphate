@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 import React from 'react';
 
 const CustomCollapse: React.FC<{
-  label: string;
+  label: React.ReactNode;
   open: boolean;
   children: any;
   onClick: () => void;
@@ -22,7 +22,7 @@ const CustomCollapse: React.FC<{
       >
         <div className="flex items-center gap-3">
           <Icon icon={icon} height={18} />
-          <span className="truncate max-w-28">{label}</span>
+          <span className="min-w-0 flex-1">{label}</span>
         </div>
         <HiOutlineChevronDown
           className={twMerge('transform transition-transform', open ? 'rotate-180' : 'rotate-0')}

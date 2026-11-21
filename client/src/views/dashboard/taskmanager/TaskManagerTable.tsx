@@ -37,6 +37,7 @@ interface TaskDataType {
   status: string;
   task_description: string;
   pending_because_of?: string | null;
+  waiting_for?: string | null;
 
   users?: {
     id: number;
@@ -203,6 +204,11 @@ const TaskManagerTable = () => {
       columnHelper.accessor('pending_because_of', {
         header: 'Pending Because Of',
         cell: (info) => <div className="max-w-[280px] whitespace-pre-wrap break-words">{info.getValue() || '-'}</div>,
+      }),
+
+      columnHelper.accessor('waiting_for', {
+        header: 'Waiting For',
+        cell: (info) => <div>{info.getValue() || '-'}</div>,
       }),
 
       /* PRIORITY */

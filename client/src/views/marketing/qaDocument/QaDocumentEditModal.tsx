@@ -56,6 +56,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
     share_customer_by: '',
     status: '',
     approval_from: 'marketing',
+    marketing_review: '',
     comment: '',
     admin_remark: '',
     file: null,
@@ -100,6 +101,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
         share_customer_by: item.share_customer_by || '',
         status: item.status || '',
         approval_from: item.approval_from || 'marketing',
+        marketing_review: item.marketing_review || '',
         comment: item.comment || '',
         admin_remark: item.admin_remark || '',
         file: null,
@@ -159,6 +161,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
             share_customer_by: item.share_customer_by,
             status: item.status,
             approval_from: item.approval_from || 'marketing',
+            marketing_review: item.marketing_review || '',
             comment: item.comment,
             admin_remark: item.admin_remark,
             old_file: item.old_file || '',
@@ -260,8 +263,8 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
 
             {coaItems.map((item, index) => {
               const step2Enabled = !!selectedRow?.qa_document?.[index]?.doc_name;
-
-              const step3Enabled = !!selectedRow?.qa_document?.[index]?.status;
+              const qaReviewComplete = Boolean(item.status);
+              const step3Enabled = item.marketing_review === 'accepted';
               const step2Editable = step2Enabled && canEditQaStep;
 
               return (
@@ -466,12 +469,62 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                     </div>
                   </div>
 
+                  {/* MARKETING REVIEW AFTER QA COMPLETES STEP 2 */}
+                  {qaReviewComplete && (
+                    <div className={`border rounded-xl p-5 mb-5 ${item.marketing_review === 'rejected' ? 'border-red-300 bg-red-50' : item.marketing_review === 'accepted' ? 'border-green-300 bg-green-50' : 'border-indigo-200 bg-indigo-50'}`}>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <h5 className="font-semibold text-indigo-800">Marketing Review</h5>
+                          <p className="text-sm text-gray-600 mt-1">QA review is complete. Accept it to continue to Step 3.</p>
+                        </div>
+                        {canEditMarketingSteps ? (
+                          <div className="flex gap-3">
+                            <label className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name={`marketing-review-${item.id || index}`}
+                                checked={item.marketing_review === 'accepted'}
+                                onChange={() => handleItem(index, 'marketing_review', 'accepted')}
+                              />
+                              <span>Accept</span>
+                            </label>
+                            <label className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name={`marketing-review-${item.id || index}`}
+                                checked={item.marketing_review === 'rejected'}
+                                onChange={() => {
+                                  handleItem(index, 'marketing_review', 'rejected');
+                                  handleItem(index, 'share_customer_by', '');
+                                  toast.error('QA review rejected. Please check Step 1. The next step will remain locked.');
+                                }}
+                              />
+                              <span>Reject</span>
+                            </label>
+                          </div>
+                        ) : (
+                          <span className={`rounded-full px-3 py-1 text-sm font-medium ${item.marketing_review === 'accepted' ? 'bg-green-100 text-green-800' : item.marketing_review === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700'}`}>
+                            {item.marketing_review ? item.marketing_review.toUpperCase() : 'Pending Marketing Review'}
+                          </span>
+                        )}
+                      </div>
+                      {item.marketing_review === 'rejected' && (
+                        <p className="mt-3 text-sm font-medium text-red-700">Rejected: Please check Step 1. The next step will remain locked.</p>
+                      )}
+                    </div>
+                  )}
+
                   {/* STEP 3 */}
                   <div
                     className={`border rounded-xl p-5 ${
                       step3Enabled && canEditMarketingSteps ? 'bg-green-50' : 'bg-gray-100 opacity-60 pointer-events-none'
                     }`}
                   >
+                    {item.marketing_review === 'rejected' && (
+                      <p className="mb-4 rounded-lg bg-red-100 p-3 text-sm font-medium text-red-700">
+                        QA review was rejected. Please check Step 1; the next step is locked.
+                      </p>
+                    )}
                     <div className="flex items-center justify-between mb-4">
                       <h5 className="font-semibold text-green-700">Step 3 : Share With Customer</h5>
 

@@ -87,16 +87,17 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
   const GST_TYPES = ['CGST', 'SGST', 'IGST', 'UTGST'];
 
   const addGST = () => {
-    const currentGST = Array.isArray(charges.gst) ? charges.gst : [];
+    setCharges((prev) => {
+      const currentGST = Array.isArray(prev.gst) ? prev.gst : [];
+      const availableGST = GST_TYPES.find((type) => !currentGST.some((gst) => gst.type === type));
 
-    const availableGST = GST_TYPES.find((type) => !currentGST.some((g) => g.type === type));
+      if (!availableGST) return prev;
 
-    if (!availableGST) return;
-
-    setCharges((prev) => ({
-      ...prev,
-      gst: [...currentGST, { type: availableGST, rate: '' }],
-    }));
+      return {
+        ...prev,
+        gst: [...currentGST, { type: availableGST, rate: '' }],
+      };
+    });
   };
 
   const handleGSTChange = (index, field, value) => {
@@ -500,14 +501,14 @@ const Productsandcharges = ({ batches, products, setProducts, charges, setCharge
               <option value="28">28%</option>
             </select>
 
-            <Button size="xs" color="failure" onClick={() => removeGST(index)}>
+            <Button type="button" size="xs" color="failure" onClick={() => removeGST(index)}>
               X
             </Button>
           </div>
         ))}
 
         {/* ADD GST */}
-        <Button size="xs" color="success" onClick={addGST}>
+        <Button type="button" size="xs" color="success" onClick={addGST}>
           + Add GST
         </Button>
       </div>

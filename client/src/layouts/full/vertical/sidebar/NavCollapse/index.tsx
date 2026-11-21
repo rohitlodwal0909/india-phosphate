@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 import { CustomCollapse } from "../CustomCollapse";
 import React from "react";
+import { useSelector } from 'react-redux';
+import { getUnreadNotificationCount } from 'src/utils/notificationCount';
 
 
 
@@ -28,6 +30,12 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item }: any) => {
 
   // Manage open/close state for the collapse
   const [isOpen, setIsOpen] = useState<boolean>(!!activeDD);
+  const notifications = useSelector((state: any) => state.notifications?.notificationData || []);
+  const collectUrls = (menuItem: any): string[] => [
+    ...(menuItem.url ? [menuItem.url] : []),
+    ...(menuItem.children || []).flatMap((child: any) => collectUrls(child)),
+  ];
+  const unreadCount = getUnreadNotificationCount(notifications, collectUrls(item));
 
   useEffect(() => {
     const loadTranslation = async () => {
@@ -46,7 +54,19 @@ const NavCollapse: React.FC<NavCollapseProps> = ({ item }: any) => {
 
   return (
     <CustomCollapse
-      label={translatedLabel || `${item.name}`}
+      label={
+        <span className="flex w-full items-center justify-between gap-2">
+          <span className="truncate">{translatedLabel || `${item.name}`}</span>
+          {unreadCount > 0 && (
+            <span
+              aria-label={`${unreadCount} unread notifications`}
+              className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-error px-1.5 text-[10px] font-semibold leading-none text-white"
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </span>
+      }
       open={isOpen}
       onClick={handleToggle}
       icon={item.icon} 

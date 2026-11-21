@@ -209,11 +209,11 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
 
       formDataObj.append('items', JSON.stringify(itemsWithoutFile));
 
-      // items.forEach((item, index) => {
-      //   if (item.file) {
-      //     formDataObj.append(`file_${index}`, item.file);
-      //   }
-      // });
+      items.forEach((item, index) => {
+        if (item.file) {
+          formDataObj.append(`file_${index}`, item.file);
+        }
+      });
 
       await dispatch(
         updateSampleRequest({
@@ -530,12 +530,15 @@ const SampleRequestEditModal: React.FC<Props> = ({ openModal, setOpenModal, sele
                     htmlFor={`file-${index}`}
                     className="flex items-center justify-center w-full h-11 px-3 border border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-100 text-xs text-gray-600"
                   >
-                    Upload
+                    <span className="truncate">
+                      {items[index].file?.name || (items[index].existing_file ? 'Replace specification' : 'Upload specification')}
+                    </span>
                   </label>
 
                   <input
                     id={`file-${index}`}
                     type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
                     className="hidden"
                     onChange={(e: any) => handleItem(index, 'file', e.target.files[0])}
                   />

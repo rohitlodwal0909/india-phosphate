@@ -186,7 +186,7 @@ exports.getDispatchPo = async (req, res) => {
 
     const data = await DispatchVehicle.findAll({
       order: [["created_at", "DESC"]],
-      attributes: ["id", "po_id"],
+      attributes: ["id", "po_id", "lr_no", "dispatch_date"],
       include: [
         {
           model: DispatchBatch,
@@ -208,6 +208,8 @@ exports.getDispatchPo = async (req, res) => {
           where: condition,
           attributes: [
             "po_no",
+            "po_date",
+            "created_at",
             "company_id",
             "customer_name",
             "company_address"

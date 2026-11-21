@@ -201,6 +201,12 @@ const QaDocumentTable = () => {
                     <p>
                       <strong>Status:</strong> {item?.status}
                     </p>
+                    <p>
+                      <strong>Marketing Review:</strong>{' '}
+                      <span className={item?.marketing_review === 'accepted' ? 'font-semibold text-green-700' : item?.marketing_review === 'rejected' ? 'font-semibold text-red-700' : 'text-gray-500'}>
+                        {item?.marketing_review ? item.marketing_review.toUpperCase() : 'Pending'}
+                      </span>
+                    </p>
                     <p className={item?.approval_from === 'admin' ? 'text-amber-900 font-semibold' : ''}>
                       <strong>Approval From:</strong>{' '}
                       {item?.approval_from === 'admin' ? 'Admin' : 'Marketing'}
