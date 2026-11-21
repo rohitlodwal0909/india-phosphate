@@ -482,7 +482,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                             <label className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 cursor-pointer">
                               <input
                                 type="radio"
-                                name={`marketing-review-${item.id || index}`}
+                                name={`marketing-review-${index}`}
                                 checked={item.marketing_review === 'accepted'}
                                 onChange={() => handleItem(index, 'marketing_review', 'accepted')}
                               />
@@ -491,7 +491,7 @@ const QaDocumentEditModal: React.FC<Props> = ({ openModal, setOpenModal, selecte
                             <label className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 cursor-pointer">
                               <input
                                 type="radio"
-                                name={`marketing-review-${item.id || index}`}
+                                name={`marketing-review-${index}`}
                                 checked={item.marketing_review === 'rejected'}
                                 onChange={() => {
                                   handleItem(index, 'marketing_review', 'rejected');
