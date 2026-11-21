@@ -1,4 +1,5 @@
 const { where } = require("sequelize");
+const { Op } = require("sequelize");
 const {
   createNotificationByRoleId
 } = require("../../../helper/SendNotification");
@@ -52,6 +53,106 @@ exports.getPoReport = async (req, res) => {
   }
 };
 
+exports.getPoTracker = async (req, res) => {
+  try {
+    const po = await PurchaseOrderModel.findByPk(req.params.id, {
+      include: [{ model: Customer, as: "customers", required: false }]
+    });
+    if (!po) return res.status(404).json({ message: "Purchase Order not found." });
+
+    const workOrders = await WorkOrderModel.findAll({
+      where: { po_id: po.id },
+      order: [["created_at", "ASC"]]
+    });
+    const workOrderIds = workOrders.map((item) => item.id);
+    const workOrderNumbers = [...new Set(workOrders.map((item) => item.work_order_no).filter(Boolean))];
+    const workOrderCondition = workOrderNumbers.length ? { [Op.in]: workOrderNumbers } : null;
+
+    const [planning, batches, materialIssues, dispatches, bills, disputes, replacements] = await Promise.all([
+      workOrderCondition && db.ProductionPlanning
+        ? db.ProductionPlanning.findAll({ where: { work_order_no: workOrderCondition }, order: [["created_at", "ASC"]] })
+        : [],
+      workOrderCondition && db.Qcbatch
+        ? db.Qcbatch.findAll({ where: { work_order_no: workOrderCondition }, order: [["created_at", "ASC"]] })
+        : [],
+      workOrderCondition && db.FMIssuedModel
+        ? db.FMIssuedModel.findAll({ where: { work_order_no: workOrderCondition }, order: [["created_at", "ASC"]] })
+        : [],
+      db.DispatchVehicle.findAll({
+        where: {
+          [Op.or]: [
+            { po_id: po.id },
+            ...(workOrderNumbers.length ? [{ work_order_no: workOrderCondition }] : [])
+          ]
+        },
+        order: [["created_at", "ASC"]]
+      }),
+      db.BillModel
+        ? db.BillModel.findAll({ where: { po_no: po.po_no }, order: [["created_at", "ASC"]] })
+        : [],
+      db.DisputeModel
+        ? db.DisputeModel.findAll({ where: { dispute_type: "po", dispute_type_id: String(po.id) }, order: [["created_at", "ASC"]] })
+        : [],
+      db.ReplacementModel
+        ? db.ReplacementModel.findAll({
+            where: {
+              [Op.or]: [
+                { marketing_po_id: po.id },
+                ...(workOrderIds.length ? [{ work_order_id: { [Op.in]: workOrderIds } }] : [])
+              ]
+            },
+            order: [["created_at", "ASC"]]
+          })
+        : []
+    ]);
+
+    const dispatchIds = dispatches.map((item) => item.id);
+    const invoices = dispatchIds.length
+      ? await db.Invoice.findAll({ where: { dispatch_id: { [Op.in]: dispatchIds } }, order: [["created_at", "ASC"]] })
+      : [];
+    const batchIds = batches.map((item) => String(item.id));
+    const manufacturing = batchIds.length && db.ProductionResult
+      ? await db.ProductionResult.findAll({ where: { batch_id: { [Op.in]: batchIds } }, order: [["created_at", "ASC"]] })
+      : [];
+    const batchNumbers = batches.map((item) => String(item.id));
+    const finishing = batchNumbers.length && db.Finishing
+      ? await db.Finishing.findAll({ where: { batch_number: { [Op.in]: batchNumbers } }, order: [["created_at", "ASC"]] })
+      : [];
+
+    const stages = [
+      { key: "po", title: "Purchase Order", records: [po] },
+      { key: "work_order", title: "Work Order", records: workOrders },
+      { key: "planning", title: "Production Planning", records: planning },
+      { key: "material_issue", title: "Material Issue", records: materialIssues },
+      { key: "batch", title: "QC Batch", records: batches },
+      { key: "manufacturing", title: "Manufacturing", records: manufacturing },
+      { key: "finishing", title: "Finishing", records: finishing },
+      { key: "dispatch", title: "Dispatch", records: dispatches },
+      { key: "accounts", title: "Accounts", records: [...bills, ...invoices] },
+      { key: "replacement", title: "Replacement / Rejection", records: replacements },
+      { key: "dispute", title: "Dispute", records: disputes }
+    ].map((stage) => ({
+      ...stage,
+      completed: stage.records.length > 0,
+      latest_date: stage.records.length
+        ? stage.records.reduce((latest, record) => {
+            const date = record.created_at || record.date || record.dispatch_date;
+            return !latest || (date && new Date(date) > new Date(latest)) ? date : latest;
+          }, null)
+        : null
+    }));
+
+    const reachedStage = [...stages]
+      .filter((stage) => !["replacement", "dispute"].includes(stage.key))
+      .reverse()
+      .find((stage) => stage.completed);
+    return res.json({ po, stages, current_stage: reachedStage?.title || "Purchase Order" });
+  } catch (error) {
+    console.error("GET PO TRACKER ERROR:", error);
+    return res.status(500).json({ message: error.message || "Could not load PO Tracker." });
+  }
+};
+
 exports.getCustomers = async (req, res) => {
   try {
     const data = await Customer.findAll();
@@ -92,7 +193,7 @@ exports.storePurchaseOrder = async (req, res) => {
       const customer = await syncCustomerMaster({
         Customer,
         companyId: req.body.company_id,
-        details: req.body,
+        details: { ...req.body, products },
         userId: req.admin.id,
         transaction
       });
@@ -472,7 +573,7 @@ exports.updatePurchaseOrder = async (req, res) => {
       const customer = await syncCustomerMaster({
         Customer,
         companyId: req.body.company_id || purchaseOrder.company_id,
-        details: req.body,
+        details: { ...req.body, products },
         userId: req.admin?.id,
         transaction
       });

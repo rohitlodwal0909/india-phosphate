@@ -79,7 +79,7 @@ exports.storeDevelopment = async (req, res) => {
       const customer = await syncCustomerMaster({
         Customer,
         companyId: req.body.company_id,
-        details: req.body,
+        details: { ...req.body, products },
         userId: req.admin.id,
         transaction
       });
@@ -145,7 +145,7 @@ exports.updateDevelopment = async (req, res) => {
       const customer = await syncCustomerMaster({
         Customer,
         companyId: req.body.company_id || development.company_id,
-        details: req.body,
+        details: { ...req.body, products },
         userId: req.admin?.id,
         transaction
       });

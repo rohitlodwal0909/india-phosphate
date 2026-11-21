@@ -189,7 +189,10 @@ const QaDocumentTable = () => {
             <div className="max-w-[350px] whitespace-normal text-sm space-y-1">
               {products.length > 0 ? (
                 products.map((item: any, index: number) => (
-                  <div key={index} className="border-b pb-1">
+                  <div
+                    key={index}
+                    className={`border-b pb-1 ${item?.marketing_review === 'rejected' ? 'rounded-md border-red-200 bg-red-50 px-2 py-1' : ''}`}
+                  >
                     <p>
                       <strong>Doc Name:</strong> {item?.doc_name}
                     </p>
@@ -203,7 +206,7 @@ const QaDocumentTable = () => {
                     </p>
                     <p>
                       <strong>Marketing Review:</strong>{' '}
-                      <span className={item?.marketing_review === 'accepted' ? 'font-semibold text-green-700' : item?.marketing_review === 'rejected' ? 'font-semibold text-red-700' : 'text-gray-500'}>
+                      <span className={item?.marketing_review === 'accepted' ? 'rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-700' : item?.marketing_review === 'rejected' ? 'rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700' : 'text-gray-500'}>
                         {item?.marketing_review ? item.marketing_review.toUpperCase() : 'Pending'}
                       </span>
                     </p>

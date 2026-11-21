@@ -21,6 +21,7 @@ const upload = multer({
 // Get All Purchase Orders
 router.get("/get-purchase-orders", purchaseOrderController.getPurchaseOrders);
 router.get("/get-po-report/:id", purchaseOrderController.getPoReport);
+router.get("/get-po-tracker/:id", purchaseOrderController.getPoTracker);
 
 router.get("/get-all-customers", purchaseOrderController.getCustomers);
 

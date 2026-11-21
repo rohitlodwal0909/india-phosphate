@@ -92,6 +92,7 @@ exports.storeSampleRequest = async (req, res) => {
         companyId: req.body.company_id,
         details: {
           ...req.body,
+          products: items,
           company_address: req.body.company_address || undefined
         },
         userId: req.admin.id,
@@ -211,6 +212,7 @@ exports.updateSampleRequest = async (req, res) => {
         companyId: req.body.company_id || sampleRequest.company_id,
         details: {
           ...req.body,
+          products: items,
           company_address: req.body.company_address || undefined
         },
         userId: req.admin?.id,

@@ -5,6 +5,7 @@ import { GetCustomer } from 'src/features/master/Customer/CustomerSlice';
 import { GetSupplier } from 'src/features/master/Supplier/SupplierSlice';
 import { AppDispatch, RootState } from 'src/store';
 import Select from 'react-select';
+import axiosInstance from 'src/constants/axiosInstance';
 
 const selectStyles = {
   menuPortal: (base: any) => ({
@@ -13,7 +14,7 @@ const selectStyles = {
   }),
 };
 
-const InvoiceModel = ({ formData, setFormData }) => {
+const InvoiceModel = ({ formData, setFormData, purchasePos = [] }) => {
   const dispatch = useDispatch<AppDispatch>();
   const existscustomer = useSelector((state: RootState) => state.customer.existscustomer) as any;
   const suppliers = useSelector((state: RootState) => state.supplier.supplierdata) as any;
@@ -53,6 +54,57 @@ const InvoiceModel = ({ formData, setFormData }) => {
     }));
 
   };
+
+  const formatDateInput = (value: any) => {
+    if (!value) return '';
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handlePoChange = async (poId: string) => {
+    const selectedPo = purchasePos.find((item: any) => String(item.id) === String(poId));
+    if (!selectedPo) {
+      setFormData((prev) => ({
+        ...prev,
+        po_no: '',
+        from_to: '',
+        delivery_note: '',
+        delivery_note_date: '',
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      po_no: selectedPo.po_no,
+      from_to: formatDateInput(selectedPo.date),
+      delivery_note: '',
+      delivery_note_date: '',
+    }));
+
+    try {
+      const response = await axiosInstance.get(`/find-store/${selectedPo.id}`);
+      const storeRecords = Array.isArray(response.data?.data) ? response.data.data : [];
+      const storeRecord = [...storeRecords]
+        .sort((a: any, b: any) => Number(b.id || 0) - Number(a.id || 0))
+        .find((item: any) => item.lr_no || item.expected_arrival_date);
+
+      setFormData((prev) => ({
+        ...prev,
+        delivery_note: storeRecord?.lr_no || '',
+        delivery_note_date: formatDateInput(storeRecord?.expected_arrival_date),
+      }));
+    } catch (error) {
+      console.error('Failed to fetch Purchase PO delivery details:', error);
+    }
+  };
+
+  const selectedPoId = purchasePos.find((item: any) => String(item.po_no) === String(formData.po_no))?.id || '';
 
   return (
     <form className="grid grid-cols-12 gap-4">
@@ -101,12 +153,17 @@ const InvoiceModel = ({ formData, setFormData }) => {
       </div>
 
       <div className="col-span-3">
-        <Label value="PO No" className="text-black" />
-        <TextInput
-          value={formData.po_no}
-          onChange={(e) => handleChange('po_no', e.target.value)}
-          placeholder="Enter PO No"
-        />
+        <Label value="Purchase Order No." className="text-black" />
+        <select
+          className="w-full border rounded-md p-2"
+          value={selectedPoId}
+          onChange={(e) => handlePoChange(e.target.value)}
+        >
+          <option value="">Select Purchase Order No.</option>
+          {purchasePos.map((item: any) => (
+            <option key={item.id} value={item.id}>{item.po_no}</option>
+          ))}
+        </select>
       </div>
 
       <div className="col-span-3">

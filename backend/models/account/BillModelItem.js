@@ -9,6 +9,13 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       bill_id: DataTypes.INTEGER,
+      item_category: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+        defaultValue: "Product"
+      },
+      master_item_id: DataTypes.INTEGER,
+      item_name: DataTypes.STRING,
       product_id: DataTypes.INTEGER,
       grade: DataTypes.STRING,
       kind_of_pkgs: DataTypes.STRING,

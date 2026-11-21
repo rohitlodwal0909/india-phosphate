@@ -30,6 +30,7 @@ import { Badge } from 'flowbite-react';
 import PasswordVerifyModal from './PasswordVerifyModal';
 import { GetProduct } from 'src/features/master/Product/ProductSlice';
 import DepartmentRemerk from './DepartmentRemerk';
+import POTrackerModal from './POTrackerModal';
 
 interface PurchaseOrderDataType {
   id: number;
@@ -99,6 +100,7 @@ const ViewWorkOrderTable = () => {
   });
 
   const [passwordModal, setPasswordModal] = useState(false);
+  const [poTrackerOpen, setPoTrackerOpen] = useState(false);
 
   const [selectedRow, setSelectedRow] = useState<PurchaseOrderDataType | null>(null);
 
@@ -360,6 +362,19 @@ const ViewWorkOrderTable = () => {
                 </Tooltip>
               )}
 
+              <Tooltip content="PO Tracker">
+                <Button
+                  size="xs"
+                  color="light"
+                  onClick={() => {
+                    setSelectedRow(row);
+                    setPoTrackerOpen(true);
+                  }}
+                >
+                  <Icon icon="solar:route-outline" height={18} />
+                </Button>
+              </Tooltip>
+
               {/* {permissions.add && (
                 <Tooltip content="Add Work Order">
                   <Button size="xs" color="success" onClick={() => handleModal('add', true, row)}>
@@ -489,6 +504,11 @@ const ViewWorkOrderTable = () => {
           logindata={logindata}
           setOpen={setPasswordModal}
           onSuccess={handlePasswordSuccess}
+        />
+        <POTrackerModal
+          open={poTrackerOpen}
+          poId={selectedRow?.id}
+          onClose={() => setPoTrackerOpen(false)}
         />
       </div>
     </div>

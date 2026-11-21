@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 import { createBill, getBill, updateBill } from 'src/features/account/bill/bill';
+import { getPurchasePo } from 'src/features/purchase/po/PurchasePoSlice';
 
 const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   const initialFormData = {
@@ -46,6 +47,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
   const [activeTab, setActiveTab] = useState('invoice');
   const dispatch = useDispatch<AppDispatch>();
   const invoice = useSelector((state: RootState) => state.bills.singlebill) as any;
+  const purchasePos = useSelector((state: RootState) => state.purchasepo.purchasepos) || [];
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -57,6 +59,10 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
     }
     dispatch(getBill(data?.id));
   }, [data?.id]);
+
+  useEffect(() => {
+    dispatch(getPurchasePo());
+  }, [dispatch]);
 
   useEffect(() => {
     if (invoice) {
@@ -78,8 +84,11 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
           }
 
           return {
+            item_category: item.item_category || 'Product',
             kind_of_pkgs: item.kind_of_pkgs || '',
-            product_name: item.product_id || '',
+            product_name: item.master_item_id || item.product_id || '',
+            master_item_id: item.master_item_id || item.product_id || '',
+            item_name: item.item_name || item.Product?.product_name || '',
             grade: item.grade || '',
             hsn: item.hsn || '',
             rate: item.rate || '',
@@ -123,8 +132,11 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
 
   const [products, setProducts] = useState([
     {
+      item_category: 'Product',
       kind_of_pkgs: '',
       product_name: '',
+      master_item_id: '',
+      item_name: '',
       grade: '',
       hsn: '',
       rate: '',
@@ -253,7 +265,7 @@ const AddInvoiceTaxModel = ({ show, setShowmodal, data, type }) => {
         {activeTab === 'invoice' && (
           <>
             <div className="bg-white p-5 rounded-xl shadow-sm border">
-              <InvoiceModel formData={formData} setFormData={setFormData} />
+              <InvoiceModel formData={formData} setFormData={setFormData} purchasePos={purchasePos} />
             </div>
           </>
         )}
