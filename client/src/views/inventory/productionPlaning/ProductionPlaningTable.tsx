@@ -54,7 +54,6 @@ function ProductionPlaningTable() {
   const [addmodal, setaddmodal] = useState(false);
   const [editmodal, seteditmodal] = useState(false);
   const [viewmodal, setviewmodal] = useState(false);
-
   const [searchText, setSearchText] = useState('');
   const [selectedRow, setSelectedRow] = useState(null);
 
@@ -132,28 +131,15 @@ function ProductionPlaningTable() {
   }, [dispatch]);
 
   const handleConfirmDelete = async (row: any) => {
-    if (!row?.items || row.items.length === 0) {
-      return toast.error('No production planning selected.');
-    }
-
+    if (!row?.items?.length) return toast.error('No production planning selected.');
     try {
-      // Date group ke andar sabhi IDs
       const ids = row.items.map((item: any) => item.id).filter(Boolean);
-
-      if (ids.length === 0) {
-        return toast.error('No records found to delete.');
-      }
-
-      // Ek-ek karke delete
+      if (!ids.length) return toast.error('No records found to delete.');
       await Promise.all(ids.map((id: number) => dispatch(deleteProductionPlanning(id)).unwrap()));
-
       toast.success('Production Planning deleted successfully!');
-
-      // Table refresh
       dispatch(getProductionPlanning());
     } catch (err: any) {
       console.error('Delete Production Planning Error:', err);
-
       toast.error(err?.message || 'Delete failed');
     }
   };
@@ -185,147 +171,34 @@ function ProductionPlaningTable() {
   /* ================= COLUMNS ================= */
 
   const columns = [
-    columnHelper.display({
-      id: 'sr',
-
-      header: 'S.No',
-
-      cell: (info) => <span>#{info.row.index + 1}</span>,
-    }),
-
-    /* ================= DATE ================= */
-
     columnHelper.accessor('date', {
       header: 'Date',
-
       cell: (info) => <span className="font-medium text-black">{formatDate(info.getValue())}</span>,
     }),
-
-    /* ================= EQUIPMENT ================= */
-
-    columnHelper.accessor('equipment', {
-      header: 'Equipment',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= MATERIAL ================= */
-
-    columnHelper.accessor('material', {
-      header: 'Material Name',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= QUALITY ================= */
-
-    columnHelper.accessor('quality', {
-      header: 'Quality',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    columnHelper.accessor('target', {
-      header: 'Target',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= BATCH ================= */
-
-    columnHelper.accessor('batch_no', {
-      header: 'Batch Number',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= WORK ORDER ================= */
-
-    columnHelper.accessor('work_order_no', {
-      header: 'Workorder No.',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= LABOURS ================= */
-
-    columnHelper.accessor('labours', {
-      header: 'No. of Labours',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    columnHelper.accessor('name_of_person', {
-      header: 'Name of Person',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= MORNING OUTPUT ================= */
-
-    columnHelper.accessor('output_morning', {
-      header: '8:00-1:00',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    columnHelper.accessor('output_evening', {
-      header: '1:30-6:00',
-
-      cell: (info) => <div className="text-black whitespace-normal">{info.getValue()}</div>,
-    }),
-
-    /* ================= ACTION ================= */
-
     columnHelper.display({
       id: 'actions',
-
       header: 'Actions',
-
       cell: (info) => {
         const row = info.row.original;
-
         return (
           <div className="flex gap-2 notranslate">
             {permissions.del && canManagePlanning && (
               <Tooltip content="Delete">
-                <Button
-                  size="sm"
-                  color="lighterror"
-                  className="p-0"
-                  onClick={() => handleConfirmDelete(row)}
-                >
+                <Button size="sm" color="lighterror" className="p-0" onClick={() => handleConfirmDelete(row)}>
                   <Icon icon="solar:trash-bin-minimalistic-outline" height={18} />
                 </Button>
               </Tooltip>
             )}
-
-            {permissions?.edit && canEditPlanning && (
+            {permissions.edit && canEditPlanning && (
               <Tooltip content="Edit">
-                <Button
-                  size="sm"
-                  className="p-0 bg-lightsuccess text-success"
-                  onClick={() => {
-                    seteditmodal(true);
-
-                    setSelectedRow(row);
-                  }}
-                >
+                <Button size="sm" className="p-0 bg-lightsuccess text-success" onClick={() => { seteditmodal(true); setSelectedRow(row); }}>
                   <Icon icon="solar:pen-outline" height={18} />
                 </Button>
               </Tooltip>
             )}
             {permissions.view && (
               <Tooltip content="View">
-                <Button
-                  size="xs"
-                  color="primary"
-                  outline
-                  onClick={() => {
-                    setviewmodal(true);
-                    setSelectedRow(row);
-                  }}
-                >
+                <Button size="xs" color="primary" outline onClick={() => { setviewmodal(true); setSelectedRow(row); }}>
                   <Icon icon="solar:eye-outline" height={18} />
                 </Button>
               </Tooltip>
@@ -396,7 +269,6 @@ function ProductionPlaningTable() {
           permission={permission}
         />
       )}
-
       {viewmodal && (
         <Viewmodel openModal={viewmodal} setOpenModal={setviewmodal} selectedRow={selectedRow} />
       )}

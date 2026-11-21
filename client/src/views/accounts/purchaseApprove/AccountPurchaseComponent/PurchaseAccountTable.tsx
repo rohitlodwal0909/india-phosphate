@@ -66,6 +66,10 @@ const PurchaseAccountTable = () => {
     } catch (error: any) { toast.error(error.response?.data?.message || 'Could not update payment amount.'); }
   };
   const openFollowup = (row: PurchaseAccountRow) => {
+    if (!row.bill) {
+      toast.info('A bill must be linked to this purchase order before adding a follow-up.');
+      return;
+    }
     setActive(row); setNote(''); setFollowupDate(''); setShowFollowup(true);
     setTimeout(triggerGoogleTranslateRescan, 200);
   };
@@ -99,8 +103,7 @@ const PurchaseAccountTable = () => {
     }}),
     columnHelper.display({ id: 'action', header: 'Action', cell: (info) => {
       const row = info.row.original;
-      if (!row.bill || Number(row.outstanding) <= 0) return '—';
-      return <div className="flex min-w-max gap-2"><Button size="xs" color="primary" onClick={() => openFollowup(row)}>Follow-up</Button>{row.bill.paymentFollowups?.length ? <Button size="xs" color="light" onClick={() => openFollowup(row)}><Icon icon="mdi:history" height={17} /> History ({row.bill.paymentFollowups.length})</Button> : null}</div>;
+      return <div className="flex min-w-max gap-2"><Button size="xs" color="primary" onClick={() => openFollowup(row)}>Follow-up</Button>{row.bill?.paymentFollowups?.length ? <Button size="xs" color="light" onClick={() => openFollowup(row)}><Icon icon="mdi:history" height={17} /> History ({row.bill.paymentFollowups.length})</Button> : null}</div>;
     }}),
   ], [drafts]);
   const filteredRows = useMemo(() => rows.filter((row) => JSON.stringify(row).toLowerCase().includes(search.toLowerCase())), [rows, search]);
